@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #f8f5f0;
+  color: #1a1a1a;
+  font-family: "Inter", sans-serif;
+}
+
+.container-custom {
+    width: 100%;
+  padding-inline: 40px;
+}
+
+.section-space {
+  padding: 100px 0;
+}
+
+img {
+  width: 100%;
+  display: block;
+}
