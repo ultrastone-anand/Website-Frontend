@@ -32,7 +32,7 @@ const Navbar = () => {
     const fetchMaterials = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/stones",
+          "http://localhost:5001/api/stones",
         );
 
         const result = response.data;

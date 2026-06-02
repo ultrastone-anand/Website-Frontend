@@ -50,7 +50,7 @@ const ProductCategory = () => {
 
       const response =
         await axios.get(
-          `http://localhost:5000/api/stones/${slug}`
+          `http://localhost:5001/api/stones/${slug}`
         );
 
       const result = response.data;

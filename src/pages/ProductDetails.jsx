@@ -23,6 +23,7 @@ import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
 import Loading from "../components/common/Loading";
 import { generateDatasheet   } from "../utils/generateDatasheet";
+import Social from "../components/common/socials";
 
 const ProductDetails = () => {
   const { productSlug } = useParams();
@@ -57,7 +58,7 @@ useEffect(() => {
  const fetchProduct = async () => {
   try {
     const response = await axios.get(
-      `http://localhost:5000/api/stones/productdetail/${productSlug}`,
+      `http://localhost:5001/api/stones/productdetail/${productSlug}`,
     );
 
     const result = response.data;
@@ -81,7 +82,7 @@ const fetchRelatedProducts = async (
 ) => {
   try {
     const response = await axios.get(
-      `http://localhost:5000/api/stones/${categorySlug}`,
+      `http://localhost:5001/api/stones/${categorySlug}`,
     );
 
     const result = response.data;
@@ -335,7 +336,7 @@ const scrollRelatedRight = () => {
         <section>
           <div
             className="
-    max-w-[1650px]
+    max-w-[2000px]
     mx-auto
     px-6
     xl:px-10
@@ -347,7 +348,7 @@ const scrollRelatedRight = () => {
             <h1
               className="
       text-[34px]
-      md:text-[42px]
+      md:text-[38px]
       font-semibold
       text-[#161412]
       leading-none
@@ -388,7 +389,7 @@ const scrollRelatedRight = () => {
         <section className="bg-white">
           <div
             className="
-    max-w-[1650px]
+    max-w-[2000px]
     mx-auto
     px-6
     xl:px-10
@@ -517,7 +518,7 @@ const scrollRelatedRight = () => {
                 <h1
                   className="
           text-[38px]
-          md:text-[52px]
+          md:text-[34px]
           leading-[1]
           tracking-[4px]
           uppercase
@@ -536,10 +537,10 @@ const scrollRelatedRight = () => {
 
                 <p
                   className="
-          text-[15px]
-          leading-[1.9]
+          text-[18px]
+          leading-[1.6]
           text-black
-          max-w-[540px]
+          max-w-[840px]
           mb-10
           "
                   style={{
@@ -550,6 +551,28 @@ const scrollRelatedRight = () => {
                 </p>
 
                 {/* PREVIEW IMAGE */}
+
+                <button
+  className="
+    inline-flex
+    items-center
+    gap-2
+    px-4
+    py-2
+    border
+    border-black
+    uppercase
+    tracking-[1px]
+    text-[13px]
+    transition-all
+    duration-300
+    mb-5
+    hover:bg-gray-100
+  "
+>
+  Order Samples
+
+</button>
 
                 <div
                   className="
@@ -601,7 +624,7 @@ const scrollRelatedRight = () => {
                     alt={product.name}
                     className="
     w-full
-    h-[260px]
+    h-[300px]
     object-cover
     select-none
     "
@@ -639,6 +662,8 @@ const scrollRelatedRight = () => {
                 {/* TAGS */}
 
                 <div className="flex items-center gap-3 flex-wrap">
+
+                  <Social/>
                   <div
                     className="
             border
@@ -680,7 +705,7 @@ const scrollRelatedRight = () => {
         <section>
           <div
             className="
-    max-w-[1650px]
+    max-w-[2000px]
     mx-auto
     px-6
     xl:px-10
@@ -764,7 +789,7 @@ const scrollRelatedRight = () => {
         <section>
           <div
             className="
-    max-w-[1650px]
+    max-w-[2000px]
     mx-auto
     px-6
     xl:px-10
@@ -788,7 +813,7 @@ const scrollRelatedRight = () => {
         <section className="py-20 bg-white">
           <div
             className="
-    max-w-[1650px]
+    max-w-[2000px]
     mx-auto
     px-6
     xl:px-10
@@ -893,7 +918,7 @@ const scrollRelatedRight = () => {
         <section className="pb-20 bg-white">
           <div
             className="
-    max-w-[1650px]
+    max-w-[2000px]
     mx-auto
     px-6
     xl:px-10
@@ -1001,7 +1026,7 @@ const scrollRelatedRight = () => {
 <section className="pb-24 bg-white">
   <div
     className="
-    max-w-[1650px]
+    max-w-[2000px]
     mx-auto
     px-6
     xl:px-10
