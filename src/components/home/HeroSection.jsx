@@ -1,81 +1,73 @@
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 
 const HeroSection = () => {
-
   const scrollToCollections = () => {
-
     document
       .getElementById("collections")
       ?.scrollIntoView({
-        behavior: "smooth"
-      })
-
-  }
+        behavior: "smooth",
+      });
+  };
 
   return (
     <section className="relative h-screen overflow-hidden">
-
-      <motion.img
-        initial={{ scale: 1.1 }}
+      {/* Background Video */}
+      <motion.video
+        initial={{ scale: 1.08 }}
         animate={{ scale: 1 }}
         transition={{ duration: 2 }}
-        src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
-        alt=""
+        autoPlay
+        loop
+        muted
+        playsInline
         className="absolute inset-0 w-full h-full object-cover"
-      />
+      >
+        <source
+          src="https://res.cloudinary.com/dx0u8csf4/video/upload/v1780602872/lv_0_20240514200655_vjgxsa.mp4"
+          type="video/mp4"
+        />
+      </motion.video>
 
-      <div className="absolute inset-0 bg-black/40" />
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/45" />
 
-      <div className="relative z-10 h-full flex items-center">
-
-        <div className="container-custom">
-
+      {/* Content */}
+      <div className="relative z-10 flex items-center h-full">
+        <div className="max-w-7xl mx-auto w-full px-6 lg:px-16">
           <motion.div
             initial={{
               opacity: 0,
-              y: 60
+              y: 60,
             }}
             animate={{
               opacity: 1,
-              y: 0
+              y: 0,
             }}
             transition={{
-              duration: 1
+              duration: 1,
             }}
             className="max-w-4xl"
           >
 
-            <p className="text-white tracking-[5px] uppercase mb-5">
-              Luxury Stone Collection
-            </p>
 
-            <h1
-              className="text-white text-7xl md:text-[120px] leading-none mb-8"
-              style={{
-                fontFamily:
-                  "Cormorant Garamond"
-              }}
-            >
-              Ultra Warm
+            {/* Main Heading */}
+            <h1 className="text-white font-light leading-[1] text-3xl md:text-4xl lg:text-6xl mb-8">
+              Elevate Your Space
               <br />
-              Tones
+              with Timeless Marble & Stones
             </h1>
 
-            <button
-              onClick={scrollToCollections}
-              className="border border-white text-white px-10 py-4 tracking-[4px] hover:bg-white hover:text-black duration-500"
-            >
-              EXPLORE COLLECTION
-            </button>
-
+            {/* Description */}
+            <p className="text-white/90 text-lg md:text-xl leading-relaxed max-w-3xl mb-10">
+              Transform any space into a masterpiece with our luxurious marble
+              and stone selection. Whether it's for countertops, flooring, or
+              statement accents, we have what you need.
+            </p>
           </motion.div>
-
         </div>
-
       </div>
-
     </section>
-  )
-}
+  );
+};
 
-export default HeroSection
+export default HeroSection;

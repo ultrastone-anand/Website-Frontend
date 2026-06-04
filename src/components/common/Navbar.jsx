@@ -135,7 +135,7 @@ const Navbar = () => {
             onClick={() => navigate("/")}
           >
             <img
-              src="/logo.png"
+              src="/logo1.svg"
               alt="Ultra Stones"
               className="
               h-[72px]
@@ -452,24 +452,26 @@ const MegaMenu = ({
       {/* MEGA MENU */}
 
       <div
-        className={`
-        absolute
-        top-[48px]
-        left-[-140px]
-        w-[620px]
-        bg-[#f5f5f5]
-        border
-        border-black/5
-        shadow-[0_20px_60px_rgba(0,0,0,0.08)]
-        p-7
-        duration-300
-        ${
-          isActive
-            ? "opacity-100 visible translate-y-0"
-            : "opacity-0 invisible translate-y-3"
-        }
-        `}
-      >
+  className={`
+    absolute
+    top-[48px]
+    left-[-140px]
+    w-[620px]
+    max-h-[75vh]
+    overflow-y-auto
+    bg-[#f5f5f5]
+    border
+    border-black/5
+    shadow-[0_20px_60px_rgba(0,0,0,0.08)]
+    p-7
+    duration-300
+    ${
+      isActive
+        ? "opacity-100 visible translate-y-0"
+        : "opacity-0 invisible translate-y-3"
+    }
+  `}
+>
         <div
           className="
           grid

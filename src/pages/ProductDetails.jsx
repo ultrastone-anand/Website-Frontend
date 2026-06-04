@@ -913,6 +913,72 @@ const scrollRelatedRight = () => {
           </div>
         </section>
 
+        {/* SAFETY WARNING */}
+
+<section className="py-8 bg-white">
+  <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
+    <div
+      className="
+        bg-[#F4F4F4]
+        px-10
+        py-5
+        flex
+        items-center
+        justify-between
+        gap-6
+      "
+    >
+      {/* Left Content */}
+      <div className="flex items-center gap-3 flex-1">
+        <span className="text-[22px] shrink-0">
+          ⚠️
+        </span>
+
+        <p
+          className="
+            text-[15px]
+            leading-[1.45]
+            text-[#1A1A1A]
+            font-normal
+          "
+          style={{
+            fontFamily: "Montserrat, sans-serif",
+          }}
+        >
+          <span className="font-bold text-[#D62828]">
+            Warning:
+          </span>{" "}
+          {product.stone_categories?.name || "Ultra Quartz"} Surfaces are
+          non-hazardous in finished form but can release hazardous dust during
+          fabrication, requiring strict dust control and protective measures to
+          prevent respiratory and health risks.
+        </p>
+      </div>
+
+      {/* Right Button */}
+      <button
+        onClick={handleDownloadDatasheet}
+        className="
+          shrink-0
+          border
+          border-[#C92B2B]
+          px-5
+          py-2
+          text-[11px]
+          uppercase
+          tracking-[0.5px]
+          bg-white
+          hover:bg-[#C92B2B]
+          hover:text-white
+          transition-all
+        "
+      >
+        Download Safety Datasheet
+      </button>
+    </div>
+  </div>
+</section>
+
         {/* VARIATION */}
 
         <section className="pb-20 bg-white">
