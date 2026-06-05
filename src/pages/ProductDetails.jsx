@@ -134,26 +134,32 @@ const scrollRelatedRight = () => {
     );
   }
 
-  const featuredImages =
-    product.media?.filter((item) => item.media_type === "FEATURED_IMAGE") || [];
+  const closeupImages =
+    product.media?.filter((item) => item.media_type === "CLOSEUP_IMAGE") || [];
 
-  const gallaryImages =
-    product.media?.filter((item) => item.media_type === "GALLERY_IMAGE") || [];
+  const slabImages =
+    product.media?.filter((item) => item.media_type === "SLAB_IMAGE") || [];
+
+  const applicationImages =
+    product.media?.filter((item) => item.media_type === "APPLICATION_IMAGE") || [];
+
+  const bookmatchslipmatch =
+    product.media?.filter((item) => item.media_type === "BOOKMATCH_SLIPMATCH") || [];
 
   const featuredvideo =
     product.media?.filter((item) => item.media_type === "FEATURED_VIDEO") || [];
 
   const images =
-    featuredImages.length > 0
-      ? featuredImages
+    closeupImages.length > 0
+      ? closeupImages
       : [
           {
             media_url: "https://placehold.co/1200x800",
           },
         ];
   const heroImages =
-    [ ...gallaryImages,...featuredImages,...featuredvideo].length > 0
-      ? [ ...gallaryImages,...featuredImages,...featuredvideo]
+    [ ...slabImages,...closeupImages,...applicationImages,...bookmatchslipmatch,...featuredvideo].length > 0
+      ? [ ...slabImages,...closeupImages,...applicationImages,...bookmatchslipmatch,...featuredvideo]
       : [
           {
             media_url: "https://placehold.co/1200x800",
@@ -320,7 +326,7 @@ const scrollRelatedRight = () => {
   const handleDownloadDatasheet = async () => {
   await generateDatasheet({
     product,
-    featuredImages,
+    closeupImages,
     images,
   });
 };
@@ -1458,7 +1464,7 @@ const RelatedProductCard = ({
       >
         <img
           src={
-            item.featured_image ||
+            item.closeup_image ||
             "https://placehold.co/600x600"
           }
           alt={item.name}

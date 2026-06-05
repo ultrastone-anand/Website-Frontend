@@ -212,7 +212,7 @@ export const generateDatasheet = async ({
   const featureImage =
     featuredImages?.[0]?.media_url ||
     product?.media?.find(
-      (m) => m.media_type === "FEATURED_IMAGE"
+      (m) => m.media_type === "CLOSEUP_IMAGE"
     )?.media_url;
 
   if (featureImage) {

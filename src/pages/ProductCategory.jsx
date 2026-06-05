@@ -635,7 +635,7 @@ const filteredProducts = products
 
                     <img
                       src={
-                        item.featured_image
+                        item.closeup_image
                       }
                       alt={item.name}
                       className="

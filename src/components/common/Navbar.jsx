@@ -17,6 +17,9 @@ const Navbar = () => {
   const [mobileMenu, setMobileMenu] =
     useState(false);
 
+    const [mobileDropdown, setMobileDropdown] =
+  useState(null);
+
   const [activeDropdown, setActiveDropdown] =
     useState(null);
 
@@ -256,6 +259,189 @@ const Navbar = () => {
               <Menu strokeWidth={1.5} />
             )}
           </button>
+
+
+          {/* MOBILE MENU */}
+
+{mobileMenu && (
+  <div
+    className="
+      xl:hidden
+      absolute
+      top-[88px]
+      left-0
+      w-full
+      bg-white
+      z-50
+      shadow-lg
+      max-h-[calc(100vh-88px)]
+      overflow-y-auto
+    "
+  >
+    <div className="p-6">
+
+      {/* Ultra Experience */}
+
+      <div className="border-b pb-4 mb-4">
+        <button
+          onClick={() =>
+            setMobileDropdown(
+              mobileDropdown === "experience"
+                ? null
+                : "experience"
+            )
+          }
+          className="
+            flex
+            justify-between
+            w-full
+            font-medium
+          "
+        >
+          Ultra Experience
+          <ChevronDown size={18} />
+        </button>
+
+        {mobileDropdown === "experience" && (
+          <div className="mt-3 pl-4 space-y-3">
+            {experience.map((item) => (
+              <button
+                key={item}
+                className="block text-left"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Material Portfolio */}
+
+      <div className="border-b pb-4 mb-4">
+        <button
+          onClick={() =>
+            setMobileDropdown(
+              mobileDropdown === "materials"
+                ? null
+                : "materials"
+            )
+          }
+          className="
+            flex
+            justify-between
+            w-full
+            font-medium
+          "
+        >
+          Material Portfolio
+          <ChevronDown size={18} />
+        </button>
+
+        {mobileDropdown === "materials" && (
+          <div className="mt-3 pl-4 space-y-3">
+            {materials
+              .filter(
+                (item) =>
+                  item.parent_id === null
+              )
+              .map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    navigate(
+                      `/product-category/${item.slug}`
+                    );
+                    setMobileMenu(false);
+                  }}
+                  className="block text-left"
+                >
+                  {item.name}
+                </button>
+              ))}
+          </div>
+        )}
+      </div>
+
+      {/* Resource Center */}
+
+      <div className="border-b pb-4 mb-4">
+        <button
+          onClick={() =>
+            setMobileDropdown(
+              mobileDropdown === "resources"
+                ? null
+                : "resources"
+            )
+          }
+          className="
+            flex
+            justify-between
+            w-full
+            font-medium
+          "
+        >
+          Resource Center
+          <ChevronDown size={18} />
+        </button>
+
+        {mobileDropdown === "resources" && (
+          <div className="mt-3 pl-4 space-y-3">
+            {resources.map((item) => (
+              <button
+                key={item}
+                className="block text-left"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Locations */}
+
+      <div className="border-b pb-4 mb-4">
+        <button
+          onClick={() =>
+            setMobileDropdown(
+              mobileDropdown === "locations"
+                ? null
+                : "locations"
+            )
+          }
+          className="
+            flex
+            justify-between
+            w-full
+            font-medium
+          "
+        >
+          Locations
+          <ChevronDown size={18} />
+        </button>
+
+        {mobileDropdown === "locations" && (
+          <div className="mt-3 pl-4 space-y-3">
+            {locations.map((item) => (
+              <button
+                key={item}
+                className="block text-left"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button className="font-medium">
+        Contact
+      </button>
+
+    </div>
+  </div>
+)}
         </div>
       </div>
     </header>
