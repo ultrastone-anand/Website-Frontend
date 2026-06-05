@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { useParams , useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import axios from "axios";
 
@@ -22,7 +22,7 @@ import Icons from "../assets/icons";
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
 import Loading from "../components/common/Loading";
-import { generateDatasheet   } from "../utils/generateDatasheet";
+import { generateDatasheet } from "../utils/generateDatasheet";
 import Social from "../components/common/socials";
 
 const ProductDetails = () => {
@@ -44,79 +44,79 @@ const ProductDetails = () => {
     visible: false,
   });
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const [relatedProducts, setRelatedProducts] = useState([]);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
-const relatedScrollRef = useRef(null);
+  const relatedScrollRef = useRef(null);
 
-useEffect(() => {
-  fetchProduct();
-}, [productSlug]);
+  useEffect(() => {
+    fetchProduct();
+  }, [productSlug]);
 
 
- const fetchProduct = async () => {
-  try {
-    const response = await axios.get(
-      `http://localhost:5001/api/stones/productdetail/${productSlug}`,
-    );
-
-    const result = response.data;
-
-    if (result.success) {
-      setProduct(result.product);
-
-      fetchRelatedProducts(
-        result.product?.stone_categories?.slug,
-        result.product?.slug,
+  const fetchProduct = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5001/api/stones/productdetail/${productSlug}`,
       );
+
+      const result = response.data;
+
+      if (result.success) {
+        setProduct(result.product);
+
+        fetchRelatedProducts(
+          result.product?.stone_categories?.slug,
+          result.product?.slug,
+        );
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
-  }
-};
+  };
 
-const fetchRelatedProducts = async (
-  categorySlug,
-  currentSlug,
-) => {
-  try {
-    const response = await axios.get(
-      `http://localhost:5001/api/stones/${categorySlug}`,
-    );
+  const fetchRelatedProducts = async (
+    categorySlug,
+    currentSlug,
+  ) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5001/api/stones/${categorySlug}`,
+      );
 
-    const result = response.data;
+      const result = response.data;
 
-    if (result.success) {
-      const filteredProducts =
-        result.products?.filter(
-          (item) => item.slug !== currentSlug,
-        ) || [];
+      if (result.success) {
+        const filteredProducts =
+          result.products?.filter(
+            (item) => item.slug !== currentSlug,
+          ) || [];
 
-      setRelatedProducts(filteredProducts);
+        setRelatedProducts(filteredProducts);
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
-  }
-};
+  };
 
-const scrollRelatedLeft = () => {
-  if (relatedScrollRef.current) {
-    relatedScrollRef.current.scrollBy({
-      left: -420,
-      behavior: "smooth",
-    });
-  }
-};
+  const scrollRelatedLeft = () => {
+    if (relatedScrollRef.current) {
+      relatedScrollRef.current.scrollBy({
+        left: -420,
+        behavior: "smooth",
+      });
+    }
+  };
 
-const scrollRelatedRight = () => {
-  if (relatedScrollRef.current) {
-    relatedScrollRef.current.scrollBy({
-      left: 420,
-      behavior: "smooth",
-    });
-  }
-};
+  const scrollRelatedRight = () => {
+    if (relatedScrollRef.current) {
+      relatedScrollRef.current.scrollBy({
+        left: 420,
+        behavior: "smooth",
+      });
+    }
+  };
 
   if (!product) {
     return (
@@ -153,19 +153,19 @@ const scrollRelatedRight = () => {
     closeupImages.length > 0
       ? closeupImages
       : [
-          {
-            media_url: "https://placehold.co/1200x800",
-          },
-        ];
+        {
+          media_url: "https://placehold.co/1200x800",
+        },
+      ];
   const heroImages =
-    [ ...slabImages,...closeupImages,...applicationImages,...bookmatchslipmatch,...featuredvideo].length > 0
-      ? [ ...slabImages,...closeupImages,...applicationImages,...bookmatchslipmatch,...featuredvideo]
+    [...slabImages, ...closeupImages, ...applicationImages, ...bookmatchslipmatch, ...featuredvideo].length > 0
+      ? [...slabImages, ...closeupImages, ...applicationImages, ...bookmatchslipmatch, ...featuredvideo]
       : [
-          {
-            media_url: "https://placehold.co/1200x800",
-            media_type: "IMAGE",
-          },
-        ];
+        {
+          media_url: "https://placehold.co/1200x800",
+          media_type: "IMAGE",
+        },
+      ];
 
   const activeMedia = heroImages[activeImage];
 
@@ -177,33 +177,41 @@ const scrollRelatedRight = () => {
     },
 
     {
-      title: "Countertops / Vanities",
-      value: product.countertops_vanities,
-      icon: Icons.countertop,
-    },
-
-    {
-      title: "Interior Floor",
-      value: product.interior_floor,
-      icon: Icons.interiorfloor,
-    },
-
-    {
       title: "Shower Wall",
       value: product.shower_wall,
       icon: Icons.showerwall,
     },
 
     {
-      title: "Shower Floor",
-      value: product.shower_floor,
-      icon: Icons.showerfloor,
+      title: "Fireplace",
+      value: product.fireplace,
+      icon: Icons.fireplace,
+    },
+
+    {
+      title: "Countertops / Vanities",
+      value: product.countertops_vanities,
+      icon: Icons.countertop,
     },
 
     {
       title: "Exterior Floor",
       value: product.exterior_floor,
       icon: Icons.exetiorfloor,
+    },
+
+
+    {
+      title: "Pool / Fountain",
+      value: product.pool_fountain,
+      icon: Icons.poolfountain,
+    },
+
+
+    {
+      title: "Interior Floor",
+      value: product.interior_floor,
+      icon: Icons.interiorfloor,
     },
 
     {
@@ -213,15 +221,15 @@ const scrollRelatedRight = () => {
     },
 
     {
-      title: "Pool / Fountain",
-      value: product.pool_fountain,
-      icon: Icons.poolfountain,
+      title: "Interior Wall",
+      value: product.interior_wall,
+      icon: Icons.interiorwall,
     },
 
     {
-      title: "Fireplace",
-      value: product.fireplace,
-      icon: Icons.fireplace,
+      title: "Shower Floor",
+      value: product.shower_floor,
+      icon: Icons.showerfloor,
     },
 
     {
@@ -324,14 +332,14 @@ const scrollRelatedRight = () => {
 
 
   const handleDownloadDatasheet = async () => {
-  await generateDatasheet({
-    product,
-    closeupImages,
-    images,
-  });
-};
+    await generateDatasheet({
+      product,
+      closeupImages,
+      images,
+    });
+  };
 
-  
+
   return (
     <>
       <Navbar />
@@ -559,7 +567,7 @@ const scrollRelatedRight = () => {
                 {/* PREVIEW IMAGE */}
 
                 <button
-  className="
+                  className="
     inline-flex
     items-center
     gap-2
@@ -575,10 +583,10 @@ const scrollRelatedRight = () => {
     mb-5
     hover:bg-gray-100
   "
->
-  Order Samples
+                >
+                  Order Samples
 
-</button>
+                </button>
 
                 <div
                   className="
@@ -669,7 +677,7 @@ const scrollRelatedRight = () => {
 
                 <div className="flex items-center gap-3 flex-wrap">
 
-                  <Social/>
+                  <Social />
                   <div
                     className="
             border
@@ -842,9 +850,9 @@ const scrollRelatedRight = () => {
               >
                 Applications
               </h2>
-                <button
+              <button
                 onClick={handleDownloadDatasheet}
-    className="
+                className="
       px-3
       py-2
       bg-[#161412]
@@ -856,9 +864,9 @@ const scrollRelatedRight = () => {
       transition-all
       duration-300
     "
-  >
-    Download Datasheet
-  </button>
+              >
+                Download Datasheet
+              </button>
             </div>
 
             {/* CONTAINER */}
@@ -921,10 +929,10 @@ const scrollRelatedRight = () => {
 
         {/* SAFETY WARNING */}
 
-<section className="py-8 bg-white">
-  <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
-    <div
-      className="
+        <section className="py-8 bg-white">
+          <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
+            <div
+              className="
         bg-[#F4F4F4]
         px-10
         py-5
@@ -933,38 +941,38 @@ const scrollRelatedRight = () => {
         justify-between
         gap-6
       "
-    >
-      {/* Left Content */}
-      <div className="flex items-center gap-3 flex-1">
-        <span className="text-[22px] shrink-0">
-          ⚠️
-        </span>
+            >
+              {/* Left Content */}
+              <div className="flex items-center gap-3 flex-1">
+                <span className="text-[22px] shrink-0">
+                  ⚠️
+                </span>
 
-        <p
-          className="
+                <p
+                  className="
             text-[15px]
             leading-[1.45]
             text-[#1A1A1A]
             font-normal
           "
-          style={{
-            fontFamily: "Montserrat, sans-serif",
-          }}
-        >
-          <span className="font-bold text-[#D62828]">
-            Warning:
-          </span>{" "}
-          {product.stone_categories?.name || "Ultra Quartz"} Surfaces are
-          non-hazardous in finished form but can release hazardous dust during
-          fabrication, requiring strict dust control and protective measures to
-          prevent respiratory and health risks.
-        </p>
-      </div>
+                  style={{
+                    fontFamily: "Montserrat, sans-serif",
+                  }}
+                >
+                  <span className="font-bold text-[#D62828]">
+                    Warning:
+                  </span>{" "}
+                  {product.stone_categories?.name || "Ultra Quartz"} Surfaces are
+                  non-hazardous in finished form but can release hazardous dust during
+                  fabrication, requiring strict dust control and protective measures to
+                  prevent respiratory and health risks.
+                </p>
+              </div>
 
-      {/* Right Button */}
-      <button
-        onClick={handleDownloadDatasheet}
-        className="
+              {/* Right Button */}
+              <button
+                onClick={handleDownloadDatasheet}
+                className="
           shrink-0
           border
           border-[#C92B2B]
@@ -978,12 +986,12 @@ const scrollRelatedRight = () => {
           hover:text-white
           transition-all
         "
-      >
-        Download Safety Datasheet
-      </button>
-    </div>
-  </div>
-</section>
+              >
+                Download Safety Datasheet
+              </button>
+            </div>
+          </div>
+        </section>
 
         {/* VARIATION */}
 
@@ -1095,50 +1103,50 @@ const scrollRelatedRight = () => {
 
         {/* RELATED PRODUCTS */}
 
-<section className="pb-24 bg-white">
-  <div
-    className="
+        <section className="pb-24 bg-white">
+          <div
+            className="
     max-w-[2000px]
     mx-auto
     px-6
     xl:px-10
     "
-  >
-    {/* HEADER */}
+          >
+            {/* HEADER */}
 
-    <div
-      className="
+            <div
+              className="
       flex
       items-center
       justify-between
       gap-5
       mb-10
       "
-    >
-      <div className="flex-1">
-        <h2
-          className="
+            >
+              <div className="flex-1">
+                <h2
+                  className="
           text-[20px]
           text-[#161412]
           mb-3
           "
-          style={{
-            fontFamily: "Montserrat, sans-serif",
-          }}
-        >
-          Related Products
-        </h2>
+                  style={{
+                    fontFamily: "Montserrat, sans-serif",
+                  }}
+                >
+                  Related Products
+                </h2>
 
-        <div className="w-full h-[1px] bg-black/10" />
-      </div>
+                <div className="w-full h-[1px] bg-black/10" />
+              </div>
 
-      {/* SCROLL BUTTONS */}
+              {/* SCROLL BUTTONS */}
 
-      {relatedProducts.length > 4 && (
-        <div className="flex items-center gap-3">
-          <button
-            onClick={scrollRelatedLeft}
-            className="
+              {relatedProducts.length > 4 && (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={scrollRelatedLeft}
+                    className="
             w-11
             h-11
             border
@@ -1151,13 +1159,13 @@ const scrollRelatedRight = () => {
             transition-all
             duration-300
             "
-          >
-            <ChevronLeft size={18} strokeWidth={1.7} />
-          </button>
+                  >
+                    <ChevronLeft size={18} strokeWidth={1.7} />
+                  </button>
 
-          <button
-            onClick={scrollRelatedRight}
-            className="
+                  <button
+                    onClick={scrollRelatedRight}
+                    className="
             w-11
             h-11
             border
@@ -1170,35 +1178,35 @@ const scrollRelatedRight = () => {
             transition-all
             duration-300
             "
-          >
-            <ChevronRight size={18} strokeWidth={1.7} />
-          </button>
-        </div>
-      )}
-    </div>
+                  >
+                    <ChevronRight size={18} strokeWidth={1.7} />
+                  </button>
+                </div>
+              )}
+            </div>
 
-    {/* SCROLLER */}
+            {/* SCROLLER */}
 
-    <div
-      ref={relatedScrollRef}
-      className="
+            <div
+              ref={relatedScrollRef}
+              className="
       flex
       gap-6
       overflow-x-auto
       scroll-smooth
       scrollbar-hide
       "
-    >
-      {relatedProducts.map((item) => (
-        <RelatedProductCard
-          key={item.id}
-          item={item}
-          navigate={navigate}
-        />
-      ))}
-    </div>
-  </div>
-</section>
+            >
+              {relatedProducts.map((item) => (
+                <RelatedProductCard
+                  key={item.id}
+                  item={item}
+                  navigate={navigate}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
 
       <Footer />
