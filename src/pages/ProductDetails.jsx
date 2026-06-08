@@ -344,8 +344,8 @@ const ProductDetails = () => {
 
 const variationPositions = {
   V1: "7.5%",
-  V2: "32.5%",
-  V3: "67.5%",
+  V2: "36%",
+  V3: "64.5%",
   V4: "92.5%",
 };
 const activeVariation = product?.variation_level || "V1";
