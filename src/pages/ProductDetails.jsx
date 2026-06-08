@@ -16,6 +16,7 @@ import {
   Table2,
   LayoutGrid,
   Home,
+  Expand,
 } from "lucide-react";
 
 import Icons from "../assets/icons";
@@ -47,6 +48,8 @@ const ProductDetails = () => {
   const navigate = useNavigate();
 
   const [relatedProducts, setRelatedProducts] = useState([]);
+
+  const [openPreview, setOpenPreview] = useState(false);
 
   const relatedScrollRef = useRef(null);
 
@@ -339,6 +342,13 @@ const ProductDetails = () => {
     });
   };
 
+const variationPositions = {
+  V1: "7.5%",
+  V2: "32.5%",
+  V3: "67.5%",
+  V4: "92.5%",
+};
+const activeVariation = product?.variation_level || "V1";
 
   return (
     <>
@@ -521,7 +531,66 @@ const ProductDetails = () => {
                       </button>
                     </div>
                   )}
+
+                  <button
+                    onClick={() => setOpenPreview(true)}
+                    className="
+    absolute
+    bottom-5
+    right-5
+    w-11
+    h-11
+    bg-white/90
+    hover:bg-white
+    flex
+    items-center
+    justify-center
+    transition-all
+    duration-300
+    shadow-md
+  "
+                  >
+                    <Expand size={18} strokeWidth={1.8} />
+                  </button>
                 </div>
+                {openPreview && activeMedia?.media_type !== "FEATURED_VIDEO" && (
+                  <div
+                    className="
+      fixed
+      inset-0
+      z-[9999]
+      bg-black/90
+      flex
+      items-center
+      justify-center
+      p-6
+    "
+                    onClick={() => setOpenPreview(false)}
+                  >
+                    <button
+                      className="
+        absolute
+        top-6
+        right-6
+        text-white
+        text-4xl
+      "
+                    >
+                      ×
+                    </button>
+
+                    <img
+                      src={activeMedia.media_url}
+                      alt={product.name}
+                      className="
+        max-w-full
+        max-h-full
+        object-contain
+      "
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* RIGHT CONTENT */}
@@ -651,8 +720,8 @@ const ProductDetails = () => {
                     <div
                       className="
       absolute
-      w-[110px]
-      h-[110px]
+      w-[150px]
+      h-[150px]
       rounded-full
       border-[5px]
       border-white
@@ -666,7 +735,7 @@ const ProductDetails = () => {
                         transform: "translate(-50%, -50%)",
                         backgroundImage: zoomStyle.backgroundImage,
                         backgroundRepeat: "no-repeat",
-                        backgroundSize: "500%",
+                        backgroundSize: "1000%",
                         backgroundPosition: zoomStyle.backgroundPosition,
                       }}
                     />
@@ -835,38 +904,51 @@ const ProductDetails = () => {
           >
             {/* HEADER */}
 
-            <div className="flex items-center justify-between mb-10">
-              <h2
-                className="
-        text-[34px]
-        md:text-[42px]
-        uppercase
-        tracking-[1px]
-        text-[#161412]
-        "
-                style={{
-                  fontFamily: "Montserrat, sans-serif",
-                }}
-              >
-                Applications
-              </h2>
+            <div
+  className="
+    flex
+    flex-col
+    sm:flex-row
+    sm:items-center
+    sm:justify-between
+    gap-4
+    mb-10
+  "
+>
+<h2
+  className="
+    text-[26px]
+    sm:text-[34px]
+    md:text-[42px]
+    uppercase
+    tracking-[1px]
+    text-[#161412]
+    leading-tight
+  "
+  style={{
+    fontFamily: "Montserrat, sans-serif",
+  }}
+>
+  Applications
+</h2>
               <button
-                onClick={handleDownloadDatasheet}
-                className="
-      px-3
-      py-2
-      bg-[#161412]
-      text-white
-      uppercase
-      tracking-[1px]
-      text-[13px]
-      hover:bg-[#2a2724]
-      transition-all
-      duration-300
-    "
-              >
-                Download Datasheet
-              </button>
+  onClick={handleDownloadDatasheet}
+  className="
+    px-4
+    py-3
+    bg-[#161412]
+    text-white
+    uppercase
+    tracking-[1px]
+    text-[12px]
+    sm:text-[13px]
+    hover:bg-[#2a2724]
+    transition-all
+    duration-300
+  "
+>
+  Download Datasheet
+</button>
             </div>
 
             {/* CONTAINER */}
@@ -929,55 +1011,62 @@ const ProductDetails = () => {
 
         {/* SAFETY WARNING */}
 
-        <section className="py-8 bg-white">
-          <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
-            <div
-              className="
+<section className="py-8 bg-white">
+  <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
+    <div
+      className="
         bg-[#F4F4F4]
-        px-10
+        px-4
+        sm:px-6
+        lg:px-10
         py-5
         flex
-        items-center
-        justify-between
-        gap-6
+        flex-col
+        lg:flex-row
+        lg:items-center
+        lg:justify-between
+        gap-5
       "
-            >
-              {/* Left Content */}
-              <div className="flex items-center gap-3 flex-1">
-                <span className="text-[22px] shrink-0">
-                  ⚠️
-                </span>
+    >
+      {/* Warning Content */}
+      <div className="flex items-center gap-3 flex-1">
+        <span className="text-[20px] sm:text-[22px] shrink-0">
+          ⚠️
+        </span>
 
-                <p
-                  className="
-            text-[15px]
-            leading-[1.45]
+        <p
+          className="
+            text-[13px]
+            sm:text-[14px]
+            lg:text-[15px]
+            leading-[1.6]
             text-[#1A1A1A]
-            font-normal
           "
-                  style={{
-                    fontFamily: "Montserrat, sans-serif",
-                  }}
-                >
-                  <span className="font-bold text-[#D62828]">
-                    Warning:
-                  </span>{" "}
-                  {product.stone_categories?.name || "Ultra Quartz"} Surfaces are
-                  non-hazardous in finished form but can release hazardous dust during
-                  fabrication, requiring strict dust control and protective measures to
-                  prevent respiratory and health risks.
-                </p>
-              </div>
+          style={{
+            fontFamily: "Montserrat, sans-serif",
+          }}
+        >
+          <span className="font-bold text-[#D62828]">
+            Warning:
+          </span>{" "}
+          {product.stone_categories?.name || "Ultra Quartz"} Surfaces are
+          non-hazardous in finished form but can release hazardous dust during
+          fabrication, requiring strict dust control and protective measures to
+          prevent respiratory and health risks.
+        </p>
+      </div>
 
-              {/* Right Button */}
-              <button
-                onClick={handleDownloadDatasheet}
-                className="
-          shrink-0
+      {/* Download Button */}
+      <button
+        onClick={handleDownloadDatasheet}
+        className="
+          w-full
+          lg:w-auto
+          lg:shrink-0
           border
           border-[#C92B2B]
           px-5
-          py-2
+          py-3
           text-[11px]
           uppercase
           tracking-[0.5px]
@@ -985,121 +1074,141 @@ const ProductDetails = () => {
           hover:bg-[#C92B2B]
           hover:text-white
           transition-all
+          duration-300
         "
-              >
-                Download Safety Datasheet
-              </button>
-            </div>
-          </div>
-        </section>
+      >
+        Download Safety Datasheet
+      </button>
+    </div>
+  </div>
+</section>
 
-        {/* VARIATION */}
+{/* VARIATION */}
 
-        <section className="pb-20 bg-white">
-          <div
-            className="
-    max-w-[2000px]
-    mx-auto
-    px-6
-    xl:px-10
-    "
-          >
-            {/* HEADING */}
-
-            <h2
-              className="
-      text-[34px]
-      md:text-[42px]
-      uppercase
-      tracking-[1px]
-      text-[#161412]
-      mb-10
+<section className="pb-16 md:pb-20 bg-white">
+  <div className="max-w-[2000px] mx-auto px-4 sm:px-6 xl:px-10">
+    <h2
+      className="
+        text-[28px]
+        sm:text-[34px]
+        md:text-[42px]
+        uppercase
+        tracking-[1px]
+        text-[#161412]
+        mb-8
+        md:mb-10
       "
-              style={{
-                fontFamily: "Montserrat, sans-serif",
-              }}
-            >
-              Variation
-            </h2>
+      style={{
+        fontFamily: "Montserrat, sans-serif",
+      }}
+    >
+      Variation
+    </h2>
 
-            {/* BOX */}
-
-            <div
-              className="
-      border
-      border-black/10
-      bg-[#f7f7f5]
-      px-8
-      py-10
+    <div
+      className="
+        border
+        border-black/10
+        bg-[#f8f8f8]
+        px-4
+        md:px-8
+        py-8
       "
-            >
-              {/* GRID */}
+    >
+      {/* ALL 4 ALWAYS IN ONE ROW */}
 
-              <div
-                className="
-        grid
-        grid-cols-2
-        md:grid-cols-4
-        gap-10
-        mb-12
+      <div
+        className="
+          grid grid-cols-4 gap-3 md:gap-8 lg:gap-12 xl:gap-20 mb-8
         "
-              >
-                <VariationCard title="V1" level={1} />
+      >
+        <VariationCard
+          title="V1"
+          level={1}
+          active={activeVariation === "V1"}
+        />
 
-                <VariationCard title="V2" level={2} />
+        <VariationCard
+          title="V2"
+          level={2}
+          active={activeVariation === "V2"}
+        />
 
-                <VariationCard title="V3" level={3} />
+        <VariationCard
+          title="V3"
+          level={3}
+          active={activeVariation === "V3"}
+        />
 
-                <VariationCard title="V4" level={4} />
-              </div>
+        <VariationCard
+          title="V4"
+          level={4}
+          active={activeVariation === "V4"}
+        />
+      </div>
 
-              {/* SCALE */}
+      {/* SCALE */}
 
-              <div className="relative">
-                {/* LINE */}
+<div className="relative mt-2">
+  <div className="relative mx-auto w-[92%]">
+    {/* MAIN LINE */}
 
-                <div className="h-[2px] bg-black/30 w-full" />
+    <div className="h-[1px] bg-[#8f8f8f]" />
 
-                {/* CENTER MARK */}
+    {/* LEFT END */}
 
-                <div
-                  className="
-          absolute
-          left-1/2
-          top-1/2
-          -translate-x-1/2
-          -translate-y-1/2
-          w-[2px]
-          h-[18px]
-          bg-black/50
-          "
-                />
+    <div
+      className="
+        absolute
+        left-0
+        top-1/2
+        -translate-y-1/2
+        w-[1px]
+        h-[18px]
+        bg-[#8f8f8f]
+      "
+    />
 
-                {/* LABELS */}
+    {/* RIGHT END */}
 
-                <div className="flex items-center justify-between mt-3">
-                  <p
-                    className="
-            text-[14px]
-            text-[#666]
-            "
-                  >
-                    Low Variation
-                  </p>
+    <div
+      className="
+        absolute
+        right-0
+        top-1/2
+        -translate-y-1/2
+        w-[1px]
+        h-[18px]
+        bg-[#8f8f8f]
+      "
+    />
 
-                  <p
-                    className="
-            text-[14px]
-            text-[#666]
-            "
-                  >
-                    High Variation
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+    {/* ACTIVE MARKER */}
+
+<div
+  className="absolute -translate-x-1/2"
+  style={{
+    left: variationPositions[activeVariation],
+    top: "-30px",
+  }}
+>
+  <div className="w-[1px] h-[29px] bg-[#8f8f8f]" />
+</div>
+  </div>
+
+  <div className="w-[92%] mx-auto flex justify-between mt-3">
+    <span className="text-[11px] md:text-[14px] text-[#666]">
+      Low Variation
+    </span>
+
+    <span className="text-[11px] md:text-[14px] text-[#666]">
+      High Variation
+    </span>
+  </div>
+</div>
+    </div>
+  </div>
+</section>
 
         {/* RELATED PRODUCTS */}
 
@@ -1358,7 +1467,7 @@ const PerformanceCard = ({ title, value }) => {
   );
 };
 
-const VariationCard = ({ title, level }) => {
+const VariationCard = ({ title, level, active }) => {
   const getOpacity = (index) => {
     if (level === 1) {
       return "bg-[#d8d8d8]";
@@ -1413,13 +1522,12 @@ const VariationCard = ({ title, level }) => {
 
   return (
     <div className="text-center">
-      {/* TITLE */}
-
       <h3
         className="
-        text-[18px]
-        text-[#161412]
-        mb-5
+          text-[12px]
+          md:text-[16px]
+          text-[#161412]
+          mb-3
         "
         style={{
           fontFamily: "Montserrat, sans-serif",
@@ -1428,18 +1536,24 @@ const VariationCard = ({ title, level }) => {
         {title}
       </h3>
 
-      {/* GRID */}
-
-      <div className="grid grid-cols-3 gap-[2px] w-[154px] mx-auto">
-        {[...Array(9)].map((_, index) => (
-          <div
-            key={index}
-            className={`
-              aspect-square
-              ${getOpacity(index)}
-            `}
-          />
-        ))}
+      <div
+        className={`
+          inline-block
+          p-[2px]
+          ${active ? "border border-[#6e6e6e]" : ""}
+        `}
+      >
+        <div className="grid grid-cols-3 gap-[1px] w-[60px] sm:w-[80px] md:w-[95px] lg:w-[110px] xl:w-[125px]">
+          {[...Array(9)].map((_, index) => (
+            <div
+              key={index}
+              className={`
+                aspect-square
+                ${getOpacity(index)}
+              `}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
