@@ -58,7 +58,7 @@ const ProductDetails = () => {
   const fetchProduct = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5001/api/stones/productdetail/${productSlug}`,
+        `${import.meta.env.VITE_API_URL}/stones/productdetail/${productSlug}`,
       );
 
       const result = response.data;
@@ -82,7 +82,7 @@ const ProductDetails = () => {
   ) => {
     try {
       const response = await axios.get(
-        `http://localhost:5001/api/stones/${categorySlug}`,
+        `${import.meta.env.VITE_API_URL}/stones/${categorySlug}`,
       );
 
       const result = response.data;

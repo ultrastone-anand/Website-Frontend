@@ -50,7 +50,7 @@ const ProductCategory = () => {
 
       const response =
         await axios.get(
-          `http://localhost:5001/api/stones/${slug}`
+          `${import.meta.env.VITE_API_URL}/stones/${slug}`
         );
 
       const result = response.data;
