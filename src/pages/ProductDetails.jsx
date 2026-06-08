@@ -23,7 +23,7 @@ import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
 import Loading from "../components/common/Loading";
 import { generateDatasheet } from "../utils/generateDatasheet";
-import Social from "../components/common/socials";
+import Social from "../components/common/Socials";
 
 const ProductDetails = () => {
   const { productSlug } = useParams();
