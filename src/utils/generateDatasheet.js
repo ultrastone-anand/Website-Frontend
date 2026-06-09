@@ -1,571 +1,596 @@
-// src/utils/generateDatasheet.js
+import jsPDF from 'jspdf';
+import QRCode from 'qrcode';
 
-import jsPDF from "jspdf";
+import origin from '../assets/InfoStrip/origin.png';
+import polish from '../assets/InfoStrip/polished.png';
+import thickness from '../assets/InfoStrip/thickness.png';
+import bookmtach from '../assets/InfoStrip/bookmatch.png';
+import size from '../assets/InfoStrip/size.png';
 
-// --------------------------------------------------
-// CONVERT IMAGE URL TO BASE64
-// --------------------------------------------------
+import colourenhancing from '../assets/icons/colourenhancing.png';
+import countertop from '../assets/icons/countertop.png';
+import exteriorwall from '../assets/icons/exteriorwall.png';
+import exteriorfloor from '../assets/icons/extetiorfloor.png';
+import fireplace from '../assets/icons/fireplace.png';
+import furnituretop from '../assets/icons/furnituretop.png';
+import interiorfloor from '../assets/icons/interiorfloor.png';
+import interiorwall from '../assets/icons/interiorwall.png';
+import poolfountain from '../assets/icons/pool&fountain.png';
+import showerfloor from '../assets/icons/showerfloor.png';
+import showerwall from '../assets/icons/showerwall.png';
+import translucent from '../assets/icons/translucent.png';
 
-const toDataURL = async (url) => {
-  try {
-    const response = await fetch(url);
+import crown from '../assets/specs/crown.png';
+import cut from '../assets/specs/cut.png';
+import sealer from '../assets/specs/sealer.png';
+import trans from '../assets/specs/translucent.png';
 
-    const blob = await response.blob();
+import bleach from '../assets/maintaniance/bleach.png';
+import clean from '../assets/maintaniance/clean.png';
+import spray from '../assets/maintaniance/spray.png';
+import cleanser from '../assets/maintaniance/cleanser.png';
 
-    return new Promise((resolve) => {
-      const reader = new FileReader();
+import uslogo from '../assets/uslogo.png';
 
-      reader.onloadend = () => {
-        resolve(reader.result);
-      };
+const getMediaUrl = (product, type) =>
+  product?.media?.find((m) => m.media_type === type)?.media_url;
 
-      reader.readAsDataURL(blob);
-    });
-  } catch (error) {
-    console.log("IMAGE CONVERSION ERROR:", error);
+const loadImageAsBase64 = async (url) => {
+  const response = await fetch(url);
+  const blob = await response.blob();
 
-    return null;
-  }
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
 };
 
-// --------------------------------------------------
-// TRAFFIC LIGHT INDICATOR
-// --------------------------------------------------
+const formatRating = (value) => {
+  if (!value) return '-';
 
-const drawGauge = (
-  doc,
-  x,
-  y,
-  label,
-  level = "medium"
-) => {
-  // CARD BG
-  doc.setFillColor(232, 232, 232);
+  return value.charAt(0) + value.slice(1).toLowerCase();
+};
 
-  doc.rect(x, y, 44, 18, "F");
-
-  // TITLE
-  doc.setTextColor(20, 20, 20);
-
-  doc.setFont("helvetica", "bold");
-
-  doc.setFontSize(6.8);
-
-  doc.text(label, x + 22, y + 4.5, {
-    align: "center",
-    maxWidth: 38,
+export const generateDatasheet = async ({ product }) => {
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
   });
 
-  // LIGHTS
-  const cy = y + 13;
+  const pageWidth = pdf.internal.pageSize.getWidth();
 
-  const redX = x + 12;
-  const yellowX = x + 22;
-  const greenX = x + 32;
+  // ======================
+  // IMAGES
+  // ======================
 
-  // DIM COLORS
-  let red = [248, 200, 200];
-  let yellow = [250, 235, 180];
-  let green = [210, 235, 190];
+  const heroImage =
+    getMediaUrl(product, 'CLOSEUP_IMAGE') ||
+    getMediaUrl(product, 'SLAB_IMAGE');
 
-  // ACTIVE
-  if (level === "low") {
-    red = [239, 68, 68];
-  }
+  const heroBase64 = heroImage
+    ? await loadImageAsBase64(heroImage)
+    : null;
 
-  if (level === "medium") {
-    yellow = [245, 190, 40];
-  }
+  const qrUrl = `${window.location.origin}/products/${product.stone_categories.slug}/${product.slug}`;
 
-  if (level === "high") {
-    green = [140, 190, 60];
-  }
+  const qrBase64 = await QRCode.toDataURL(qrUrl, {
+    width: 330,
+    margin: 1,
+  });
 
-  // RED
-  doc.setFillColor(...red);
 
-  doc.circle(redX, cy, 3.2, "F");
-
-  // YELLOW
-  doc.setFillColor(...yellow);
-
-  doc.circle(yellowX, cy, 3.2, "F");
-
-  // GREEN
-  doc.setFillColor(...green);
-
-  doc.circle(greenX, cy, 3.2, "F");
-
-  // BORDER
-  doc.setDrawColor(180, 180, 180);
-
-  doc.setLineWidth(0.3);
-
-  doc.circle(redX, cy, 3.2);
-  doc.circle(yellowX, cy, 3.2);
-  doc.circle(greenX, cy, 3.2);
-};
-
-// --------------------------------------------------
-// MAIN FUNCTION
-// --------------------------------------------------
-
-export const generateDatasheet = async ({
-  product,
-  featuredImages,
-}) => {
-  const doc = new jsPDF("p", "mm", "a4");
-
-  // --------------------------------------------------
-  // COLORS
-  // --------------------------------------------------
-
-  const LIGHT = [245, 245, 245];
-
-  const GRAY = [225, 225, 225];
-
-  const BLACK = [20, 20, 20];
-
-  const RED = [220, 45, 45];
-
-  // --------------------------------------------------
-  // PAGE BG
-  // --------------------------------------------------
-
-  doc.setFillColor(...LIGHT);
-
-  doc.rect(0, 0, 210, 297, "F");
-
-  // --------------------------------------------------
+  // ======================
   // HEADER
-  // --------------------------------------------------
+  // ======================
 
-  // LOGO BOX
-//   doc.setFillColor(...RED);
+pdf.addImage(
+  uslogo,
+  'PNG',
+  17,
+  9,
+  60,
+  22
+);
 
-//   doc.rect(8, 8, 18, 18, "F");
+  // ======================
+  // CATEGORY
+  // ======================
 
-//   doc.setTextColor(255, 255, 255);
+pdf.setFont('helvetica', 'normal');
+pdf.setFontSize(12);
+pdf.setTextColor(110);
 
-//   doc.setFont("helvetica", "bold");
+pdf.text(
+  product?.stone_categories?.name?.toUpperCase() || '',
+  pageWidth / 2,
+  42,
+  {
+    align: 'center',
+  }
+);
 
-//   doc.setFontSize(18);
-
-//   doc.text("US", 12, 20);
-
-//   // BRAND
-//   doc.setTextColor(...BLACK);
-
-//   doc.setFontSize(18);
-
-//   doc.text("ULTRA", 30, 15);
-
-//   doc.text("STONES", 30, 22);
-
-//   doc.setFontSize(7);
-
-//   doc.text("LUXURY SURFACES", 30, 27);
-
+  // ======================
   // PRODUCT NAME
-  doc.setFont("helvetica", "bold");
+  // ======================
 
-  doc.setFontSize(22);
+  pdf.setTextColor(0);
 
-  doc.text(
-    product?.name?.toUpperCase() || "",
-    32,
-    45
-  );
+  pdf.setFontSize(22);
+  pdf.setFont('times', 'bold');
 
-  doc.setFont("helvetica", "normal");
-
-  doc.setFontSize(11);
-
-  doc.text(
-    `SKU - UQ${product?.id || ""}`,
-    60,
-    53
-  );
-
-  // DIVIDER
-  doc.setDrawColor(...RED);
-
-  doc.setLineWidth(1);
-
-  doc.line(100, 8, 100, 55);
-
-  // --------------------------------------------------
-  // FEATURE IMAGE
-  // --------------------------------------------------
-
-  /*
-    YES — downloading CDN image and embedding
-    into PDF is exactly what we are doing here.
-
-    We fetch image
-    -> convert to base64
-    -> embed inside PDF
-
-    So PDF becomes self-contained.
-  */
-
-  const featureImage =
-    featuredImages?.[0]?.media_url ||
-    product?.media?.find(
-      (m) => m.media_type === "CLOSEUP_IMAGE"
-    )?.media_url;
-
-  if (featureImage) {
-    try {
-      const imageData = await toDataURL(featureImage);
-
-      if (imageData) {
-        doc.addImage(
-          imageData,
-          "JPEG",
-          106,
-          8,
-          92,
-          47
-        );
-      }
-    } catch (err) {
-      console.log("IMAGE ERROR:", err);
+  pdf.text(
+    product.name.toUpperCase(),
+    pageWidth / 2,
+    51,
+    {
+      align: 'center',
     }
+  );
+
+  // ======================
+  // HERO IMAGE
+  // ======================
+
+  if (heroBase64) {
+    pdf.addImage(
+      heroBase64,
+      'JPEG',
+      10,
+      56,
+      pageWidth - 20,
+      70
+    );
   }
 
-  // --------------------------------------------------
-  // SECTION HEADERS
-  // --------------------------------------------------
+  // ======================
+  // INFO STRIP
+  // ======================
 
-  doc.setFillColor(...BLACK);
+  let y = 132;
 
-  doc.rect(6, 58, 122, 10, "F");
+pdf.setFillColor(245, 245, 245);
+pdf.rect(10, y, pageWidth - 20, 16, 'F');
 
-  doc.rect(130, 58, 74, 10, "F");
+const info = [
+  {
+    label: 'Origin',
+    value: product.origin_country || '-',
+    icon: origin,
+  },
+  {
+    label: 'Finish',
+    value: product.finishes_available?.[0]?.trim() || '-',
+    icon: polish,
+  },
+  {
+    label: 'Thickness',
+    value: product.thicknesses_cm?.[0]?.trim() || '-',
+    icon:  thickness,
+  },
+  {
+    label: 'Pattern',
+    value: product.pattern || '-',
+    icon: bookmtach,
+  },
+  {
+    label: 'Size',
+    value: product.average_sizes_inches?.[0]?.trim() || '-',
+    icon: size,
+  },
+];
 
-  doc.setTextColor(255, 255, 255);
+const stripWidth = pageWidth - 20;
+const itemWidth = stripWidth / info.length;
 
-  doc.setFont("helvetica", "bold");
+for (const [index, item] of info.entries()) {
+  const startX = 10 + itemWidth * index;
 
-  doc.setFontSize(16);
+  // icon
+pdf.addImage(
+  item.icon,
+  'PNG',
+  startX + 4,
+  y + 4,
+  7,
+  7
+);
 
-  doc.text("APPLICATION", 46, 65);
 
-  doc.text("SPECIFICATION", 145, 65);
+  // label
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(6);
+  pdf.setTextColor(110);
 
-  // --------------------------------------------------
-  // RATINGS
-  // --------------------------------------------------
+  pdf.text(
+    item.label,
+    startX + 14,
+    y + 6
+  );
 
-  const getLevel = (value) => {
-    if (!value) return "medium";
+  // value
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(10);
+  pdf.setTextColor(0);
 
-    const normalized =
-      value.toString().toLowerCase();
+  pdf.text(
+    item.value,
+    startX + 14,
+    y + 10
+  );
+}
+  
+// =====================================================
+// APPLICATIONS + SPECIFICATION + QR SECTION
+// =====================================================
 
-    if (normalized === "high") return "high";
+const sectionY = 152;
+const gap = 3;
 
-    if (normalized === "medium")
-      return "medium";
+// widths
+const appWidth = 86;
+const specWidth = 52;
+const qrWidth = 48;
+const cardHeight = 72;
 
-    if (normalized === "low") return "low";
+const appX = 10;
+const specX = appX + appWidth + gap;
+const qrX = specX + specWidth + gap;
 
-    return "medium";
-  };
+// -----------------------------------------------------
+// CARD BACKGROUNDS
+// -----------------------------------------------------
+// -----------------------------------------------------
+// APPLICATIONS CARD
+// -----------------------------------------------------
 
-  const gauges = [
+pdf.setFillColor(255, 255, 255);
+pdf.setDrawColor(220, 220, 220);
+
+pdf.rect(
+  appX,
+  sectionY,
+  appWidth,
+  cardHeight,
+  'FD'
+);
+
+// -----------------------------------------------------
+// SPECIFICATION CARD
+// -----------------------------------------------------
+
+pdf.setFillColor(245, 245, 245);
+
+// Fill only (no border)
+pdf.rect(
+  specX,
+  sectionY,
+  specWidth,
+  cardHeight,
+  'F'
+);
+
+// -----------------------------------------------------
+// APPLICATIONS
+// -----------------------------------------------------
+
+pdf.setFont('helvetica', 'bold');
+pdf.setFontSize(10);
+pdf.setTextColor(0);
+
+pdf.text(
+  'APPLICATIONS',
+  appX + 6,
+  sectionY + 9
+);
+
+const applications = [
+  ['Color Enhancing', product.colour_enhancing, colourenhancing],
+  ['Countertops / Vanities', product.countertops_vanities, countertop],
+  ['Interior Floor', product.interior_floor, interiorfloor],
+  ['Fireplace / Interior Wall', product.fireplace, fireplace],
+  ['Pool / Fountain', product.pool_fountain, poolfountain],
+
+  ['Shower Wall', product.shower_wall, showerwall],
+  ['Shower Floor', product.shower_floor, showerfloor],
+  ['Exterior Floor', product.exterior_floor, exteriorfloor],
+  ['Exterior Wall', product.exterior_wall, exteriorwall],
+  ['Furniture Top', product.furniture_top, furnituretop],
+];
+
+const leftX = appX + 6;
+const rightX = appX + 45;
+
+const startY = sectionY + 18;
+const rowGap = 11;
+
+applications.forEach(([label, enabled, icon], index) => {
+  const col = index < 5 ? 0 : 1;
+  const row = index % 5;
+
+  const x = col === 0 ? leftX : rightX;
+  const yy = startY + row * rowGap;
+
+  pdf.addImage(
+    icon,
+    'PNG',
+    x,
+    yy - 4,
+    8,
+    8
+  );
+
+  pdf.setFontSize(6);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setTextColor(60);
+
+  pdf.text(
+    label,
+    x + 10,
+    yy
+  );
+
+  pdf.setFont('helvetica', 'bold');
+  pdf.setTextColor(0);
+
+  pdf.text(
+    enabled ? 'Yes' : 'No',
+    x + 11,
+    yy + 3
+  );
+});
+
+// -----------------------------------------------------
+// SPECIFICATION
+// -----------------------------------------------------
+
+pdf.setFont('helvetica', 'bold');
+pdf.setFontSize(10);
+pdf.setTextColor(0);
+
+pdf.text(
+  'SPECIFICATION',
+  specX + 6,
+  sectionY + 9
+);
+
+const specs = [
+  ['Group', product.stone_group, crown],
+  ['Translucent', product.translucent ? 'Yes' : 'No', trans],
+  ['Variation', product.variation_level, sealer],
+  ['Cut To Size', product.cut_to_size ? 'Yes' : 'No', cut],
+];
+
+const specStartY = sectionY + 18;
+
+specs.forEach(([label, value, icon], index) => {
+  const yy = specStartY + index * 14;
+
+  // icon
+  pdf.addImage(
+    icon,
+    'PNG',
+    specX + 6,
+    yy - 4,
+    8,
+    8
+  );
+
+  // label
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(5.5);
+  pdf.setTextColor(90);
+
+  pdf.text(
+    label,
+    specX + 17,
+    yy
+  );
+
+  // value
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(6.5);
+  pdf.setTextColor(0);
+
+  pdf.text(
+    value || '-',
+    specX + 17,
+    yy + 4
+  );
+});
+
+// -----------------------------------------------------
+// QR CARD
+// -----------------------------------------------------
+
+pdf.setFillColor(70, 75, 80);
+
+const qrCardSize = 48;
+
+pdf.rect(
+  qrX,
+  sectionY,
+  qrCardSize,
+  qrCardSize,
+  'F'
+);
+
+const qrSize = 34;
+
+pdf.addImage(
+  qrBase64,
+  'PNG',
+  qrX + (qrWidth - qrSize) / 2,
+  sectionY + 6,
+  qrSize,
+  qrSize
+);
+
+pdf.setFontSize(5.5);
+pdf.setFont('helvetica', 'bold');
+pdf.setTextColor(255);
+
+pdf.text(
+  'SCAN TO OPEN WEB PAGE',
+  qrX + qrWidth / 2,
+  sectionY + 45,
+  {
+    align: 'center',
+  }
+);
+  // ======================
+// PERFORMANCE STRIP
+// ======================
+
+y = cardHeight + sectionY + 8;
+
+const stripHeight = 15;
+
+pdf.setFillColor(245, 245, 245);
+
+pdf.rect(
+  10,
+  y,
+  pageWidth - 20,
+  stripHeight,
+  'F'
+);
+
+const ratings = [
+  ['ABRASION RESISTANCE', formatRating(product.abrasion_resistance)],
+  ['HEAT RESISTANCE', formatRating(product.heat_resistance)],
+  ['MOVEMENT INDEX', formatRating(product.movement_index)],
+  ['STAIN RESISTANCE', formatRating(product.stain_resistance)],
+  ['UV RESISTANCE', formatRating(product.uv_resistance)],
+  ['ETCHING RESISTANCE', formatRating(product.etching_resistance)],
+  ['COLOR RANGE', formatRating(product.color_range)],
+];
+
+const ratingWidth = (pageWidth - 20) / ratings.length;
+
+ratings.forEach(([label, value], idx) => {
+  const centerX =
+    10 + idx * ratingWidth + ratingWidth / 2;
+
+  // Title
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(5.5);
+  pdf.setTextColor(0);
+
+  pdf.text(
+    label,
+    centerX,
+    y + 7,
     {
-      label: "ABRASION RESISTANCE",
-      level: getLevel(
-        product?.abrasion_resistance
-      ),
-    },
+      align: 'center',
+      maxWidth: ratingWidth - 2,
+    }
+  );
 
+  // Value
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(6);
+  pdf.setTextColor(40);
+
+  pdf.text(
+    value || '-',
+    centerX,
+    y + 11,
     {
-      label: "STAIN RESISTANCE",
-      level: getLevel(product?.stain_resistance),
-    },
+      align: 'center',
+    }
+  );
+});
 
-    {
-      label: "ETCHING RESISTANCE",
-      level: getLevel(
-        product?.etching_resistance
-      ),
-    },
+  // ======================
+// MAINTENANCE & CARE
+// ======================
 
-    {
-      label: "HEAT RESISTANCE",
-      level: getLevel(product?.heat_resistance),
-    },
+y = y + stripHeight + 5;
 
-    {
-      label: "UV RESISTANCE",
-      level: getLevel(product?.uv_resistance),
-    },
+const maintenanceHeight = 37;
 
-    {
-      label: "COLOR RANGE",
-      level: getLevel(product?.color_range),
-    },
+pdf.setFillColor(245, 245, 245);
 
-    {
-      label: "MOVEMENT INDEX",
-      level: getLevel(product?.movement_index),
-    },
-  ];
+pdf.rect(
+  10,
+  y,
+  pageWidth - 20,
+  maintenanceHeight,
+  'F'
+);
 
-  let gy = 72;
+// Title
+pdf.setFont('helvetica', 'bold');
+pdf.setFontSize(10);
+pdf.setTextColor(0);
 
-  gauges.forEach((item) => {
-    drawGauge(
-      doc,
-      6,
-      gy,
-      item.label,
-      item.level
-    );
+pdf.text(
+  'MAINTENANCE AND CARE',
+  pageWidth / 2,
+  y + 8,
+  {
+    align: 'center',
+  }
+);
 
-    gy += 20;
-  });
+const tips = [
+  {
+    icon: spray,
+    text: 'For cleaning, as needed, use a neutral cleanser to scrub tile and grout.',
+  },
+  {
+    icon: clean,
+    text: 'Wipe up spills immediately. Dry with a second soft towel or cloth.',
+  },
+  {
+    icon: bleach,
+    text: 'Do not use bleach, ammonia-based cleansers, acidic, citrus or other harsh chemicals.',
+  },
+  {
+    icon: cleanser,
+    text: 'Do not use gritty cleansers of soft scrubs that are abrasive and rough scouring pads.',
+  },
+];
 
-  // --------------------------------------------------
-  // APPLICATION DATA
-  // --------------------------------------------------
+const contentY = y + 12;
+const colWidth = (pageWidth - 20) / 4;
 
-  const applicationRows = [
-    [
-      "COLOR ENHANCING",
-      product?.color_enhancing ? "Yes" : "No",
-    ],
+tips.forEach((item, index) => {
+  const centerX =
+    10 + index * colWidth + colWidth / 2;
 
-    [
-      "COUNTERTOPS / VANITIES",
-      product?.countertops_vanities
-        ? "Yes"
-        : "No",
-    ],
-
-    [
-      "INTERIOR FLOOR",
-      product?.interior_floor ? "Yes" : "No",
-    ],
-
-    [
-      "FIREPLACE / INTERIOR WALL",
-      product?.fireplace
-        ? "Yes"
-        : "No",
-    ],
-
-    [
-      "SHOWER WALL",
-      product?.shower_wall ? "Yes" : "No",
-    ],
-
-    [
-      "SHOWER FLOOR",
-      product?.shower_floor ? "Yes" : "No",
-    ],
-
-    [
-      "EXTERIOR FLOOR",
-      product?.exterior_floor ? "Yes" : "No",
-    ],
-
-    [
-      "EXTERIOR WALL",
-      product?.exterior_wall ? "Yes" : "No",
-    ],
-
-    [
-      "POOL / FOUNTAIN",
-      product?.pool_fountain ? "Yes" : "No",
-    ],
-
-    [
-      "FURNITURE TOP",
-      product?.furniture_top ? "Yes" : "No",
-    ],
-  ];
-
-  let ay = 72;
-
-  applicationRows.forEach((item) => {
-    // TITLE
-    doc.setFillColor(...GRAY);
-
-    doc.rect(52, ay, 72, 8, "F");
-
-    doc.setTextColor(...BLACK);
-
-    doc.setFont("helvetica", "bold");
-
-    doc.setFontSize(8.2);
-
-    doc.text(item[0], 88, ay + 5.3, {
-      align: "center",
-      maxWidth: 65,
-    });
-
-    // VALUE
-    doc.setFillColor(...LIGHT);
-
-    doc.rect(52, ay + 8, 72, 8, "F");
-
-    doc.setFont("helvetica", "normal");
-
-    doc.text(item[1], 88, ay + 13.3, {
-      align: "center",
-    });
-
-    ay += 16;
-  });
-
-  // --------------------------------------------------
-  // SPECIFICATIONS
-  // --------------------------------------------------
-
-  const specificationRows = [
-    [
-      "CATEGORY",
-      product?.stone_categories?.name || "-",
-    ],
-
-    [
-      "THICKNESS",
-      product?.thicknesses_cm?.join(", ") ||
-        "-",
-    ],
-
-    [
-      "FINISH",
-      product?.finishes_available?.join(
-        ", "
-      ) || "-",
-    ],
-
-    [
-      "AVERAGE SIZE",
-      product?.average_sizes_inches?.join(
-        ", "
-      ) || "-",
-    ],
-
-    [
-      "GROUP",
-      product?.stone_group || "-",
-    ],
-
-    [
-      "TRANSLUCENT",
-      product?.translucent ? "Yes" : "No",
-    ],
-
-    [
-      "PATTERN",
-      product?.pattern || "-",
-    ],
-
-    [
-      "CUT TO SIZE",
-      product?.cut_to_size ? "Yes" : "No",
-    ],
-
-    [
-      "ORIGIN",
-      product?.origin_country || "-",
-    ],
-  ];
-
-  let sy = 72;
-
-  specificationRows.forEach((item) => {
-    // TITLE
-    doc.setFillColor(...GRAY);
-
-    doc.rect(132, sy, 68, 8, "F");
-
-    doc.setTextColor(...BLACK);
-
-    doc.setFont("helvetica", "bold");
-
-    doc.setFontSize(8);
-
-    doc.text(item[0], 166, sy + 5.3, {
-      align: "center",
-      maxWidth: 60,
-    });
-
-    // VALUE
-    doc.setFillColor(...LIGHT);
-
-    doc.rect(132, sy + 8, 68, 8, "F");
-
-    doc.setFont("helvetica", "normal");
-
-    doc.text(
-      String(item[1]),
-      166,
-      sy + 13.3,
-      {
-        align: "center",
-        maxWidth: 60,
-      }
-    );
-
-    sy += 16;
-  });
-
-  // --------------------------------------------------
-  // MAINTENANCE
-  // --------------------------------------------------
-
-  doc.setDrawColor(190, 190, 190);
-
-  doc.rect(6, 255, 194, 35);
-
-  doc.setTextColor(...RED);
-
-  doc.setFont("helvetica", "bold");
-
-  doc.setFontSize(10);
-
-  doc.text(
-    "• MAINTENANCE AND CARE",
+  // icon
+  pdf.addImage(
+    item.icon,
+    'PNG',
+    centerX - 6,
+    contentY,
     10,
-    262
+    10
   );
 
-  doc.setTextColor(...BLACK);
+  // text
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(5.5);
+  pdf.setTextColor(50);
 
-  doc.setFont("helvetica", "normal");
-
-  doc.setFontSize(8);
-
-  const maintenance = [
-    "• For cleaning, use a neutral cleanser to scrub tile and grout.",
-
-    "• Wipe up spills immediately. Dry with a second soft towel or cloth.",
-
-    "• Do not use bleach, ammonia-based cleaners, acidic, citrus or harsh chemicals.",
-
-    "• Do not use gritty cleansers or abrasive rough scouring pads.",
-  ];
-
-  let my = 270;
-
-  maintenance.forEach((line) => {
-    doc.text(line, 10, my);
-
-    my += 6;
-  });
-
-  // --------------------------------------------------
-  // SAVE
-  // --------------------------------------------------
-
-  doc.save(
-    `${product?.slug || product?.name || "datasheet"}.pdf`
+  const lines = pdf.splitTextToSize(
+    item.text,
+    colWidth - 10
   );
+
+  pdf.text(
+    lines,
+    centerX,
+    contentY + 18,
+    {
+      align: 'center',
+      maxWidth: colWidth - 10,
+    }
+  );
+});
+
+  pdf.save(`${product.name}-datasheet.pdf`);
 };

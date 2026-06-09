@@ -106,7 +106,7 @@ const Navbar = () => {
       left-0
       w-full
       z-50
-      bg-[#f5f5f5]
+      bg-[#fff]
       border-b
       border-black/5
       "

@@ -850,7 +850,7 @@ const activeVariation = product?.variation_level || "V1";
               />
 
               <SpecificationItem
-                title="Translucent"
+                title="Sealer"
                 value={product.translucent ? "Yes" : "No"}
               />
 
