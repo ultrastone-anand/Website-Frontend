@@ -1,8 +1,9 @@
 import { Routes, Route } from "react-router-dom"
 
 import Home from "./pages/Home"
-import ProductDetails from "./pages/ProductDetails"
-import ProductCategory from "./pages/ProductCategory"
+import ProductDetails from "./pages/Products/ProductDetails"
+import ProductCategory from "./pages/Products/ProductCategory"
+import Category from "./pages/Category/Category"
 
 function App() {
   return (
@@ -11,6 +12,11 @@ function App() {
       <Route
         path="/"
         element={<Home />}
+      />
+
+            <Route
+         path="/categories"
+        element={<Category/>}
       />
 
       <Route

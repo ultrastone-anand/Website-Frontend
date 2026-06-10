@@ -213,6 +213,7 @@ const Navbar = () => {
 
             <MegaMenu
               title="Material Portfolio"
+              path="/categories"
               materials={materials}
               activeDropdown={activeDropdown}
               dropdownKey="materials"
@@ -567,6 +568,7 @@ const Dropdown = ({
 
 const MegaMenu = ({
   title,
+  path,
   materials,
   activeDropdown,
   dropdownKey,
@@ -615,6 +617,7 @@ const MegaMenu = ({
       onMouseLeave={closeDropdown}
     >
       <button
+      onClick={() => path && navigate(path)}
         className="
         flex
         items-center
