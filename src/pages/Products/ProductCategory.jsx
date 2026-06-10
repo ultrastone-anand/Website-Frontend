@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   useParams,
   useNavigate,
+  Link,
 } from "react-router-dom";
 
 import axios from "axios";
@@ -624,7 +625,10 @@ const filteredProducts = products
                 >
 
                   {/* IMAGE */}
-
+                  
+                  <Link
+                  to={`/product/${category.slug}/${item.slug}`}
+  className="group block">
                   <div
                     className="
                     overflow-hidden
@@ -687,6 +691,8 @@ const filteredProducts = products
                   >
                     {item.small_description}
                   </p>
+
+                  </Link>
 
                 </div>
 
