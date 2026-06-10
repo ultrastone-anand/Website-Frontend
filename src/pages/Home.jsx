@@ -1,12 +1,11 @@
 import Navbar from "../components/common/Navbar"
 import HeroSection from "../components/home/HeroSection"
-import CategoryStrip from "../components/home/CategoryStrip"
 import IntroSection from "../components/home/IntroSection"
 import WarmToneGrid from "../components/home/WarmToneGrid"
-import FeaturedStone from "../components/home/FeaturedStone"
-import InstagramSection from "../components/home/InstagramSection"
-import CollectionsSlider from "../components/home/CollectionsSlider"
 import Footer from "../components/common/Footer"
+import { NewsletterSection } from "../components/home/Newsletter"
+import CommitmentSection from "../components/home/Commitement"
+import PreciousStoneSection from "../components/home/PreciousStone"
 
 const Home = () => {
   return (
@@ -16,30 +15,15 @@ const Home = () => {
 
       <HeroSection />
 
-      <CategoryStrip />
-
       <IntroSection />
 
       <WarmToneGrid />
 
-      <FeaturedStone
-        title="ARABESQUE GOLD"
-        reverse={false}
-      />
+      <PreciousStoneSection/>
 
-      <FeaturedStone
-        title="LUCCICOSO GOLD"
-        reverse={true}
-      />
+      <CommitmentSection />
 
-      <FeaturedStone
-        title="CREMA TAJ"
-        reverse={false}
-      />
-
-      <InstagramSection />
-
-      <CollectionsSlider />
+      <NewsletterSection />
 
       <Footer />
 

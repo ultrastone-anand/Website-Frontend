@@ -1,78 +1,103 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
-const products = [
+const collections = [
   {
-    title: "BACCARA ROSE",
-    slug: "baccara-rose",
+    title: "MARBLE",
+    slug: "marble",
     image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
+      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1200&q=80",
   },
-
   {
-    title: "ARABESQUE GOLD",
-    slug: "arabesque-gold",
+    title: "ULTRA QUARTZ",
+    slug: "ultra-quartz",
     image:
-      "https://images.unsplash.com/photo-1494526585095-c41746248156"
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&q=80",
   },
-
   {
-    title: "LUCCICOSO GOLD",
-    slug: "luccicoso-gold",
+    title: "QUARTZITE",
+    slug: "quartzite",
     image:
-      "https://images.unsplash.com/photo-1484154218962-a197022b5858"
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200&q=80",
   },
-
-  {
-    title: "CREMA TAJ",
-    slug: "crema-taj",
-    image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
-  }
-]
+];
 
 const WarmToneGrid = () => {
   return (
-    <section
-      id="collections"
-      className="pb-32"
-    >
+    <section className="bg-[#f5f5f5] py-16 lg:py-20">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
 
-      <div className="container-custom grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Heading */}
+        <div className="mb-12">
+          <h2 className="text-4xl font-bold inline-block relative">
+            Material Portfolio
 
-        {products.map((product) => (
+            <span
+              className="
+                absolute
+                left-1/2
+                -translate-x-1/2
+                bottom-[-12px]
+                w-[160px]
+                h-[6px]
+                bg-red-600
+              "
+            />
+          </h2>
+        </div>
 
-          <Link
-            to={`/stone/${product.slug}`}
-            key={product.slug}
-            className="group"
-          >
+        {/* Cards */}
+        <div className="grid md:grid-cols-3 gap-8 lg:gap-10">
+          {collections.map((item) => (
+            <Link
+              key={item.slug}
+              to={`/category/${item.slug}`}
+              className="group"
+            >
+              <div className="overflow-hidden rounded-md">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="
+                    w-full
+                    h-[420px]
+                    lg:h-[500px]
+                    object-cover
+                    transition-transform
+                    duration-700
+                    group-hover:scale-105
+                  "
+                />
+              </div>
 
-            <div className="overflow-hidden">
-
-              <img
-                src={product.image}
-                alt=""
-                className="h-[500px] w-full object-cover group-hover:scale-105 duration-700"
-              />
-
-            </div>
-
-            <div className="pt-5">
-
-              <h3 className="tracking-[4px] text-sm">
-                {product.title}
+              <h3 className="mt-4 text-[22px] font-medium tracking-wide">
+                {item.title}
               </h3>
+            </Link>
+          ))}
+        </div>
 
-            </div>
-
-          </Link>
-
-        ))}
+        {/* Button */}
+        <div className="flex justify-center mt-16">
+          <button
+            className="
+              px-10
+              py-3
+              border
+              border-red-400
+              rounded
+              text-black
+              hover:bg-red-500
+              hover:text-white
+              transition-all
+            "
+          >
+            Explore More
+          </button>
+        </div>
 
       </div>
-
     </section>
-  )
-}
+  );
+};
 
-export default WarmToneGrid
+export default WarmToneGrid;

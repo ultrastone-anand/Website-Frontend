@@ -10,7 +10,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative h-screen overflow-hidden">
+    <section className="relative h-[90vh] overflow-hidden">
       {/* Background Video */}
       <motion.video
         initial={{ scale: 1.08 }}
