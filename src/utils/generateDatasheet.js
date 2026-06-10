@@ -88,8 +88,8 @@ export const generateDatasheet = async ({ product }) => {
 pdf.addImage(
   uslogo,
   'PNG',
-  17,
-  9,
+  10,
+  7,
   60,
   22
 );
@@ -105,7 +105,7 @@ pdf.setTextColor(110);
 pdf.text(
   product?.stone_categories?.name?.toUpperCase() || '',
   pageWidth / 2,
-  42,
+  40,
   {
     align: 'center',
   }
