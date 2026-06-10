@@ -27,6 +27,8 @@ import { generateDatasheet } from "../../utils/generateDatasheet";
 import Social from "../../components/common/Socials";
 import ModelViewer from "../../components/common/ModelViewer";
 import model from "../../assets/3d/Marble.glb";
+import QuartzSDS from '../../assets/QuartzSDS.pdf';
+
 
 const ProductDetails = () => {
   const { productSlug } = useParams();
@@ -343,6 +345,15 @@ const ProductDetails = () => {
       images,
     });
   };
+
+const handleDownloadSafetysheet = () => {
+  const link = document.createElement('a');
+  link.href = QuartzSDS;
+  link.download = 'QuartzSDS.pdf';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
   const variationPositions = {
     V1: "7.5%",
@@ -873,14 +884,21 @@ const ProductDetails = () => {
         {/* 3D Stone */}
 
         {/* 3D Stone */}
-        <section>
-          <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
-            <ModelViewer
-              src={model}
-              height={270}
-            />
-          </div>
-        </section>
+{/* 3D Stone */}
+<section>
+  <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
+    <div className="relative">
+      <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-xs md:text-sm px-3 py-1.5 rounded-full backdrop-blur-sm">
+        🖱️ Click interact with the 3D model
+      </div>
+
+      <ModelViewer
+        src={model}
+        height={270}
+      />
+    </div>
+  </div>
+</section>
         {/* APPLICATIONS */}
 
         <section className="py-20 bg-white">
@@ -1049,7 +1067,8 @@ const ProductDetails = () => {
 
               {/* Download Button */}
               <button
-                onClick={handleDownloadDatasheet}
+                // onClick={handleDownloadDatasheet}
+                onClick={handleDownloadSafetysheet}
                 className="
           w-full
           lg:w-auto
