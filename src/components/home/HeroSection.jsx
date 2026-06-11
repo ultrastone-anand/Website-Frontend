@@ -10,7 +10,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative h-[90vh] overflow-hidden">
+    <section className="relative h-[90vh] overflow-hidden pt-[110px]">
       {/* Background Video */}
       <motion.video
         initial={{ scale: 1.08 }}
@@ -20,7 +20,7 @@ const HeroSection = () => {
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover "
       >
         <source
           src="https://res.cloudinary.com/dx0u8csf4/video/upload/v1780602872/lv_0_20240514200655_vjgxsa.mp4"

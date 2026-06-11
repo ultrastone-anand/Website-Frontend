@@ -17,8 +17,8 @@ const Navbar = () => {
   const [mobileMenu, setMobileMenu] =
     useState(false);
 
-    const [mobileDropdown, setMobileDropdown] =
-  useState(null);
+  const [mobileDropdown, setMobileDropdown] =
+    useState(null);
 
   const [activeDropdown, setActiveDropdown] =
     useState(null);
@@ -26,6 +26,21 @@ const Navbar = () => {
   const [materials, setMaterials] = useState(
     [],
   );
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 40);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () =>
+      window.removeEventListener(
+        "scroll",
+        handleScroll
+      );
+  }, []);
 
   const dropdownTimeout = useRef(null);
 
@@ -77,39 +92,78 @@ const Navbar = () => {
   // ================= STATIC DATA =================
 
   const experience = [
-    "About Us",
-    "Showrooms",
-    "The Slab Pavilion",
-    "Our Process",
+    {
+      label: "About Us",
+      path: "/aboutus",
+    },
+    {
+      label: "Showrooms",
+      path: "/showrooms",
+    },
+    {
+      label: "The Slab Pavilion",
+      path: "/slab-pavilion",
+    },
+    {
+      label: "Our Process",
+      path: "/our-process",
+    },
   ];
 
-  const resources = [
-    "Resource Library",
-    "Merchandising Displays",
-    "Silica Safety First",
-    "Videos",
-    "Our Blogs",
-    "CEU",
-    "Career",
-  ];
-
-  const locations = [
-    "New York",
-    "Philadelphia",
-  ];
+const resources = [
+  {
+    label: "Resource Library",
+    path: "/resource-library",
+  },
+  {
+    label: "Merchandising Displays",
+    path: "/merchandising-displays",
+  },
+  {
+    label: "Silica Safety First",
+    path: "/silica-safety-first",
+  },
+  {
+    label: "Videos",
+    path: "/videos",
+  },
+  {
+    label: "Our Blogs",
+    path: "/blogs",
+  },
+  {
+    label: "CEU",
+    path: "/ceu",
+  },
+  {
+    label: "Career",
+    path: "/career",
+  },
+];
 
   return (
     <header
-      className="
-      fixed
-      top-0
-      left-0
-      w-full
-      z-50
-      bg-[#fff]
-      border-b
-      border-black/5
-      "
+      className={`
+    fixed
+    top-0
+    left-0
+    w-full
+    z-50
+    transition-all
+    duration-500
+    ${scrolled
+          ? `
+          bg-white/95
+          backdrop-blur-md
+          shadow-md
+          border-b
+          border-black/5
+        `
+          : `
+          bg-transparent
+        `
+        }
+  `}
     >
       <div
         className="
@@ -130,67 +184,57 @@ const Navbar = () => {
         >
           {/* LOGO */}
 
-          <div
-            className="
-            shrink-0
-            cursor-pointer
-            "
-            onClick={() => navigate("/")}
-          >
-            <img
-              src="/logo1.svg"
-              alt="Ultra Stones"
-              className="
-              h-[72px]
-              w-auto
-              object-contain
-              "
-            />
-          </div>
+<div
+  className="shrink-0 cursor-pointer"
+  onClick={() => navigate("/")}
+>
+  <div className="relative h-[64px] w-[220px]">
+    
+    {/* WHITE LOGO */}
+    <img
+      src="/logo_white.png"
+      alt="Ultra Stones"
+      className={`
+        absolute
+        inset-0
+        h-full
+        w-auto
+        object-contain
+        transition-all
+        duration-500
+        ease-in-out
+        ${
+          scrolled
+            ? "opacity-0"
+            : "opacity-100"
+        }
+      `}
+    />
 
-          {/* SEARCH */}
+    {/* DARK LOGO */}
+    <img
+      src="/logo1.svg"
+      alt="Ultra Stones"
+      className={`
+        absolute
+        inset-0
+        h-full
+        w-auto
+        object-contain
+        transition-all
+        duration-500
+        ease-in-out
+        ${
+          scrolled
+            ? "opacity-100"
+            : "opacity-0"
+        }
+      `}
+    />
+  </div>
+</div>
 
-          <div
-            className="
-            hidden
-            lg:flex
-            flex-1
-            max-w-[600px]
-            relative
-            "
-          >
-            <input
-              type="text"
-              placeholder="Search Material"
-              className="
-              w-full
-              h-[46px]
-              rounded-full
-              bg-[#d9d6d3]
-              px-7
-              pr-14
-              text-[14px]
-              text-[#3f3f3f]
-              placeholder:text-[#8f8f8f]
-              outline-none
-              "
-            />
 
-            <button
-              className="
-              absolute
-              right-5
-              top-1/2
-              -translate-y-1/2
-              text-[#8d8d8d]
-              "
-            >
-              <Search
-                size={18}
-                strokeWidth={1.7}
-              />
-            </button>
-          </div>
 
           {/* DESKTOP MENU */}
 
@@ -209,6 +253,8 @@ const Navbar = () => {
               dropdownKey="experience"
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
+              navigate={navigate}
+              scrolled={scrolled}
             />
 
             <MegaMenu
@@ -220,6 +266,7 @@ const Navbar = () => {
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
               navigate={navigate}
+              scrolled={scrolled}
             />
 
             <Dropdown
@@ -229,27 +276,99 @@ const Navbar = () => {
               dropdownKey="resources"
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
+              navigate={navigate}
+              scrolled={scrolled}
             />
 
-            <Dropdown
-              title="Locations"
-              items={locations}
-              activeDropdown={activeDropdown}
-              dropdownKey="locations"
-              openDropdown={openDropdown}
-              closeDropdown={closeDropdown}
+            <NavLink
+              title="Location"
+              onClick={() => navigate("/locations")}
+              scrolled={scrolled}
             />
 
-            <NavLink title="Contact" />
+            <NavLink
+              title="Contact"
+              onClick={() => navigate("/contacts")}
+              scrolled={scrolled}
+            />
+
+                      {/* SEARCH */}
+
+          <div
+            className="
+    hidden
+    lg:flex
+    flex-1
+    max-w-[320px]
+    relative
+  "
+          >
+            <input
+              type="text"
+              placeholder="Search Material"
+              className={`
+      w-full
+      h-[34px]
+      rounded-md
+      px-4
+      pr-10
+      text-[12px]
+      outline-none
+      transition-all
+      duration-300
+      ${scrolled
+                  ? `
+            bg-[#f5f5f5]
+            border
+            border-gray-300
+            text-black
+            placeholder:text-gray-500
+          `
+                  : `
+            bg-white/10
+            border
+            border-white/30
+            text-white
+            placeholder:text-white/70
+          `
+                }
+    `}
+            />
+
+            <button
+              className="
+      absolute
+      right-3
+      top-1/2
+      -translate-y-1/2
+    "
+            >
+              <Search
+                size={14}
+                color={
+                  scrolled
+                    ? "#555"
+                    : "#fff"
+                }
+              />
+            </button>
+          </div>
+
           </nav>
 
           {/* MOBILE */}
 
           <button
-            className="
-            xl:hidden
-            text-black
-            "
+            className={`
+  xl:hidden
+  transition-all
+  duration-300
+  ${
+    scrolled
+      ? "text-black"
+      : "text-white"
+  }
+`}
             onClick={() =>
               setMobileMenu(!mobileMenu)
             }
@@ -264,9 +383,9 @@ const Navbar = () => {
 
           {/* MOBILE MENU */}
 
-{mobileMenu && (
-  <div
-    className="
+          {mobileMenu && (
+            <div
+              className="
       xl:hidden
       absolute
       top-[88px]
@@ -278,171 +397,171 @@ const Navbar = () => {
       max-h-[calc(100vh-88px)]
       overflow-y-auto
     "
-  >
-    <div className="p-6">
+            >
+              <div className="p-6">
 
-      {/* Ultra Experience */}
+                {/* Ultra Experience */}
 
-      <div className="border-b pb-4 mb-4">
-        <button
-          onClick={() =>
-            setMobileDropdown(
-              mobileDropdown === "experience"
-                ? null
-                : "experience"
-            )
-          }
-          className="
+                <div className="border-b pb-4 mb-4">
+                  <button
+                    onClick={() =>
+                      setMobileDropdown(
+                        mobileDropdown === "experience"
+                          ? null
+                          : "experience"
+                      )
+                    }
+                    className="
             flex
             justify-between
             w-full
             font-medium
           "
-        >
-          Ultra Experience
-          <ChevronDown size={18} />
-        </button>
+                  >
+                    Ultra Experience
+                    <ChevronDown size={18} />
+                  </button>
 
-        {mobileDropdown === "experience" && (
-          <div className="mt-3 pl-4 space-y-3">
-            {experience.map((item) => (
-              <button
-                key={item}
-                className="block text-left"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+                  {mobileDropdown === "experience" && (
+                    <div className="mt-3 pl-4 space-y-3">
+                      {experience.map((item) => (
+                        <button
+                          key={item}
+                          className="block text-left"
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-      {/* Material Portfolio */}
+                {/* Material Portfolio */}
 
-      <div className="border-b pb-4 mb-4">
-        <button
-          onClick={() =>
-            setMobileDropdown(
-              mobileDropdown === "materials"
-                ? null
-                : "materials"
-            )
-          }
-          className="
+                <div className="border-b pb-4 mb-4">
+                  <button
+                    onClick={() =>
+                      setMobileDropdown(
+                        mobileDropdown === "materials"
+                          ? null
+                          : "materials"
+                      )
+                    }
+                    className="
             flex
             justify-between
             w-full
             font-medium
           "
-        >
-          Material Portfolio
-          <ChevronDown size={18} />
-        </button>
+                  >
+                    Material Portfolio
+                    <ChevronDown size={18} />
+                  </button>
 
-        {mobileDropdown === "materials" && (
-          <div className="mt-3 pl-4 space-y-3">
-            {materials
-              .filter(
-                (item) =>
-                  item.parent_id === null
-              )
-              .map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    navigate(
-                      `/product-category/${item.slug}`
-                    );
-                    setMobileMenu(false);
-                  }}
-                  className="block text-left"
-                >
-                  {item.name}
+                  {mobileDropdown === "materials" && (
+                    <div className="mt-3 pl-4 space-y-3">
+                      {materials
+                        .filter(
+                          (item) =>
+                            item.parent_id === null
+                        )
+                        .map((item) => (
+                          <button
+                            key={item.id}
+                            onClick={() => {
+                              navigate(
+                                `/product-category/${item.slug}`
+                              );
+                              setMobileMenu(false);
+                            }}
+                            className="block text-left"
+                          >
+                            {item.name}
+                          </button>
+                        ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Resource Center */}
+
+                <div className="border-b pb-4 mb-4">
+                  <button
+                    onClick={() =>
+                      setMobileDropdown(
+                        mobileDropdown === "resources"
+                          ? null
+                          : "resources"
+                      )
+                    }
+                    className="
+            flex
+            justify-between
+            w-full
+            font-medium
+          "
+                  >
+                    Resource Center
+                    <ChevronDown size={18} />
+                  </button>
+
+                  {mobileDropdown === "resources" && (
+                    <div className="mt-3 pl-4 space-y-3">
+                      {resources.map((item) => (
+                        <button
+                          key={item}
+                          className="block text-left"
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Locations */}
+
+                <div className="border-b pb-4 mb-4">
+                  <button
+                    onClick={() =>
+                      setMobileDropdown(
+                        mobileDropdown === "locations"
+                          ? null
+                          : "locations"
+                      )
+                    }
+                    className="
+            flex
+            justify-between
+            w-full
+            font-medium
+          "
+                  >
+                    Locations
+                    <ChevronDown size={18} />
+                  </button>
+
+                  {mobileDropdown === "locations" && (
+                    <div className="mt-3 pl-4 space-y-3">
+                      {locations.map((item) => (
+                        <button
+                          key={item}
+                          className="block text-left"
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <button className="font-medium">
+                  Contact
                 </button>
-              ))}
-          </div>
-        )}
-      </div>
 
-      {/* Resource Center */}
-
-      <div className="border-b pb-4 mb-4">
-        <button
-          onClick={() =>
-            setMobileDropdown(
-              mobileDropdown === "resources"
-                ? null
-                : "resources"
-            )
-          }
-          className="
-            flex
-            justify-between
-            w-full
-            font-medium
-          "
-        >
-          Resource Center
-          <ChevronDown size={18} />
-        </button>
-
-        {mobileDropdown === "resources" && (
-          <div className="mt-3 pl-4 space-y-3">
-            {resources.map((item) => (
-              <button
-                key={item}
-                className="block text-left"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Locations */}
-
-      <div className="border-b pb-4 mb-4">
-        <button
-          onClick={() =>
-            setMobileDropdown(
-              mobileDropdown === "locations"
-                ? null
-                : "locations"
-            )
-          }
-          className="
-            flex
-            justify-between
-            w-full
-            font-medium
-          "
-        >
-          Locations
-          <ChevronDown size={18} />
-        </button>
-
-        {mobileDropdown === "locations" && (
-          <div className="mt-3 pl-4 space-y-3">
-            {locations.map((item) => (
-              <button
-                key={item}
-                className="block text-left"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <button className="font-medium">
-        Contact
-      </button>
-
-    </div>
-  </div>
-)}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>
@@ -453,26 +572,25 @@ export default Navbar;
 
 // ================= NAV LINK =================
 
-const NavLink = ({ title }) => {
+const NavLink = ({
+  title,
+  onClick,
+  scrolled,
+}) => {
   return (
     <button
-      className="
-      relative
-      text-[12px]
-      uppercase
-      tracking-[2px]
-      text-[#8b8b8b]
-      hover:text-black
-      duration-300
-      after:absolute
-      after:left-0
-      after:-bottom-[8px]
-      after:h-[1px]
-      after:w-0
-      after:bg-black
-      after:duration-300
-      hover:after:w-full
-      "
+      onClick={onClick}
+      className={`
+        relative
+        text-[11px]
+        uppercase
+        tracking-[1px]
+        duration-300
+        ${scrolled
+          ? "text-[#555] hover:text-black"
+          : "text-white hover:text-white"
+        }
+      `}
     >
       {title}
     </button>
@@ -488,6 +606,8 @@ const Dropdown = ({
   dropdownKey,
   openDropdown,
   closeDropdown,
+  navigate,
+  scrolled,
 }) => {
   const isActive =
     activeDropdown === dropdownKey;
@@ -501,17 +621,19 @@ const Dropdown = ({
       onMouseLeave={closeDropdown}
     >
       <button
-        className="
-        flex
-        items-center
-        gap-1
-        text-[12px]
-        uppercase
-        tracking-[2px]
-        text-[#8b8b8b]
-        hover:text-black
-        duration-300
-        "
+        className={`
+    flex
+    items-center
+    gap-1
+    text-[11px]
+    uppercase
+    tracking-[1px]
+    duration-300
+    ${scrolled
+            ? "text-[#555]"
+            : "text-white"
+          }
+  `}
       >
         {title}
 
@@ -535,27 +657,29 @@ const Dropdown = ({
         shadow-[0_15px_40px_rgba(0,0,0,0.08)]
         p-6
         duration-300
-        ${
-          isActive
+        ${isActive
             ? "opacity-100 visible translate-y-0"
             : "opacity-0 invisible translate-y-3"
-        }
+          }
         `}
       >
         <div className="space-y-4">
+
+
           {items.map((item, index) => (
             <button
               key={index}
+              onClick={() => item.path && navigate(item.path)}
               className="
-              block
-              text-left
-              text-[14px]
-              text-[#666]
-              hover:text-black
-              duration-300
-              "
+      block
+      text-left
+      text-[14px]
+      text-[#666]
+      hover:text-black
+      duration-300
+    "
             >
-              {item}
+              {item.label}
             </button>
           ))}
         </div>
@@ -575,6 +699,7 @@ const MegaMenu = ({
   openDropdown,
   closeDropdown,
   navigate,
+  scrolled,
 }) => {
   const isActive =
     activeDropdown === dropdownKey;
@@ -617,18 +742,20 @@ const MegaMenu = ({
       onMouseLeave={closeDropdown}
     >
       <button
-      onClick={() => path && navigate(path)}
-        className="
-        flex
-        items-center
-        gap-1
-        text-[12px]
-        uppercase
-        tracking-[2px]
-        text-[#8b8b8b]
-        hover:text-black
-        duration-300
-        "
+        onClick={() => path && navigate(path)}
+        className={`
+    flex
+    items-center
+    gap-1
+    text-[11px]
+    uppercase
+    tracking-[1px]
+    duration-300
+    ${scrolled
+            ? "text-[#555]"
+            : "text-white"
+          }
+  `}
       >
         {title}
 
@@ -641,7 +768,7 @@ const MegaMenu = ({
       {/* MEGA MENU */}
 
       <div
-  className={`
+        className={`
     absolute
     top-[48px]
     left-[-140px]
@@ -654,13 +781,12 @@ const MegaMenu = ({
     shadow-[0_20px_60px_rgba(0,0,0,0.08)]
     p-7
     duration-300
-    ${
-      isActive
-        ? "opacity-100 visible translate-y-0"
-        : "opacity-0 invisible translate-y-3"
-    }
+    ${isActive
+            ? "opacity-100 visible translate-y-0"
+            : "opacity-0 invisible translate-y-3"
+          }
   `}
->
+      >
         <div
           className="
           grid
@@ -699,12 +825,11 @@ const MegaMenu = ({
                   border-black/8
                   text-[15px]
                   duration-300
-                  ${
-                    hoveredParent ===
-                    parent.id
+                  ${hoveredParent ===
+                      parent.id
                       ? "text-black font-medium"
                       : "text-[#6f6f6f] hover:text-black"
-                  }
+                    }
                   `}
                 >
                   {parent.name}
@@ -750,7 +875,7 @@ const MegaMenu = ({
                     </h3>
 
                     {children.length >
-                    0 ? (
+                      0 ? (
                       <div className="space-y-4">
                         {children.map(
                           (child) => (
