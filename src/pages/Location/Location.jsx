@@ -167,7 +167,7 @@ const Location = () => {
 
       <div className="flex items-center justify-end">
         <a
-          href="https://maps.google.com"
+          href="https://www.google.com/maps?cid=13703024350391917287&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAMYASAF&hl=en-GB&source=embed"
           target="_blank"
           rel="noreferrer"
           className="
@@ -280,7 +280,7 @@ const Location = () => {
 
       <div className="flex items-center justify-end">
         <a
-          href="https://maps.google.com"
+          href="https://www.google.com/maps/place/2301+Hornig+Rd,+Philadelphia,+PA+19116,+USA/@40.1126089,-74.9996672,1810m/data=!3m2!1e3!4b1!4m5!3m4!1s0x89c6b2ee8ec661ed:0xd867c8144cb61bcb!8m2!3d40.1126089!4d-74.9996672?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MDYwMy4xIKXMDSoASAFQAw%3D%3D"
           target="_blank"
           rel="noreferrer"
           className="

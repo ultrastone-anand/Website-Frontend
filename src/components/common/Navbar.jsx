@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import axios from "axios";
 
@@ -9,10 +10,12 @@ import {
   X,
 } from "lucide-react";
 
-import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
+const location = useLocation();
+
+const isHomePage = location.pathname === "/";
 
   const [mobileMenu, setMobileMenu] =
     useState(false);
@@ -43,6 +46,8 @@ const Navbar = () => {
   }, []);
 
   const dropdownTimeout = useRef(null);
+
+  const useDarkNavbar = scrolled || !isHomePage;
 
   // ================= FETCH CATEGORIES =================
 
@@ -195,20 +200,10 @@ const resources = [
       src="/logo_white.png"
       alt="Ultra Stones"
       className={`
-        absolute
-        inset-0
-        h-full
-        w-auto
-        object-contain
-        transition-all
-        duration-500
-        ease-in-out
-        ${
-          scrolled
-            ? "opacity-0"
-            : "opacity-100"
-        }
-      `}
+absolute inset-0 h-full w-auto object-contain
+transition-all duration-500 ease-in-out
+${useDarkNavbar ? "opacity-0" : "opacity-100"}
+`}
     />
 
     {/* DARK LOGO */}
@@ -216,20 +211,10 @@ const resources = [
       src="/logo1.svg"
       alt="Ultra Stones"
       className={`
-        absolute
-        inset-0
-        h-full
-        w-auto
-        object-contain
-        transition-all
-        duration-500
-        ease-in-out
-        ${
-          scrolled
-            ? "opacity-100"
-            : "opacity-0"
-        }
-      `}
+absolute inset-0 h-full w-auto object-contain
+transition-all duration-500 ease-in-out
+${useDarkNavbar ? "opacity-100" : "opacity-0"}
+`}
     />
   </div>
 </div>
@@ -254,7 +239,7 @@ const resources = [
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
               navigate={navigate}
-              scrolled={scrolled}
+              scrolled={useDarkNavbar}
             />
 
             <MegaMenu
@@ -266,7 +251,7 @@ const resources = [
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
               navigate={navigate}
-              scrolled={scrolled}
+              scrolled={useDarkNavbar}
             />
 
             <Dropdown
@@ -277,19 +262,19 @@ const resources = [
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
               navigate={navigate}
-              scrolled={scrolled}
+              scrolled={useDarkNavbar}
             />
 
             <NavLink
               title="Location"
               onClick={() => navigate("/locations")}
-              scrolled={scrolled}
+              scrolled={useDarkNavbar}
             />
 
             <NavLink
               title="Contact"
               onClick={() => navigate("/contacts")}
-              scrolled={scrolled}
+              scrolled={useDarkNavbar}
             />
 
                       {/* SEARCH */}
@@ -316,7 +301,7 @@ const resources = [
       outline-none
       transition-all
       duration-300
-      ${scrolled
+      ${useDarkNavbar
                   ? `
             bg-[#f5f5f5]
             border
@@ -637,10 +622,6 @@ const Dropdown = ({
       >
         {title}
 
-        <ChevronDown
-          size={13}
-          strokeWidth={1.5}
-        />
       </button>
 
       {/* DROPDOWN */}
@@ -759,10 +740,6 @@ const MegaMenu = ({
       >
         {title}
 
-        <ChevronDown
-          size={13}
-          strokeWidth={1.5}
-        />
       </button>
 
       {/* MEGA MENU */}
