@@ -158,11 +158,9 @@ const resources = [
     duration-500
     ${scrolled
           ? `
-          bg-white/95
+          bg-white/75
           backdrop-blur-md
           shadow-md
-          border-b
-          border-black/5
         `
           : `
           bg-transparent
@@ -191,7 +189,14 @@ const resources = [
 
 <div
   className="shrink-0 cursor-pointer"
-  onClick={() => navigate("/")}
+    onClick={() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+    navigate("/");
+  }}
 >
   <div className="relative h-[64px] w-[220px]">
     
