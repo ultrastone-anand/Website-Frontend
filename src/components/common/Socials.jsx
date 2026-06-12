@@ -1,56 +1,73 @@
-const socials = [
-  {
-    name: "YouTube",
-    icon: "/icons/socials/Youtube.svg",
-    link: "https://www.youtube.com/@ultra-stones",
-  },
-  {
-    name: "Facebook",
-    icon: "/icons/socials/Facebook.svg",
-    link: "https://www.facebook.com/Ultrastone1/",
-  },
-  {
-    name: "Instagram",
-    icon: "/icons/socials/Instagram.svg",
-    link: "https://www.instagram.com/ultrastones/",
-  },
-  {
-    name: "X",
-    icon: "/icons/socials/X.svg",
-    link: "https://x.com/ultrastones_usa",
-  },
-  {
-    name: "Pintrest",
-    icon: "/icons/socials/Pinterest.svg",
-    link: "https://x.com",
-  },
-  {
-    name: "Houzz",
-    icon: "/icons/socials/Houz.svg",
-    link: "https://www.houzz.in/hznb/professionals/tile-stone-and-countertops/ultra-stones-pfvwus-pf~760046721",
-  },
-];
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+const socialIcons = {
+  youtube: "/icons/socials/Youtube.svg",
+  facebook: "/icons/socials/Facebook.svg",
+  instagram: "/icons/socials/Instagram.svg",
+  twitter: "/icons/socials/X.svg",
+  pinterest: "/icons/socials/Pinterest.svg",
+  houzz: "/icons/socials/Houz.svg",
+};
 
 export default function Social() {
+  const [socials, setSocials] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchSocials = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/company/socialmedia`
+      );
+
+      if (response.data.success) {
+        const activeSocials = (response.data.data || [])
+          .filter((item) => item.is_active)
+          .sort(
+            (a, b) =>
+              a.display_order -
+              b.display_order
+          );
+
+        setSocials(activeSocials);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSocials();
+  }, []);
+
+  if (loading) return null;
+
   return (
     <div className="flex items-center gap-4">
       {socials.map((item) => (
         <a
-          key={item.name}
-          href={item.link}
+          key={item.id}
+          href={item.url}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={item.name}
+          aria-label={item.platform}
           className="group"
         >
           <img
-  src={item.icon}
-  alt={item.name}
-  className="w-6 h-6 shrink-0 transition-transform duration-200 group-hover:scale-110"
-  style={{
-    imageRendering: "crisp-edges",
-  }}
-/>
+            src={
+              socialIcons[
+                item.platform
+              ]
+            }
+            alt={item.platform}
+            className="w-6 h-6 shrink-0 transition-transform duration-200 group-hover:scale-110"
+            style={{
+              imageRendering:
+                "crisp-edges",
+            }}
+          />
         </a>
       ))}
     </div>

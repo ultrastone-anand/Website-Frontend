@@ -1,6 +1,8 @@
 // src/components/common/Footer.jsx
 
-import { MapPin, Phone, Clock3, Home } from "lucide-react";
+import axios from "axios";
+import { MapPin, Phone, Clock3, Home, Building2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import {
   FaFacebookF,
@@ -9,21 +11,81 @@ import {
   FaPinterestP,
   FaXTwitter,
 } from "react-icons/fa6";
+import { PiOfficeChairBold } from "react-icons/pi";
+
+
 
 const Footer = () => {
+  const [showrooms, setShowrooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [socials, setSocials] = useState([]);
+
+  const fetchSocials = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/company/socialmedia`
+      );
+
+      if (response.data.success) {
+        setSocials(
+          response.data.data
+            .filter((item) => item.is_active)
+            .sort(
+              (a, b) =>
+                a.display_order - b.display_order
+            )
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchShowrooms = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/company`
+      );
+
+      if (response.data.success) {
+        setShowrooms(response.data.data || []);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchShowrooms();
+    fetchSocials();
+  }, []);
+
+  const officeHours = showrooms?.[0];
+
+  const socialIcons = {
+    youtube: FaYoutube,
+    facebook: FaFacebookF,
+    instagram: FaInstagram,
+    twitter: FaXTwitter,
+    x: FaXTwitter,
+    pinterest: FaPinterestP,
+  };
+
   return (
     <footer className="relative overflow-hidden text-white">
       {/* BACKGROUND IMAGE */}
 
-<div
-  className="
+      <div
+        className="
   absolute
   inset-0
   bg-[url('/footer.jpg')]
   bg-cover
   bg-center
   "
-/>
+      />
 
       {/* DARK OVERLAY */}
 
@@ -102,25 +164,16 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* NEW YORK */}
-
-          <FooterLocation
-            title="New York Showroom"
-            address="55 Central Drive, Farmingdale, NY 11735"
-            phone1="631-873-4747"
-            phone2="631-873-4748"
-            fax="631-873-4749"
-          />
-
-          {/* PHILADELPHIA */}
-
-          <FooterLocation
-            title="Philadelphia Showroom"
-            address="3907 Nebraska St, Levittown, PA 19056"
-            phone1="215-647-3972"
-            phone2="215-647-3974"
-            fax="215-647-3977"
-          />
+          {showrooms.map((showroom) => (
+            <FooterLocation
+              key={showroom.id}
+              title={showroom.name}
+              address={`${showroom.address}, ${showroom.state} ${showroom.zip_code}`}
+              phone1={showroom.primary_phone}
+              phone2={showroom.secondary_phone}
+              fax={showroom.company_phone}
+            />
+          ))}
 
           {/* HOURS */}
 
@@ -149,8 +202,9 @@ const Footer = () => {
                 </p>
 
                 <p className="text-[13px] text-white/75">
-                  8:00 AM to 5:00 PM
+                  {officeHours?.business_hours_mon_fri || "8:00 AM to 5:00 PM"}
                 </p>
+
               </div>
 
               <div>
@@ -158,8 +212,9 @@ const Footer = () => {
                   Saturday
                 </p>
 
+
                 <p className="text-[13px] text-white/75">
-                  9:00 AM to 1:00 PM
+                  {officeHours?.business_hours_saturday || "9:00 AM to 1:00 PM"}
                 </p>
               </div>
             </div>
@@ -246,13 +301,40 @@ const Footer = () => {
 
           {/* SOCIALS */}
 
-          <div className="flex items-center gap-2">
-            <SocialButton icon={<FaYoutube size={16} />} />
-            <SocialButton icon={<FaFacebookF size={16} />} />
-            <SocialButton icon={<FaInstagram size={16} />} />
-            <SocialButton icon={<FaPinterestP size={16} />} />
-            <SocialButton icon={<FaXTwitter size={16} />} />
+          {/* SOCIALS + COPYRIGHT */}
+
+          <div className="flex flex-col items-center xl:items-end gap-3">
+            <div className="flex items-center gap-2">
+              {socials.map((social) => {
+                const Icon =
+                  socialIcons[
+                  social.platform?.toLowerCase()
+                  ];
+
+                if (!Icon) return null;
+
+                return (
+                  <a
+                    key={social.id}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <SocialButton
+                      icon={<Icon size={16} />}
+                    />
+                  </a>
+                );
+              })}
+            </div>
+
+            <p className="text-[12px] text-white/60 text-center xl:text-right">
+              Copyright {new Date().getFullYear()} © ULTRA STONES.
+              All Rights Reserved.
+            </p>
           </div>
+
+
         </div>
       </div>
     </footer>
@@ -294,7 +376,7 @@ const FooterLocation = ({ title, address, phone1, phone2, fax }) => {
 
         <InfoRow icon={<Phone size={13} />} text={`${phone1}\n${phone2}`} />
 
-        <InfoRow icon={<Phone size={13} />} text={fax} />
+        <InfoRow icon={<Building2 size={13} />} text={fax} />
       </div>
     </div>
   );
