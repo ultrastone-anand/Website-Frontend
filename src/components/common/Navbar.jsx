@@ -111,7 +111,7 @@ const isHomePage = location.pathname === "/";
     },
     {
       label: "Our Process",
-      path: "/our-process",
+      path: "/ourprocess",
     },
   ];
 

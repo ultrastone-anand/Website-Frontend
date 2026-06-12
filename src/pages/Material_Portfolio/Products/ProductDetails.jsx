@@ -37,6 +37,8 @@ const ProductDetails = () => {
 
   const [activeImage, setActiveImage] = useState(0);
 
+  const [openFaq, setOpenFaq] = useState(1);
+
   const [zoomStyle, setZoomStyle] = useState({
     backgroundImage: "",
     backgroundPosition: "0% 0%",
@@ -361,7 +363,36 @@ const ProductDetails = () => {
     V3: "64.5%",
     V4: "92.5%",
   };
+
   const activeVariation = product?.variation_level || "V1";
+
+  const faqs = [
+  {
+    question: "Does this material require sealing?",
+    answer:
+      "Most natural stones benefit from sealing depending on the finish and application.",
+  },
+  {
+    question: "Is this stone suitable for kitchen countertops?",
+    answer:
+      "Yes, this material is suitable for kitchen countertops when properly fabricated, installed, and maintained.",
+  },
+  {
+    question: "Can this stone be used in bathrooms and shower areas?",
+    answer:
+      "Yes, it performs well in bathroom and shower applications when installed correctly.",
+  },
+  {
+    question: "Is this material suitable for outdoor use?",
+    answer:
+      "Outdoor suitability depends on the stone type and local environmental conditions.",
+  },
+  {
+    question: "Can this stone be used in bathrooms and shower areas?",
+    answer:
+      "Yes, it can be used in wet areas when proper installation practices are followed.",
+  },
+];
 
   return (
     <>
@@ -382,7 +413,7 @@ const ProductDetails = () => {
           >
             {/* MATERIAL TITLE */}
 
-            <h1
+            <h2
               className="
       text-[34px]
       md:text-[38px]
@@ -395,7 +426,7 @@ const ProductDetails = () => {
               }}
             >
               {product.stone_categories?.name || "Ultra Stones"}
-            </h1>
+            </h2>
 
             {/* RED LINE */}
 
@@ -882,9 +913,6 @@ const ProductDetails = () => {
         </section>
 
         {/* 3D Stone */}
-
-        {/* 3D Stone */}
-        {/* 3D Stone */}
         <section>
           <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
             <div className="relative">
@@ -899,6 +927,7 @@ const ProductDetails = () => {
             </div>
           </div>
         </section>
+
         {/* APPLICATIONS */}
 
         <section className="py-20 bg-white">
@@ -1215,6 +1244,150 @@ const ProductDetails = () => {
                   <span className="text-[11px] md:text-[14px] text-[#666]">
                     High Variation
                   </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+
+        <section className="pb-20 bg-white">
+          <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
+            <div
+              className="
+      bg-[#f5f5f5]
+      border
+      border-[#d9d9d9]
+      rounded-sm
+      p-6
+      lg:p-10
+    "
+            >
+              <div className="grid lg:grid-cols-[340px_1fr] gap-10">
+                {/* LEFT */}
+
+<div className="lg:pr-8">
+  <p
+    className="
+    text-[12px]
+    uppercase
+    tracking-[3px]
+    text-[#9b9b9b]
+    mb-4
+  "
+  >
+    FAQ
+  </p>
+
+  <h2
+    className="
+    text-[42px]
+    leading-[1]
+    font-semibold
+    text-[#161412]
+    mb-6
+  "
+    style={{
+      fontFamily: "Montserrat, sans-serif",
+    }}
+  >
+    Frequently Asked Questions
+  </h2>
+
+  <div className="w-[60px] h-[3px] bg-[#C91F26] mb-6" />
+
+  <p
+    className="
+    text-[15px]
+    leading-[1.8]
+    text-[#6b6b6b]
+    max-w-[320px]
+  "
+  >
+    Everything you need to know about this material,
+    fabrication requirements, maintenance and recommended
+    applications.
+  </p>
+</div>
+
+                {/* RIGHT */}
+
+                <div className="space-y-3">
+                  {faqs.map((faq, index) => {
+                    const isOpen = openFaq === index;
+
+                    return (
+                      <div
+                        key={index}
+                        className="
+                border
+                border-[#cfcfcf]
+                bg-white
+                overflow-hidden
+              "
+                      >
+                        <button
+                          onClick={() =>
+                            setOpenFaq(isOpen ? null : index)
+                          }
+                          className={`
+                    w-full
+                    flex
+                    items-center
+                    justify-between
+                    px-5
+                    py-4
+                    text-left
+                    transition-all
+                    duration-300
+                    ${isOpen
+                              ? "bg-[#4a4a4a] text-white"
+                              : "bg-white text-[#161412]"
+                            }
+                  `}
+                        >
+                          <span
+                            className="
+                    text-[13px]
+                    font-medium
+                  "
+                          >
+                            {index + 1}. {faq.question}
+                          </span>
+
+                          <span className="text-[18px]">
+                            {isOpen ? "−" : "+"}
+                          </span>
+                        </button>
+
+                        <div
+                          className={`
+                    transition-all
+                    duration-300
+                    overflow-hidden
+                    ${isOpen
+                              ? "max-h-[200px]"
+                              : "max-h-0"
+                            }
+                  `}
+                        >
+                          <div
+                            className="
+                    px-5
+                    py-4
+                    text-[13px]
+                    text-[#666]
+                    bg-[#4a4a4a]
+                    text-white
+                  "
+                          >
+                            {faq.answer}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

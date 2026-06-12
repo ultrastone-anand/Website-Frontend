@@ -1,7 +1,38 @@
+import axios from "axios";
+import { useState, useEffect } from "react";
+
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 
 export default function Contact() {
+const [showrooms, setShowrooms] = useState([]);
+
+useEffect(() => {
+  fetchShowrooms();
+}, []);
+
+const fetchShowrooms = async () => {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/company`
+    );
+
+    if (response.data.success) {
+      setShowrooms(
+        response.data.data
+          .filter((item) => item.is_active)
+          .sort(
+            (a, b) =>
+              (a.display_order || 0) -
+              (b.display_order || 0)
+          )
+      );
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
   return (
     <>
       <Navbar />
@@ -127,31 +158,22 @@ export default function Contact() {
                     Visit Us
                   </h3>
 
-                  <div className="space-y-8">
-                    <div>
-                      <p className="text-[13px] font-medium text-[#222]">
-                        New York
-                      </p>
+<div className="space-y-8">
+  {showrooms.map((showroom) => (
+    <div key={showroom.id}>
+      <p className="text-[13px] font-medium text-[#222]">
+        {showroom.name}
+      </p>
 
-                      <p className="text-[12px] text-[#666] leading-5">
-                        55 Central Drive,
-                        <br />
-                        Farmingdale NY 11735
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-[13px] font-medium text-[#222]">
-                        Philadelphia
-                      </p>
-
-                      <p className="text-[12px] text-[#666] leading-5">
-                        2301 Hornig Rd,
-                        <br />
-                        Philadelphia, PA 19116
-                      </p>
-                    </div>
-                  </div>
+      <p className="text-[12px] text-[#666] leading-5">
+        {showroom.address}
+        <br />
+        {showroom.city}, {showroom.state}{" "}
+        {showroom.zip_code}
+      </p>
+    </div>
+  ))}
+</div>
                 </div>
 
                 <div>
@@ -166,28 +188,35 @@ export default function Contact() {
                     Office Hours
                   </h3>
 
-                  <div className="space-y-6">
-                    <div>
-                      <p className="text-[12px] text-[#666]">
-                        Monday - Friday
-                      </p>
-                      <p className="text-[12px] text-[#666]">
-                        8:00 AM to 5:00 PM
-                      </p>
-                    </div>
+<div className="space-y-6">
+  {showrooms.length > 0 && (
+    <div>
+      <p className="text-[12px] text-[#666]">
+        Monday - Friday
+      </p>
 
-                    <div>
-                      <p className="text-[12px] text-[#666]">Saturday</p>
-                      <p className="text-[12px] text-[#666]">
-                        9:00 AM to 1:00 PM
-                      </p>
-                    </div>
+      <p className="text-[12px] text-[#666] mb-2">
+        {showrooms[0].business_hours_mon_fri}
+      </p>
 
-                    <div>
-                      <p className="text-[12px] text-[#666]">Sunday</p>
-                      <p className="text-[12px] text-[#666]">Closed</p>
-                    </div>
-                  </div>
+      <p className="text-[12px] text-[#666]">
+        Saturday
+      </p>
+
+      <p className="text-[12px] text-[#666] mb-2">
+        {showrooms[0].business_hours_saturday}
+      </p>
+
+      <p className="text-[12px] text-[#666]">
+        Sunday
+      </p>
+
+      <p className="text-[12px] text-[#666]">
+        {showrooms[0].business_hours_sunday}
+      </p>
+    </div>
+  )}
+</div>
                 </div>
               </div>
             </div>
@@ -333,58 +362,66 @@ export default function Contact() {
               Our Slab Galleries
             </h2>
 
-            <div className="grid lg:grid-cols-2 gap-14">
-              <div>
-                <div className=" border-1">
-                <iframe
-                  title="New York"
-                  src="https://maps.google.com/maps?q=55%20Central%20Drive%20Farmingdale&t=&z=13&ie=UTF8&iwloc=&output=embed"
-                  className="w-full h-[300px] border-0"
-                />
-                </div>
+<div className="grid lg:grid-cols-2 gap-14">
+  {showrooms.map((showroom) => (
+    <div key={showroom.id}>
+      <div className="border">
+        <iframe
+          title={showroom.name}
+          src={`https://maps.google.com/maps?q=${encodeURIComponent(
+            `${showroom.address} ${showroom.city} ${showroom.state}`
+          )}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+          className="w-full h-[300px] border-0"
+        />
+      </div>
 
-                <h3 className="mt-5 text-[32px] font-light text-[#c91f26]">
-                  New York
-                </h3>
+      <h3 className="mt-5 text-[32px] font-light text-[#c91f26]">
+        {showroom.name}
+      </h3>
 
-                <p className="text-[13px] text-[#555] mt-2">
-                  55 Central Drive,
-                  <br />
-                  Farmingdale NY 11735
-                </p>
+      <p className="text-[13px] text-[#555] mt-2">
+        {showroom.address}
+        <br />
+        {showroom.city}, {showroom.state}{" "}
+        {showroom.zip_code}
+      </p>
 
-                <p className="text-[12px] text-[#555] mt-3">
-                  Monday - Friday : 8:00 AM to 5:00 PM
-                  <br />
-                  Saturday : 9:00 AM to 1:00 PM
-                </p>
-              </div>
+      <p className="text-[12px] text-[#555] mt-3">
+        Monday - Friday :{" "}
+        {showroom.business_hours_mon_fri}
+        <br />
+        Saturday :{" "}
+        {showroom.business_hours_saturday}
+        <br />
+        Sunday :{" "}
+        {showroom.business_hours_sunday}
+      </p>
 
-              <div>
-                <div className=" border-1">
-                <iframe
-                  title="Philadelphia"
-                  src="https://maps.google.com/maps?q=2301%20Hornig%20Road%20Philadelphia&t=&z=13&ie=UTF8&iwloc=&output=embed"
-                  className="w-full h-[300px] border-0"
-                /></div>
-
-                <h3 className="mt-5 text-[32px] font-light text-[#c91f26]">
-                  Philadelphia
-                </h3>
-
-                <p className="text-[13px] text-[#555] mt-2">
-                  2301 Hornig Rd,
-                  <br />
-                  Philadelphia, PA 19116
-                </p>
-
-                <p className="text-[12px] text-[#555] mt-3">
-                  Monday - Friday : 8:00 AM to 5:00 PM
-                  <br />
-                  Saturday : 9:00 AM to 1:00 PM
-                </p>
-              </div>
-            </div>
+      <div className="mt-4">
+        <a
+          href={showroom.google_maps_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="
+            inline-block
+            border
+            border-[#c91f26]
+            px-5
+            py-2
+            text-[12px]
+            uppercase
+            tracking-wider
+            hover:bg-[#c91f26]
+            hover:text-white
+            transition-all
+          "
+        >
+          Get Directions
+        </a>
+      </div>
+    </div>
+  ))}
+</div>
           </section>
         </section>
       </div>

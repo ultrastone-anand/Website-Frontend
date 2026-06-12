@@ -7,6 +7,7 @@ import Aboutus from "./pages/Ultra_Experience/About_us/aboutus"
 import Category from "./pages/Material_Portfolio/Category/Category"
 import ProductDetails from "./pages/Material_Portfolio/Products/ProductDetails"
 import ProductCategory from "./pages/Material_Portfolio/Products/ProductCategory"
+import OurProcess from "./pages/Ultra_Experience/Our_Process/ourprocess"
 
 function App() {
   return (
@@ -45,6 +46,11 @@ function App() {
       <Route
         path='/aboutus'
         element={<Aboutus />}
+      />
+
+      <Route
+        path='/ourprocess'
+        element={<OurProcess />}
       />
 
     </Routes>
