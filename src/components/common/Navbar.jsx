@@ -792,30 +792,48 @@ const MegaMenu = ({
   const [hoveredParent, setHoveredParent] =
     useState(null);
 
-  // ================= DEFAULT ACTIVE =================
-
-  useEffect(() => {
-    const parents = materials.filter(
-      (item) => item.parent_id === null,
-    );
-
-    if (
-      parents.length > 0 &&
-      !hoveredParent
-    ) {
-      setHoveredParent(parents[0].id);
-    }
-  }, [materials, hoveredParent]);
+  // ================= PARENT CATEGORIES =================
 
   const parentCategories = materials
     .filter(
-      (parent) =>
-        parent.parent_id === null,
+      (item) =>
+        item.parent_id === null &&
+        item.is_active
     )
     .sort(
       (a, b) =>
         a.display_order -
-        b.display_order,
+        b.display_order
+    );
+
+  // ================= DEFAULT ACTIVE =================
+
+  useEffect(() => {
+    if (
+      parentCategories.length > 0 &&
+      !hoveredParent
+    ) {
+      setHoveredParent(
+        parentCategories[0].id
+      );
+    }
+  }, [parentCategories, hoveredParent]);
+
+  const activeParent =
+    parentCategories.find(
+      (parent) =>
+        parent.id === hoveredParent
+    );
+
+  const children = materials
+    .filter(
+      (item) =>
+        item.parent_id === hoveredParent
+    )
+    .sort(
+      (a, b) =>
+        a.display_order -
+        b.display_order
     );
 
   return (
@@ -826,175 +844,245 @@ const MegaMenu = ({
       }
       onMouseLeave={closeDropdown}
     >
+      {/* NAV ITEM */}
+
       <button
-        onClick={() => path && navigate(path)}
+        onClick={() =>
+          path && navigate(path)
+        }
         className={`
-    flex
-    items-center
-    gap-1
-    text-[11px]
-    uppercase
-    tracking-[1px]
-    duration-300
-    ${scrolled
+          flex
+          items-center
+          gap-1
+          text-[11px]
+          uppercase
+          tracking-[1px]
+          duration-300
+          ${scrolled
             ? "text-[#555]"
             : "text-white"
           }
-  `}
+        `}
       >
         {title}
-
       </button>
 
       {/* MEGA MENU */}
 
       <div
         className={`
-    absolute
-    top-[48px]
-    left-[-140px]
-    w-[620px]
-    max-h-[75vh]
-    overflow-y-auto
-    bg-[#f5f5f5]
-    border
-    border-black/5
-    shadow-[0_20px_60px_rgba(0,0,0,0.08)]
-    p-7
-    duration-300
-    ${isActive
+          absolute
+          top-[48px]
+          left-[-250px]
+          w-[980px]
+          bg-white
+          shadow-[0_25px_80px_rgba(0,0,0,0.12)]
+          border
+          border-black/5
+          rounded-2xl
+          p-8
+          duration-300
+          z-50
+          ${isActive
             ? "opacity-100 visible translate-y-0"
-            : "opacity-0 invisible translate-y-3"
+            : "opacity-0 invisible translate-y-4"
           }
-  `}
+        `}
       >
         <div
           className="
-          grid
-          grid-cols-[190px_1fr]
-          gap-6
-          "
+  grid
+  grid-cols-[320px_1fr]
+  gap-8
+  h-[600px]
+"
         >
-          {/* LEFT SIDE */}
+          {/* =====================================
+              LEFT SIDE
+          ===================================== */}
 
           <div
             className="
             border-r
             border-black/10
             pr-5
-            "
+            wid
+            h-full
+            overflow-y-auto
+            scrollbar-thin
+          "
           >
-            {parentCategories.map(
-              (parent) => (
+            <div className="space-y-2">
+              {parentCategories.map(
+                (parent) => (
+                  <button
+                    key={parent.id}
+                    onMouseEnter={() =>
+                      setHoveredParent(
+                        parent.id
+                      )
+                    }
+                    onClick={() =>
+                      navigate(
+                        `/product-category/${parent.slug}`
+                      )
+                    }
+                    className={`
+                      flex
+                      items-center
+                      gap-3
+                      w-full
+                      p-3
+                      width-200
+                      rounded-xl
+                      duration-300
+                      ${hoveredParent ===
+                        parent.id
+                        ? "bg-[#f5f5f5] shadow-sm"
+                        : "hover:bg-[#f8f8f8]"
+                      }
+                    `}
+                  >
+                    <img
+                      src={
+                        parent.thumbnail_url ||
+                        "/placeholder.jpg"
+                      }
+                      alt={parent.name}
+                      className="
+                        w-12
+                        h-12
+                        rounded-lg
+                        object-cover
+                      "
+                    />
+
+                    <span
+                      className={`
+                        text-[14px]
+                        ${hoveredParent ===
+                          parent.id
+                          ? "font-semibold text-black"
+                          : "text-[#666]"
+                        }
+                      `}
+                    >
+                      {parent.name}
+                    </span>
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+
+          {/* =====================================
+              CENTER IMAGE
+          ===================================== */}
+
+          <div>
+            {activeParent && (
+              <>
+                <div
+                  className="
+                    overflow-hidden
+                    rounded-2xl
+                    bg-[#f5f5f5]
+                  "
+                >
+                  <img
+                    src={
+                      activeParent.thumbnail_url ||
+                      "/placeholder.jpg"
+                    }
+                    alt={activeParent.name}
+                    className="
+                      w-full
+                      h-[280px]
+                      object-cover
+                      hover:scale-105
+                      duration-500
+                    "
+                  />
+                </div>
+
+                <h3
+                  className="
+                    mt-5
+                    text-[22px]
+                    font-semibold
+                    text-black
+                  "
+                >
+                  {activeParent.name}
+                </h3>
+
+                <p
+                  className="
+                    mt-2
+                    text-[14px]
+                    leading-relaxed
+                    text-[#777]
+                  "
+                >
+                  {activeParent.description ||
+                    "Explore our premium collection."}
+                </p>
+
                 <button
-                  key={parent.id}
-                  onMouseEnter={() =>
-                    setHoveredParent(
-                      parent.id,
-                    )
-                  }
                   onClick={() =>
                     navigate(
-                      `/product-category/${parent.slug}`,
+                      `/product-category/${activeParent.slug}`
                     )
                   }
-                  className={`
-                  w-full
-                  text-left
-                  py-3
-                  border-b
-                  border-black/8
-                  text-[15px]
-                  duration-300
-                  ${hoveredParent ===
-                      parent.id
-                      ? "text-black font-medium"
-                      : "text-[#6f6f6f] hover:text-black"
-                    }
-                  `}
+                  className="
+                    mt-5
+                    text-[14px]
+                    font-medium
+                    hover:underline
+                  "
                 >
-                  {parent.name}
+                  View All →
                 </button>
-              ),
+
+                <div className="border-t pt-9">
+                  <h3
+                    className="
+    text-sm
+    font-semibold
+    uppercase
+    tracking-wider
+    mb-4
+  "
+                  >
+                    Collections
+                  </h3>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    {children.map((child) => (
+                      <button
+                        key={child.id}
+                        onClick={() =>
+                          navigate(
+                            `/product-category/${child.slug}`
+                          )
+                        }
+                        className="
+          text-left
+          p-4
+          rounded-xl
+          bg-[#fafafa]
+          hover:bg-[#f5f5f5]
+        "
+                      >
+                        {child.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
           </div>
 
-          {/* RIGHT SIDE */}
-
-          <div className="pl-1">
-            {parentCategories
-              .filter(
-                (parent) =>
-                  parent.id ===
-                  hoveredParent,
-              )
-              .map((parent) => {
-                const children =
-                  materials
-                    .filter(
-                      (child) =>
-                        child.parent_id ===
-                        parent.id,
-                    )
-                    .sort(
-                      (a, b) =>
-                        a.display_order -
-                        b.display_order,
-                    );
-
-                return (
-                  <div key={parent.id}>
-                    <h3
-                      className="
-                      text-[15px]
-                      font-semibold
-                      uppercase
-                      mb-5
-                      "
-                    >
-                      {parent.name}
-                    </h3>
-
-                    {children.length >
-                      0 ? (
-                      <div className="space-y-4">
-                        {children.map(
-                          (child) => (
-                            <button
-                              key={child.id}
-                              onClick={() =>
-                                navigate(
-                                  `/product-category/${child.slug}`,
-                                )
-                              }
-                              className="
-                              block
-                              text-left
-                              text-[15px]
-                              text-[#666]
-                              hover:text-black
-                              duration-300
-                              "
-                            >
-                              {child.name}
-                            </button>
-                          ),
-                        )}
-                      </div>
-                    ) : (
-                      <p
-                        className="
-                        text-[14px]
-                        text-[#888]
-                        "
-                      >
-                        No subcategories
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-          </div>
         </div>
       </div>
     </div>
