@@ -337,8 +337,8 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
                   size={14}
                   color={
                     scrolled
-                      ? "#555"
-                      : "#fff"
+                      ? "#000000"
+                      : "#fff9f9"
                   }
                 />
               </button>
@@ -730,45 +730,75 @@ const Dropdown = ({
 
       {/* DROPDOWN */}
 
-      <div
-        className={`
-        absolute
-        top-[45px]
-        left-0
-        w-[240px]
-        bg-white
-        border
-        border-black/5
-        shadow-[0_15px_40px_rgba(0,0,0,0.08)]
-        p-6
-        duration-300
-        ${isActive
-            ? "opacity-100 visible translate-y-0"
-            : "opacity-0 invisible translate-y-3"
-          }
-        `}
+<div
+  className={`
+    absolute
+    top-[45px]
+    left-0
+    w-[280px]
+    bg-white
+    rounded-2xl
+    border
+    border-black/5
+    shadow-[0_20px_60px_rgba(0,0,0,0.10)]
+    p-5
+    duration-300
+    z-50
+    ${
+      isActive
+        ? "opacity-100 visible translate-y-0"
+        : "opacity-0 invisible translate-y-3"
+    }
+  `}
+>
+
+  <div className="space-y-2">
+    {items.map((item, index) => (
+      <button
+        key={index}
+        onClick={() =>
+          item.path &&
+          navigate(item.path)
+        }
+        className="
+          group
+          flex
+          items-center
+          justify-between
+          w-full
+          p-3
+          rounded-xl
+          text-left
+          hover:bg-[#f7f7f7]
+          duration-300
+        "
       >
-        <div className="space-y-4">
+        <span
+          className="
+            text-[14px]
+            text-[#666]
+            group-hover:text-black
+            duration-300
+          "
+        >
+          {item.label}
+        </span>
 
-
-          {items.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => item.path && navigate(item.path)}
-              className="
-      block
-      text-left
-      text-[14px]
-      text-[#666]
-      hover:text-black
-      duration-300
-    "
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </div>
+        <span
+          className="
+            opacity-0
+            translate-x-[-8px]
+            group-hover:opacity-100
+            group-hover:translate-x-0
+            duration-300
+          "
+        >
+          →
+        </span>
+      </button>
+    ))}
+  </div>
+</div>
     </div>
   );
 };
@@ -943,6 +973,7 @@ const MegaMenu = ({
                       }
                     `}
                   >
+                  <div className="w-24 h-12 min-w-[48px] flex-shrink-0">
                     <img
                       src={
                         parent.thumbnail_url ||
@@ -950,13 +981,13 @@ const MegaMenu = ({
                       }
                       alt={parent.name}
                       className="
-                        w-12
-                        h-12
+                        w-full
+                        h-full
                         rounded-lg
                         object-cover
                       "
                     />
-
+                  </div>
                     <span
                       className={`
                         text-[14px]
