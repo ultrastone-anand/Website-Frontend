@@ -13,9 +13,9 @@ import {
 
 const Navbar = () => {
   const navigate = useNavigate();
-const location = useLocation();
+  const location = useLocation();
 
-const isHomePage = location.pathname === "/";
+  const isHomePage = location.pathname === "/";
 
   const [mobileMenu, setMobileMenu] =
     useState(false);
@@ -115,36 +115,36 @@ const isHomePage = location.pathname === "/";
     },
   ];
 
-const resources = [
-  {
-    label: "Resource Library",
-    path: "/resource-library",
-  },
-  {
-    label: "Merchandising Displays",
-    path: "/merchandising-displays",
-  },
-  {
-    label: "Silica Safety First",
-    path: "/silica-safety-first",
-  },
-  {
-    label: "Videos",
-    path: "/videos",
-  },
-  {
-    label: "Our Blogs",
-    path: "/blogs",
-  },
-  {
-    label: "CEU",
-    path: "/ceu",
-  },
-  {
-    label: "Career",
-    path: "/career",
-  },
-];
+  const resources = [
+    {
+      label: "Resource Library",
+      path: "/resource-library",
+    },
+    {
+      label: "Merchandising Displays",
+      path: "/merchandising-displays",
+    },
+    {
+      label: "Silica Safety First",
+      path: "/silica-safety-first",
+    },
+    {
+      label: "Videos",
+      path: "/videos",
+    },
+    {
+      label: "Our Blogs",
+      path: "/blogs",
+    },
+    {
+      label: "CEU",
+      path: "/ceu",
+    },
+    {
+      label: "Career",
+      path: "/career",
+    },
+  ];
 
   return (
     <header
@@ -187,42 +187,42 @@ const resources = [
         >
           {/* LOGO */}
 
-<div
-  className="shrink-0 cursor-pointer"
-    onClick={() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+          <div
+            className="shrink-0 cursor-pointer"
+            onClick={() => {
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
 
-    navigate("/");
-  }}
->
-  <div className="relative h-[64px] w-[220px]">
-    
-    {/* WHITE LOGO */}
-    <img
-      src="/logo_white.png"
-      alt="Ultra Stones"
-      className={`
+              navigate("/");
+            }}
+          >
+            <div className="relative h-[64px] w-[220px]">
+
+              {/* WHITE LOGO */}
+              <img
+                src="/logo_white.png"
+                alt="Ultra Stones"
+                className={`
 absolute inset-0 h-full w-auto object-contain
 transition-all duration-500 ease-in-out
 ${useDarkNavbar ? "opacity-0" : "opacity-100"}
 `}
-    />
+              />
 
-    {/* DARK LOGO */}
-    <img
-      src="/logo1.svg"
-      alt="Ultra Stones"
-      className={`
+              {/* DARK LOGO */}
+              <img
+                src="/logo1.svg"
+                alt="Ultra Stones"
+                className={`
 absolute inset-0 h-full w-auto object-contain
 transition-all duration-500 ease-in-out
 ${useDarkNavbar ? "opacity-100" : "opacity-0"}
 `}
-    />
-  </div>
-</div>
+              />
+            </div>
+          </div>
 
 
 
@@ -282,21 +282,21 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
               scrolled={useDarkNavbar}
             />
 
-                      {/* SEARCH */}
+            {/* SEARCH */}
 
-          <div
-            className="
+            <div
+              className="
     hidden
     lg:flex
     flex-1
     max-w-[320px]
     relative
   "
-          >
-            <input
-              type="text"
-              placeholder="Search Material"
-              className={`
+            >
+              <input
+                type="text"
+                placeholder="Search Material"
+                className={`
       w-full
       h-[34px]
       rounded-md
@@ -307,149 +307,223 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
       transition-all
       duration-300
       ${useDarkNavbar
-                  ? `
+                    ? `
             bg-[#f5f5f5]
             border
             border-gray-300
             text-black
             placeholder:text-gray-500
           `
-                  : `
+                    : `
             bg-white/10
             border
             border-white/30
             text-white
             placeholder:text-white/70
           `
-                }
+                  }
     `}
-            />
+              />
 
-            <button
-              className="
+              <button
+                className="
       absolute
       right-3
       top-1/2
       -translate-y-1/2
     "
-            >
-              <Search
-                size={14}
-                color={
-                  scrolled
-                    ? "#555"
-                    : "#fff"
-                }
-              />
-            </button>
-          </div>
+              >
+                <Search
+                  size={14}
+                  color={
+                    scrolled
+                      ? "#555"
+                      : "#fff"
+                  }
+                />
+              </button>
+            </div>
 
           </nav>
 
-          {/* MOBILE */}
+          {/* MOBILE TOGGLE */}
 
           <button
             className={`
-  xl:hidden
-  transition-all
-  duration-300
-  ${
-    scrolled
-      ? "text-black"
-      : "text-white"
-  }
-`}
+    xl:hidden
+    transition-all
+    duration-300
+    z-[60]
+    ${useDarkNavbar
+                ? "text-black"
+                : "text-white"
+              }
+  `}
             onClick={() =>
               setMobileMenu(!mobileMenu)
             }
           >
             {mobileMenu ? (
-              <X strokeWidth={1.5} />
+              <X size={24} strokeWidth={1.5} />
             ) : (
-              <Menu strokeWidth={1.5} />
+              <Menu size={24} strokeWidth={1.5} />
             )}
           </button>
 
-
           {/* MOBILE MENU */}
 
-          {mobileMenu && (
-            <div
-              className="
-      xl:hidden
-      absolute
-      top-[88px]
-      left-0
-      w-full
-      bg-white
-      z-50
-      shadow-lg
-      max-h-[calc(100vh-88px)]
-      overflow-y-auto
-    "
-            >
-              <div className="p-6">
+          <div
+            className={`
+    xl:hidden
+    fixed
+    top-[88px]
+    left-0
+    w-full
+    h-[calc(100vh-88px)]
+    bg-white/75
+    backdrop-blur-md
+    text-black
+    z-50
+    overflow-y-auto
+    transition-all
+    duration-500
+    ${mobileMenu
+                ? "translate-x-0 opacity-100"
+                : "translate-x-full opacity-0 pointer-events-none"
+              }
+  `}
+          >
+            <div className="px-6 py-8">
 
-                {/* Ultra Experience */}
+              {/* SEARCH */}
 
-                <div className="border-b pb-4 mb-4">
-                  <button
-                    onClick={() =>
-                      setMobileDropdown(
-                        mobileDropdown === "experience"
-                          ? null
-                          : "experience"
-                      )
-                    }
+              <div className="mb-8" >
+                <div className="relative" bord>
+                  <input
+                    type="text"
+                    placeholder="Search Material"
                     className="
-            flex
-            justify-between
             w-full
-            font-medium
+            h-[48px]
+            bg-black/5
+            border
+            border-black/10
+            rounded-md
+            px-4
+            pr-12
+            text-sm
+            outline-none
+            placeholder:text-black/50
           "
-                  >
-                    Ultra Experience
-                    <ChevronDown size={18} />
-                  </button>
+                  />
 
-                  {mobileDropdown === "experience" && (
-                    <div className="mt-3 pl-4 space-y-3">
+                  <Search
+                    size={18}
+                    className="
+            absolute
+            right-4
+            top-1/2
+            -translate-y-1/2
+            text-black/50
+          "
+                  />
+                </div>
+              </div>
+
+              {/* ULTRA EXPERIENCE */}
+
+              <div className="border-b border-black/10">
+                <button
+                  onClick={() =>
+                    setMobileDropdown(
+                      mobileDropdown === "experience"
+                        ? null
+                        : "experience"
+                    )
+                  }
+                  className="
+          flex
+          items-center
+          justify-between
+          w-full
+          py-5
+          uppercase
+          tracking-[2px]
+          text-[13px]
+        "
+                >
+                  Ultra Experience
+
+                  <ChevronDown
+                    size={18}
+                    className={`transition-transform ${mobileDropdown === "experience"
+                      ? "rotate-180"
+                      : ""
+                      }`}
+                  />
+                </button>
+
+                {mobileDropdown ===
+                  "experience" && (
+                    <div className="pb-5 pl-3 space-y-4">
                       {experience.map((item) => (
                         <button
-                          key={item}
-                          className="block text-left"
+                          key={item.path}
+                          onClick={() => {
+                            navigate(item.path);
+                            setMobileMenu(false);
+                          }}
+                          className="
+                block
+                text-left
+                text-black/70
+                hover:text-black
+                duration-300
+              "
                         >
-                          {item}
+                          {item.label}
                         </button>
                       ))}
                     </div>
                   )}
-                </div>
+              </div>
 
-                {/* Material Portfolio */}
+              {/* MATERIAL PORTFOLIO */}
 
-                <div className="border-b pb-4 mb-4">
-                  <button
-                    onClick={() =>
-                      setMobileDropdown(
-                        mobileDropdown === "materials"
-                          ? null
-                          : "materials"
-                      )
-                    }
-                    className="
-            flex
-            justify-between
-            w-full
-            font-medium
-          "
-                  >
-                    Material Portfolio
-                    <ChevronDown size={18} />
-                  </button>
+              <div className="border-b border-black/10">
+                <button
+                  onClick={() =>
+                    setMobileDropdown(
+                      mobileDropdown === "materials"
+                        ? null
+                        : "materials"
+                    )
+                  }
+                  className="
+          flex
+          items-center
+          justify-between
+          w-full
+          py-5
+          uppercase
+          tracking-[2px]
+          text-[13px]
+        "
+                >
+                  Material Portfolio
 
-                  {mobileDropdown === "materials" && (
-                    <div className="mt-3 pl-4 space-y-3">
+                  <ChevronDown
+                    size={18}
+                    className={`transition-transform ${mobileDropdown === "materials"
+                      ? "rotate-180"
+                      : ""
+                      }`}
+                  />
+                </button>
+
+                {mobileDropdown ===
+                  "materials" && (
+                    <div className="pb-5 pl-3 space-y-4">
                       {materials
                         .filter(
                           (item) =>
@@ -464,94 +538,119 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
                               );
                               setMobileMenu(false);
                             }}
-                            className="block text-left"
+                            className="
+                  block
+                  text-left
+                  text-black/70
+                  hover:text-black
+                  duration-300
+                "
                           >
                             {item.name}
                           </button>
                         ))}
                     </div>
                   )}
-                </div>
+              </div>
 
-                {/* Resource Center */}
+              {/* RESOURCE CENTER */}
 
-                <div className="border-b pb-4 mb-4">
-                  <button
-                    onClick={() =>
-                      setMobileDropdown(
-                        mobileDropdown === "resources"
-                          ? null
-                          : "resources"
-                      )
-                    }
-                    className="
-            flex
-            justify-between
-            w-full
-            font-medium
-          "
-                  >
-                    Resource Center
-                    <ChevronDown size={18} />
-                  </button>
+              <div className="border-b border-black/10">
+                <button
+                  onClick={() =>
+                    setMobileDropdown(
+                      mobileDropdown === "resources"
+                        ? null
+                        : "resources"
+                    )
+                  }
+                  className="
+          flex
+          items-center
+          justify-between
+          w-full
+          py-5
+          uppercase
+          tracking-[2px]
+          text-[13px]
+        "
+                >
+                  Resource Center
 
-                  {mobileDropdown === "resources" && (
-                    <div className="mt-3 pl-4 space-y-3">
-                      {resources.map((item) => (
-                        <button
-                          key={item}
-                          className="block text-left"
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Locations */}
-
-                <div className="border-b pb-4 mb-4">
-                  <button
-                    onClick={() =>
-                      setMobileDropdown(
-                        mobileDropdown === "locations"
-                          ? null
-                          : "locations"
-                      )
-                    }
-                    className="
-            flex
-            justify-between
-            w-full
-            font-medium
-          "
-                  >
-                    Locations
-                    <ChevronDown size={18} />
-                  </button>
-
-                  {mobileDropdown === "locations" && (
-                    <div className="mt-3 pl-4 space-y-3">
-                      {locations.map((item) => (
-                        <button
-                          key={item}
-                          className="block text-left"
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <button className="font-medium">
-                  Contact
+                  <ChevronDown
+                    size={18}
+                    className={`transition-transform ${mobileDropdown === "resources"
+                      ? "rotate-180"
+                      : ""
+                      }`}
+                  />
                 </button>
 
+                {mobileDropdown ===
+                  "resources" && (
+                    <div className="pb-5 pl-3 space-y-4">
+                      {resources.map((item) => (
+                        <button
+                          key={item.path}
+                          onClick={() => {
+                            navigate(item.path);
+                            setMobileMenu(false);
+                          }}
+                          className="
+                block
+                text-left
+                text-black/70
+                hover:text-black
+                duration-300
+              "
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
               </div>
+
+              {/* DIRECT LINKS */}
+
+              <button
+                onClick={() => {
+                  navigate("/locations");
+                  setMobileMenu(false);
+                }}
+                className="
+        w-full
+        text-left
+        py-5
+        uppercase
+        tracking-[2px]
+        text-[13px]
+        border-b
+        border-black/10
+      "
+              >
+                Locations
+              </button>
+
+              <button
+                onClick={() => {
+                  navigate("/contacts");
+                  setMobileMenu(false);
+                }}
+                className="
+        w-full
+        text-left
+        py-5
+        uppercase
+        tracking-[2px]
+        text-[13px]
+      "
+              >
+                Contact
+              </button>
+
             </div>
-          )}
+          </div>
         </div>
       </div>
     </header>
