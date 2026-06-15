@@ -35,6 +35,9 @@ const ProductCategory = () => {
     const [selectedColor, setSelectedColor] =
   useState("");
 
+  const [searchQuery, setSearchQuery] =
+  useState("");
+
   // -----------------------------------
   // FETCH
   // -----------------------------------
@@ -114,9 +117,18 @@ const filteredProducts = products
       !selectedGroup ||
       item.stone_group === selectedGroup;
 
+    const searchMatch =
+      !searchQuery ||
+      item.name
+        ?.toLowerCase()
+        .includes(
+          searchQuery.toLowerCase()
+        );
+
     return (
       patternMatch &&
-      groupMatch
+      groupMatch &&
+      searchMatch
     );
   })
   .sort((a, b) =>
@@ -202,22 +214,44 @@ const filteredProducts = products
 
             {/* BREADCRUMB */}
 
-            <p
-              className="
-              text-[13px]
-              text-[#777]
-              "
-              style={{
-                fontFamily:
-                  "Montserrat, sans-serif",
-              }}
-            >
-              Home / Material Portfolio /{" "}
+<p
+  className="
+  text-[13px]
+  text-[#777]
+  "
+  style={{
+    fontFamily:
+      "Montserrat, sans-serif",
+  }}
+>
+  <Link
+    to="/"
+    className="
+    hover:text-[#161412]
+    duration-300
+    "
+  >
+    Home
+  </Link>
 
-              <span className="text-[#161412]">
-                <b>{category.name}</b>
-              </span>
-            </p>
+  {" / "}
+
+  <Link
+    to="/categories"
+    className="
+    hover:text-[#161412]
+    duration-300
+    "
+  >
+    Material Portfolio
+  </Link>
+
+  {" / "}
+
+  <span className="text-[#161412]">
+    <b>{category.name}</b>
+  </span>
+</p>
 
             {/* RESULT */}
 
@@ -475,6 +509,43 @@ const filteredProducts = products
 
   </div>
 
+  {/* SEARCH */}
+
+  <div
+    className="
+    relative
+    "
+  >
+    <input
+      type="text"
+      value={searchQuery}
+      onChange={(e) =>
+        setSearchQuery(
+          e.target.value
+        )
+      }
+      placeholder={`Search ${category.name}...`}
+      className="
+      h-[50px]
+      w-[230px]
+      border
+      border-[#d9d9d9]
+      px-5
+      uppercase
+      tracking-[2px]
+      text-[11px]
+      outline-none
+      duration-300
+      bg-white
+      text-[#777]
+      placeholder:text-[#777]
+      "
+      style={{
+        fontFamily:
+          "Montserrat, sans-serif",
+      }}
+    />
+  </div>
 </div>
 
           {/* ACTIVE FILTERS */}

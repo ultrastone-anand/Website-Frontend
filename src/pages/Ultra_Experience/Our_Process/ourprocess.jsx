@@ -2,6 +2,7 @@ import Navbar from "../../../components/common/Navbar";
 import Footer from "../../../components/common/Footer";
 
 import uslogo from '../../../assets/uslogo.png';
+import { Link } from "react-router-dom";
 
 
 const OurProcess = () => {
@@ -67,17 +68,40 @@ const OurProcess = () => {
 
             <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
 
-            <p
-              className="text-[13px] text-[#777]"
-              style={{
-                fontFamily: "Montserrat, sans-serif",
-              }}
-            >
-              Home / Ultra Experience /{" "}
-              <span className="text-[#161412] font-semibold">
-                Our Process
-              </span>
-            </p>
+<p
+  className="text-[13px] text-[#777]"
+  style={{
+    fontFamily: "Montserrat, sans-serif",
+  }}
+>
+  <Link
+    to="/"
+    className="
+    hover:text-[#161412]
+    duration-300
+    "
+  >
+    Home
+  </Link>
+
+  {" / "}
+
+  <Link
+    to="/"
+    className="
+    hover:text-[#161412]
+    duration-300
+    "
+  >
+    Ultra Experience
+  </Link>
+
+  {" / "}
+
+  <span className="text-[#161412] font-semibold">
+    Our Process
+  </span>
+</p>
           </div>
         </section>
 

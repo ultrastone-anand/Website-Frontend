@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import Navbar from '../../../components/common/Navbar';
 import Footer from '../../../components/common/Footer';
@@ -115,20 +115,31 @@ export default function Category() {
                         />
 
                         <p
-                            className="
-                text-[13px]
-                text-[#777]
-              "
-                            style={{
-                                fontFamily:
-                                    'Montserrat, sans-serif',
-                            }}
-                        >
-                            Home /{' '}
-                            <span className="text-[#161412]">
-                                <b>Material Portfolio</b>
-                            </span>
-                        </p>
+  className="
+  text-[13px]
+  text-[#777]
+  "
+  style={{
+    fontFamily:
+      "Montserrat, sans-serif",
+  }}
+>
+  <Link
+    to="/"
+    className="
+    hover:text-[#161412]
+    duration-300
+    "
+  >
+    Home
+  </Link>
+
+  {" / "}
+
+  <span className="text-[#161412]">
+    <b>Material Portfolio</b>
+  </span>
+</p>
 
                         <p
                             className="

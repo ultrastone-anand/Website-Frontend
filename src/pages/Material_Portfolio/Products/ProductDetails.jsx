@@ -2,7 +2,7 @@ import axios from "axios";
 
 import { useEffect, useRef, useState } from "react";
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 
 import {
   Sun,
@@ -435,20 +435,56 @@ const ProductDetails = () => {
             {/* BREADCRUMB / STONE NAME */}
 
             <p
-              className="
-      text-[13px]
-      text-[#777]
-      "
-              style={{
-                fontFamily: "Montserrat, sans-serif",
-              }}
-            >
-              Home / Material Portfolio /{" "}
-              {product.stone_categories?.name || "Ultra Stones"} /{" "}
-              <span className="text-[#161412]">
-                <b>{product.name}</b>
-              </span>
-            </p>
+  className="
+  text-[13px]
+  text-[#777]
+  "
+  style={{
+    fontFamily:
+      "Montserrat, sans-serif",
+  }}
+>
+  <Link
+    to="/"
+    className="
+    hover:text-[#161412]
+    duration-300
+    "
+  >
+    Home
+  </Link>
+
+  {" / "}
+
+  <Link
+    to="/categories"
+    className="
+    hover:text-[#161412]
+    duration-300
+    "
+  >
+    Material Portfolio
+  </Link>
+
+  {" / "}
+
+  <Link
+    to={`/product-category/${product.stone_categories?.slug}`}
+    className="
+    hover:text-[#161412]
+    duration-300
+    "
+  >
+    {product.stone_categories?.name ||
+      "Ultra Stones"}
+  </Link>
+
+  {" / "}
+
+  <span className="text-[#161412]">
+    <b>{product.name}</b>
+  </span>
+</p>
           </div>
         </section>
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
+import { Link } from "react-router-dom";
 
 const Location = () => {
 const [showrooms, setShowrooms] = useState([]);
@@ -76,19 +77,31 @@ const fetchShowrooms = async () => {
         />
 
         <p
-          className="
-            text-[13px]
-            text-[#777]
-          "
-          style={{
-            fontFamily: "Montserrat, sans-serif",
-          }}
-        >
-          Home /{" "}
-          <span className="text-[#161412]">
-            <b>Location</b>
-          </span>
-        </p>
+  className="
+    text-[13px]
+    text-[#777]
+  "
+  style={{
+    fontFamily:
+      "Montserrat, sans-serif",
+  }}
+>
+  <Link
+    to="/"
+    className="
+    hover:text-[#161412]
+    duration-300
+    "
+  >
+    Home
+  </Link>
+
+  {" / "}
+
+  <span className="text-[#161412]">
+    <b>Location</b>
+  </span>
+</p>
       </div>
     </section>
 
