@@ -17,6 +17,7 @@ import {
   LayoutGrid,
   ChevronLeft,
   ChevronRight,
+  ShoppingCart,
 } from "lucide-react";
 
 import Icons from "../../../assets/icons";
@@ -367,32 +368,32 @@ const ProductDetails = () => {
   const activeVariation = product?.variation_level || "V1";
 
   const faqs = [
-  {
-    question: "Does this material require sealing?",
-    answer:
-      "Most natural stones benefit from sealing depending on the finish and application.",
-  },
-  {
-    question: "Is this stone suitable for kitchen countertops?",
-    answer:
-      "Yes, this material is suitable for kitchen countertops when properly fabricated, installed, and maintained.",
-  },
-  {
-    question: "Can this stone be used in bathrooms and shower areas?",
-    answer:
-      "Yes, it performs well in bathroom and shower applications when installed correctly.",
-  },
-  {
-    question: "Is this material suitable for outdoor use?",
-    answer:
-      "Outdoor suitability depends on the stone type and local environmental conditions.",
-  },
-  {
-    question: "Can this stone be used in bathrooms and shower areas?",
-    answer:
-      "Yes, it can be used in wet areas when proper installation practices are followed.",
-  },
-];
+    {
+      question: "Does this material require sealing?",
+      answer:
+        "Most natural stones benefit from sealing depending on the finish and application.",
+    },
+    {
+      question: "Is this stone suitable for kitchen countertops?",
+      answer:
+        "Yes, this material is suitable for kitchen countertops when properly fabricated, installed, and maintained.",
+    },
+    {
+      question: "Can this stone be used in bathrooms and shower areas?",
+      answer:
+        "Yes, it performs well in bathroom and shower applications when installed correctly.",
+    },
+    {
+      question: "Is this material suitable for outdoor use?",
+      answer:
+        "Outdoor suitability depends on the stone type and local environmental conditions.",
+    },
+    {
+      question: "Can this stone be used in bathrooms and shower areas?",
+      answer:
+        "Yes, it can be used in wet areas when proper installation practices are followed.",
+    },
+  ];
 
   return (
     <>
@@ -435,56 +436,56 @@ const ProductDetails = () => {
             {/* BREADCRUMB / STONE NAME */}
 
             <p
-  className="
+              className="
   text-[13px]
   text-[#777]
   "
-  style={{
-    fontFamily:
-      "Montserrat, sans-serif",
-  }}
->
-  <Link
-    to="/"
-    className="
+              style={{
+                fontFamily:
+                  "Montserrat, sans-serif",
+              }}
+            >
+              <Link
+                to="/"
+                className="
     hover:text-[#161412]
     duration-300
     "
-  >
-    Home
-  </Link>
+              >
+                Home
+              </Link>
 
-  {" / "}
+              {" / "}
 
-  <Link
-    to="/categories"
-    className="
+              <Link
+                to="/categories"
+                className="
     hover:text-[#161412]
     duration-300
     "
-  >
-    Material Portfolio
-  </Link>
+              >
+                Material Portfolio
+              </Link>
 
-  {" / "}
+              {" / "}
 
-  <Link
-    to={`/product-category/${product.stone_categories?.slug}`}
-    className="
+              <Link
+                to={`/product-category/${product.stone_categories?.slug}`}
+                className="
     hover:text-[#161412]
     duration-300
     "
-  >
-    {product.stone_categories?.name ||
-      "Ultra Stones"}
-  </Link>
+              >
+                {product.stone_categories?.name ||
+                  "Ultra Stones"}
+              </Link>
 
-  {" / "}
+              {" / "}
 
-  <span className="text-[#161412]">
-    <b>{product.name}</b>
-  </span>
-</p>
+              <span className="text-[#161412]">
+                <b>{product.name}</b>
+              </span>
+            </p>
           </div>
         </section>
 
@@ -717,25 +718,25 @@ const ProductDetails = () => {
 
                 <button
                   className="
-    inline-flex
-    items-center
-    gap-2
-    px-4
-    py-2
-    border
-    border-black
-    uppercase
-    tracking-[1px]
-    text-[13px]
-    transition-all
-    duration-300
-    mb-5
-    hover:bg-gray-100
-    cursor-pointer
-  "
+                  inline-flex
+                  items-center
+                  gap-2
+                  px-4
+                  py-2
+                  border
+                  border-black
+                  uppercase
+                  tracking-[1px]
+                  text-[13px]
+                  transition-all
+                  duration-300
+                  mb-5
+                  hover:bg-gray-100
+                  cursor-pointer
+                "
                 >
                   Order Samples
-
+                  <ShoppingCart size={16} />
                 </button>
 
                 <div
@@ -966,7 +967,7 @@ const ProductDetails = () => {
 
         {/* APPLICATIONS */}
 
-        <section className="py-20 bg-white">
+        <section className="py-10 bg-white">
           <div
             className="
     max-w-[2000px]
@@ -1085,7 +1086,7 @@ const ProductDetails = () => {
 
         {/* SAFETY WARNING */}
 
-        <section className="py-8 bg-white">
+        {product.silica_warning && <section className="py-8 bg-white">
           <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
             <div
               className="
@@ -1157,7 +1158,7 @@ const ProductDetails = () => {
               </button>
             </div>
           </div>
-        </section>
+        </section>}
 
         {/* VARIATION */}
 
@@ -1303,49 +1304,49 @@ const ProductDetails = () => {
               <div className="grid lg:grid-cols-[340px_1fr] gap-10">
                 {/* LEFT */}
 
-<div className="lg:pr-8">
-  <p
-    className="
+                <div className="lg:pr-8">
+                  <p
+                    className="
     text-[12px]
     uppercase
     tracking-[3px]
     text-[#9b9b9b]
     mb-4
   "
-  >
-    FAQ
-  </p>
+                  >
+                    FAQ
+                  </p>
 
-  <h2
-    className="
+                  <h2
+                    className="
     text-[42px]
     leading-[1]
     font-semibold
     text-[#161412]
     mb-6
   "
-    style={{
-      fontFamily: "Montserrat, sans-serif",
-    }}
-  >
-    Frequently Asked Questions
-  </h2>
+                    style={{
+                      fontFamily: "Montserrat, sans-serif",
+                    }}
+                  >
+                    Frequently Asked Questions
+                  </h2>
 
-  <div className="w-[60px] h-[3px] bg-[#C91F26] mb-6" />
+                  <div className="w-[60px] h-[3px] bg-[#C91F26] mb-6" />
 
-  <p
-    className="
+                  <p
+                    className="
     text-[15px]
     leading-[1.8]
     text-[#6b6b6b]
     max-w-[320px]
   "
-  >
-    Everything you need to know about this material,
-    fabrication requirements, maintenance and recommended
-    applications.
-  </p>
-</div>
+                  >
+                    Everything you need to know about this material,
+                    fabrication requirements, maintenance and recommended
+                    applications.
+                  </p>
+                </div>
 
                 {/* RIGHT */}
 
@@ -1763,11 +1764,12 @@ const VariationCard = ({ title, level, active }) => {
           ${active ? "border border-[#6e6e6e]" : ""}
         `}
       >
-        <div className="grid grid-cols-3 gap-[1px] w-[60px] sm:w-[80px] md:w-[95px] lg:w-[110px] xl:w-[125px]">
+        <div className="grid grid-cols-3 gap-[1px] w-[72px] sm:w-[85px] md:w-[95px] lg:w-[110px] xl:w-[125px]">
           {[...Array(9)].map((_, index) => (
             <div
               key={index}
               className={`
+                w-full
                 aspect-square
                 ${getOpacity(index)}
               `}

@@ -278,7 +278,7 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
 
             <NavLink
               title="Contact"
-              onClick={() => navigate("/contacts")}
+              onClick={() => navigate("/contact")}
               scrolled={useDarkNavbar}
             />
 
@@ -380,7 +380,7 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
     left-0
     w-full
     h-[calc(100vh-88px)]
-    bg-white/75
+    bg-white
     backdrop-blur-md
     text-black
     z-50
@@ -634,7 +634,7 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
 
               <button
                 onClick={() => {
-                  navigate("/contacts");
+                  navigate("/contact");
                   setMobileMenu(false);
                 }}
                 className="

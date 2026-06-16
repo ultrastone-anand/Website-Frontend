@@ -236,7 +236,15 @@ const Footer = () => {
         >
           {/* LOGO */}
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5"
+          onClick={() => {
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+
+              navigate("/");
+            }}>
             <img
               src="/logo_white.png"
               alt="Ultra Stones"
