@@ -22,15 +22,13 @@ import {
 
 import Icons from "../../../assets/icons";
 import model from "../../../assets/3d/Marble.glb";
-import QuartzSDS from "../../../assets/QuartzSDS.pdf";
 import Navbar from "../../../components/common/Navbar";
-const Footer = lazy(() =>
-  import("../../../components/common/Footer")
-);
+const Footer = lazy(() => import("../../../components/common/Footer"));
 import Loading from "../../../components/common/Loading";
-import Social from "../../../components/common/Socials";
-const ModelViewer = lazy(() =>
-  import("../../../components/common/ModelViewer")
+const Social = lazy(() =>
+  import("../../../components/common/Socials")
+);const ModelViewer = lazy(
+  () => import("../../../components/common/ModelViewer"),
 );
 
 const ProductDetails = () => {
@@ -348,21 +346,20 @@ const ProductDetails = () => {
     },
   ];
 
-const handleDownloadDatasheet = async () => {
-  try {
-    const { generateDatasheet } = await import(
-      "../../../utils/generateDatasheet"
-    );
+  const handleDownloadDatasheet = async () => {
+    try {
+      const { generateDatasheet } =
+        await import("../../../utils/generateDatasheet");
 
-    await generateDatasheet({
-      product,
-      closeupImages,
-      images,
-    });
-  } catch (error) {
-    console.error("Failed to generate datasheet:", error);
-  }
-};
+      await generateDatasheet({
+        product,
+        closeupImages,
+        images,
+      });
+    } catch (error) {
+      console.error("Failed to generate datasheet:", error);
+    }
+  };
   const handleDownloadSafetysheet = () => {
     if (!silicaPdf) {
       return;
@@ -439,7 +436,6 @@ const handleDownloadDatasheet = async () => {
 
       <div className="bg-white w-full overflow-hidden">
         {/* HEADING */}
-
         <section>
           <div
             className="
@@ -524,9 +520,7 @@ const handleDownloadDatasheet = async () => {
             </p>
           </div>
         </section>
-
         {/* HERO */}
-
         <section className="bg-white">
           <div
             className="
@@ -576,6 +570,8 @@ const handleDownloadDatasheet = async () => {
                     </video>
                   ) : (
                     <img
+                      loading="lazy"
+                      decoding="async"
                       src={activeMedia?.media_url}
                       alt={product.name}
                       className="
@@ -698,6 +694,8 @@ const handleDownloadDatasheet = async () => {
                       </button>
 
                       <img
+                        loading="lazy"
+                        decoding="async"
                         src={activeMedia.media_url}
                         alt={product.name}
                         className="
@@ -864,7 +862,9 @@ const handleDownloadDatasheet = async () => {
                 {/* TAGS */}
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  <Social />
+                  <Suspense fallback={null}>
+  <Social />
+</Suspense>
                   <div
                     className="
             border
@@ -900,9 +900,7 @@ const handleDownloadDatasheet = async () => {
             </div>
           </div>
         </section>
-
         {/* PRODUCT SPECIFICATIONS */}
-
         <section>
           <div
             className="
@@ -984,7 +982,6 @@ const handleDownloadDatasheet = async () => {
             </div>
           </div>
         </section>
-
         3D Stone
         <section>
           <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
@@ -993,13 +990,15 @@ const handleDownloadDatasheet = async () => {
                 🖱️ Click interact with the 3D model
               </div>
 
-              <ModelViewer src={model} height={270} poster={images[0]?.media_url} />
+              <ModelViewer
+                src={model}
+                height={270}
+                poster={images[0]?.media_url}
+              />
             </div>
           </div>
         </section>
-
         {/* APPLICATIONS */}
-
         <section className="py-10 bg-white">
           <div
             className="
@@ -1116,9 +1115,7 @@ const handleDownloadDatasheet = async () => {
             </div>
           </div>
         </section>
-
         {/* SAFETY WARNING */}
-
         {silicaWarning && (
           <section className="py-8 bg-white">
             <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
@@ -1189,9 +1186,7 @@ const handleDownloadDatasheet = async () => {
             </div>
           </section>
         )}
-
         {/* VARIATION */}
-
         <section className="pb-16 md:pb-20 bg-white">
           <div className="max-w-[2000px] mx-auto px-4 sm:px-6 xl:px-10">
             <h2
@@ -1316,9 +1311,7 @@ const handleDownloadDatasheet = async () => {
             </div>
           </div>
         </section>
-
         {/* FAQ */}
-
         <section className="pb-20 bg-white">
           <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
             <div
@@ -1454,9 +1447,7 @@ const handleDownloadDatasheet = async () => {
             </div>
           </div>
         </section>
-
         {/* RELATED PRODUCTS */}
-
         <section className="pb-24 bg-white">
           <div
             className="
@@ -1563,7 +1554,9 @@ const handleDownloadDatasheet = async () => {
         </section>
       </div>
 
-      <Footer />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
     </>
   );
 };
