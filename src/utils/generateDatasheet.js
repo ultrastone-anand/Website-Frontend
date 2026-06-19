@@ -979,40 +979,59 @@ pdf.text(
 // WARNING STRIP
 // ======================
 
-const warningY = bottomY + cardHeight + 5;
+const silicaWarning =
+  product.silica_warning ||
+  product.stone_categories?.silica_warning;
 
-// Caution icon
-pdf.addImage(
-  caution,
-  'PNG',
-  10,
-  warningY - 2.8,
-  4,
-  4
-);
+const silicaMessage =
+  product.silica_warning_message ||
+  product.stone_categories?.silica_warning_message;
 
-// WARNING title
-pdf.setFont('helvetica', 'bold');
-pdf.setFontSize(5.5);
-pdf.setTextColor(0);
+if (silicaWarning && silicaMessage) {
 
-pdf.text(
-  'WARNING:',
-  16,
-  warningY
-);
+  const warningY =
+    bottomY + cardHeight + 5;
 
-// Warning text
-pdf.setFont('helvetica', 'normal');
+  pdf.addImage(
+    caution,
+    'PNG',
+    10,
+    warningY - 2.8,
+    4,
+    4
+  );
 
-pdf.text(
-  'THIS PRODUCT CAN EXPOSE YOU TO HARMFUL CHEMICALS INCLUDING CRYSTALLINE SILICA WHICH IS KNOWN TO CAUSE SILICOSIS AND CANCER. KNOW MORE: OSHA.GOV, WWW.P65WARNINGS.CA.GOV, HTTPS://WWW.OSHA.GOV/SILICA-CRYSTALLINE',
-  28,
-  warningY,
-  {
-    maxWidth: pageWidth - 35,
-  }
-);
+  pdf.setFont(
+    'helvetica',
+    'bold'
+  );
+
+  pdf.setFontSize(5.5);
+
+  pdf.setTextColor(0);
+
+  pdf.text(
+    'WARNING:',
+    16,
+    warningY
+  );
+
+  pdf.setFont(
+    'helvetica',
+    'normal'
+  );
+
+  pdf.text(
+    silicaMessage.toUpperCase(),
+    28,
+    warningY,
+    {
+      maxWidth:
+        pageWidth - 35,
+    }
+  );
+
+}
 
 
 

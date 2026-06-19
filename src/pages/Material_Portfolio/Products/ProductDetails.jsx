@@ -349,14 +349,32 @@ const ProductDetails = () => {
     });
   };
 
-  const handleDownloadSafetysheet = () => {
-    const link = document.createElement('a');
-    link.href = QuartzSDS;
-    link.download = 'QuartzSDS.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+ const handleDownloadSafetysheet = () => {
+
+  if (!silicaPdf) {
+    return;
+  }
+
+  const fileUrl =
+    `${import.meta.env.VITE_API_URL.replace('/api', '')}${silicaPdf}`;
+
+  const link =
+    document.createElement('a');
+
+  link.href = fileUrl;
+
+  link.target = '_blank';
+
+  link.download =
+    silicaPdf.split('/').pop();
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
+
+};
 
   const variationPositions = {
     V1: "7.5%",
@@ -394,6 +412,18 @@ const ProductDetails = () => {
         "Yes, it can be used in wet areas when proper installation practices are followed.",
     },
   ];
+
+  const silicaWarning =
+    product.silica_warning ||
+    product.stone_categories?.silica_warning;
+
+  const silicaMessage =
+    product.silica_warning_message ||
+    product.stone_categories?.silica_warning_message;
+
+  const silicaPdf =
+    product.silica_datasheet_url ||
+    product.stone_categories?.silica_datasheet_url;
 
   return (
     <>
@@ -1086,7 +1116,7 @@ const ProductDetails = () => {
 
         {/* SAFETY WARNING */}
 
-        {product.silica_warning && <section className="py-8 bg-white">
+        {silicaWarning && <section className="py-8 bg-white">
           <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
             <div
               className="
@@ -1124,10 +1154,7 @@ const ProductDetails = () => {
                   <span className="font-bold text-[#D62828]">
                     Warning:
                   </span>{" "}
-                  {product.stone_categories?.name || "Ultra Quartz"} Surfaces are
-                  non-hazardous in finished form but can release hazardous dust during
-                  fabrication, requiring strict dust control and protective measures to
-                  prevent respiratory and health risks.
+                  {silicaMessage}
                 </p>
               </div>
 
