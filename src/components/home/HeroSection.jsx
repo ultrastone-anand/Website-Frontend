@@ -12,7 +12,7 @@ const HeroSection = () => {
   return (
     <section className="relative h-[90vh] overflow-hidden pt-[110px]">
       {/* Background Video */}
-      <motion.video
+      <video
         initial={{ scale: 1.08 }}
         animate={{ scale: 1 }}
         transition={{ duration: 2 }}
@@ -26,7 +26,7 @@ const HeroSection = () => {
           src="https://res.cloudinary.com/dx0u8csf4/video/upload/v1780602872/lv_0_20240514200655_vjgxsa.mp4"
           type="video/mp4"
         />
-      </motion.video>
+      </video>
 
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/45" />
