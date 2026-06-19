@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { useEffect, useRef, useState } from "react";
+import { lazy, useEffect, useRef, useState } from "react";
 
 import { useParams, useNavigate, Link } from "react-router-dom";
 
@@ -22,14 +22,16 @@ import {
 
 import Icons from "../../../assets/icons";
 import model from "../../../assets/3d/Marble.glb";
-import QuartzSDS from '../../../assets/QuartzSDS.pdf';
+import QuartzSDS from "../../../assets/QuartzSDS.pdf";
 import Navbar from "../../../components/common/Navbar";
-import Footer from "../../../components/common/Footer";
+const Footer = lazy(() =>
+  import("../../../components/common/Footer")
+);
 import Loading from "../../../components/common/Loading";
 import Social from "../../../components/common/Socials";
-import ModelViewer from "../../../components/common/ModelViewer";
-import { generateDatasheet } from "../../../utils/generateDatasheet";
-
+const ModelViewer = lazy(() =>
+  import("../../../components/common/ModelViewer")
+);
 
 const ProductDetails = () => {
   const { productSlug } = useParams();
@@ -64,7 +66,6 @@ const ProductDetails = () => {
     fetchProduct();
   }, [productSlug]);
 
-
   const fetchProduct = async () => {
     try {
       const response = await axios.get(
@@ -86,10 +87,7 @@ const ProductDetails = () => {
     }
   };
 
-  const fetchRelatedProducts = async (
-    categorySlug,
-    currentSlug,
-  ) => {
+  const fetchRelatedProducts = async (categorySlug, currentSlug) => {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/stones/${categorySlug}`,
@@ -99,9 +97,7 @@ const ProductDetails = () => {
 
       if (result.success) {
         const filteredProducts =
-          result.products?.filter(
-            (item) => item.slug !== currentSlug,
-          ) || [];
+          result.products?.filter((item) => item.slug !== currentSlug) || [];
 
         setRelatedProducts(filteredProducts);
       }
@@ -151,10 +147,13 @@ const ProductDetails = () => {
     product.media?.filter((item) => item.media_type === "SLAB_IMAGE") || [];
 
   const applicationImages =
-    product.media?.filter((item) => item.media_type === "APPLICATION_IMAGE") || [];
+    product.media?.filter((item) => item.media_type === "APPLICATION_IMAGE") ||
+    [];
 
   const bookmatchslipmatch =
-    product.media?.filter((item) => item.media_type === "BOOKMATCH_SLIPMATCH") || [];
+    product.media?.filter(
+      (item) => item.media_type === "BOOKMATCH_SLIPMATCH",
+    ) || [];
 
   const featuredvideo =
     product.media?.filter((item) => item.media_type === "FEATURED_VIDEO") || [];
@@ -168,8 +167,20 @@ const ProductDetails = () => {
         },
       ];
   const heroImages =
-    [...slabImages, ...closeupImages, ...applicationImages, ...bookmatchslipmatch, ...featuredvideo].length > 0
-      ? [...slabImages, ...closeupImages, ...applicationImages, ...bookmatchslipmatch, ...featuredvideo]
+    [
+      ...slabImages,
+      ...closeupImages,
+      ...applicationImages,
+      ...bookmatchslipmatch,
+      ...featuredvideo,
+    ].length > 0
+      ? [
+        ...slabImages,
+        ...closeupImages,
+        ...applicationImages,
+        ...bookmatchslipmatch,
+        ...featuredvideo,
+      ]
       : [
         {
           media_url: "https://placehold.co/1200x800",
@@ -210,13 +221,11 @@ const ProductDetails = () => {
       icon: Icons.exetiorfloor,
     },
 
-
     {
       title: "Pool / Fountain",
       value: product.pool_fountain,
       icon: Icons.poolfountain,
     },
-
 
     {
       title: "Interior Floor",
@@ -339,42 +348,42 @@ const ProductDetails = () => {
     },
   ];
 
+const handleDownloadDatasheet = async () => {
+  try {
+    const { generateDatasheet } = await import(
+      "../../../utils/generateDatasheet"
+    );
 
-
-  const handleDownloadDatasheet = async () => {
     await generateDatasheet({
       product,
       closeupImages,
       images,
     });
-  };
-
- const handleDownloadSafetysheet = () => {
-
-  if (!silicaPdf) {
-    return;
+  } catch (error) {
+    console.error("Failed to generate datasheet:", error);
   }
-
-  const fileUrl =
-    `${import.meta.env.VITE_API_URL.replace('/api', '')}${silicaPdf}`;
-
-  const link =
-    document.createElement('a');
-
-  link.href = fileUrl;
-
-  link.target = '_blank';
-
-  link.download =
-    silicaPdf.split('/').pop();
-
-  document.body.appendChild(link);
-
-  link.click();
-
-  document.body.removeChild(link);
-
 };
+  const handleDownloadSafetysheet = () => {
+    if (!silicaPdf) {
+      return;
+    }
+
+    const fileUrl = `${import.meta.env.VITE_API_URL.replace("/api", "")}${silicaPdf}`;
+
+    const link = document.createElement("a");
+
+    link.href = fileUrl;
+
+    link.target = "_blank";
+
+    link.download = silicaPdf.split("/").pop();
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+  };
 
   const variationPositions = {
     V1: "7.5%",
@@ -414,8 +423,7 @@ const ProductDetails = () => {
   ];
 
   const silicaWarning =
-    product.silica_warning ||
-    product.stone_categories?.silica_warning;
+    product.silica_warning || product.stone_categories?.silica_warning;
 
   const silicaMessage =
     product.silica_warning_message ||
@@ -471,8 +479,7 @@ const ProductDetails = () => {
   text-[#777]
   "
               style={{
-                fontFamily:
-                  "Montserrat, sans-serif",
+                fontFamily: "Montserrat, sans-serif",
               }}
             >
               <Link
@@ -506,8 +513,7 @@ const ProductDetails = () => {
     duration-300
     "
               >
-                {product.stone_categories?.name ||
-                  "Ultra Stones"}
+                {product.stone_categories?.name || "Ultra Stones"}
               </Link>
 
               {" / "}
@@ -664,9 +670,10 @@ const ProductDetails = () => {
                     <Expand size={18} strokeWidth={1.8} />
                   </button>
                 </div>
-                {openPreview && activeMedia?.media_type !== "FEATURED_VIDEO" && (
-                  <div
-                    className="
+                {openPreview &&
+                  activeMedia?.media_type !== "FEATURED_VIDEO" && (
+                    <div
+                      className="
       fixed
       inset-0
       z-[9999]
@@ -676,32 +683,32 @@ const ProductDetails = () => {
       justify-center
       p-6
     "
-                    onClick={() => setOpenPreview(false)}
-                  >
-                    <button
-                      className="
+                      onClick={() => setOpenPreview(false)}
+                    >
+                      <button
+                        className="
         absolute
         top-6
         right-6
         text-white
         text-4xl
       "
-                    >
-                      ×
-                    </button>
+                      >
+                        ×
+                      </button>
 
-                    <img
-                      src={activeMedia.media_url}
-                      alt={product.name}
-                      className="
+                      <img
+                        src={activeMedia.media_url}
+                        alt={product.name}
+                        className="
         max-w-full
         max-h-full
         object-contain
       "
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                )}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  )}
               </div>
 
               {/* RIGHT CONTENT */}
@@ -857,7 +864,6 @@ const ProductDetails = () => {
                 {/* TAGS */}
 
                 <div className="flex items-center gap-3 flex-wrap">
-
                   <Social />
                   <div
                     className="
@@ -979,7 +985,7 @@ const ProductDetails = () => {
           </div>
         </section>
 
-        {/* 3D Stone */}
+        3D Stone
         <section>
           <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
             <div className="relative">
@@ -987,10 +993,7 @@ const ProductDetails = () => {
                 🖱️ Click interact with the 3D model
               </div>
 
-              <ModelViewer
-                src={model}
-                height={270}
-              />
+              <ModelViewer src={model} height={270} poster={images[0]?.media_url} />
             </div>
           </div>
         </section>
@@ -1116,10 +1119,11 @@ const ProductDetails = () => {
 
         {/* SAFETY WARNING */}
 
-        {silicaWarning && <section className="py-8 bg-white">
-          <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
-            <div
-              className="
+        {silicaWarning && (
+          <section className="py-8 bg-white">
+            <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
+              <div
+                className="
         bg-[#F4F4F4]
         px-4
         sm:px-6
@@ -1132,37 +1136,35 @@ const ProductDetails = () => {
         lg:justify-between
         gap-5
       "
-            >
-              {/* Warning Content */}
-              <div className="flex items-center gap-3 flex-1">
-                <span className="text-[20px] sm:text-[22px] shrink-0">
-                  ⚠️
-                </span>
+              >
+                {/* Warning Content */}
+                <div className="flex items-center gap-3 flex-1">
+                  <span className="text-[20px] sm:text-[22px] shrink-0">
+                    ⚠️
+                  </span>
 
-                <p
-                  className="
+                  <p
+                    className="
             text-[13px]
             sm:text-[14px]
             lg:text-[15px]
             leading-[1.6]
             text-[#1A1A1A]
           "
-                  style={{
-                    fontFamily: "Montserrat, sans-serif",
-                  }}
-                >
-                  <span className="font-bold text-[#D62828]">
-                    Warning:
-                  </span>{" "}
-                  {silicaMessage}
-                </p>
-              </div>
+                    style={{
+                      fontFamily: "Montserrat, sans-serif",
+                    }}
+                  >
+                    <span className="font-bold text-[#D62828]">Warning:</span>{" "}
+                    {silicaMessage}
+                  </p>
+                </div>
 
-              {/* Download Button */}
-              <button
-                // onClick={handleDownloadDatasheet}
-                onClick={handleDownloadSafetysheet}
-                className="
+                {/* Download Button */}
+                <button
+                  // onClick={handleDownloadDatasheet}
+                  onClick={handleDownloadSafetysheet}
+                  className="
           w-full
           lg:w-auto
           lg:shrink-0
@@ -1180,12 +1182,13 @@ const ProductDetails = () => {
           duration-300
           cursor-pointer
         "
-              >
-                Download Safety Datasheet
-              </button>
+                >
+                  Download Safety Datasheet
+                </button>
+              </div>
             </div>
-          </div>
-        </section>}
+          </section>
+        )}
 
         {/* VARIATION */}
 
@@ -1369,9 +1372,8 @@ const ProductDetails = () => {
     max-w-[320px]
   "
                   >
-                    Everything you need to know about this material,
-                    fabrication requirements, maintenance and recommended
-                    applications.
+                    Everything you need to know about this material, fabrication
+                    requirements, maintenance and recommended applications.
                   </p>
                 </div>
 
@@ -1392,9 +1394,7 @@ const ProductDetails = () => {
               "
                       >
                         <button
-                          onClick={() =>
-                            setOpenFaq(isOpen ? null : index)
-                          }
+                          onClick={() => setOpenFaq(isOpen ? null : index)}
                           className={`
                     w-full
                     flex
@@ -1430,10 +1430,7 @@ const ProductDetails = () => {
                     transition-all
                     duration-300
                     overflow-hidden
-                    ${isOpen
-                              ? "max-h-[200px]"
-                              : "max-h-0"
-                            }
+                    ${isOpen ? "max-h-[200px]" : "max-h-0"}
                   `}
                         >
                           <div
@@ -1613,11 +1610,7 @@ const SpecificationItem = ({ title, value }) => {
         }}
       >
         {formattedValue?.length > 0 ? (
-          formattedValue.map((item, index) => (
-            <p key={index}>
-              {item}
-            </p>
-          ))
+          formattedValue.map((item, index) => <p key={index}>{item}</p>)
         ) : (
           <p>-</p>
         )}
@@ -1808,15 +1801,10 @@ const VariationCard = ({ title, level, active }) => {
   );
 };
 
-const RelatedProductCard = ({
-  item,
-  navigate,
-}) => {
+const RelatedProductCard = ({ item, navigate }) => {
   return (
     <div
-      onClick={() =>
-        navigate(`/product/${item.slug}`)
-      }
+      onClick={() => navigate(`/product/${item.slug}`)}
       className="
       min-w-[320px]
       max-w-[320px]
@@ -1834,10 +1822,7 @@ const RelatedProductCard = ({
         "
       >
         <img
-          src={
-            item.closeup_image ||
-            "https://placehold.co/600x600"
-          }
+          src={item.closeup_image || "https://placehold.co/600x600"}
           alt={item.name}
           className="
           w-full
