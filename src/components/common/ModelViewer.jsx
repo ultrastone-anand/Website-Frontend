@@ -266,21 +266,29 @@ return(
 
 shadows
 dpr={[1,1.5]}
-camera={{ position: preview ? [ 0.50, -10.05, -1.95] : [ 3.50, -5.86,-14.76],fov:preview ? 5 : 5 }}
+camera={{ position: preview ? [ 0.50, -10.05, -1.95] : [ 3.50, -5.86,-14.76],fov:preview ? 5 : 10 }}
 >
 
-<ambientLight
-intensity={1.2}
+<ambientLight intensity={2} />
+
+<directionalLight
+position={[10,10,10]}
+intensity={0.5}
 />
 
 <directionalLight
-    position={[
-        5,
-        5,
-        5
-    ]}
-    intensity={2}
-    castShadow
+position={[-10,10,10]}
+intensity={0.5}
+/>
+
+<directionalLight
+position={[10,10,-10]}
+intensity={0.5}
+/>
+
+<directionalLight
+position={[-10,10,-10]}
+intensity={0.5}
 />
 
 <Suspense fallback={<Loader/>}>
@@ -290,9 +298,7 @@ intensity={1.2}
         finish={finish}
     />
 
-    <Environment
-        preset="warehouse"
-    />
+{/* <Environment preset=""/>  */}
 
     {/* CAMERA DEBUG ONLY FULLSCREEN */}
 
@@ -303,15 +309,11 @@ intensity={1.2}
 </Suspense>
 
 <OrbitControls
-    enabled={!preview}
-    enableZoom={!preview}
-    enablePan={!preview}
-    enableRotate={!preview}
-    target={[
-        0,
-        0,
-        0
-    ]}
+    enableZoom
+    enablePan
+    enableRotate
+    autoRotate
+    autoRotateSpeed={2}
 />
 
 </Canvas>
