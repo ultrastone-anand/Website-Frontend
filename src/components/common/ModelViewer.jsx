@@ -309,10 +309,10 @@ intensity={0.5}
 </Suspense>
 
 <OrbitControls
-    enableZoom
-    enablePan
-    enableRotate
-    autoRotate
+    enableZoom={!preview}
+    enablePan={!preview}
+    enableRotate={!preview}
+    autoRotate={!preview}
     autoRotateSpeed={2}
 />
 
