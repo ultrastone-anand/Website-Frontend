@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 
 import Icons from "../../../assets/icons";
-import model from "../../../assets/3d/Marble.glb";
 import Navbar from "../../../components/common/Navbar";
 const Footer = lazy(() => import("../../../components/common/Footer"));
 import Loading from "../../../components/common/Loading";
@@ -439,12 +438,12 @@ const ProductDetails = () => {
         <section>
           <div
             className="
-    max-w-[2000px]
-    mx-auto
-    px-6
-    xl:px-10
-    pt-[120px]
-    "
+            max-w-[2000px]
+            mx-auto
+            px-6
+            xl:px-10
+            pt-[120px]
+            "
           >
             {/* MATERIAL TITLE */}
 
@@ -465,15 +464,15 @@ const ProductDetails = () => {
 
             {/* RED LINE */}
 
-            <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
+          <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
 
             {/* BREADCRUMB / STONE NAME */}
 
             <p
               className="
-  text-[13px]
-  text-[#777]
-  "
+                text-[13px]
+                text-[#777]
+                "
               style={{
                 fontFamily: "Montserrat, sans-serif",
               }}
@@ -481,9 +480,9 @@ const ProductDetails = () => {
               <Link
                 to="/"
                 className="
-    hover:text-[#161412]
-    duration-300
-    "
+                hover:text-[#161412]
+                duration-300
+                "
               >
                 Home
               </Link>
@@ -520,6 +519,7 @@ const ProductDetails = () => {
             </p>
           </div>
         </section>
+
         {/* HERO */}
         <section className="bg-white">
           <div
@@ -900,6 +900,7 @@ const ProductDetails = () => {
             </div>
           </div>
         </section>
+
         {/* PRODUCT SPECIFICATIONS */}
         <section>
           <div
@@ -982,7 +983,8 @@ const ProductDetails = () => {
             </div>
           </div>
         </section>
-        3D Stone
+
+        {/* 3D Stone */}
         <section>
           <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
             <div className="relative">
@@ -991,13 +993,14 @@ const ProductDetails = () => {
               </div>
 
               <ModelViewer
-                src={model}
                 height={270}
                 poster={images[0]?.media_url}
+                finishes={product?.finishes_available}
               />
             </div>
           </div>
         </section>
+
         {/* APPLICATIONS */}
         <section className="py-10 bg-white">
           <div
@@ -1115,6 +1118,7 @@ const ProductDetails = () => {
             </div>
           </div>
         </section>
+
         {/* SAFETY WARNING */}
         {silicaWarning && (
           <section className="py-8 bg-white">
@@ -1186,6 +1190,7 @@ const ProductDetails = () => {
             </div>
           </section>
         )}
+
         {/* VARIATION */}
         <section className="pb-16 md:pb-20 bg-white">
           <div className="max-w-[2000px] mx-auto px-4 sm:px-6 xl:px-10">
@@ -1311,142 +1316,135 @@ const ProductDetails = () => {
             </div>
           </div>
         </section>
+
         {/* FAQ */}
-        <section className="pb-20 bg-white">
-          <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
-            <div
-              className="
-      bg-[#f5f5f5]
-      border
-      border-[#d9d9d9]
-      rounded-sm
-      p-6
-      lg:p-10
-    "
+{product?.faqs?.filter((item) => item.is_active)?.length > 0 && (
+  <section className="pb-20 bg-white">
+    <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
+
+      <div className="bg-[#f5f5f5] border border-[#d9d9d9] rounded-sm p-6 lg:p-10">
+
+        <div className="grid lg:grid-cols-[340px_1fr] gap-10">
+
+          {/* LEFT */}
+          <div className="lg:pr-8">
+            <p className="text-[12px] uppercase tracking-[3px] text-[#9b9b9b] mb-4">
+              FAQ
+            </p>
+
+            <h2
+              className="text-[42px] leading-[1] font-semibold text-[#161412] mb-6"
+              style={{
+                fontFamily: "Montserrat, sans-serif",
+              }}
             >
-              <div className="grid lg:grid-cols-[340px_1fr] gap-10">
-                {/* LEFT */}
+              Frequently Asked Questions
+            </h2>
 
-                <div className="lg:pr-8">
-                  <p
-                    className="
-    text-[12px]
-    uppercase
-    tracking-[3px]
-    text-[#9b9b9b]
-    mb-4
-  "
-                  >
-                    FAQ
-                  </p>
+            <div className="w-[60px] h-[3px] bg-[#C91F26] mb-6" />
 
-                  <h2
-                    className="
-    text-[42px]
-    leading-[1]
-    font-semibold
-    text-[#161412]
-    mb-6
-  "
-                    style={{
-                      fontFamily: "Montserrat, sans-serif",
-                    }}
-                  >
-                    Frequently Asked Questions
-                  </h2>
-
-                  <div className="w-[60px] h-[3px] bg-[#C91F26] mb-6" />
-
-                  <p
-                    className="
-    text-[15px]
-    leading-[1.8]
-    text-[#6b6b6b]
-    max-w-[320px]
-  "
-                  >
-                    Everything you need to know about this material, fabrication
-                    requirements, maintenance and recommended applications.
-                  </p>
-                </div>
-
-                {/* RIGHT */}
-
-                <div className="space-y-3">
-                  {faqs.map((faq, index) => {
-                    const isOpen = openFaq === index;
-
-                    return (
-                      <div
-                        key={index}
-                        className="
-                border
-                border-[#cfcfcf]
-                bg-white
-                overflow-hidden
-              "
-                      >
-                        <button
-                          onClick={() => setOpenFaq(isOpen ? null : index)}
-                          className={`
-                    w-full
-                    flex
-                    items-center
-                    justify-between
-                    px-5
-                    py-4
-                    text-left
-                    transition-all
-                    duration-300
-                    ${isOpen
-                              ? "bg-[#4a4a4a] text-white"
-                              : "bg-white text-[#161412]"
-                            }
-                  `}
-                        >
-                          <span
-                            className="
-                    text-[13px]
-                    font-medium
-                  "
-                          >
-                            {index + 1}. {faq.question}
-                          </span>
-
-                          <span className="text-[18px]">
-                            {isOpen ? "−" : "+"}
-                          </span>
-                        </button>
-
-                        <div
-                          className={`
-                    transition-all
-                    duration-300
-                    overflow-hidden
-                    ${isOpen ? "max-h-[200px]" : "max-h-0"}
-                  `}
-                        >
-                          <div
-                            className="
-                    px-5
-                    py-4
-                    text-[13px]
-                    text-[#666]
-                    bg-[#4a4a4a]
-                    text-white
-                  "
-                          >
-                            {faq.answer}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+            <p className="text-[15px] leading-[1.8] text-[#6b6b6b] max-w-[320px]">
+              Everything you need to know about this material, fabrication
+              requirements, maintenance and recommended applications.
+            </p>
           </div>
-        </section>
+
+
+          {/* RIGHT */}
+          <div className="space-y-3">
+
+            {product.faqs
+              .filter((item) => item.is_active)
+              .sort((a,b)=>a.sort_order-b.sort_order)
+              .map((faq,index)=>{
+
+                const isOpen = openFaq === index;
+
+                return (
+                  <div
+                    key={faq.id}
+                    className="
+                      border
+                      border-[#cfcfcf]
+                      bg-white
+                      overflow-hidden
+                    "
+                  >
+
+                    <button
+                      onClick={() =>
+                        setOpenFaq(isOpen ? null : index)
+                      }
+                      className={`
+                        w-full
+                        flex
+                        items-center
+                        justify-between
+                        px-5
+                        py-4
+                        text-left
+                        transition-all
+                        duration-300
+                        ${
+                          isOpen
+                          ? "bg-[#4a4a4a] text-white"
+                          : "bg-white text-[#161412]"
+                        }
+                      `}
+                    >
+
+                      <span className="text-[13px] font-medium">
+                        {index + 1}. {faq.question}
+                      </span>
+
+                      <span className="text-[18px]">
+                        {isOpen ? "−" : "+"}
+                      </span>
+
+                    </button>
+
+
+                    <div
+                      className={`
+                        overflow-hidden
+                        transition-all
+                        duration-300
+                        ${
+                          isOpen
+                          ? "max-h-[300px]"
+                          : "max-h-0"
+                        }
+                      `}
+                    >
+
+                      <div
+                        className="
+                          px-5
+                          py-4
+                          text-[13px]
+                          bg-[#4a4a4a]
+                          text-white
+                        "
+                      >
+                        {faq.answer}
+                      </div>
+
+                    </div>
+
+                  </div>
+                );
+              })}
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+)}
+
         {/* RELATED PRODUCTS */}
         <section className="pb-24 bg-white">
           <div
@@ -1552,6 +1550,7 @@ const ProductDetails = () => {
             </div>
           </div>
         </section>
+
       </div>
 
       <Suspense fallback={null}>

@@ -1,180 +1,448 @@
-import { useState, useRef, useEffect } from 'react';
+import * as THREE from "three";
+import {Suspense,useEffect,useState} from "react";
+import {Canvas,useLoader,useThree,useFrame} from "@react-three/fiber";
+import {OrbitControls,Environment,Center,Html} from "@react-three/drei";
 
-export default function ModelViewer({
-  src,
-  poster,
-  height = 260,
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const [loading, setLoading] = useState(false);
+function Loader(){
 
-  const viewerRef = useRef(null);
+    return(
+        <Html center>
 
-  const openViewer = async () => {
-    setLoading(true);
-
-    if (!window.customElements.get('model-viewer')) {
-      await import('@google/model-viewer');
-    }
-
-    setExpanded(true);
-  };
-
-  const closeViewer = () => {
-    setExpanded(false);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (!expanded || !viewerRef.current) return;
-
-    const viewer = viewerRef.current;
-
-    const handleLoad = () => {
-      setTimeout(() => {
-        setLoading(false);
-      }, 300);
-    };
-
-    viewer.addEventListener('load', handleLoad);
-
-    return () => {
-      viewer.removeEventListener('load', handleLoad);
-    };
-  }, [expanded]);
-
-  return (
-    <>
-      {/* Preview Image */}
-      <div
-        onClick={openViewer}
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: `${height}px`,
-          overflow: 'hidden',
-          cursor: 'zoom-in',
-        }}
-      >
-        <img
-          src={poster}
-          alt="3D Preview"
-          loading="lazy"
-          decoding="async"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            display: 'block',
-          }}
-        />
-
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(0,0,0,0.15)',
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: '18px',
-          }}
-        >
-          ▶ View 3D
-        </div>
-      </div>
-
-      {/* Modal */}
-      {expanded && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: '#000',
-            zIndex: 9999,
-          }}
-        >
-          {/* Close */}
-          <button
-            onClick={closeViewer}
-            style={{
-              position: 'absolute',
-              top: 20,
-              right: 20,
-              zIndex: 10001,
-              color: '#fff',
-              background: 'none',
-              border: 'none',
-              fontSize: '36px',
-              cursor: 'pointer',
-            }}
-          >
-            ×
-          </button>
-
-          {/* Loader */}
-          {loading && (
             <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                zIndex: 10000,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'column',
-                background: 'rgba(0,0,0,0.85)',
-                color: '#fff',
-              }}
-            >
-              <div
                 style={{
-                  width: 40,
-                  height: 40,
-                  border: '4px solid rgba(255,255,255,0.2)',
-                  borderTop: '4px solid #fff',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite',
+                    color:"#fff"
                 }}
-              />
-              <div style={{ marginTop: 16 }}>
-                Loading 3D Model...
-              </div>
+            >
+                Loading...
             </div>
-          )}
 
-          <model-viewer
-            ref={viewerRef}
-            src={src}
-            poster={poster}
-            camera-controls
-            auto-rotate
-            shadow-intensity="1"
-            tone-mapping="neutral"
-            loading="eager"
-            reveal="auto"
-            style={{
-              width: '100vw',
-              height: '100vh',
-            }}
-          />
+        </Html>
+    );
 
-          <style>
-            {`
-              @keyframes spin {
-                from {
-                  transform: rotate(0deg);
-                }
-                to {
-                  transform: rotate(360deg);
-                }
-              }
-            `}
-          </style>
-        </div>
-      )}
-    </>
-  );
 }
+
+function CameraDebugger(){
+
+    const { camera } = useThree();
+
+
+    const [position,setPosition] = useState({
+
+        x:0,
+        y:0,
+        z:0
+
+    });
+
+
+
+    useFrame(()=>{
+
+
+        setPosition({
+
+            x:camera.position.x.toFixed(2),
+
+            y:camera.position.y.toFixed(2),
+
+            z:camera.position.z.toFixed(2)
+
+        });
+
+
+    });
+
+
+
+    return(
+
+        <Html
+            fullscreen
+            style={{
+
+                pointerEvents:"none"
+
+            }}
+        >
+
+
+            <div
+
+                style={{
+
+                    position:"absolute",
+
+                    top:100,
+
+                    right:30,
+
+                    background:"rgba(0,0,0,.75)",
+
+                    color:"#fff",
+
+                    padding:"15px",
+
+                    borderRadius:"10px",
+
+                    fontSize:"14px",
+
+                    lineHeight:"22px"
+
+                }}
+
+            >
+
+
+                <b>Camera Position</b>
+
+                <br/>
+
+                X : {position.x}
+
+                <br/>
+
+                Y : {position.y}
+
+                <br/>
+
+                Z : {position.z}
+
+
+            </div>
+
+
+
+        </Html>
+
+    );
+
+}
+
+function StoneSlab({
+    textureUrl,
+    finish
+}){
+
+
+    const texture = useLoader(
+        THREE.TextureLoader,
+        textureUrl
+    );
+
+
+    texture.colorSpace =
+        THREE.SRGBColorSpace;
+
+
+    texture.anisotropy = 16;
+
+
+    texture.generateMipmaps = true;
+
+
+    texture.minFilter =
+        THREE.LinearMipmapLinearFilter;
+
+
+
+
+
+    const finishSettings={
+
+
+        POLISHED:{
+            roughness:0.08,
+            envMapIntensity:2
+        },
+
+
+        BRUSHED:{
+            roughness:0.75,
+            envMapIntensity:0.4
+        },
+
+
+        HONED:{
+            roughness:0.55,
+            envMapIntensity:0.6
+        },
+
+
+        LEATHER:{
+            roughness:0.8,
+            envMapIntensity:0.3
+        },
+
+
+        FLAMMED:{
+            roughness:1,
+            envMapIntensity:0.2
+        },
+
+
+        MATT:{
+            roughness:0.95,
+            envMapIntensity:0.2
+        }
+
+
+    };
+
+
+
+    const material =
+        finishSettings[
+            finish?.toUpperCase()
+        ]
+        ||
+        finishSettings.POLISHED;
+
+
+
+
+
+    return(
+
+        <Center>
+
+
+            <mesh
+
+                castShadow
+
+                receiveShadow
+
+                rotation={[
+                    -0.08,
+                    -0.25,
+                    0
+                ]}
+
+
+            >
+
+                <boxGeometry
+
+                    args={[
+                        4,
+                        2.4,
+                        0.05
+                    ]}
+
+                />
+
+
+                <meshStandardMaterial
+
+                    map={texture}
+
+                    {...material}
+
+                />
+
+            </mesh>
+
+
+        </Center>
+
+
+    );
+
+}
+
+function ViewerCanvas({
+
+    poster,
+
+    finish,
+
+    preview=false
+
+}){
+
+return(
+
+<Canvas
+
+shadows
+dpr={[1,1.5]}
+camera={{ position: preview ? [ 0.50, -10.05, -1.95] : [ 3.50, -5.86,-14.76],fov:preview ? 5 : 5 }}
+>
+
+<ambientLight
+intensity={1.2}
+/>
+
+<directionalLight
+    position={[
+        5,
+        5,
+        5
+    ]}
+    intensity={2}
+    castShadow
+/>
+
+<Suspense fallback={<Loader/>}>
+
+    <StoneSlab
+        textureUrl={poster}
+        finish={finish}
+    />
+
+    <Environment
+        preset="warehouse"
+    />
+
+    {/* CAMERA DEBUG ONLY FULLSCREEN */}
+
+    {
+        !preview &&
+        <CameraDebugger/>
+    }
+</Suspense>
+
+<OrbitControls
+    enabled={!preview}
+    enableZoom={!preview}
+    enablePan={!preview}
+    enableRotate={!preview}
+    target={[
+        0,
+        0,
+        0
+    ]}
+/>
+
+</Canvas>
+)}
+
+export default function ModelViewer({ poster,height=270,finishes=[]}){
+
+const [open,setOpen]=useState(false);
+
+const [selectedFinish,setSelectedFinish]=useState(finishes?.[0]||"Polished");
+
+useEffect(()=>{
+const close=(e)=>{if(e.key==="Escape")
+setOpen(false);
+};
+
+window.addEventListener(
+    "keydown",
+    close
+);
+
+return()=>{
+
+window.removeEventListener(
+    "keydown",
+    close
+)};
+},[]);
+
+return(
+
+<>
+{/* STATIC VIEW */}
+<div
+onClick={()=>setOpen(true)}
+style={{width:"100%",
+height,
+cursor:"pointer",
+overflow:"hidden",
+borderRadius:8,
+background:"#eee",
+position:"relative"}}
+>
+
+<ViewerCanvas
+poster={poster}
+finish={selectedFinish}
+preview={true}
+/>
+
+</div>
+
+{/* FULL SCREEN */}
+
+
+{open &&
+<div
+style={{
+position:"fixed",
+inset:0,
+background:"rgba(0,0,0,.92)",
+zIndex:99999
+}}>
+
+<button
+onClick={()=>setOpen(false)}
+style={{
+position:"absolute",
+right:30,
+top:20,
+zIndex:100000,
+fontSize:40,
+color:"#fff",
+background:"none",
+border:"none"
+}}
+>
+
+×
+
+</button>
+
+<div
+style={{
+position:"absolute",
+top:30,
+left:30,
+zIndex:100000
+}}
+>
+
+<select
+value={selectedFinish}
+onChange={(e)=>
+setSelectedFinish(e.target.value)}
+style={{
+padding:"12px 20px",
+background:"#111",
+color:"#fff",
+borderRadius:10,
+fontSize:16
+}}
+>
+{
+finishes.map(item=>(
+<option
+key={item}
+value={item}
+>
+{item}
+</option>
+))}
+</select>
+
+</div>
+
+<div
+style={{
+width:"100vw",
+height:"100vh"
+}}>
+
+<ViewerCanvas
+poster={poster}
+finish={selectedFinish}
+preview={false}
+/>
+
+</div>
+
+</div>}
+
+</>
+)}
