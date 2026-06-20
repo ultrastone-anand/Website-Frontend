@@ -1,39 +1,41 @@
+import React, { memo } from "react";
 import { motion } from "framer-motion";
 
-const HeroSection = () => {
-  const scrollToCollections = () => {
-    document
-      .getElementById("collections")
-      ?.scrollIntoView({
-        behavior: "smooth",
-      });
-  };
+const VIDEO_URL =
+"https://res.cloudinary.com/dx0u8csf4/video/upload/q_auto,f_auto,vc_auto,w_1920/v1780602872/lv_0_20240514200655_vjgxsa.mp4"
+const BackgroundVideo = memo(() => {
+  return (
+    <video
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      className="absolute inset-0 h-full w-full object-cover"
+    >
+      <source
+        src={VIDEO_URL}
+        type="video/mp4"
+      />
+    </video>
+  );
+});
 
+BackgroundVideo.displayName =
+  "BackgroundVideo";
+
+const HeroSection = () => {
   return (
     <section className="relative h-[90vh] overflow-hidden pt-[110px]">
       {/* Background Video */}
-      <video
-        initial={{ scale: 1.08 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 2 }}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover "
-      >
-        <source
-          src="https://res.cloudinary.com/dx0u8csf4/video/upload/v1780602872/lv_0_20240514200655_vjgxsa.mp4"
-          type="video/mp4"
-        />
-      </video>
+      <BackgroundVideo />
 
-      {/* Dark Overlay */}
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black/45" />
 
       {/* Content */}
-      <div className="relative z-10 flex items-center h-full">
-        <div className="max-w-7xl mx-auto w-full px-6 lg:px-16">
+      <div className="relative z-10 flex h-full items-center">
+        <div className="mx-auto w-full max-w-7xl px-6 lg:px-16">
           <motion.div
             initial={{
               opacity: 0,
@@ -48,17 +50,13 @@ const HeroSection = () => {
             }}
             className="max-w-4xl"
           >
-
-
-            {/* Main Heading */}
-            <h1 className="text-white font-light leading-[1] text-3xl md:text-4xl lg:text-6xl mb-8">
+            <h1 className="mb-8 text-3xl font-light leading-[1] text-white md:text-4xl lg:text-6xl">
               Elevate Your Space
               <br />
               with Timeless Marble & Stones
             </h1>
 
-            {/* Description */}
-            <p className="text-white/90 text-lg md:text-xl leading-relaxed max-w-3xl mb-10">
+            <p className="mb-10 max-w-3xl text-lg leading-relaxed text-white/90 md:text-xl">
               Transform any space into a masterpiece with our luxurious marble
               and stone selection. Whether it's for countertops, flooring, or
               statement accents, we have what you need.
@@ -70,4 +68,4 @@ const HeroSection = () => {
   );
 };
 
-export default HeroSection;
+export default memo(HeroSection);
