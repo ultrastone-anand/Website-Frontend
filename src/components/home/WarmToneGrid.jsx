@@ -1,75 +1,98 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const collections = [
   {
     title: "MARBLE",
     slug: "marble",
     image:
-      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1200&q=80",
+      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200&auto=format&fit=crop",
   },
   {
     title: "ULTRA QUARTZ",
     slug: "ultra-quartz",
     image:
-      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&q=80",
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1200&auto=format&fit=crop",
   },
   {
     title: "QUARTZITE",
     slug: "quartzite",
     image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200&q=80",
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
   },
 ];
 
 const WarmToneGrid = () => {
+  const navigate = useNavigate();
   return (
-    <section className="bg-[#f5f5f5] py-16 lg:py-20">
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-
+    <section className="bg-[#f5f5f5] py-20">
+      <div className="max-w-[1650px] mx-auto px-6 xl:px-10">
         {/* Heading */}
-        <div className="mb-12">
-          <h2 className="text-4xl font-bold inline-block relative">
-            Material Portfolio
-
-            <span
-              className="
-                absolute
-                left-1/2
-                -translate-x-1/2
-                bottom-[-12px]
-                w-[160px]
-                h-[6px]
-                bg-red-600
-              "
-            />
+        <div className="text-center mb-14">
+          <h2
+            className="
+              text-[38px]
+              md:text-[52px]
+              text-[#161412]
+              inline-block
+              relative
+            "
+            style={{
+              fontFamily:
+                '"Cormorant Garamond", serif',
+            }}
+          >
+            Material{" "}
+            <span className="relative inline-block">
+              Portfolio
+              <span
+                className="
+                  absolute
+                  left-0
+                  bottom-[-8px]
+                  w-full
+                  h-[4px]
+                  bg-[#c91f26]
+                "
+              />
+            </span>
           </h2>
         </div>
 
         {/* Cards */}
-        <div className="grid md:grid-cols-3 gap-8 lg:gap-10">
+        <div className="grid md:grid-cols-3 gap-8 xl:gap-12">
           {collections.map((item) => (
             <Link
               key={item.slug}
-              to={`/category/${item.slug}`}
+              to={`/product-category/${item.slug}`}
               className="group"
             >
-              <div className="overflow-hidden rounded-md">
+              <div className="overflow-hidden">
                 <img
                   src={item.image}
                   alt={item.title}
                   className="
                     w-full
-                    h-[420px]
-                    lg:h-[500px]
+                    h-[350px]
+                    md:h-[450px]
                     object-cover
-                    transition-transform
                     duration-700
                     group-hover:scale-105
                   "
                 />
               </div>
 
-              <h3 className="mt-4 text-[22px] font-medium tracking-wide">
+              <h3
+                className="
+                  mt-5
+                  text-[20px]
+                  tracking-wide
+                  text-[#161412]
+                "
+                style={{
+                  fontFamily:
+                    "Montserrat, sans-serif",
+                }}
+              >
                 {item.title}
               </h3>
             </Link>
@@ -79,22 +102,23 @@ const WarmToneGrid = () => {
         {/* Button */}
         <div className="flex justify-center mt-16">
           <button
+            onClick={() => navigate("/categories")}
             className="
-              px-10
-              py-3
               border
-              border-red-400
-              rounded
-              text-black
-              hover:bg-red-500
+              border-[#c91f26]
+              px-8
+              py-3
+              text-sm
+              text-[#161412]
+              hover:bg-[#c91f26]
               hover:text-white
-              transition-all
+              duration-300
+
             "
           >
             Explore More
           </button>
         </div>
-
       </div>
     </section>
   );

@@ -1,11 +1,12 @@
 import Navbar from "../components/common/Navbar"
+import Footer from "../components/common/Footer"
 import HeroSection from "../components/home/HeroSection"
 import IntroSection from "../components/home/IntroSection"
 import WarmToneGrid from "../components/home/WarmToneGrid"
-import Footer from "../components/common/Footer"
-import { NewsletterSection } from "../components/home/Newsletter"
-import CommitmentSection from "../components/home/Commitement"
 import PreciousStoneSection from "../components/home/PreciousStone"
+import InspirationGallery from "../components/home/InspirationGallery"
+import InstagramSection from "../components/home/InstagramSection"
+import LatestBlogsSection from "../components/home/LatestBlogsSection"
 
 const Home = () => {
   return (
@@ -21,9 +22,11 @@ const Home = () => {
 
       <PreciousStoneSection/>
 
-      <CommitmentSection />
+      <InspirationGallery />
 
-      <NewsletterSection />
+      <LatestBlogsSection />
+
+      <InstagramSection />
 
       <Footer />
 

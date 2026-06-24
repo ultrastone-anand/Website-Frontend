@@ -1,36 +1,75 @@
 const IntroSection = () => {
   return (
-    <section className="bg-[#f5f5f5] py-20">
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-
+    <section className="bg-[#f5f5f5] py-24">
+      <div className="max-w-[1650px] mx-auto px-6 xl:px-10">
+        <div className="grid lg:grid-cols-2 gap-20 items-center">
           {/* Left Content */}
-          <div className="max-w-[600px]">
-            <h2 className="text-[80px] md:text-[100px] font-bold text-red-600 leading-none mb-6">
+          <div className="max-w-[650px]">
+            <h2
+              className="
+                text-[70px]
+                md:text-[90px]
+                font-bold
+                text-[#c91f26]
+                leading-none
+                mb-3
+              "
+              style={{
+                fontFamily: "Montserrat, sans-serif",
+              }}
+            >
               500+
             </h2>
 
-            <h3 className="text-3xl md:text-4xl font-bold text-black mb-8">
-              Finest Natural and Engineered Stones
+            <h3
+              className="
+                text-[34px]
+                md:text-[42px]
+                text-[#161412]
+                leading-tight
+                mb-6
+              "
+              style={{
+                fontFamily:
+                  '"Cormorant Garamond", serif',
+              }}
+            >
+              Finest Natural and Engineered{" "}
+              <span className="relative inline-block">
+                Stones
+                <span
+                  className="
+                    absolute
+                    left-0
+                    bottom-[-6px]
+                    w-full
+                    h-[4px]
+                    bg-[#c91f26]
+                  "
+                />
+              </span>
             </h3>
 
-            <p className="text-lg leading-relaxed text-gray-800 mb-10">
-              As a leading distributor across the United States, we pride
-              ourselves on offering an extensive selection of the highest
-              quality materials to meet your design and construction needs.
-              We are dedicated to bringing the timeless beauty of natural and
-              engineered stones to your projects.
+            <p className="text-[#555] leading-[1.9] text-[15px] mb-10">
+              As a leading distributor across the United States,
+              we pride ourselves on offering an extensive
+              selection of the highest quality materials to meet
+              your design and construction needs. We are
+              dedicated to bringing the timeless beauty of
+              natural and engineered stones to your projects.
             </p>
 
             <button
               className="
-                border border-red-500
-                text-black
-                px-8 py-3
-                rounded-md
-                hover:bg-red-500
+                border
+                border-[#c91f26]
+                text-[#161412]
+                px-8
+                py-3
+                text-sm
+                hover:bg-[#c91f26]
                 hover:text-white
-                transition-all
+                duration-300
               "
             >
               Read More
@@ -39,20 +78,17 @@ const IntroSection = () => {
 
           {/* Right Image */}
           <div className="flex justify-center lg:justify-end">
-            <div >
-              <img
-                src="https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80"
-                alt="Luxury Kitchen"
-                className="
-                  w-full
-                  max-w-[650px]
-                  h-[420px]
-                  object-cover
-                "
-              />
-            </div>
+            <img
+              src="https://images.unsplash.com/photo-1556911220-bff31c812dba?q=80&w=1400&auto=format&fit=crop"
+              alt="Luxury Kitchen"
+              className="
+                w-full
+                max-w-[720px]
+                h-[500px]
+                object-cover
+              "
+            />
           </div>
-
         </div>
       </div>
     </section>
