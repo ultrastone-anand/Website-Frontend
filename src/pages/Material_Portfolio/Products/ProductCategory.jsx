@@ -1,12 +1,8 @@
+import axios from "axios";
+
 import { useEffect, useMemo, useState } from "react";
 
-import {
-  useParams,
-  useNavigate,
-  Link,
-} from "react-router-dom";
-
-import axios from "axios";
+import { Link, useParams, useNavigate, } from "react-router-dom";
 
 import Navbar from "../../../components/common/Navbar";
 import Footer from "../../../components/common/Footer";
@@ -15,32 +11,13 @@ import Loading from "../../../components/common/Loading";
 const ProductCategory = () => {
 
   const { slug } = useParams();
-
   const navigate = useNavigate();
-
-  const [category, setCategory] =
-    useState(null);
-
-  const [products, setProducts] =
-    useState([]);
-
-  // FILTERS
-
-  const [selectedPattern, setSelectedPattern] =
-    useState("");
-
-  const [selectedGroup, setSelectedGroup] =
-    useState("");
-
-    const [selectedColor, setSelectedColor] =
-  useState("");
-
-  const [searchQuery, setSearchQuery] =
-  useState("");
-
-  // -----------------------------------
-  // FETCH
-  // -----------------------------------
+  const [category, setCategory] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedGroup, setSelectedGroup] = useState("");
+  const [selectedPattern, setSelectedPattern] = useState("");
 
   useEffect(() => {
 
@@ -75,10 +52,6 @@ const ProductCategory = () => {
 
   };
 
-  // -----------------------------------
-  // FILTER OPTIONS
-  // -----------------------------------
-
   const patternOptions = useMemo(() => {
 
     return [
@@ -103,41 +76,33 @@ const ProductCategory = () => {
 
   }, [products]);
 
-  // -----------------------------------
-  // FILTERED PRODUCTS
-  // -----------------------------------
+  const filteredProducts = products
+    .filter((item) => {
+      const patternMatch =
+        !selectedPattern ||
+        item.pattern === selectedPattern;
 
-const filteredProducts = products
-  .filter((item) => {
-    const patternMatch =
-      !selectedPattern ||
-      item.pattern === selectedPattern;
+      const groupMatch =
+        !selectedGroup ||
+        item.stone_group === selectedGroup;
 
-    const groupMatch =
-      !selectedGroup ||
-      item.stone_group === selectedGroup;
+      const searchMatch =
+        !searchQuery ||
+        item.name
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase());
 
-    const searchMatch =
-      !searchQuery ||
-      item.name
-        ?.toLowerCase()
-        .includes(
-          searchQuery.toLowerCase()
-        );
-
-    return (
-      patternMatch &&
-      groupMatch &&
-      searchMatch
+      return (
+        patternMatch &&
+        groupMatch &&
+        searchMatch &&
+        item.is_active &&
+        item.is_published
+      );
+    })
+    .sort((a, b) =>
+      a.name.localeCompare(b.name)
     );
-  })
-  .sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
-
-  // -----------------------------------
-  // LOADING
-  // -----------------------------------
 
   if (!category) {
 
@@ -157,6 +122,7 @@ const filteredProducts = products
 
   }
 
+
   return (
     <>
       <Navbar />
@@ -168,7 +134,6 @@ const filteredProducts = products
         pt-[110px]
         "
       >
-
         {/* HEADING */}
 
         <section>
@@ -214,44 +179,44 @@ const filteredProducts = products
 
             {/* BREADCRUMB */}
 
-<p
-  className="
-  text-[13px]
-  text-[#777]
-  "
-  style={{
-    fontFamily:
-      "Montserrat, sans-serif",
-  }}
->
-  <Link
-    to="/"
-    className="
-    hover:text-[#161412]
-    duration-300
-    "
-  >
-    Home
-  </Link>
+            <p
+              className="
+                        text-[13px]
+                        text-[#777]
+                        "
+              style={{
+                fontFamily:
+                  "Montserrat, sans-serif",
+              }}
+            >
+              <Link
+                to="/"
+                className="
+                          hover:text-[#161412]
+                          duration-300
+                          "
+              >
+                Home
+              </Link>
 
-  {" / "}
+              {" / "}
 
-  <Link
-    to="/categories"
-    className="
-    hover:text-[#161412]
-    duration-300
-    "
-  >
-    Material Portfolio
-  </Link>
+              <Link
+                to="/categories"
+                className="
+                          hover:text-[#161412]
+                          duration-300
+                          "
+              >
+                Material Portfolio
+              </Link>
 
-  {" / "}
+              {" / "}
 
-  <span className="text-[#161412]">
-    <b>{category.name}</b>
-  </span>
-</p>
+              <span className="text-[#161412]">
+                <b>{category.name}</b>
+              </span>
+            </p>
 
             {/* RESULT */}
 
@@ -287,33 +252,33 @@ const filteredProducts = products
           "
         >
 
-<div
-  className="
+          <div
+            className="
   flex
   flex-wrap
   items-center
   justify-center
   gap-4
   "
->
+          >
 
-    {/* SEARCH */}
+            {/* SEARCH */}
 
-  <div
-    className="
+            <div
+              className="
     relative
     "
-  >
-    <input
-      type="text"
-      value={searchQuery}
-      onChange={(e) =>
-        setSearchQuery(
-          e.target.value
-        )
-      }
-      placeholder={`Search ${category.name}...`}
-      className="
+            >
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) =>
+                  setSearchQuery(
+                    e.target.value
+                  )
+                }
+                placeholder={`Search ${category.name}...`}
+                className="
       h-[50px]
       w-[230px]
       border
@@ -328,17 +293,18 @@ const filteredProducts = products
       text-[#777]
       placeholder:text-[#777]
       "
-      style={{
-        fontFamily:
-          "Montserrat, sans-serif",
-      }}
-    />
-  </div>
+                style={{
+                  fontFamily:
+                    "Montserrat, sans-serif",
+                }}
+              />
+            </div>
 
-  {/* COLOR BUTTON */}
 
-  <button
-    className={`
+            {/* COLOR BUTTON */}
+
+            <button
+              className={`
     h-[50px]
     w-[230px]
     border
@@ -351,48 +317,47 @@ const filteredProducts = products
     justify-between
     duration-300
 
-    ${
-      selectedColor
-        ? `
+    ${selectedColor
+                  ? `
           bg-black
           text-white
           border-black
           `
-        : `
+                  : `
           bg-white
           text-[#777]
           border-[#d9d9d9]
           `
-    }
+                }
     `}
-    style={{
-      fontFamily:
-        "Montserrat, sans-serif",
-    }}
-  >
+              style={{
+                fontFamily:
+                  "Montserrat, sans-serif",
+              }}
+            >
 
-    <span>
-      Filter By Color (0)
-    </span>
+              <span>
+                Filter By Color (0)
+              </span>
 
-    <span className="text-[9px] mt-[1px]">
-      ▼
-    </span>
+              <span className="text-[9px] mt-[1px]">
+                ▼
+              </span>
 
-  </button>
+            </button>
 
-  {/* SORT / PATTERN */}
+            {/* SORT / PATTERN */}
 
-  <div className="relative">
+            <div className="relative">
 
-    <select
-      value={selectedPattern}
-      onChange={(e) =>
-        setSelectedPattern(
-          e.target.value
-        )
-      }
-      className={`
+              <select
+                value={selectedPattern}
+                onChange={(e) =>
+                  setSelectedPattern(
+                    e.target.value
+                  )
+                }
+                className={`
       h-[50px]
       w-[230px]
       border
@@ -406,45 +371,44 @@ const filteredProducts = products
       cursor-pointer
       duration-300
 
-      ${
-        selectedPattern
-          ? `
+      ${selectedPattern
+                    ? `
             bg-black
             text-white
             border-black
             `
-          : `
+                    : `
             bg-white
             text-[#777]
             border-[#d9d9d9]
             `
-      }
+                  }
       `}
-      style={{
-        fontFamily:
-          "Montserrat, sans-serif",
-      }}
-    >
+                style={{
+                  fontFamily:
+                    "Montserrat, sans-serif",
+                }}
+              >
 
-      <option value="">
-        Sort By
-      </option>
+                <option value="">
+                  Sort By
+                </option>
 
-      {patternOptions.map(
-        (pattern) => (
-          <option
-            key={pattern}
-            value={pattern}
-          >
-            {pattern}
-          </option>
-        )
-      )}
+                {patternOptions.map(
+                  (pattern) => (
+                    <option
+                      key={pattern}
+                      value={pattern}
+                    >
+                      {pattern}
+                    </option>
+                  )
+                )}
 
-    </select>
+              </select>
 
-    <span
-      className={`
+              <span
+                className={`
       absolute
       right-4
       top-1/2
@@ -452,30 +416,29 @@ const filteredProducts = products
       text-[9px]
       pointer-events-none
 
-      ${
-        selectedPattern
-          ? "text-white"
-          : "text-[#777]"
-      }
+      ${selectedPattern
+                    ? "text-white"
+                    : "text-[#777]"
+                  }
       `}
-    >
-      ▼
-    </span>
+              >
+                ▼
+              </span>
 
-  </div>
+            </div>
 
-  {/* GROUP */}
+            {/* GROUP */}
 
-  <div className="relative">
+            <div className="relative">
 
-    <select
-      value={selectedGroup}
-      onChange={(e) =>
-        setSelectedGroup(
-          e.target.value
-        )
-      }
-      className={`
+              <select
+                value={selectedGroup}
+                onChange={(e) =>
+                  setSelectedGroup(
+                    e.target.value
+                  )
+                }
+                className={`
       h-[50px]
       w-[230px]
       border
@@ -489,45 +452,44 @@ const filteredProducts = products
       cursor-pointer
       duration-300
 
-      ${
-        selectedGroup
-          ? `
+      ${selectedGroup
+                    ? `
             bg-black
             text-white
             border-black
             `
-          : `
+                    : `
             bg-white
             text-[#777]
             border-[#d9d9d9]
             `
-      }
+                  }
       `}
-      style={{
-        fontFamily:
-          "Montserrat, sans-serif",
-      }}
-    >
+                style={{
+                  fontFamily:
+                    "Montserrat, sans-serif",
+                }}
+              >
 
-      <option value="">
-        Filter By Group
-      </option>
+                <option value="">
+                  Filter By Group
+                </option>
 
-      {groupOptions.map(
-        (group) => (
-          <option
-            key={group}
-            value={group}
-          >
-            {group}
-          </option>
-        )
-      )}
+                {groupOptions.map(
+                  (group) => (
+                    <option
+                      key={group}
+                      value={group}
+                    >
+                      {group}
+                    </option>
+                  )
+                )}
 
-    </select>
+              </select>
 
-    <span
-      className={`
+              <span
+                className={`
       absolute
       right-4
       top-1/2
@@ -535,40 +497,39 @@ const filteredProducts = products
       text-[9px]
       pointer-events-none
 
-      ${
-        selectedGroup
-          ? "text-white"
-          : "text-[#777]"
-      }
+      ${selectedGroup
+                    ? "text-white"
+                    : "text-[#777]"
+                  }
       `}
-    >
-      ▼
-    </span>
+              >
+                ▼
+              </span>
 
-  </div>
+            </div>
 
 
-</div>
+          </div>
 
           {/* ACTIVE FILTERS */}
 
           {(selectedPattern ||
             selectedGroup) && (
 
-            <div
-              className="
+              <div
+                className="
               flex
               items-center
               justify-between
               mt-8
               "
-            >
+              >
 
-              <div className="flex gap-3">
+                <div className="flex gap-3">
 
-                {selectedPattern && (
-                  <div
-                    className="
+                  {selectedPattern && (
+                    <div
+                      className="
                     h-[30px]
                     px-3
                     border
@@ -582,22 +543,22 @@ const filteredProducts = products
                     tracking-[1px]
                     text-[#777]
                     "
-                  >
-                    {selectedPattern}
-
-                    <button
-                      onClick={() =>
-                        setSelectedPattern("")
-                      }
                     >
-                      ×
-                    </button>
-                  </div>
-                )}
+                      {selectedPattern}
 
-                {selectedGroup && (
-                  <div
-                    className="
+                      <button
+                        onClick={() =>
+                          setSelectedPattern("")
+                        }
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+
+                  {selectedGroup && (
+                    <div
+                      className="
                     h-[30px]
                     px-3
                     border
@@ -611,49 +572,49 @@ const filteredProducts = products
                     tracking-[1px]
                     text-[#777]
                     "
-                  >
-                    {selectedGroup}
-
-                    <button
-                      onClick={() =>
-                        setSelectedGroup("")
-                      }
                     >
-                      ×
-                    </button>
-                  </div>
-                )}
+                      {selectedGroup}
 
-              </div>
+                      <button
+                        onClick={() =>
+                          setSelectedGroup("")
+                        }
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
 
-              {/* CLEAR */}
+                </div>
 
-              <button
-                onClick={() => {
+                {/* CLEAR */}
 
-                  setSelectedPattern("");
+                <button
+                  onClick={() => {
 
-                  setSelectedGroup("");
+                    setSelectedPattern("");
 
-                }}
-                className="
+                    setSelectedGroup("");
+
+                  }}
+                  className="
                 text-[11px]
                 uppercase
                 tracking-[1px]
                 text-[#9a9a9a]
                 underline
                 "
-                style={{
-                  fontFamily:
-                    "Montserrat, sans-serif",
-                }}
-              >
-                Clear Filters
-              </button>
+                  style={{
+                    fontFamily:
+                      "Montserrat, sans-serif",
+                  }}
+                >
+                  Clear Filters
+                </button>
 
-            </div>
+              </div>
 
-          )}
+            )}
 
         </section>
 
@@ -698,38 +659,38 @@ const filteredProducts = products
                 >
 
                   {/* IMAGE */}
-                  
+
                   <Link
-                  to={`/product/${category.slug}/${item.slug}`}
-  className="group block">
-                  <div
-                    className="
+                    to={`/product/${category.slug}/${item.slug}`}
+                    className="group block">
+                    <div
+                      className="
                     overflow-hidden
                     bg-[#eaeaea]
                     aspect-square
                     "
-                  >
+                    >
 
-                    <img
-                      src={
-                        item.closeup_image
-                      }
-                      alt={item.name}
-                      className="
+                      <img
+                        src={
+                          item.closeup_image
+                        }
+                        alt={item.name}
+                        className="
                       w-full
                       h-full
                       object-cover
                       duration-700
                       group-hover:scale-[1.02]
                       "
-                    />
+                      />
 
-                  </div>
+                    </div>
 
-                  {/* TITLE */}
+                    {/* TITLE */}
 
-                  <h2
-                    className="
+                    <h2
+                      className="
                     mt-4
                     text-[15px]
                     font-semibold
@@ -739,31 +700,31 @@ const filteredProducts = products
                     pb-1
                     inline-block
                     "
-                    style={{
-                      fontFamily:
-                        "Montserrat, sans-serif",
-                    }}
-                  >
-                    {item.name}
-                  </h2>
+                      style={{
+                        fontFamily:
+                          "Montserrat, sans-serif",
+                      }}
+                    >
+                      {item.name}
+                    </h2>
 
-                  {/* DESCRIPTION */}
+                    {/* DESCRIPTION */}
 
-                  <p
-                    className="
+                    <p
+                      className="
                     mt-3
                     text-[11px]
                     leading-[1.65]
                     text-[#8a8a8a]
                     line-clamp-4
                     "
-                    style={{
-                      fontFamily:
-                        "Montserrat, sans-serif",
-                    }}
-                  >
-                    {item.small_description}
-                  </p>
+                      style={{
+                        fontFamily:
+                          "Montserrat, sans-serif",
+                      }}
+                    >
+                      {item.small_description}
+                    </p>
 
                   </Link>
 

@@ -16,9 +16,11 @@ import { PiOfficeChairBold } from "react-icons/pi";
 
 
 const Footer = () => {
-  const [showrooms, setShowrooms] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [socials, setSocials] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showrooms, setShowrooms] = useState([]);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
 
   const fetchSocials = async () => {
     try {
@@ -72,6 +74,66 @@ const Footer = () => {
     x: FaXTwitter,
     pinterest: FaPinterestP,
   };
+
+  
+const handleSubscribe = async () => {
+
+  const emailRegex =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!newsletterEmail.trim()) {
+
+    alert("Please enter email");
+
+    return;
+
+  }
+
+  if (
+    !emailRegex.test(
+      newsletterEmail
+    )
+  ) {
+
+    alert(
+      "Please enter a valid email address"
+    );
+
+    return;
+
+  }
+
+  try {
+
+    setNewsletterLoading(true);
+
+    await axios.post(
+      `${import.meta.env.VITE_API_URL}/newsletter/subscribe`,
+      {
+        email: newsletterEmail
+      }
+    );
+
+    alert(
+      "Successfully subscribed"
+    );
+
+    setNewsletterEmail("");
+
+  } catch (error) {
+
+    alert(
+      error.response?.data?.message ||
+      "Something went wrong"
+    );
+
+  } finally {
+
+    setNewsletterLoading(false);
+
+  }
+
+};
 
   return (
     <footer className="relative overflow-hidden text-white">
@@ -237,7 +299,7 @@ const Footer = () => {
           {/* LOGO */}
 
           <div className="flex items-center gap-5"
-          onClick={() => {
+            onClick={() => {
               window.scrollTo({
                 top: 0,
                 behavior: "smooth",
@@ -271,38 +333,50 @@ const Footer = () => {
             <div className="flex">
               <input
                 type="email"
+                value={newsletterEmail}
+                onChange={(e) =>
+                  setNewsletterEmail(
+                    e.target.value
+                  )
+                }
                 placeholder="Your Email Address"
                 className="
-                flex-1
-                h-[42px]
-                bg-transparent
-                border
-                border-white/30
-                px-4
-                text-[13px]
-                text-white
-                placeholder:text-white/45
-                outline-none
-                "
+                          flex-1
+                          h-[42px]
+                          bg-transparent
+                          border
+                          border-white/30
+                          px-4
+                          text-[13px]
+                          text-white
+                          placeholder:text-white/45
+                          outline-none
+                        "
               />
 
               <button
+                onClick={handleSubscribe}
+                disabled={newsletterLoading}
                 className="
-                h-[42px]
-                px-5
-                border
-                border-l-0
-                border-white/30
-                text-[11px]
-                uppercase
-                tracking-[1px]
-                hover:bg-white
-                hover:text-black
-                transition-all
-                duration-300
-                "
+                            h-[42px]
+                            px-5
+                            border
+                            border-l-0
+                            border-white/30
+                            text-[11px]
+                            uppercase
+                            tracking-[1px]
+                            hover:bg-white
+                            hover:text-black
+                            transition-all
+                            duration-300
+                            disabled:opacity-50
+                            disabled:cursor-not-allowed
+                          "
               >
-                Sign Up
+                {newsletterLoading
+                  ? "Signing Up..."
+                  : "Sign Up"}
               </button>
             </div>
           </div>
