@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { motion } from "framer-motion";
 
 const VIDEO_URL =
-"https://res.cloudinary.com/dx0u8csf4/video/upload/q_auto,f_auto,vc_auto,w_1920/v1780602872/lv_0_20240514200655_vjgxsa.mp4"
+"https://pub-8ae493bd1ab54c509da9d77d006297b8.r2.dev/lv_0_20240514200655.mp4";
 const BackgroundVideo = memo(() => {
   return (
     <video

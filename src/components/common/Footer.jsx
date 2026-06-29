@@ -5,11 +5,12 @@ import { MapPin, Phone, Clock3, Home, Building2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import {
+  FaHouzz,
+  FaYoutube,
+  FaXTwitter,
   FaFacebookF,
   FaInstagram,
-  FaYoutube,
   FaPinterestP,
-  FaXTwitter,
 } from "react-icons/fa6";
 import { PiOfficeChairBold } from "react-icons/pi";
 
@@ -73,6 +74,7 @@ const Footer = () => {
     twitter: FaXTwitter,
     x: FaXTwitter,
     pinterest: FaPinterestP,
+    houzz: FaHouzz,
   };
 
   
