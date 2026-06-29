@@ -130,7 +130,16 @@ useEffect(() => {
     console.log("========== TEXTURE TEST ==========");
     console.log("Texture URL:", textureUrl);
 
-    const loader = new THREE.TextureLoader();
+    const manager = new THREE.LoadingManager();
+
+manager.setURLModifier((url) => {
+    console.log("Loading:", url);
+    return `${url}?t=${Date.now()}`;
+});
+
+const loader = new THREE.TextureLoader(manager);
+
+loader.crossOrigin = "anonymous";
 
     loader.setCrossOrigin("anonymous");
 
