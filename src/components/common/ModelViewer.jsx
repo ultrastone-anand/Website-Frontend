@@ -124,11 +124,45 @@ function StoneSlab({
 }){
 
 
-    const texture = useLoader(
-        THREE.TextureLoader,
-        textureUrl
+const [texture, setTexture] = useState(null);
+
+useEffect(() => {
+    console.log("========== TEXTURE TEST ==========");
+    console.log("Texture URL:", textureUrl);
+
+    const loader = new THREE.TextureLoader();
+
+    loader.setCrossOrigin("anonymous");
+
+    loader.load(
+        textureUrl,
+        (tex) => {
+            console.log("✅ Texture loaded");
+            console.log(tex);
+
+            console.log("Image:", tex.image);
+            console.log("Width:", tex.image.width);
+            console.log("Height:", tex.image.height);
+
+            setTexture(tex);
+        },
+        (event) => {
+            console.log("Progress:", event);
+        },
+        (err) => {
+            console.error("❌ Texture failed");
+            console.error(err);
+        }
     );
 
+    return () => {
+        console.log("StoneSlab cleanup");
+    };
+}, [textureUrl]);
+
+if (!texture) {
+    return null;
+}
 
     texture.colorSpace =
         THREE.SRGBColorSpace;
@@ -260,6 +294,13 @@ function ViewerCanvas({
 
 }){
 
+      console.log("========== VIEWER CANVAS ==========");
+  console.log("Preview:", preview);
+  console.log("Poster:", poster);
+  console.log("Finish:", finish);
+
+    
+
 return(
 
 <Canvas
@@ -267,6 +308,25 @@ return(
 shadows
 dpr={[1,1.5]}
 camera={{ position: preview ? [ 0.50, -10.05, -1.95] : [ 3.50, -5.86,-14.76],fov:preview ? 5 : 10 }}
+    onCreated={({ gl }) => {
+
+        console.log("WebGL created");
+
+        gl.domElement.addEventListener(
+            "webglcontextlost",
+            (e) => {
+                console.error("🔥 WEBGL CONTEXT LOST");
+                console.error(e);
+            }
+        );
+
+        gl.domElement.addEventListener(
+            "webglcontextrestored",
+            () => {
+                console.log("✅ WEBGL CONTEXT RESTORED");
+            }
+        );
+    }}
 >
 
 <ambientLight intensity={2} />
@@ -320,6 +380,10 @@ intensity={0.5}
 )}
 
 export default function ModelViewer({ poster,height=270,finishes=[]}){
+
+      console.log("========== MODEL VIEWER ==========");
+  console.log("Poster:", poster);
+  console.log("Finishes:", finishes);
 
 const [open,setOpen]=useState(false);
 
