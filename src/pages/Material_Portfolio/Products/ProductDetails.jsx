@@ -83,24 +83,29 @@ const ProductDetails = () => {
     }
   };
 
-  const fetchRelatedProducts = async (categorySlug, currentSlug) => {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/stones/${categorySlug}`,
-      );
+const fetchRelatedProducts = async (categorySlug, currentSlug) => {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/stones/${categorySlug}`
+    );
 
-      const result = response.data;
+    const result = response.data;
 
-      if (result.success) {
-        const filteredProducts =
-          result.products?.filter((item) => item.slug !== currentSlug) || [];
+    if (result.success) {
+      const filteredProducts =
+        result.products?.filter(
+          (item) =>
+            item.slug !== currentSlug &&
+            item.is_active &&
+            item.is_published
+        ) || [];
 
-        setRelatedProducts(filteredProducts);
-      }
-    } catch (error) {
-      console.error(error);
+      setRelatedProducts(filteredProducts);
     }
-  };
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const scrollRelatedLeft = () => {
     if (relatedScrollRef.current) {
@@ -1444,7 +1449,7 @@ const ProductDetails = () => {
         )}
 
         {/* RELATED PRODUCTS */}
-        <section className="pb-24 bg-white">
+        {relatedProducts.length > 0 && <section className="pb-24 bg-white">
           <div
             className="
     max-w-[2000px]
@@ -1488,18 +1493,18 @@ const ProductDetails = () => {
                   <button
                     onClick={scrollRelatedLeft}
                     className="
-            w-11
-            h-11
-            border
-            border-black/10
-            flex
-            items-center
-            justify-center
-            hover:bg-black
-            hover:text-white
-            transition-all
-            duration-300
-            "
+                              w-11
+                              h-11
+                              border
+                              border-black/10
+                              flex
+                              items-center
+                              justify-center
+                              hover:bg-black
+                              hover:text-white
+                              transition-all
+                              duration-300
+                              "
                   >
                     <ChevronLeft size={18} strokeWidth={1.7} />
                   </button>
@@ -1547,7 +1552,7 @@ const ProductDetails = () => {
               ))}
             </div>
           </div>
-        </section>
+        </section>}
 
       </div>
 

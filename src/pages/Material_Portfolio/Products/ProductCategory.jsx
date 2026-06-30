@@ -254,12 +254,12 @@ const ProductCategory = () => {
 
           <div
             className="
-  flex
-  flex-wrap
-  items-center
-  justify-center
-  gap-4
-  "
+                      flex
+                      flex-wrap
+                      items-center
+                      justify-center
+                      gap-4
+                      "
           >
 
             {/* SEARCH */}
