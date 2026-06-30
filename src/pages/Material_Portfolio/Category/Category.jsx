@@ -1,248 +1,198 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import React, {
+  useEffect,
+  useState,
+} from "react";
 
-import Navbar from '../../../components/common/Navbar';
-import Footer from '../../../components/common/Footer';
-import Loading from '../../../components/common/Loading';
+import axios from "axios";
+import Navbar from "../../../components/common/Navbar";
+import Footer from "../../../components/common/Footer";
+import { Link } from "react-router-dom";
 
-export default function Category() {
-    const navigate = useNavigate();
+const Aboutus = () => {
+  const [page, setPage] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    const [materials, setMaterials] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchMaterials = async () => {
-            try {
-                const response = await axios.get(
-                    `${import.meta.env.VITE_API_URL}/stones`
-                );
-
-                const result = response.data;
-
-                if (result.success) {
-                    const activeCategories =
-                        result.data
-                            .filter(
-                                (item) =>
-                                    item.is_active === true &&
-                                    item.parent_id === null
-                            )
-                            .sort(
-                                (a, b) =>
-                                    (a.display_order || 999) -
-                                    (b.display_order || 999)
-                            );
-
-                    setMaterials(activeCategories);
-                }
-            } catch (error) {
-                console.error(
-                    'Error fetching materials:',
-                    error
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchMaterials();
-    }, []);
-
-    if (loading) {
-        return (
-            <div
-                className="
-          min-h-screen
-          flex
-          items-center
-          justify-center
-          bg-[#f3f3f3]
-        "
-            >
-                <Loading />
-            </div>
+  useEffect(() => {
+    const fetchPage = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/pages/about-us`
         );
-    }
 
-    return (
-        <>
-            <Navbar />
+        const result = response.data;
 
-            <div
-                className="
-          bg-[#f3f3f3]
-          min-h-screen
-          pt-[110px]
-        "
-            >
-                {/* HEADING */}
-
-                <section>
-                    <div
-                        className="
-              max-w-[1650px]
-              mx-auto
-              px-6
-              xl:px-10
-            "
-                    >
-                        <h1
-                            className="
-                text-[34px]
-                md:text-[42px]
-                font-semibold
-                text-[#161412]
-                leading-none
-              "
-                            style={{
-                                fontFamily:
-                                    'Montserrat, sans-serif',
-                            }}
-                        >
-                            Material Portfolio
-                        </h1>
-
-                        <div
-                            className="
-                w-[70px]
-                h-[4px]
-                bg-[#c91f26]
-                mt-4
-                mb-4
-              "
-                        />
-
-                        <p
-  className="
-  text-[13px]
-  text-[#777]
-  "
-  style={{
-    fontFamily:
-      "Montserrat, sans-serif",
-  }}
->
-  <Link
-    to="/"
-    className="
-    hover:text-[#161412]
-    duration-300
-    "
-  >
-    Home
-  </Link>
-
-  {" / "}
-
-  <span className="text-[#161412]">
-    <b>Material Portfolio</b>
-  </span>
-</p>
-
-                        <p
-                            className="
-                text-[13px]
-                text-[#777]
-                mt-3
-              "
-                            style={{
-                                fontFamily:
-                                    'Montserrat, sans-serif',
-                            }}
-                        >
-                            Showing all{' '}
-                            {materials.length} categories
-                        </p>
-                    </div>
-                </section>
-
-                {/* CATEGORIES */}
-
-                <section
-                    className="
-            max-w-[1650px]
-            mx-auto
-            px-6
-            xl:px-10
-            pt-12
-            pb-24
-          "
-                >
-                    <div
-                        className="
-              grid
-              grid-cols-1
-              md:grid-cols-2
-              gap-6
-            "
-                    >
-                        {materials.map((item) => (
-<div
-  key={item.id}
-  onClick={() => navigate(`/product-category/${item.slug}`)}
-  className="group cursor-pointer"
->
-  <div
-    className="
-      relative
-      overflow-hidden
-      rounded-2xl
-      aspect-[3/4]
-      bg-neutral-200
-    "
-  >
-    <img
-      src={
-        item.thumbnail_url ||
-        item.banner_url ||
-        '/placeholder.jpg'
+        if (result.success) {
+          setPage(result.data);
+        }
+      } catch (error) {
+        console.error("Error fetching About Us page:", error);
+      } finally {
+        setLoading(false);
       }
-      alt={item.name}
-      className="
-        w-full
-        h-full
-        object-cover
-        transition-all
-        duration-700
-        group-hover:scale-110
-      "
-    />
+    };
 
-    <div
-      className="
-        absolute
-        inset-0
-        bg-gradient-to-t
-        from-black/75
-        via-black/10
-        to-transparent
-      "
-    />
+    fetchPage();
+  }, []);
 
-    <div className="absolute bottom-3 left-3 right-3">
-      <h2
-        className="
-          text-white
-          text-[11px]
-          md:text-[12px]
-          font-medium
-          uppercase
-          tracking-[2px]
-        "
-      >
-        {item.name}
-      </h2>
-    </div>
-  </div>
-</div>
-                        ))}
-                    </div>
-                </section>
-            </div>
-
-            <Footer />
-        </>
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="bg-[#f3f3f3] min-h-screen pt-[110px] flex items-center justify-center">
+          Loading...
+        </div>
+        <Footer />
+      </>
     );
-}
+  }
+
+  if (!page) {
+    return (
+      <>
+        <Navbar />
+        <div className="bg-[#f3f3f3] min-h-screen pt-[110px] flex items-center justify-center">
+          Page not found
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  const content = page.content || {};
+
+  return (
+    <>
+      <Navbar />
+
+      <div className="bg-[#f3f3f3] min-h-screen pt-[110px]">
+        {/* HEADING */}
+        <section>
+          <div className="max-w-[1650px] mx-auto px-6 xl:px-10">
+            <h1
+              className="text-[34px] md:text-[42px] font-semibold text-[#161412]"
+              style={{
+                fontFamily: "Montserrat, sans-serif",
+              }}
+            >
+              {content.pageHeader?.heading || page.title || "About Us"}
+            </h1>
+
+            <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
+
+            <p
+              className="text-[13px] text-[#777]"
+              style={{
+                fontFamily: "Montserrat, sans-serif",
+              }}
+            >
+              <Link
+                to="/"
+                className="hover:text-[#161412] duration-300"
+              >
+                Home
+              </Link>
+
+              {" / "}
+
+              <Link
+                to="/"
+                className="hover:text-[#161412] duration-300"
+              >
+                Ultra Experience
+              </Link>
+
+              {" / "}
+
+              <span className="text-[#161412] font-semibold">
+                {content.pageHeader?.heading || "About Us"}
+              </span>
+            </p>
+          </div>
+        </section>
+
+        {/* ABOUT SECTION */}
+        <section className="py-14">
+          <div className="max-w-[1650px] mx-auto px-6 xl:px-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+              <div>
+                <img
+                  src={content.aboutSection?.image}
+                  alt={content.aboutSection?.imageAlt || "Ultra Stones Interior"}
+                  className="
+                    w-full
+                    h-[350px]
+                    sm:h-[450px]
+                    lg:h-[650px]
+                    object-cover
+                  "
+                />
+              </div>
+
+              <div className="pt-4">
+                <h2
+                  className="
+                    text-[26px]
+                    sm:text-[32px]
+                    lg:text-[42px]
+                    leading-[1.15]
+                    font-semibold
+                    text-[#161412]
+                    mb-8
+                  "
+                  style={{
+                    fontFamily: "Montserrat, sans-serif",
+                  }}
+                >
+                  {content.aboutSection?.title}
+                </h2>
+
+                <div
+                  className="
+                    space-y-6
+                    text-[14px]
+                    sm:text-[15px]
+                    leading-[26px]
+                    sm:leading-[30px]
+                    text-[#5e5e5e]
+                  "
+                  style={{
+                    fontFamily: "Montserrat, sans-serif",
+                  }}
+                >
+                  {content.aboutSection?.paragraphs?.map(
+                    (paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* BOTTOM BANNER */}
+        <section className="pb-16">
+          <div className="relative overflow-hidden">
+            <img
+              src={content.bottomBanner?.image}
+              alt={content.bottomBanner?.imageAlt || "Ultra Stones"}
+              className="
+                w-full
+                h-[180px]
+                sm:h-[250px]
+                lg:h-[320px]
+                object-cover
+              "
+            />
+
+            <div className="absolute inset-0 bg-black/10" />
+          </div>
+        </section>
+      </div>
+
+      <Footer />
+    </>
+  );
+};
+
+export default Aboutus;

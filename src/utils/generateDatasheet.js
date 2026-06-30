@@ -38,14 +38,43 @@ const getMediaUrl = (product, type) =>
   product?.media?.find((m) => m.media_type === type)?.media_url;
 
 const loadImageAsBase64 = async (url) => {
-  const response = await fetch(url);
-  const blob = await response.blob();
+  console.log("========== DATASHEET IMAGE TEST ==========");
+  console.log("Image URL:", url);
 
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.readAsDataURL(blob);
-  });
+  const finalUrl = `${url}?t=${Date.now()}`;
+
+  try {
+    const response = await fetch(finalUrl, {
+      mode: "cors",
+      cache: "no-cache",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Image fetch failed: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        console.log("✅ Datasheet image converted to Base64");
+        resolve(reader.result);
+      };
+
+      reader.onerror = (err) => {
+        console.error("❌ Base64 conversion failed", err);
+        reject(err);
+      };
+
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error("❌ Datasheet image failed");
+    console.error(error);
+    return null;
+  }
 };
 
 const formatRating = (value) => {

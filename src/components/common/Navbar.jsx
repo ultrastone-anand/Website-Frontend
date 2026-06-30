@@ -101,14 +101,14 @@ const Navbar = () => {
       label: "About Us",
       path: "/aboutus",
     },
-    {
-      label: "Showrooms",
-      path: "/showrooms",
-    },
-    {
-      label: "The Slab Pavilion",
-      path: "/slab-pavilion",
-    },
+    // {
+    //   label: "Showrooms",
+    //   path: "/showrooms",
+    // },
+    // {
+    //   label: "The Slab Pavilion",
+    //   path: "/slab-pavilion",
+    // },
     {
       label: "Our Process",
       path: "/ourprocess",
@@ -116,18 +116,18 @@ const Navbar = () => {
   ];
 
   const resources = [
-    {
-      label: "Resource Library",
-      path: "/resource-library",
-    },
+    // {
+    //   label: "Resource Library",
+    //   path: "/resource-library",
+    // },
     {
       label: "Merchandising Displays",
       path: "/merchandising-displays",
     },
-    {
-      label: "Silica Safety First",
-      path: "/silica-safety-first",
-    },
+    // {
+    //   label: "Silica Safety First",
+    //   path: "/silica-safety-first",
+    // },
     {
       label: "Videos",
       path: "/videos",
