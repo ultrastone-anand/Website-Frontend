@@ -37,6 +37,10 @@ const ProductDetails = () => {
   const [activeImage, setActiveImage] = useState(0);
 
   const [openFaq, setOpenFaq] = useState(1);
+  const [expanded, setExpanded] = useState(false);
+
+const description = product?.long_description || product?.small_description || "";
+const shouldTruncate = description.length > 300;
 
   const [zoomStyle, setZoomStyle] = useState({
     backgroundImage: "",
@@ -739,20 +743,32 @@ const fetchRelatedProducts = async (categorySlug, currentSlug) => {
 
                 {/* DESCRIPTION */}
 
-                <p
-                  className="
-          text-[18px]
-          leading-[1.6]
-          text-black
-          max-w-[840px]
-          mb-10
-          "
-                  style={{
-                    fontFamily: "Montserrat, sans-serif",
-                  }}
-                >
-                  {product.long_description || product.small_description}
-                </p>
+<p
+  className="
+    text-[18px]
+    leading-[1.6]
+    text-black
+    max-w-[840px]
+    mb-10
+  "
+  style={{
+    fontFamily: "Montserrat, sans-serif",
+  }}
+>
+  {shouldTruncate && !expanded
+    ? `${description.slice(0, 300)}... `
+    : description}
+
+  {shouldTruncate && (
+    <button
+      type="button"
+      onClick={() => setExpanded(!expanded)}
+      className="ml-1 text-black italic underline hover:no-underline"
+    >
+      {expanded ? "read less" : "read more"}
+    </button>
+  )}
+</p>
 
                 {/* PREVIEW IMAGE */}
 
