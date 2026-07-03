@@ -206,7 +206,7 @@ const fetchRelatedProducts = async (categorySlug, currentSlug) => {
 
     {
       title: "Fireplace",
-      value: product.fireplace,
+      value: product.interior_wall,
       icon: Icons.fireplace,
     },
 
@@ -994,7 +994,7 @@ const fetchRelatedProducts = async (categorySlug, currentSlug) => {
           <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
             <div className="relative">
               <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-xs md:text-sm px-3 py-1.5 rounded-full backdrop-blur-sm">
-                🖱️ Click interact with the 3D model
+                Click interact with the 3D model
               </div>
 
               <ModelViewer

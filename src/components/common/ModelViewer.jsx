@@ -367,10 +367,6 @@ intensity={0.5}
         finish={finish}
     />
 
-{/* <Environment preset=""/>  */}
-
-    {/* CAMERA DEBUG ONLY FULLSCREEN */}
-
     {
         !preview &&
         <CameraDebugger/>
@@ -427,7 +423,6 @@ height,
 cursor:"pointer",
 overflow:"hidden",
 borderRadius:8,
-background:"#eee",
 position:"relative"}}
 >
 
