@@ -1,307 +1,104 @@
-import React, {
-  useEffect,
-  useState,
-} from "react";
+import { Link } from "react-router-dom";
 
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
-
-const stones = [
+const applications = [
   {
-    id: 1,
-    category: "PRECIOUS STONE",
-    title: "PETRIFIED WOOD",
+    title: "BATHROOM",
+    desc: "Luxury Vanities",
     image:
-      "https://images.unsplash.com/photo-1615874959474-d609969a20ed?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Petrified Wood is a grounding and stabilizing stone that promotes patience, strength, and ancient wisdom. It enhances resilience, emotional balance, and connection to nature.",
-    gradient:
-      "linear-gradient(90deg,#2f1405 0%, #7a5730 35%, #c8a06a 100%)",
+      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1200&auto=format&fit=crop",
   },
   {
-    id: 2,
-    category: "PRECIOUS STONE",
-    title: "AMETHYST",
+    title: "KITCHENS",
+    desc: "Statement Countertops",
     image:
-      "https://images.unsplash.com/photo-1518066000714-58c45f1a2c0a?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Amethyst is known for spiritual protection, clarity, and inner peace. Its luxurious purple tones bring elegance and sophistication to any space.",
-    gradient:
-      "linear-gradient(90deg,#18052e 0%, #52238f 40%, #9c79e6 100%)",
+      "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1200&auto=format&fit=crop",
   },
   {
-    id: 3,
-    category: "PRECIOUS STONE",
-    title: "BLUE AGATE",
+    title: "EXTERIORS",
+    desc: "Architectural Facades",
     image:
-      "https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Blue Agate is admired for its calming appearance and distinctive natural patterns. It creates a luxurious focal point in modern interiors.",
-    gradient:
-      "linear-gradient(90deg,#06263b 0%, #0d5b85 40%, #67b9e0 100%)",
+      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?q=80&w=1200&auto=format&fit=crop",
   },
 ];
 
 const PreciousStoneSection = () => {
-  const [current, setCurrent] =
-    useState(0);
-
-  const navigate = useNavigate();
-
-  const nextSlide = () => {
-    setCurrent(
-      (prev) =>
-        (prev + 1) % stones.length
-    );
-  };
-
-  useEffect(() => {
-    const interval = setInterval(
-      nextSlide,
-      5000
-    );
-
-    return () =>
-      clearInterval(interval);
-  }, []);
-
   return (
-    <section className="bg-[#f5f5f5] py-12 lg:py-20">
-      {/* Heading */}
-      <div className="max-w-[900px] mx-auto px-6 mb-10 lg:mb-14">
-        <div className="text-center">
-          <h2
-            className="
-              text-[32px]
-              sm:text-[40px]
-              md:text-[52px]
-              text-[#161412]
-              inline-block
-              relative
-              leading-tight
-            "
-            style={{
-              fontFamily:
-                '"Cormorant Garamond", serif',
-            }}
+    <section className="bg-[#222221] py-[72px]">
+      <div className="mx-auto grid max-w-[1650px] grid-cols-1 gap-14 px-6 xl:px-[52px] lg:grid-cols-[420px_1fr]">
+        {/* Left Content */}
+        <div className="flex flex-col justify-center">
+          <p
+            className="flex items-center gap-7 text-[22px] font-bold uppercase tracking-[0.01em] text-white"
+            style={{ fontFamily: "Montserrat, sans-serif" }}
           >
-            The Luxury of{" "}
-            <span className="relative inline-block">
-              Precious Stones
+            APPLICATIONS
+            <span className="text-[26px] font-normal text-[#D67A1C]">→</span>
+          </p>
 
-              <span
-                className="
-                  absolute
-                  left-0
-                  bottom-[-8px]
-                  h-[4px]
-                  w-full
-                  bg-[#c91f26]
-                "
-              />
-            </span>
+          <h2
+            className="mt-9 text-[42px] font-black uppercase leading-[1.35] tracking-[0.18em] text-white md:text-[50px]"
+            style={{ fontFamily: "Montserrat, sans-serif" }}
+          >
+            ONE STONE.
+            <br />
+            ENDLESS
+            <br />
+            POSSIBILITIES
           </h2>
-        </div>
-      </div>
 
-      {/* Slider */}
-      <div
-        className="
-          relative
-          overflow-hidden
-          transition-all
-          duration-700
-        "
-        style={{
-          background:
-            stones[current].gradient,
-        }}
-      >
-        <div className="max-w-[1650px] mx-auto px-6 xl:px-10 py-10 lg:py-16">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
-            {/* Content */}
-            <div
-              key={`content-${current}`}
-              className="animate-contentFade order-2 lg:order-1"
+          <p
+            className="mt-11 max-w-[430px] text-[16px] leading-[1.45] text-white/85"
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
+            From elegant interiors to grand exteriors, Ultra Stones elevates
+            every space with natural perfection.
+          </p>
+
+          <Link
+            to="/categories"
+            className="mt-10 inline-flex w-fit items-center border border-white/80 px-8 py-4 text-[14px] font-bold uppercase tracking-[0.01em] text-white transition duration-300 hover:bg-white hover:text-black"
+            style={{ fontFamily: "Montserrat, sans-serif" }}
+          >
+            VIEW ALL COLLECTION
+            <span className="ml-8 text-[22px] font-normal text-[#D67A1C]">
+              →
+            </span>
+          </Link>
+        </div>
+
+        {/* Application Cards */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {applications.map((item) => (
+            <Link
+              key={item.title}
+              to="/categories"
+              className="group text-center"
             >
-              <p
-                className="
-                  text-white/80
-                  uppercase
-                  tracking-[5px]
-                  text-[11px]
-                  mb-4
-                "
-              >
-                {stones[current].category}
-              </p>
+              <div className="overflow-hidden bg-black">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="h-[420px] w-full object-cover transition duration-700 group-hover:scale-105 lg:h-[520px]"
+                />
+              </div>
 
               <h3
-                className="
-                  text-white
-                  text-[40px]
-                  sm:text-[55px]
-                  md:text-[70px]
-                  leading-[0.95]
-                  mb-5
-                "
-                style={{
-                  fontFamily:
-                    '"Cormorant Garamond", serif',
-                }}
+                className="mt-4 text-[15px] font-medium uppercase text-white"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                {stones[current].title}
+                {item.title}
               </h3>
 
               <p
-                className="
-                  text-white/90
-                  text-[14px]
-                  md:text-[15px]
-                  leading-[1.9]
-                  mb-8
-                  max-w-[650px]
-                "
+                className="mt-2 text-[16px] text-white/45"
+                style={{ fontFamily: "Inter, sans-serif" }}
               >
-                {
-                  stones[current]
-                    .description
-                }
+                {item.desc}
               </p>
-
-              <button
-                onClick={() =>
-                  navigate("/categories")
-                }
-                className="
-                  border
-                  border-white
-                  px-8
-                  py-3
-                  text-white
-                  hover:bg-white
-                  hover:text-black
-                  duration-300
-                "
-              >
-                Explore More
-              </button>
-            </div>
-
-            {/* Image */}
-            <div className="order-1 lg:order-2">
-              <img
-                key={`image-${current}`}
-                src={
-                  stones[current].image
-                }
-                alt={
-                  stones[current].title
-                }
-                className="
-                  w-full
-                  h-[260px]
-                  sm:h-[350px]
-                  md:h-[450px]
-                  object-cover
-                  animate-imageSlide
-                  shadow-2xl
-                "
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Dots */}
-        <div
-          className="
-            absolute
-            bottom-5
-            left-1/2
-            -translate-x-1/2
-            flex
-            gap-3
-          "
-        >
-          {stones.map(
-            (_, index) => (
-              <button
-                key={index}
-                onClick={() =>
-                  setCurrent(index)
-                }
-                className={`
-                  rounded-full
-                  duration-500
-                  ${
-                    current === index
-                      ? "w-10 h-2 bg-white"
-                      : "w-2 h-2 bg-white/40"
-                  }
-                `}
-              />
-            )
-          )}
+            </Link>
+          ))}
         </div>
       </div>
-
-      {/* Bottom CTA */}
-      <div className="flex justify-center mt-10 lg:mt-12 px-6">
-        <Link
-          to="/categories"
-          className="
-            border
-            border-[#c91f26]
-            px-8
-            py-3
-            text-sm
-            text-[#161412]
-            hover:bg-[#c91f26]
-            hover:text-white
-            duration-300
-          "
-        >
-          Explore More
-        </Link>
-      </div>
-
-      <style>
-        {`
-          @keyframes contentFade {
-            0% {
-              opacity: 0;
-              transform: translateX(-40px);
-            }
-
-            100% {
-              opacity: 1;
-              transform: translateX(0);
-            }
-          }
-
-          @keyframes imageSlide {
-            0% {
-              opacity: 0;
-              transform: translateX(60px) scale(.95);
-            }
-
-            100% {
-              opacity: 1;
-              transform: translateX(0) scale(1);
-            }
-          }
-
-          .animate-contentFade {
-            animation: contentFade .7s ease;
-          }
-
-          .animate-imageSlide {
-            animation: imageSlide .8s ease;
-          }
-        `}
-      </style>
     </section>
   );
 };

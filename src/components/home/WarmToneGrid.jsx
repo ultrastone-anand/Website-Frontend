@@ -1,123 +1,151 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const collections = [
+const products = [
   {
-    title: "MARBLE",
-    slug: "marble",
+    title: "AFRICAN LAPIS LAZULI",
+    meta: "Marble • Polished • 2CM",
+    slug: "african-lapis-lazuli",
     image:
-      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1200&auto=format&fit=crop",
   },
   {
-    title: "ULTRA QUARTZ",
-    slug: "ultra-quartz",
+    title: "AMAZONITE",
+    meta: "Quartzite • Polished • 3CM",
+    slug: "amazonite",
     image:
-      "https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1200&auto=format&fit=crop",
   },
   {
-    title: "QUARTZITE",
-    slug: "quartzite",
+    title: "AYRES BROWN",
+    meta: "Granite • Polished • 2CM",
+    slug: "ayres-brown",
     image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    title: "ARISTON LEATHER",
+    meta: "Quartz • Polished • 2CM",
+    slug: "ariston-leather",
+    image:
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop",
   },
 ];
 
+const stoneTypes = [
+  "Browse",
+  "Marble",
+  "Quartz",
+  "Granite",
+  "Quartzite",
+  "Onyx",
+  "Travertine",
+  "Limestone",
+  "Dolomite",
+  "Soapstone",
+  "Precious Stone",
+  "Slate",
+  "Stoneglass",
+];
+
 const WarmToneGrid = () => {
-  const navigate = useNavigate();
   return (
-    <section className="bg-[#f5f5f5] py-20">
-      <div className="max-w-[1650px] mx-auto px-6 xl:px-10">
-        {/* Heading */}
-        <div className="text-center mb-14">
+    <section className="bg-white py-[24px]">
+      <div className="mx-auto max-w-[1650px] px-6 xl:px-[52px]">
+        {/* Header */}
+        <div className="mb-[44px] flex items-center justify-between">
           <h2
-            className="
-              text-[38px]
-              md:text-[52px]
-              text-[#161412]
-              inline-block
-              relative
-            "
-            style={{
-              fontFamily:
-                '"Cormorant Garamond", serif',
-            }}
+            className="flex items-center gap-7 text-[28px] font-bold uppercase tracking-[0.01em] text-[#111]"
+            style={{ fontFamily: "Montserrat, sans-serif" }}
           >
-            Material{" "}
-            <span className="relative inline-block">
-              Portfolio
-              <span
-                className="
-                  absolute
-                  left-0
-                  bottom-[-8px]
-                  w-full
-                  h-[4px]
-                  bg-[#c91f26]
-                "
-              />
-            </span>
+            FEATURED STONES
+            <span className="text-[28px] font-normal text-[#d97918]">→</span>
           </h2>
+
+          <div className="flex items-center gap-7 text-[34px] text-[#4a4a4a]">
+            <button className="leading-none transition hover:text-black">←</button>
+            <button className="leading-none transition hover:text-black">→</button>
+          </div>
         </div>
 
-        {/* Cards */}
-        <div className="grid md:grid-cols-3 gap-8 xl:gap-12">
-          {collections.map((item) => (
-            <Link
-              key={item.slug}
-              to={`/product-category/${item.slug}`}
-              className="group"
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[170px_1fr] xl:grid-cols-[180px_1fr]">
+          {/* Sidebar */}
+          <aside className="hidden border-r border-[#d0d0d0] pr-6 lg:block">
+            <h3
+              className="mb-5 text-[20px] font-bold uppercase tracking-[0.02em] text-[#111]"
+              style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              <div className="overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="
-                    w-full
-                    h-[350px]
-                    md:h-[450px]
-                    object-cover
-                    duration-700
-                    group-hover:scale-105
-                  "
-                />
-              </div>
+              STONE TYPE
+            </h3>
 
-              <h3
-                className="
-                  mt-5
-                  text-[20px]
-                  tracking-wide
-                  text-[#161412]
-                "
-                style={{
-                  fontFamily:
-                    "Montserrat, sans-serif",
-                }}
+            <div className="space-y-[9px]">
+              {stoneTypes.map((item, index) => (
+                <button
+                  key={item}
+                  className={`block text-left text-[14px] ${
+                    index === 0
+                      ? "border-l-2 border-[#d97918] pl-3 font-semibold text-[#111]"
+                      : "pl-3 text-[#5f5f5f]"
+                  }`}
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-6 border-t border-[#bdbdbd] pt-4">
+              <h4
+                className="mb-3 text-[14px] font-bold uppercase text-[#111]"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                {item.title}
-              </h3>
-            </Link>
-          ))}
-        </div>
+                FILTER BY
+              </h4>
 
-        {/* Button */}
-        <div className="flex justify-center mt-16">
-          <button
-            onClick={() => navigate("/categories")}
-            className="
-              border
-              border-[#c91f26]
-              px-8
-              py-3
-              text-sm
-              text-[#161412]
-              hover:bg-[#c91f26]
-              hover:text-white
-              duration-300
+              {["Color", "Finish", "Application"].map((item) => (
+                <button
+                  key={item}
+                  className="flex w-full items-center justify-between py-[5px] pl-3 text-left text-[14px] text-[#5f5f5f]"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  {item}
+                  <span className="text-[16px]">⌄</span>
+                </button>
+              ))}
+            </div>
+          </aside>
 
-            "
-          >
-            Explore More
-          </button>
+          {/* Product Grid */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {products.map((item) => (
+              <Link
+                key={item.slug}
+                to={`/product/${item.slug}`}
+                className="group text-center"
+              >
+                <div className="overflow-hidden bg-[#f1f1f1]">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="aspect-[4/5.7] w-full object-cover transition duration-700 group-hover:scale-105"
+                  />
+                </div>
+
+                <h3
+                  className="mt-5 text-[22px] font-bold uppercase leading-tight text-[#111]"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  {item.title}
+                </h3>
+
+                <p
+                  className="mt-2 text-[14px] text-[#5f5f5f]"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  {item.meta}
+                </p>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>

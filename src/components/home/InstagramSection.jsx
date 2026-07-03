@@ -1,172 +1,70 @@
-import React, { useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-
-const posts = [
-  {
-    image:
-      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1200&q=80",
-    caption:
-      "🤍 Elegance carved in stone! Discover the subtle charm of Pearl White quartzite.",
-  },
-
-  {
-    image:
-      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200&q=80",
-    caption:
-      "✨ Why settle for ordinary? Ariston Quartz brings timeless elegance.",
-  },
-
-  {
-    image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200&q=80",
-    caption:
-      "🔥 Transform your space with luxury natural stone surfaces.",
-  },
-
-  {
-    image:
-      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1200&q=80",
-    caption:
-      "🏡 Luxury interiors crafted with premium stone materials.",
-  },
-
-  {
-    image:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80",
-    caption:
-      "✨ Inspired by nature, designed for modern living.",
-  },
-
-  {
-    image:
-      "https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=1200&q=80",
-    caption:
-      "💎 Natural beauty meets timeless craftsmanship.",
-  },
-];
-
 const InstagramSection = () => {
-  const [index, setIndex] = useState(0);
-
-  const nextSlide = () => {
-    setIndex((prev) =>
-      prev + 3 >= posts.length
-        ? 0
-        : prev + 3
-    );
-  };
-
-  const prevSlide = () => {
-    setIndex((prev) =>
-      prev - 3 < 0
-        ? posts.length - 3
-        : prev - 3
-    );
-  };
-
   return (
-    <section className="py-24 bg-white">
-      <div className="max-w-[1650px] mx-auto px-6 xl:px-10">
-        <div className="text-center mb-16">
-          <h2
-            className="
-              flex
-              items-center
-              justify-center
-              gap-3
-              text-[38px]
-              md:text-[52px]
-              font-semibold
-              text-[#161412]
-            "
-          >
-            Instagram
-          </h2>
-        </div>
+    <section className="bg-white py-[48px]">
+      <div className="mx-auto">
+        <div
+          className="relative overflow-hidden bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.70) 33%, rgba(0,0,0,.20) 100%), url('https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1800&auto=format&fit=crop')",
+          }}
+        >
+          <div className="min-h-[520px] px-10 py-20 lg:px-[70px]">
+            <div className="max-w-[520px]">
+              <p
+                className="text-[16px] font-bold uppercase text-[#ff8a00]"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                READY TO BEGIN?
+              </p>
 
-        <div className="relative">
-          <button
-            onClick={prevSlide}
-            className="
-              absolute
-              left-[-20px]
-              top-1/2
-              -translate-y-1/2
-              z-10
-            "
-          >
-            <ChevronLeft size={36} />
-          </button>
+              <h2
+                className="mt-10 text-[44px] leading-[1.08] text-white md:text-[52px]"
+                style={{ fontFamily: '"Cormorant Garamond", serif' }}
+              >
+                Find the perfect surface
+                <br />
+                for your next project.
+              </h2>
 
-          <button
-            onClick={nextSlide}
-            className="
-              absolute
-              right-[-20px]
-              top-1/2
-              -translate-y-1/2
-              z-10
-            "
-          >
-            <ChevronRight size={36} />
-          </button>
+              <div className="mt-9 h-[2px] w-[78px] bg-[#ff8a00]" />
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {posts
-              .slice(index, index + 3)
-              .map((post, i) => (
-                <div
-                  key={i}
-                  className="
-                    border
-                    border-[#e5e5e5]
-                    p-4
-                  "
+              <p
+                className="mt-9 max-w-[380px] text-[14px] leading-[1.35] text-white/85"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                Explore our curated collection of natural stone and engineered
+                surfaces, crafted to inspire and built to last.
+              </p>
+
+              <div className="mt-9 flex flex-wrap gap-14">
+                <button
+                  className="bg-[#ff8a00] px-7 py-4 text-[13px] font-bold uppercase text-white"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  <img
-                    src={post.image}
-                    alt=""
-                    className="
-                      w-full
-                      h-[420px]
-                      object-cover
-                    "
-                  />
+                  CONTACT OUR TEAM
+                  <span className="ml-4">→</span>
+                </button>
 
-                  <p
-                    className="
-                      mt-5
-                      text-[16px]
-                      leading-relaxed
-                      text-[#161412]
-                    "
-                  >
-                    {post.caption}
-                  </p>
-                </div>
-              ))}
+                <button
+                  className="border border-white/70 px-7 py-4 text-[13px] font-bold uppercase text-white"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  VIEW COLLECTIONS
+                  <span className="ml-4 text-[#ff8a00]">→</span>
+                </button>
+              </div>
+
+              <p
+                className="mt-10 text-[14px] leading-[1.35] text-white/45"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                Established 2013 • 500+ Stones
+                <br />
+                Trusted by Designers, Fabricators & Builders
+              </p>
+            </div>
           </div>
-        </div>
-
-        <div className="flex justify-center mt-14">
-          <button
-            className="
-              border
-              border-[#c91f26]
-              px-8
-              py-3
-              text-sm
-              text-[#161412]
-              hover:bg-[#c91f26]
-              hover:text-white
-              duration-300
-            "
-          >
-            Explore More
-          </button>
         </div>
       </div>
     </section>

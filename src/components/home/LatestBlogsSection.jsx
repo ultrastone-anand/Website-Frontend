@@ -1,101 +1,92 @@
-import { Link } from "react-router-dom";
-
-const blogs = [
+const features = [
   {
-    id: 1,
-    image:
-      "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=1200&q=80",
-    date: "March 1st, 2025",
-    category: "Installation",
-    title:
-      "Why Settle for Less? Explore the Hottest Quartz Worktop Trends with Ultra Stones",
+    title: "PREMIUM SELECTION",
+    desc: "Handpicked natural stone and engineered surfaces from around the world.",
+    icon: "◇",
   },
-
   {
-    id: 2,
-    image:
-      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1200&q=80",
-    date: "March 1st, 2025",
-    category: "Remodeling",
-    title:
-      "Exotic Granite Colors Making a Comeback in Luxury Interiors",
+    title: "LARGE INVENTORY",
+    desc: "Extensive range of colors, patterns, and finishes ready to explore.",
+    icon: "▱",
   },
-
   {
-    id: 3,
-    image:
-      "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=1200&q=80",
-    date: "March 1st, 2025",
-    category: "3D Design, Remodeling",
-    title:
-      "Countertop Edges 101: The Key to Style and Functionality in Kitchens & Baths",
+    title: "QUALITY CHECKED",
+    desc: "Every slab is inspected for color, finish, and consistency at every step.",
+    icon: "♢",
+  },
+  {
+    title: "FOR EVERY PROJECT",
+    desc: "Perfect for residential and commercial spaces, inside and out.",
+    icon: "▥",
+  },
+  {
+    title: "EXPERT CHOICE",
+    desc: "Our team is here to help you choose the right surface with confidence.",
+    icon: "☏",
   },
 ];
 
 const LatestBlogsSection = () => {
   return (
-    <section className="py-24 bg-[#f5f5f5]">
-      <div className="max-w-[1650px] mx-auto px-6 xl:px-10">
-        <div className="text-center mb-16">
-          <p className="text-[#777] text-[15px] mb-2">
-            Recent Updates
-          </p>
-
-          <h2 className="text-[38px] md:text-[52px] font-semibold text-[#161412]">
-            Our Latest Blogs
-          </h2>
-
-          <div className="w-[90px] h-[4px] bg-[#c91f26] mx-auto mt-3" />
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          {blogs.map((blog) => (
-            <Link
-              key={blog.id}
-              to="/blogs"
-              className="group"
+    <section className="bg-white py-[40px]">
+      <div className="mx-auto max-w-[1560px] px-6">
+        <div className="bg-white px-10 py-10 shadow-[0_8px_14px_rgba(0,0,0,0.22)]">
+          <div className="text-center">
+            <p
+              className="text-[18px] font-bold uppercase tracking-[0.03em] text-[#111]"
+              style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              <div className="overflow-hidden">
-                <img
-                  src={blog.image}
-                  alt={blog.title}
-                  className="
-                    w-full
-                    h-[420px]
-                    object-cover
-                    duration-700
-                    group-hover:scale-105
-                  "
-                />
-              </div>
+              WHY CHOOSE ULTRA STONES
+            </p>
 
-              <div className="pt-6">
-                <div className="flex flex-wrap gap-4 text-sm mb-4">
-                  <span>{blog.date}</span>
+            <h2
+              className="mt-5 text-[40px] leading-none text-[#111]"
+              style={{ fontFamily: '"Cormorant Garamond", serif' }}
+            >
+              Quality. Selection. Service.
+            </h2>
 
-                  <span className="text-[#777]">
-                    {blog.category}
-                  </span>
+            <p
+              className="mt-5 text-[27px] italic leading-none text-[#D67A1C]"
+              style={{ fontFamily: '"Cormorant Garamond", serif' }}
+            >
+              Selected with Care. Supplied with Confidence.
+            </p>
+
+            <p
+              className="mx-auto mt-6 max-w-[620px] text-[14px] leading-[1.25] text-[#555]"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
+              We are committed to providing premium stones surfaces and an
+              exceptional experience from start to finish
+            </p>
+          </div>
+
+          <div className="mt-[80px] grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-5">
+            {features.map((item) => (
+              <div key={item.title} className="text-center">
+                <div className="mx-auto flex h-[110px] w-[110px] items-center justify-center rounded-full border border-[#D67A1C] text-[46px] text-[#111]">
+                  {item.icon}
                 </div>
 
                 <h3
-                  className="
-                    text-[28px]
-                    leading-tight
-                    text-[#161412]
-                    group-hover:text-[#c91f26]
-                    duration-300
-                  "
-                  style={{
-                    fontFamily:
-                      '"Cormorant Garamond", serif',
-                  }}
+                  className="mt-8 text-[17px] font-bold uppercase text-[#111]"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  {blog.title}
+                  {item.title}
                 </h3>
+
+                <p
+                  className="mx-auto mt-5 max-w-[190px] text-[12px] leading-[1.25] text-[#555]"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  {item.desc}
+                </p>
+
+                <div className="mt-8 text-[22px] text-[#D67A1C]">→</div>
               </div>
-            </Link>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
