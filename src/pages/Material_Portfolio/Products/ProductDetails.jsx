@@ -39,15 +39,15 @@ const ProductDetails = () => {
   const [openFaq, setOpenFaq] = useState(1);
   const [expanded, setExpanded] = useState(false);
 
-const description = product?.long_description || product?.small_description || "";
-const shouldTruncate = description.length > 300;
+  const description = product?.long_description || product?.small_description || "";
+  const shouldTruncate = description.length > 300;
 
-const [zoomStyle, setZoomStyle] = useState({
-  backgroundImage: "",
-  backgroundPosition: "50% 50%",
-  backgroundSize: "1000%",
-  opacity: 0,
-});
+  const [zoomStyle, setZoomStyle] = useState({
+    backgroundImage: "",
+    backgroundPosition: "50% 50%",
+    backgroundSize: "1000%",
+    opacity: 0,
+  });
   const [lensPosition, setLensPosition] = useState({
     x: 0,
     y: 0,
@@ -87,29 +87,29 @@ const [zoomStyle, setZoomStyle] = useState({
     }
   };
 
-const fetchRelatedProducts = async (categorySlug, currentSlug) => {
-  try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/stones/${categorySlug}`
-    );
+  const fetchRelatedProducts = async (categorySlug, currentSlug) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/stones/${categorySlug}`
+      );
 
-    const result = response.data;
+      const result = response.data;
 
-    if (result.success) {
-      const filteredProducts =
-        result.products?.filter(
-          (item) =>
-            item.slug !== currentSlug &&
-            item.is_active &&
-            item.is_published
-        ) || [];
+      if (result.success) {
+        const filteredProducts =
+          result.products?.filter(
+            (item) =>
+              item.slug !== currentSlug &&
+              item.is_active &&
+              item.is_published
+          ) || [];
 
-      setRelatedProducts(filteredProducts);
+        setRelatedProducts(filteredProducts);
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
-  }
-};
+  };
 
   const scrollRelatedLeft = () => {
     if (relatedScrollRef.current) {
@@ -439,7 +439,7 @@ const fetchRelatedProducts = async (categorySlug, currentSlug) => {
 
   return (
     <>
-    <SEO {...normalizeProductSeo(product, categorySlug)} />
+      <SEO {...normalizeProductSeo(product, categorySlug)} />
       <Navbar />
 
       <div className="bg-white w-full overflow-hidden">
@@ -552,171 +552,306 @@ const fetchRelatedProducts = async (categorySlug, currentSlug) => {
             >
               {/* LEFT IMAGE */}
 
-              <div>
-                <div
-                  className="
-          relative
-          overflow-hidden
-          bg-[#f7f7f7]
+<div>
+  <div
+    className="
+      relative
+      overflow-hidden
+      bg-[#f7f7f7]
+      group
+      min-h-[520px]
+      xl:min-h-[640px]
+    "
+  >
+    <div
+      onClick={() => setOpenPreview(true)}
+      className="cursor-zoom-in"
+    >
+      {activeMedia?.media_type === "FEATURED_VIDEO" ? (
+        <video
+          key={activeMedia.media_url}
+          className="w-full h-[520px] xl:h-[640px] object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+        >
+          <source src={activeMedia.media_url} type="video/mp4" />
+        </video>
+      ) : (
+        <img
+          loading="lazy"
+          decoding="async"
+          src={activeMedia?.media_url}
+          alt={product.name}
+          className="
+            w-full
+            h-[520px]
+            xl:h-[640px]
+            object-cover
+            transition-transform
+            duration-700
+            group-hover:scale-[1.015]
           "
-                >
-                  {activeMedia?.media_type === "FEATURED_VIDEO" ? (
-                    <video
-                      key={activeMedia.media_url}
-                      className="
-    w-full
-    h-[520px]
-    xl:h-[640px]
-    object-cover
-    "
-                      autoPlay
-                      muted
-                      loop
-                      controls
-                      playsInline
-                    >
-                      <source src={activeMedia.media_url} type="video/mp4" />
-                    </video>
-                  ) : (
-                    <img
-                      loading="lazy"
-                      decoding="async"
-                      src={activeMedia?.media_url}
-                      alt={product.name}
-                      className="
-    w-full
-    h-[520px]
-    xl:h-[640px]
-    object-cover
-    "
-                    />
-                  )}
+        />
+      )}
+    </div>
 
-                  {/* ARROWS */}
-
-                  {heroImages.length > 1 && (
-                    <div>
-                      <button
-                        onClick={() =>
-                          setActiveImage(
-                            activeImage === 0
-                              ? heroImages.length - 1
-                              : activeImage - 1,
-                          )
-                        }
-                        className="
-      absolute
-      left-5
-      top-1/2
-      -translate-y-1/2
-      w-11
-      h-11
-      bg-white/90
-      flex
-      items-center
-      justify-center
-      text-black
-      hover:bg-white
-      transition-all
-      duration-300
-      "
-                      >
-                        <ChevronLeft size={20} strokeWidth={1.5} />
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          setActiveImage(
-                            activeImage === heroImages.length - 1
-                              ? 0
-                              : activeImage + 1,
-                          )
-                        }
-                        className="
-      absolute
-      right-5
-      top-1/2
-      -translate-y-1/2
-      w-11
-      h-11
-      bg-white/90
-      flex
-      items-center
-      justify-center
-      text-black
-      hover:bg-white
-      transition-all
-      duration-300
-      "
-                      >
-                        <ChevronRight size={20} strokeWidth={1.5} />
-                      </button>
-                    </div>
-                  )}
-
-                  <button
-                    onClick={() => setOpenPreview(true)}
-                    className="
-    absolute
-    bottom-5
-    right-5
-    w-11
-    h-11
-    bg-white/90
-    hover:bg-white
-    flex
-    items-center
-    justify-center
-    transition-all
-    duration-300
-    shadow-md
-  "
-                  >
-                    <Expand size={18} strokeWidth={1.8} />
-                  </button>
-                </div>
-                {openPreview &&
-                  activeMedia?.media_type !== "FEATURED_VIDEO" && (
-                    <div
-                      className="
-      fixed
-      inset-0
-      z-[9999]
-      bg-black/90
-      flex
-      items-center
-      justify-center
-      p-6
-    "
-                      onClick={() => setOpenPreview(false)}
-                    >
-                      <button
-                        className="
+    {/* TOP GLASS BAR */}
+    <div
+      className="
         absolute
-        top-6
-        right-6
-        text-white
-        text-4xl
+        top-5
+        left-5
+        right-5
+        z-20
+        flex
+        items-center
+        justify-between
+        pointer-events-none
       "
-                      >
-                        ×
-                      </button>
+    >
 
-                      <img
-                        loading="lazy"
-                        decoding="async"
-                        src={activeMedia.media_url}
-                        alt={product.name}
-                        className="
-        max-w-full
-        max-h-full
-        object-contain
+      <div
+        className="
+          bg-black/35
+          backdrop-blur-xl
+          border
+          border-white/15
+          text-white
+          text-[11px]
+          tracking-[1px]
+          px-4
+          py-2
+          shadow-lg
+        "
+      >
+        {activeImage + 1} / {heroImages.length}
+      </div>
+    </div>
+
+    {/* NAVIGATION */}
+    {heroImages.length > 1 && (
+      <>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setActiveImage(
+              activeImage === 0 ? heroImages.length - 1 : activeImage - 1
+            );
+          }}
+          className="
+            absolute
+            left-5
+            top-1/2
+            z-30
+            -translate-y-1/2
+            w-12
+            h-12
+            rounded-full
+            bg-white/20
+            backdrop-blur-xl
+            border
+            border-white/30
+            text-white
+            flex
+            items-center
+            justify-center
+            hover:bg-white
+            hover:text-black
+            transition-all
+            duration-300
+          "
+        >
+          <ChevronLeft size={22} strokeWidth={1.7} />
+        </button>
+
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setActiveImage(
+              activeImage === heroImages.length - 1 ? 0 : activeImage + 1
+            );
+          }}
+          className="
+            absolute
+            right-5
+            top-1/2
+            z-30
+            -translate-y-1/2
+            w-12
+            h-12
+            rounded-full
+            bg-white/20
+            backdrop-blur-xl
+            border
+            border-white/30
+            text-white
+            flex
+            items-center
+            justify-center
+            hover:bg-white
+            hover:text-black
+            transition-all
+            duration-300
+          "
+        >
+          <ChevronRight size={22} strokeWidth={1.7} />
+        </button>
+      </>
+    )}
+
+    {/* INSIDE THUMBNAIL STRIP */}
+    {heroImages.length > 1 && (
+      <div
+        className="
+          absolute
+          left-5
+          right-5
+          bottom-5
+          z-30
+          bg-black/25
+          backdrop-blur-2xl
+          border
+          border-white/15
+          p-3
+          shadow-2xl
+        "
+      >
+        <div
+          className="
+            flex
+            gap-3
+            overflow-x-auto
+            scrollbar-hide
+            snap-x
+            snap-mandatory
+          "
+        >
+          {heroImages.map((item, index) => (
+            <button
+              key={`${item.media_url}-${index}`}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImage(index);
+              }}
+              className={`
+                relative
+                min-w-[86px]
+                h-[64px]
+                overflow-hidden
+                snap-start
+                border
+                transition-all
+                duration-300
+                ${
+                  activeImage === index
+                    ? "border-white scale-[1.04] opacity-100"
+                    : "border-white/20 opacity-55 hover:opacity-100"
+                }
+              `}
+            >
+              {item.media_type === "FEATURED_VIDEO" ? (
+                <>
+                  <video
+                    src={item.media_url}
+                    className="w-full h-full object-cover"
+                    muted
+                    playsInline
+                  />
+
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                    <span
+                      className="
+                        w-8
+                        h-8
+                        rounded-full
+                        bg-white/90
+                        text-black
+                        flex
+                        items-center
+                        justify-center
+                        text-[10px]
+                        font-bold
+                      "
+                    >
+                      ▶
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <img
+                  src={item.media_url}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              )}
+
+              {activeImage === index && (
+                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white" />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+
+  {openPreview && (
+    <div
+      className="
+        fixed
+        inset-0
+        z-[9999]
+        bg-black/95
+        flex
+        items-center
+        justify-center
+        p-6
       "
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  )}
-              </div>
+      onClick={() => setOpenPreview(false)}
+    >
+      <button
+        type="button"
+        onClick={() => setOpenPreview(false)}
+        className="
+          absolute
+          top-6
+          right-6
+          text-white
+          text-5xl
+          z-10
+          leading-none
+        "
+      >
+        ×
+      </button>
+
+      {activeMedia?.media_type === "FEATURED_VIDEO" ? (
+        <video
+          src={activeMedia.media_url}
+          className="max-w-full max-h-full object-contain"
+          controls
+          autoPlay
+          playsInline
+          onClick={(e) => e.stopPropagation()}
+        />
+      ) : (
+        <img
+          loading="lazy"
+          decoding="async"
+          src={activeMedia.media_url}
+          alt={product.name}
+          className="max-w-full max-h-full object-contain"
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
+    </div>
+  )}
+</div>
 
               {/* RIGHT CONTENT */}
 
@@ -743,32 +878,32 @@ const fetchRelatedProducts = async (categorySlug, currentSlug) => {
 
                 {/* DESCRIPTION */}
 
-<p
-  className="
+                <p
+                  className="
     text-[18px]
     leading-[1.6]
     text-black
     max-w-[840px]
     mb-10
   "
-  style={{
-    fontFamily: "Montserrat, sans-serif",
-  }}
->
-  {shouldTruncate && !expanded
-    ? `${description.slice(0, 300)}... `
-    : description}
+                  style={{
+                    fontFamily: "Montserrat, sans-serif",
+                  }}
+                >
+                  {shouldTruncate && !expanded
+                    ? `${description.slice(0, 300)}... `
+                    : description}
 
-  {shouldTruncate && (
-    <button
-      type="button"
-      onClick={() => setExpanded(!expanded)}
-      className="ml-1 text-black italic underline hover:no-underline"
-    >
-      {expanded ? "read less" : "read more"}
-    </button>
-  )}
-</p>
+                  {shouldTruncate && (
+                    <button
+                      type="button"
+                      onClick={() => setExpanded(!expanded)}
+                      className="ml-1 text-black italic underline hover:no-underline"
+                    >
+                      {expanded ? "read less" : "read more"}
+                    </button>
+                  )}
+                </p>
 
                 {/* PREVIEW IMAGE */}
 
@@ -820,12 +955,12 @@ const fetchRelatedProducts = async (categorySlug, currentSlug) => {
                       visible: true,
                     });
 
-setZoomStyle({
-  backgroundImage: `url("${images[0]?.media_url}")`,
-  backgroundPosition: `${xPercent}% ${yPercent}%`,
-  backgroundSize: "1000%",
-  opacity: 1,
-});
+                    setZoomStyle({
+                      backgroundImage: `url("${images[0]?.media_url}")`,
+                      backgroundPosition: `${xPercent}% ${yPercent}%`,
+                      backgroundSize: "1000%",
+                      opacity: 1,
+                    });
                   }}
                   onMouseLeave={() => {
                     setLensPosition((prev) => ({
@@ -869,14 +1004,14 @@ setZoomStyle({
       overflow-hidden
       "
                       style={{
-  left: lensPosition.x,
-  top: lensPosition.y,
-  transform: "translate(-50%, -50%)",
-  backgroundImage: zoomStyle.backgroundImage,
-  backgroundRepeat: "no-repeat",
-  backgroundSize: zoomStyle.backgroundSize,
-  backgroundPosition: zoomStyle.backgroundPosition,
-}}
+                        left: lensPosition.x,
+                        top: lensPosition.y,
+                        transform: "translate(-50%, -50%)",
+                        backgroundImage: zoomStyle.backgroundImage,
+                        backgroundRepeat: "no-repeat",
+                        backgroundSize: zoomStyle.backgroundSize,
+                        backgroundPosition: zoomStyle.backgroundPosition,
+                      }}
                     />
                   )}
                 </div>
