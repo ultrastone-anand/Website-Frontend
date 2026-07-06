@@ -159,7 +159,7 @@ const Footer = () => {
         className="
   absolute
   inset-0
-  bg-[url('/footer.jpg')]
+  bg-[url('https://cdn.ultrastone.in/footer.jpg')]
   bg-cover
   bg-center
   "
