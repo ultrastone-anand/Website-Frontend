@@ -1,55 +1,64 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+
 import Navbar from "../../../components/common/Navbar";
 import Footer from "../../../components/common/Footer";
 
-import uslogo from '../../../assets/uslogo.png';
-import { Link } from "react-router-dom";
-
-
 const OurProcess = () => {
-    const processSteps = [
-  {
-    id: 1,
-    title: "Browse Your Slab",
-    image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Take a stroll through our state-of-the-art slab gallery, where premium surfaces sourced from around the world await your consideration.",
-  },
-  {
-    id: 2,
-    title: "Selection",
-    image:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Create a wishlist of your favorite slabs and get final pricing from your fabricator. We’ll provide a complimentary hold on your selections. Once the design and pricing are approved, you can come again to tag the exact slabs you wish to get for your project.",
-  },
-  {
-    id: 3,
-    title: "Coordinate",
-    image:
-      "https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "After finalizing your purchase, you’ll receive prompt confirmation from our dedicated logistics team, ensuring your order has been successfully processed.",
-  },
-  {
-    id: 4,
-    title: "Delivery",
-    image:
-      "https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Once your slabs are selected and confirmed, our logistics team will coordinate the delivery to your slab, ensuring your materials arrive safely and on time, ready for the next step in your project.",
-  },
-  {
-    id: 5,
-    title: "Installation",
-    image:
-      "https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Experience the triumph of your newly installed countertops as they complete your space, combining beauty and functionality in your new kitchen.",
-  },
-];
+  const [page, setPage] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPage = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/pages/our-process`
+        );
+
+        const result = response.data;
+
+        if (result.success) {
+          setPage(result.data);
+        }
+      } catch (error) {
+        console.error("Error fetching Our Process page:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPage();
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="bg-[#f3f3f3] min-h-screen pt-[110px] flex items-center justify-center">
+          Loading...
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!page) {
+    return (
+      <>
+        <Navbar />
+        <div className="bg-[#f3f3f3] min-h-screen pt-[110px] flex items-center justify-center">
+          Page not found
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  const content = page.content || {};
+  const processSteps = content.processSteps || [];
+
   return (
-    
     <>
       <Navbar />
 
@@ -63,149 +72,154 @@ const OurProcess = () => {
                 fontFamily: "Montserrat, sans-serif",
               }}
             >
-              Our Process
+              {content.pageHeader?.heading || page.title || "Our Process"}
             </h1>
 
             <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
 
-<p
-  className="text-[13px] text-[#777]"
-  style={{
-    fontFamily: "Montserrat, sans-serif",
-  }}
->
-  <Link
-    to="/"
-    className="
-    hover:text-[#161412]
-    duration-300
-    "
-  >
-    Home
-  </Link>
+            <p
+              className="text-[13px] text-[#777]"
+              style={{
+                fontFamily: "Montserrat, sans-serif",
+              }}
+            >
+              <Link
+                to="/"
+                className="hover:text-[#161412] duration-300"
+              >
+                Home
+              </Link>
 
-  {" / "}
+              {" / "}
 
-  <Link
-    to="/"
-    className="
-    hover:text-[#161412]
-    duration-300
-    "
-  >
-    Ultra Experience
-  </Link>
+              <Link
+                to="/"
+                className="hover:text-[#161412] duration-300"
+              >
+                Ultra Experience
+              </Link>
 
-  {" / "}
+              {" / "}
 
-  <span className="text-[#161412] font-semibold">
-    Our Process
-  </span>
-</p>
+              <span className="text-[#161412] font-semibold">
+                {content.pageHeader?.heading || "Our Process"}
+              </span>
+            </p>
           </div>
         </section>
 
-<section className="py-5">
-  <div className="max-w-[1650px] mx-auto px-3 xl:px-5">
+        {/* PROCESS STEPS */}
+        <section className="py-5">
+          <div className="max-w-[1650px] mx-auto px-3 xl:px-5">
+            <div className="space-y-12 mt-16">
+              {processSteps.map((step, index) => (
+                <div
+                  key={step.id || index}
+                  className="
+                    flex
+                    flex-col
+                    lg:flex-row
+                    items-start
+                    gap-0
+                  "
+                >
+                  {/* IMAGE */}
+                  <div
+                    className="
+                      w-full
+                      lg:w-[500px]
+                      xl:w-[600px]
+                      shrink-0
+                    "
+                  >
+                    <img
+                      src={step.image}
+                      alt={step.imageAlt || step.title}
+                      className="
+                        w-full
+                        h-[320px]
+                        xl:h-[380px]
+                        object-cover
+                      "
+                    />
+                  </div>
 
-<div className="space-y-12 mt-16">
-  {processSteps.map((step) => (
-    <div
-      key={step.id}
-      className="
-        flex
-        flex-col
-        lg:flex-row
-        items-start
-        gap-0
-      "
-    >
-      {/* IMAGE */}
-      <div
-        className="
-          w-full
-          lg:w-[500px]
-xl:w-[600px]
-          shrink-0
-        "
-      >
-        <img
-          src={step.image}
-          alt={step.title}
-          className="
-            w-full
-h-[320px]
-xl:h-[380px]
-            object-cover
-          "
-        />
-      </div>
+                  {/* CONTENT */}
+                  <div
+                    className="
+                      flex-1
+                      bg-transparent
+                      relative
+                    "
+                  >
+                    {/* RED STRIP */}
+                    <div
+                      className="
+                        h-[42px]
+                        w-[340px]
+                        bg-gradient-to-r
+                        from-[#d71920]
+                        to-[#f5e4e4]
+                        flex
+                        items-center
+                        px-5
+                        text-white
+                        text-[24px]
+                        font-semibold
+                      "
+                    >
+                      {step.title}
+                    </div>
 
-      {/* CONTENT */}
-      <div
-        className="
-          flex-1
-          bg-transparent
-          relative
-          lg:pl-0
-        "
-      >
-        {/* RED STRIP */}
-        <div
-          className="
-            h-[42px]
-            w-[340px]
-            bg-gradient-to-r
-            from-[#d71920]
-            to-[#f5e4e4]
-            flex
-            items-center
-            px-5
-            text-white
-            text-[24px]
-            font-semibold
-          "
-        >
-          {step.title}
-        </div>
+                    <div className="pt-12 px-12 flex-1">
+                      <p
+                        className="
+                          text-[20px]
+                          leading-[26px]
+                          text-[#555]
+                          mb-8
+                        "
+                      >
+                        {step.description}
+                      </p>
 
-        <div className="pt-12 px-12 flex-1">
-          <p
-            className="
-              text-[20px]
-              leading-[26px]
-              text-[#555]
-              mb-8
-            "
-          >
-            {step.description}
-          </p>
+                      {step.buttonText && (
+                        <button
+                          className="
+                            border
+                            border-[#d71920]
+                            text-[#d71920]
+                            text-[14px]
+                            uppercase
+                            tracking-[1px]
+                            px-4
+                            py-2
+                            hover:bg-[#d71920]
+                            hover:text-white
+                            transition
+                          "
+                          onClick={() => {
+                            if (step.buttonLink) {
+                              window.location.href = step.buttonLink;
+                            }
+                          }}
+                        >
+                          {step.buttonText}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
 
-          <button
-            className="
-              border
-              border-[#d71920]
-              text-[#d71920]
-              text-[14px]
-              uppercase
-              tracking-[1px]
-              px-4
-              py-2
-              hover:bg-[#d71920]
-              hover:text-white
-              transition
-            "
-          >
-            Learn More
-          </button>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-  </div>
-</section>
-
+              {processSteps.length === 0 && (
+                <div className="text-center text-gray-500 py-16">
+                  No process steps found.
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
       </div>
 
       <Footer />

@@ -7,242 +7,311 @@ import Footer from '../../../components/common/Footer';
 import Loading from '../../../components/common/Loading';
 
 export default function Category() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [materials, setMaterials] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [materials, setMaterials] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchMaterials = async () => {
-            try {
-                const response = await axios.get(
-                    `${import.meta.env.VITE_API_URL}/stones`
-                );
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/stones`
+        );
 
-                const result = response.data;
+        const result = response.data;
 
-                if (result.success) {
-                    const activeCategories =
-                        result.data
-                            .filter(
-                                (item) =>
-                                    item.is_active === true &&
-                                    item.parent_id === null
-                            )
-                            .sort(
-                                (a, b) =>
-                                    (a.display_order || 999) -
-                                    (b.display_order || 999)
-                            );
+        if (result.success) {
+          const activeCategories = result.data
+            .filter(
+              (item) =>
+                item.is_active === true &&
+                item.parent_id === null
+            )
+            .sort((a, b) =>
+              a.name.localeCompare(b.name, undefined, {
+                sensitivity: "base",
+              })
+            );
 
-                    setMaterials(activeCategories);
-                }
-            } catch (error) {
-                console.error(
-                    'Error fetching materials:',
-                    error
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
+          setMaterials(activeCategories);
+        }
+      } catch (error) {
+        console.error(
+          'Error fetching materials:',
+          error
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        fetchMaterials();
-    }, []);
+    fetchMaterials();
+  }, []);
 
-    if (loading) {
-        return (
-            <div
-                className="
+  if (loading) {
+    return (
+      <div
+        className="
           min-h-screen
           flex
           items-center
           justify-center
           bg-[#f3f3f3]
         "
-            >
-                <Loading />
-            </div>
-        );
-    }
+      >
+        <Loading />
+      </div>
+    );
+  }
 
-    return (
-        <>
-            <Navbar />
+  const getInitials = (name = "") => {
+    return name
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
+  };
 
-            <div
-                className="
+  return (
+    <>
+      <Navbar />
+
+      <div
+        className="
           bg-[#f3f3f3]
           min-h-screen
           pt-[110px]
         "
-            >
-                {/* HEADING */}
+      >
+        {/* HEADING */}
 
-                <section>
-                    <div
-                        className="
+        <section>
+          <div
+            className="
               max-w-[1650px]
               mx-auto
               px-6
               xl:px-10
             "
-                    >
-                        <h1
-                            className="
+          >
+            <h1
+              className="
                 text-[34px]
                 md:text-[42px]
                 font-semibold
                 text-[#161412]
                 leading-none
               "
-                            style={{
-                                fontFamily:
-                                    'Montserrat, sans-serif',
-                            }}
-                        >
-                            Material Portfolio
-                        </h1>
+              style={{
+                fontFamily:
+                  'Montserrat, sans-serif',
+              }}
+            >
+              Material Portfolio
+            </h1>
 
-                        <div
-                            className="
+            <div
+              className="
                 w-[70px]
                 h-[4px]
                 bg-[#c91f26]
                 mt-4
                 mb-4
               "
-                        />
+            />
 
-                        <p
-  className="
+            <p
+              className="
   text-[13px]
   text-[#777]
   "
-  style={{
-    fontFamily:
-      "Montserrat, sans-serif",
-  }}
->
-  <Link
-    to="/"
-    className="
+              style={{
+                fontFamily:
+                  "Montserrat, sans-serif",
+              }}
+            >
+              <Link
+                to="/"
+                className="
     hover:text-[#161412]
     duration-300
     "
-  >
-    Home
-  </Link>
+              >
+                Home
+              </Link>
 
-  {" / "}
+              {" / "}
 
-  <span className="text-[#161412]">
-    <b>Material Portfolio</b>
-  </span>
-</p>
+              <span className="text-[#161412]">
+                <b>Material Portfolio</b>
+              </span>
+            </p>
 
-                        <p
-                            className="
+            <p
+              className="
                 text-[13px]
                 text-[#777]
                 mt-3
               "
-                            style={{
-                                fontFamily:
-                                    'Montserrat, sans-serif',
-                            }}
-                        >
-                            Showing all{' '}
-                            {materials.length} categories
-                        </p>
-                    </div>
-                </section>
+              style={{
+                fontFamily:
+                  'Montserrat, sans-serif',
+              }}
+            >
+              Showing all{' '}
+              {materials.length} categories
+            </p>
+          </div>
+        </section>
 
-                {/* CATEGORIES */}
+        {/* CATEGORIES */}
 
-                <section
-                    className="
-            max-w-[1650px]
-            mx-auto
-            px-6
-            xl:px-10
-            pt-12
-            pb-24
-          "
-                >
-                    <div
-                        className="
-              grid
-              grid-cols-1
-              md:grid-cols-2
-              gap-6
-            "
-                    >
-                        {materials.map((item) => (
-<div
-  key={item.id}
-  onClick={() => navigate(`/product-category/${item.slug}`)}
-  className="group cursor-pointer"
->
-  <div
-    className="
-      relative
-      overflow-hidden
-      rounded-2xl
-      aspect-[3/4]
-      bg-neutral-200
+        <section
+          className="
+    max-w-[1650px]
+    mx-auto
+    px-6
+    xl:px-10
+    py-15
+  "
+        >
+          <div
+            className="
+      grid
+      grid-cols-1
+      sm:grid-cols-2
+      lg:grid-cols-3
+      xl:grid-cols-4
+      gap-8
     "
-  >
-    <img
-      src={
-        item.thumbnail_url ||
-        item.banner_url ||
-        '/placeholder.jpg'
-      }
-      alt={item.name}
-      className="
+          >
+            {materials.map((item) => (
+              <div
+                key={item.id}
+                onClick={() =>
+                  navigate(`/product-category/${item.slug}`)
+                }
+                className="
+          group
+          cursor-pointer
+        "
+              >
+                {/* Image */}
+
+                <div
+                  className="
+    overflow-hidden
+    rounded-xl
+    bg-[#ececec]
+    aspect-[4/5]
+    relative
+  "
+                >
+                  {item.thumbnail_url || item.banner_url ? (
+                    <img
+                      src={item.thumbnail_url || item.banner_url}
+                      alt={item.name}
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        e.target.nextSibling.style.display = "flex";
+                      }}
+                      className="
         w-full
         h-full
         object-cover
-        transition-all
+        transition-transform
         duration-700
-        group-hover:scale-110
+        group-hover:scale-105
       "
-    />
+                    />
+                  ) : null}
 
-    <div
-      className="
-        absolute
-        inset-0
-        bg-gradient-to-t
-        from-black/75
-        via-black/10
-        to-transparent
-      "
-    />
+                  <div
+                    style={{
+                      display:
+                        item.thumbnail_url || item.banner_url
+                          ? "none"
+                          : "flex",
+                    }}
+                    className="
+      absolute
+      inset-0
+      items-center
+      justify-center
+      bg-gradient-to-br
+      from-neutral-100
+      to-neutral-300
+      text-[#555]
+      text-6xl
+      font-bold
+      tracking-wider
+      select-none
+    "
+                  >
+                    {getInitials(item.name)}
+                  </div>
+                </div>
 
-    <div className="absolute bottom-3 left-3 right-3">
-      <h2
-        className="
-          text-white
-          text-[11px]
-          md:text-[12px]
-          font-medium
-          uppercase
-          tracking-[2px]
-        "
-      >
-        {item.name}
-      </h2>
-    </div>
-  </div>
-</div>
-                        ))}
-                    </div>
-                </section>
-            </div>
+                {/* Content */}
 
-            <Footer />
-        </>
-    );
+                <div
+                  className="
+            flex
+            items-center
+            justify-between
+            border-b
+            border-[#e5e5e5]
+            py-5
+          "
+                >
+                  <div>
+                    <h2
+                      className="
+                text-[18px]
+                font-semibold
+                text-[#161412]
+              "
+                      style={{
+                        fontFamily:
+                          "Montserrat, sans-serif",
+                      }}
+                    >
+                      {item.name}
+                    </h2>
+
+                    <p
+                      className="
+                text-[12px]
+                text-[#888]
+                uppercase
+                tracking-[2px]
+                mt-1
+              "
+                    >
+                      Explore Collection
+                    </p>
+                  </div>
+
+                  <div
+                    className="
+              text-[22px]
+              transition-transform
+              duration-300
+              group-hover:translate-x-2
+            "
+                  >
+                    →
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <Footer />
+    </>
+  );
 }

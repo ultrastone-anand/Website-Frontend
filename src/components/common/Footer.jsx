@@ -1,8 +1,9 @@
 // src/components/common/Footer.jsx
 
 import axios from "axios";
-import { MapPin, Phone, Clock3, Home, Building2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { MapPin, Phone, Clock3, Home, Building2 } from "lucide-react";
 
 import {
   FaHouzz,
@@ -22,6 +23,19 @@ const Footer = () => {
   const [showrooms, setShowrooms] = useState([]);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterLoading, setNewsletterLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const companyLinks = [
+    { label: "About Us", path: "/aboutus" },
+    { label: "The Experience", path: "/ourprocess" },
+    { label: "Material Portfolio", path: "/categories" },
+    { label: "CEU", path: "/ceu" },
+    { label: "Blog", path: "/blogs" },
+    { label: "Resource Library", path: "/resource-library" },
+    { label: "Contact", path: "/contact" },
+    // { label: "Privacy Policy", path: "/privacy-policy" },
+  ];
 
   const fetchSocials = async () => {
     try {
@@ -77,65 +91,65 @@ const Footer = () => {
     houzz: FaHouzz,
   };
 
-  
-const handleSubscribe = async () => {
 
-  const emailRegex =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const handleSubscribe = async () => {
 
-  if (!newsletterEmail.trim()) {
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    alert("Please enter email");
+    if (!newsletterEmail.trim()) {
 
-    return;
+      alert("Please enter email");
 
-  }
+      return;
 
-  if (
-    !emailRegex.test(
-      newsletterEmail
-    )
-  ) {
+    }
 
-    alert(
-      "Please enter a valid email address"
-    );
+    if (
+      !emailRegex.test(
+        newsletterEmail
+      )
+    ) {
 
-    return;
+      alert(
+        "Please enter a valid email address"
+      );
 
-  }
+      return;
 
-  try {
+    }
 
-    setNewsletterLoading(true);
+    try {
 
-    await axios.post(
-      `${import.meta.env.VITE_API_URL}/newsletter/subscribe`,
-      {
-        email: newsletterEmail
-      }
-    );
+      setNewsletterLoading(true);
 
-    alert(
-      "Successfully subscribed"
-    );
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/newsletter/subscribe`,
+        {
+          email: newsletterEmail
+        }
+      );
 
-    setNewsletterEmail("");
+      alert(
+        "Successfully subscribed"
+      );
 
-  } catch (error) {
+      setNewsletterEmail("");
 
-    alert(
-      error.response?.data?.message ||
-      "Something went wrong"
-    );
+    } catch (error) {
 
-  } finally {
+      alert(
+        error.response?.data?.message ||
+        "Something went wrong"
+      );
 
-    setNewsletterLoading(false);
+    } finally {
 
-  }
+      setNewsletterLoading(false);
 
-};
+    }
+
+  };
 
   return (
     <footer className="relative overflow-hidden text-white">
@@ -200,29 +214,21 @@ const handleSubscribe = async () => {
             </h3>
 
             <div className="space-y-2">
-              {[
-                "About Us",
-                "The Experience",
-                "Material Portfolio",
-                "CEU",
-                "Blog",
-                "Resource Library",
-                "Contact",
-                "Privacy Policy",
-              ].map((item) => (
+              {companyLinks.map((item) => (
                 <button
-                  key={item}
+                  key={item.label}
+                  onClick={() => navigate(item.path)}
                   className="
-                  block
-                  text-left
-                  text-[13px]
-                  text-white/80
-                  hover:text-white
-                  transition-all
-                  duration-300
-                  "
+        block
+        text-left
+        text-[13px]
+        text-white/80
+        hover:text-white
+        transition-all
+        duration-300
+      "
                 >
-                  {item}
+                  {item.label}
                 </button>
               ))}
             </div>
@@ -300,7 +306,7 @@ const handleSubscribe = async () => {
         >
           {/* LOGO */}
 
-          <div className="flex items-center gap-5"
+          <div className="flex items-center gap-5 cursor-pointer"
             onClick={() => {
               window.scrollTo({
                 top: 0,
@@ -456,11 +462,23 @@ const FooterLocation = ({ title, address, phone1, phone2, fax }) => {
       {/* CONTENT */}
 
       <div className="space-y-4">
-        <InfoRow icon={<Home size={13} />} text={address} />
+        <InfoRow
+  icon={<Home size={13} />}
+  text={address}
+  type="address"
+/>
 
-        <InfoRow icon={<Phone size={13} />} text={`${phone1}\n${phone2}`} />
+        <InfoRow
+  icon={<Phone size={13} />}
+  text={`${phone1}\n${phone2}`}
+  type="phone"
+/>
 
-        <InfoRow icon={<Building2 size={13} />} text={fax} />
+       <InfoRow
+  icon={<Building2 size={13} />}
+  text={fax}
+  type="phone"
+/>
       </div>
     </div>
   );
@@ -470,21 +488,65 @@ const FooterLocation = ({ title, address, phone1, phone2, fax }) => {
 /* INFO ROW */
 /* -------------------------------- */
 
-const InfoRow = ({ icon, text }) => {
+const InfoRow = ({ icon, text, type }) => {
+  const renderContent = () => {
+    if (!text) return null;
+
+    if (type === "phone") {
+      return text.split("\n").map((number, index) => (
+        <a
+          key={index}
+          href={`tel:${number.replace(/\s+/g, "")}`}
+          className="block hover:text-white transition-colors"
+        >
+          {number}
+        </a>
+      ));
+    }
+
+    if (type === "email") {
+      return (
+        <a
+          href={`mailto:${text}`}
+          className="hover:text-white transition-colors"
+        >
+          {text}
+        </a>
+      );
+    }
+
+    if (type === "address") {
+      return (
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            text
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-white transition-colors"
+        >
+          {text}
+        </a>
+      );
+    }
+
+    return text;
+  };
+
   return (
     <div className="flex gap-3">
       <div className="mt-1 text-white/80">{icon}</div>
 
-      <p
+      <div
         className="
-        text-[13px]
-        leading-[1.4]
-        text-white/80
-        whitespace-pre-line
+          text-[13px]
+          leading-[1.4]
+          text-white/80
+          whitespace-pre-line
         "
       >
-        {text}
-      </p>
+        {renderContent()}
+      </div>
     </div>
   );
 };

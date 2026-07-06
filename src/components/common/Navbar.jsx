@@ -146,6 +146,17 @@ const Navbar = () => {
     },
   ];
 
+  const locations = [
+    {
+      label: "New York",
+      path: "/locations/new-york",
+    },
+    {
+      label: "Philadelphia",
+      path: "/locations/philadelphia",
+    },
+  ];
+
   return (
     <header
       className={`
@@ -270,9 +281,14 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
               scrolled={useDarkNavbar}
             />
 
-            <NavLink
-              title="Location"
-              onClick={() => navigate("/locations")}
+            <Dropdown
+              title="Locations"
+              items={locations}
+              activeDropdown={activeDropdown}
+              dropdownKey="locations"
+              openDropdown={openDropdown}
+              closeDropdown={closeDropdown}
+              navigate={navigate}
               scrolled={useDarkNavbar}
             />
 

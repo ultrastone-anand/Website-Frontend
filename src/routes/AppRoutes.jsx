@@ -49,7 +49,7 @@ const AppRoutes = () => {
             />
 
             <Route
-                path="/locations"
+                path="/locations/:slug"
                 element={<Location />}
             />
 

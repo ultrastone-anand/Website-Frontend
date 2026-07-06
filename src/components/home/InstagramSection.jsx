@@ -1,4 +1,9 @@
+import { useNavigate } from "react-router-dom";
+
 const InstagramSection = () => {
+
+  const navigate = useNavigate();
+
   return (
     <section className="bg-white py-[48px]">
       <div className="mx-auto">
@@ -39,16 +44,18 @@ const InstagramSection = () => {
 
               <div className="mt-9 flex flex-wrap gap-14">
                 <button
-                  className="bg-[#ff8a00] px-7 py-4 text-[13px] font-bold uppercase text-white"
+                  className="bg-[#ff8a00] px-7 py-4 text-[13px] font-bold uppercase text-white hover:bg-white hover:text-[#ff8a00] cursor-pointer transition-all duration-300"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
+                  onClick={() => navigate("/contact")}
                 >
                   CONTACT OUR TEAM
                   <span className="ml-4">→</span>
                 </button>
 
                 <button
-                  className="border border-white/70 px-7 py-4 text-[13px] font-bold uppercase text-white"
+                  className="border border-white/70 px-7 py-4 text-[13px] font-bold uppercase text-white cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#161412]"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
+                  onClick={() => navigate("/categories")}
                 >
                   VIEW COLLECTIONS
                   <span className="ml-4 text-[#ff8a00]">→</span>
