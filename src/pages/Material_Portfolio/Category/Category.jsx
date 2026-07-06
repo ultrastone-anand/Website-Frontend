@@ -203,7 +203,6 @@ export default function Category() {
                 <div
                   className="
     overflow-hidden
-    rounded-xl
     bg-[#ececec]
     aspect-[4/5]
     relative
