@@ -129,6 +129,18 @@ const ProductDetails = () => {
     }
   };
 
+      useEffect(() => {
+  if (!openPreview) return undefined;
+
+  const handleEsc = (e) => {
+    if (e.key === "Escape") setOpenPreview(false);
+  };
+
+  window.addEventListener("keydown", handleEsc);
+
+  return () => window.removeEventListener("keydown", handleEsc);
+}, [openPreview]);
+
   if (!product) {
     return (
       <div
@@ -437,6 +449,8 @@ const ProductDetails = () => {
     product.silica_datasheet_url ||
     product.stone_categories?.silica_datasheet_url;
 
+
+
   return (
     <>
       <SEO {...normalizeProductSeo(product, categorySlug)} />
@@ -563,39 +577,36 @@ const ProductDetails = () => {
       xl:min-h-[640px]
     "
   >
-    <div
-      onClick={() => setOpenPreview(true)}
-      className="cursor-zoom-in"
+<div onClick={() => setOpenPreview(true)} className="cursor-zoom-in">
+  {openPreview ? null : activeMedia?.media_type === "FEATURED_VIDEO" ? (
+    <video
+      key={activeMedia.media_url}
+      className="w-full h-[520px] xl:h-[640px] object-cover"
+      autoPlay
+      muted
+      loop
+      playsInline
     >
-      {activeMedia?.media_type === "FEATURED_VIDEO" ? (
-        <video
-          key={activeMedia.media_url}
-          className="w-full h-[520px] xl:h-[640px] object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-        >
-          <source src={activeMedia.media_url} type="video/mp4" />
-        </video>
-      ) : (
-        <img
-          loading="lazy"
-          decoding="async"
-          src={activeMedia?.media_url}
-          alt={product.name}
-          className="
-            w-full
-            h-[520px]
-            xl:h-[640px]
-            object-cover
-            transition-transform
-            duration-700
-            group-hover:scale-[1.015]
-          "
-        />
-      )}
-    </div>
+      <source src={activeMedia.media_url} type="video/mp4" />
+    </video>
+  ) : (
+    <img
+      loading="lazy"
+      decoding="async"
+      src={activeMedia?.media_url}
+      alt={product.name}
+      className="
+        w-full
+        h-[520px]
+        xl:h-[640px]
+        object-cover
+        transition-transform
+        duration-700
+        group-hover:scale-[1.015]
+      "
+    />
+  )}
+</div>
 
     {/* TOP GLASS BAR */}
     <div
@@ -703,154 +714,76 @@ const ProductDetails = () => {
       </>
     )}
 
-    {/* INSIDE THUMBNAIL STRIP */}
-    {heroImages.length > 1 && (
-      <div
-        className="
-          absolute
-          left-5
-          right-5
-          bottom-5
-          z-30
-          bg-black/25
-          backdrop-blur-2xl
-          border
-          border-white/15
-          p-3
-          shadow-2xl
-        "
-      >
-        <div
-          className="
-            flex
-            gap-3
-            overflow-x-auto
-            scrollbar-hide
-            snap-x
-            snap-mandatory
-          "
-        >
-          {heroImages.map((item, index) => (
-            <button
-              key={`${item.media_url}-${index}`}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveImage(index);
-              }}
-              className={`
-                relative
-                min-w-[86px]
-                h-[64px]
-                overflow-hidden
-                snap-start
-                border
-                transition-all
-                duration-300
-                ${
-                  activeImage === index
-                    ? "border-white scale-[1.04] opacity-100"
-                    : "border-white/20 opacity-55 hover:opacity-100"
-                }
-              `}
-            >
-              {item.media_type === "FEATURED_VIDEO" ? (
-                <>
-                  <video
-                    src={item.media_url}
-                    className="w-full h-full object-cover"
-                    muted
-                    playsInline
-                  />
-
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <span
-                      className="
-                        w-8
-                        h-8
-                        rounded-full
-                        bg-white/90
-                        text-black
-                        flex
-                        items-center
-                        justify-center
-                        text-[10px]
-                        font-bold
-                      "
-                    >
-                      ▶
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <img
-                  src={item.media_url}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-              )}
-
-              {activeImage === index && (
-                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white" />
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-    )}
   </div>
 
-  {openPreview && (
-    <div
-      className="
-        fixed
-        inset-0
-        z-[9999]
-        bg-black/95
-        flex
-        items-center
-        justify-center
-        p-6
-      "
+{openPreview && (
+  <div
+    className="
+      fixed
+      inset-0
+      z-[9999]
+      bg-black
+      flex
+      items-center
+      justify-center
+      p-4
+    "
+    onClick={() => setOpenPreview(false)}
+  >
+    <button
+      type="button"
       onClick={() => setOpenPreview(false)}
+      className="
+        absolute
+        top-5
+        right-6
+        text-white
+        text-5xl
+        z-20
+        leading-none
+      "
     >
-      <button
-        type="button"
-        onClick={() => setOpenPreview(false)}
-        className="
-          absolute
-          top-6
-          right-6
-          text-white
-          text-5xl
-          z-10
-          leading-none
-        "
-      >
-        ×
-      </button>
+      ×
+    </button>
 
-      {activeMedia?.media_type === "FEATURED_VIDEO" ? (
-        <video
-          src={activeMedia.media_url}
-          className="max-w-full max-h-full object-contain"
-          controls
-          autoPlay
-          playsInline
-          onClick={(e) => e.stopPropagation()}
-        />
-      ) : (
-        <img
-          loading="lazy"
-          decoding="async"
-          src={activeMedia.media_url}
-          alt={product.name}
-          className="max-w-full max-h-full object-contain"
-          onClick={(e) => e.stopPropagation()}
-        />
-      )}
-    </div>
-  )}
+    {activeMedia?.media_type === "FEATURED_VIDEO" ? (
+      <video
+        key={`preview-${activeMedia.media_url}`}
+        src={activeMedia.media_url}
+        className="
+          relative
+          z-10
+          max-w-[94vw]
+          max-h-[88vh]
+          w-auto
+          h-auto
+          object-contain
+          bg-black
+        "
+        controls
+        autoPlay
+        muted
+        playsInline
+        onClick={(e) => e.stopPropagation()}
+      />
+    ) : (
+      <img
+        loading="lazy"
+        decoding="async"
+        src={activeMedia.media_url}
+        alt={product.name}
+        className="
+          relative
+          z-10
+          max-w-[94vw]
+          max-h-[88vh]
+          object-contain
+        "
+        onClick={(e) => e.stopPropagation()}
+      />
+    )}
+  </div>
+)}
 </div>
 
               {/* RIGHT CONTENT */}
