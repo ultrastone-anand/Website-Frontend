@@ -42,12 +42,12 @@ const ProductDetails = () => {
 const description = product?.long_description || product?.small_description || "";
 const shouldTruncate = description.length > 300;
 
-  const [zoomStyle, setZoomStyle] = useState({
-    backgroundImage: "",
-    backgroundPosition: "0% 0%",
-    opacity: 0,
-  });
-
+const [zoomStyle, setZoomStyle] = useState({
+  backgroundImage: "",
+  backgroundPosition: "50% 50%",
+  backgroundSize: "1000%",
+  opacity: 0,
+});
   const [lensPosition, setLensPosition] = useState({
     x: 0,
     y: 0,
@@ -820,11 +820,12 @@ const fetchRelatedProducts = async (categorySlug, currentSlug) => {
                       visible: true,
                     });
 
-                    setZoomStyle({
-                      backgroundImage: `url(${images[0]?.media_url})`,
-                      backgroundPosition: `${xPercent}% ${yPercent}%`,
-                      opacity: 1,
-                    });
+setZoomStyle({
+  backgroundImage: `url("${images[0]?.media_url}")`,
+  backgroundPosition: `${xPercent}% ${yPercent}%`,
+  backgroundSize: "1000%",
+  opacity: 1,
+});
                   }}
                   onMouseLeave={() => {
                     setLensPosition((prev) => ({
@@ -868,14 +869,14 @@ const fetchRelatedProducts = async (categorySlug, currentSlug) => {
       overflow-hidden
       "
                       style={{
-                        left: lensPosition.x,
-                        top: lensPosition.y,
-                        transform: "translate(-50%, -50%)",
-                        backgroundImage: zoomStyle.backgroundImage,
-                        backgroundRepeat: "no-repeat",
-                        backgroundSize: "1000%",
-                        backgroundPosition: zoomStyle.backgroundPosition,
-                      }}
+  left: lensPosition.x,
+  top: lensPosition.y,
+  transform: "translate(-50%, -50%)",
+  backgroundImage: zoomStyle.backgroundImage,
+  backgroundRepeat: "no-repeat",
+  backgroundSize: zoomStyle.backgroundSize,
+  backgroundPosition: zoomStyle.backgroundPosition,
+}}
                     />
                   )}
                 </div>
