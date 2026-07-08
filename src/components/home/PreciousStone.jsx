@@ -38,20 +38,32 @@ const getRandomImage = (images) => {
 const PreciousStoneSection = () => {
   const [galleryImages, setGalleryImages] = useState([]);
 
-  useEffect(() => {
-    const fetchGalleryImages = async () => {
-      try {
-        const response = await fetch(`${API_URL}/inspiration-gallery/images`);
-        const data = await response.json();
+useEffect(() => {
+  const controller = new AbortController();
 
-        setGalleryImages(data.data || []);
-      } catch (error) {
+  const fetchGalleryImages = async () => {
+    try {
+      const response = await fetch(
+        `${API_URL}/inspiration-gallery/images?limit=30`,
+        {
+          signal: controller.signal,
+        }
+      );
+
+      const data = await response.json();
+
+      setGalleryImages(data.data || []);
+    } catch (error) {
+      if (error.name !== "AbortError") {
         console.error("Failed to fetch inspiration gallery images:", error);
       }
-    };
+    }
+  };
 
-    fetchGalleryImages();
-  }, []);
+  fetchGalleryImages();
+
+  return () => controller.abort();
+}, []);
 
   const applicationImages = useMemo(
     () =>
