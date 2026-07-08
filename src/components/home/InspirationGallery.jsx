@@ -3,7 +3,6 @@ import { Columns2, Grid2x2, Square } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const INITIAL_LIMIT = 15;
-// const LOAD_MORE_LIMIT = 18;
 
 const GalleryCard = memo(({ image, className, imageClassName, onClick }) => (
   <div
@@ -27,7 +26,6 @@ const InspirationGallery = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [categories, setCategories] = useState([]);
   const [galleryImages, setGalleryImages] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(INITIAL_LIMIT);
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
@@ -39,7 +37,8 @@ const InspirationGallery = () => {
           fetch(`${API_URL}/inspiration-gallery/categories`, {
             signal: controller.signal,
           }),
-          fetch(`${API_URL}/inspiration-gallery/images`, {
+
+          fetch(`${API_URL}/inspiration-gallery/images?limit=${INITIAL_LIMIT}`, {
             signal: controller.signal,
           }),
         ]);
@@ -61,10 +60,6 @@ const InspirationGallery = () => {
     return () => controller.abort();
   }, []);
 
-  useEffect(() => {
-    setVisibleCount(INITIAL_LIMIT);
-  }, [activeFilter, layout]);
-
   const filters = useMemo(
     () => ["All", ...categories.map((category) => category.name)],
     [categories]
@@ -77,13 +72,6 @@ const InspirationGallery = () => {
       (image) => image.inspiration_gallery_categories?.name === activeFilter
     );
   }, [activeFilter, galleryImages]);
-
-  const visibleImages = useMemo(
-    () => filteredImages.slice(0, visibleCount),
-    [filteredImages, visibleCount]
-  );
-
-  const hasMore = visibleCount < filteredImages.length;
 
   const iconClass = (type) =>
     `cursor-pointer transition-colors duration-200 ${
@@ -162,41 +150,38 @@ const InspirationGallery = () => {
         </div>
 
         {filteredImages.length > 0 ? (
-          <>
-            {layout === "grid" ? (
-              <div className="min-h-[760px] overflow-x-auto overflow-y-hidden">
-                <div
-                  className="grid w-max grid-flow-col grid-rows-3 gap-5 pb-3"
-                  style={{ gridAutoColumns: "320px" }}
-                >
-                  {visibleImages.map((image, index) => (
-                    <GalleryCard
-                      key={image.id}
-                      image={image}
-                      onClick={setSelectedImage}
-                      className="h-[240px] w-[320px]"
-                      imageClassName="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                    />
-                  ))}
-                </div>
+          layout === "grid" ? (
+            <div className="min-h-[760px] overflow-x-auto overflow-y-hidden">
+              <div
+                className="grid w-max grid-flow-col grid-rows-3 gap-5 pb-3"
+                style={{ gridAutoColumns: "320px" }}
+              >
+                {filteredImages.map((image) => (
+                  <GalleryCard
+                    key={image.id}
+                    image={image}
+                    onClick={setSelectedImage}
+                    className="h-[240px] w-[320px]"
+                    imageClassName="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                ))}
               </div>
-            ) : (
-              <div className="min-h-[700px] overflow-x-auto">
-                <div className="flex flex-nowrap gap-5 pb-3">
-                  {visibleImages.map((image) => (
-                    <GalleryCard
-                      key={image.id}
-                      image={image}
-                      onClick={setSelectedImage}
-                      className={`flex-shrink-0 ${getImageCardClass()}`}
-                      imageClassName="h-full w-full object-cover"
-                    />
-                  ))}
-                </div>
+            </div>
+          ) : (
+            <div className="min-h-[700px] overflow-x-auto">
+              <div className="flex flex-nowrap gap-5 pb-3">
+                {filteredImages.map((image) => (
+                  <GalleryCard
+                    key={image.id}
+                    image={image}
+                    onClick={setSelectedImage}
+                    className={`flex-shrink-0 ${getImageCardClass()}`}
+                    imageClassName="h-full w-full object-cover"
+                  />
+                ))}
               </div>
-            )}
-
-          </>
+            </div>
+          )
         ) : (
           <div className="flex h-[700px] items-center justify-center rounded border border-[#ECECEC] bg-[#FAFAFA]">
             <div className="text-center">
