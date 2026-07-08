@@ -2,8 +2,8 @@ import { memo, useEffect, useMemo, useState } from "react";
 import { Columns2, Grid2x2, Square } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const INITIAL_LIMIT = 18;
-const LOAD_MORE_LIMIT = 18;
+const INITIAL_LIMIT = 15;
+// const LOAD_MORE_LIMIT = 18;
 
 const GalleryCard = memo(({ image, className, imageClassName, onClick }) => (
   <div
@@ -196,19 +196,6 @@ const InspirationGallery = () => {
               </div>
             )}
 
-            {hasMore && (
-              <div className="mt-8 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setVisibleCount((prev) => prev + LOAD_MORE_LIMIT)
-                  }
-                  className="border border-black px-8 py-3 text-[12px] font-semibold uppercase tracking-[1.5px] text-black transition hover:bg-black hover:text-white"
-                >
-                  Load More
-                </button>
-              </div>
-            )}
           </>
         ) : (
           <div className="flex h-[700px] items-center justify-center rounded border border-[#ECECEC] bg-[#FAFAFA]">

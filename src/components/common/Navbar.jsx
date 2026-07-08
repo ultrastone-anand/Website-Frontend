@@ -165,6 +165,7 @@ const Navbar = () => {
     left-0
     w-full
     z-50
+    pt-1
     transition-all
     duration-500
     ${scrolled
