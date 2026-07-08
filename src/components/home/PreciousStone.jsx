@@ -1,43 +1,95 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const applications = [
   {
     title: "BATHROOM",
     desc: "Luxury Vanities",
-    image:
-      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1200&auto=format&fit=crop",
+    categoryNames: ["Bathroom", "Bathrooms"],
   },
   {
     title: "KITCHENS",
     desc: "Statement Countertops",
-    image:
-      "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1200&auto=format&fit=crop",
+    categoryNames: ["Kitchen", "Kitchens"],
   },
   {
     title: "EXTERIORS",
     desc: "Architectural Facades",
-    image:
-      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?q=80&w=1200&auto=format&fit=crop",
+    categoryNames: ["Outdoors", "Outdoor", "Facades", "Exteriors"],
   },
 ];
 
+const fallbackImages = [
+  "https://cdn.ultrastone.in/Home%20Page/inspiration%20galleries/bathroom/1783518137508-32b313c4-3b86-43c5-81d6-24b3d075c486-1783518137466-c234cb81-8026-4796-83a1-921ff406afea-bathroom.jpg",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?q=80&w=1200&auto=format&fit=crop",
+];
+
+const getRandomImage = (images) => {
+  if (!images.length) return null;
+
+  const randomIndex = Math.floor(Math.random() * images.length);
+
+  return images[randomIndex];
+};
+
 const PreciousStoneSection = () => {
+  const [galleryImages, setGalleryImages] = useState([]);
+
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        const response = await fetch(`${API_URL}/inspiration-gallery/images`);
+        const data = await response.json();
+
+        setGalleryImages(data.data || []);
+      } catch (error) {
+        console.error("Failed to fetch inspiration gallery images:", error);
+      }
+    };
+
+    fetchGalleryImages();
+  }, []);
+
+  const applicationImages = useMemo(
+    () =>
+      applications.map((application, index) => {
+        const matchedImages = galleryImages.filter((image) =>
+          application.categoryNames.includes(
+            image.inspiration_gallery_categories?.name
+          )
+        );
+
+        const randomImage = getRandomImage(matchedImages);
+
+        return {
+          ...application,
+          image: randomImage?.image_url || fallbackImages[index],
+        };
+      }),
+    [galleryImages]
+  );
+
   return (
-    <section className="bg-[#222221] py-[72px]">
-      <div className="mx-auto grid max-w-[1650px] grid-cols-1 gap-14 px-6 xl:px-[52px] lg:grid-cols-[420px_1fr]">
-        {/* Left Content */}
-        <div className="flex flex-col justify-center">
+    <section className="bg-[#222221] py-12 md:py-16 xl:py-[70px]">
+      <div className="mx-auto flex max-w-[1850px] flex-col gap-12 px-5 sm:px-6 md:px-8 xl:flex-row xl:items-center xl:justify-between xl:px-[70px]">
+        <div className="w-full xl:w-[430px] xl:shrink-0">
           <p
-            className="flex items-center gap-7 text-[22px] font-bold uppercase tracking-[0.01em] text-white"
+            className="flex items-center gap-4 text-[18px] font-bold uppercase text-white md:text-[18px]"
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
             APPLICATIONS
-            <span className="text-[26px] font-normal text-[#D67A1C]">→</span>
+            <span className="text-[20px] font-normal text-[#D67A1C]">→</span>
           </p>
 
           <h2
-            className="mt-9 text-[42px] font-black uppercase leading-[1.35] tracking-[0.18em] text-white md:text-[50px]"
-            style={{ fontFamily: "Montserrat, sans-serif" }}
+            className="mt-5 text-[25px] uppercase leading-[1.45] tracking-[0.18em] text-white sm:text-[20px] md:text-[20px] xl:text-[24px]"
+            style={{
+              fontFamily: '"BBH Bartle", sans-serif',
+              fontWeight: 400,
+            }}
           >
             ONE STONE.
             <br />
@@ -47,7 +99,7 @@ const PreciousStoneSection = () => {
           </h2>
 
           <p
-            className="mt-11 max-w-[430px] text-[16px] leading-[1.45] text-white/85"
+            className="mt-6 max-w-[360px] text-[13px] leading-[1.6] text-white/85 md:mt-8"
             style={{ fontFamily: "Inter, sans-serif" }}
           >
             From elegant interiors to grand exteriors, Ultra Stones elevates
@@ -56,47 +108,48 @@ const PreciousStoneSection = () => {
 
           <Link
             to="/categories"
-            className="mt-10 inline-flex w-fit items-center border border-white/80 px-8 py-4 text-[14px] font-bold uppercase tracking-[0.01em] text-white transition duration-300 hover:bg-white hover:text-black"
+            className="mt-7 inline-flex w-fit items-center border border-white/70 px-5 py-3 text-[11px] font-bold uppercase text-white transition hover:bg-white hover:text-black md:mt-8 md:px-6"
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
             VIEW ALL COLLECTION
-            <span className="ml-8 text-[22px] font-normal text-[#D67A1C]">
+            <span className="ml-5 text-[18px] font-normal text-[#D67A1C]">
               →
             </span>
           </Link>
         </div>
 
-        {/* Application Cards */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {applications.map((item) => (
-            <Link
-              key={item.title}
-              to="/categories"
-              className="group text-center"
-            >
-              <div className="overflow-hidden bg-black">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="h-[420px] w-full object-cover transition duration-700 group-hover:scale-105 lg:h-[520px]"
-                />
-              </div>
-
-              <h3
-                className="mt-4 text-[15px] font-medium uppercase text-white"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
+        <div className="w-full xl:ml-auto xl:max-w-[980px] 2xl:max-w-[1080px]">
+          <div className="grid grid-cols-1 gap-7 sm:grid-cols-3 sm:gap-4 xl:gap-5">
+            {applicationImages.map((item) => (
+              <Link
+                key={item.title}
+                to="/categories"
+                className="group text-center"
               >
-                {item.title}
-              </h3>
+                <div className="overflow-hidden bg-black">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="h-[320px] w-full object-cover transition duration-700 group-hover:scale-105 sm:h-[260px] md:h-[280px] xl:h-[300px] 2xl:h-[340px]"
+                  />
+                </div>
 
-              <p
-                className="mt-2 text-[16px] text-white/45"
-                style={{ fontFamily: "Inter, sans-serif" }}
-              >
-                {item.desc}
-              </p>
-            </Link>
-          ))}
+                <h3
+                  className="mt-4 text-[12px] font-medium uppercase text-white"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  {item.title}
+                </h3>
+
+                <p
+                  className="mt-2 text-[12px] text-white/45"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  {item.desc}
+                </p>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>

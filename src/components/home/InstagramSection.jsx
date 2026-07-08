@@ -11,13 +11,13 @@ const InstagramSection = () => {
           className="relative overflow-hidden bg-cover bg-center"
           style={{
             backgroundImage:
-              "linear-gradient(90deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.70) 33%, rgba(0,0,0,.20) 100%), url('https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1800&auto=format&fit=crop')",
+              "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,.70) 33%, rgba(0,0,0,.20) 100%), url('https://cdn.ultrastone.in/Home%20Page/contact_home.jpg')",
           }}
         >
           <div className="min-h-[520px] px-10 py-20 lg:px-[70px]">
             <div className="max-w-[520px]">
               <p
-                className="text-[16px] font-bold uppercase text-[#ff8a00]"
+                className="text-[16px] font-bold uppercase text-[#FF8000]"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 READY TO BEGIN?
@@ -58,7 +58,7 @@ const InstagramSection = () => {
                   onClick={() => navigate("/categories")}
                 >
                   VIEW COLLECTIONS
-                  <span className="ml-4 text-[#ff8a00]">→</span>
+                  <span className="ml-4 text-[#FF8000]">→</span>
                 </button>
               </div>
 
