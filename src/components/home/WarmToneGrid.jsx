@@ -99,7 +99,7 @@ const WarmToneGrid = () => {
   };
 
   return (
-    <section className="bg-white py-10 md:py-[24px]">
+    <section className="bg-white py-10 md:py-[24px] mb-[70px]">
       <div className="mx-auto max-w-[1850px] px-5 md:px-6 xl:px-[52px]">
         <div className="mb-8 flex items-center justify-between md:mb-[44px]">
           <h2

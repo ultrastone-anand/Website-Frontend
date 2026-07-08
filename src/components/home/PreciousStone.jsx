@@ -85,7 +85,7 @@ useEffect(() => {
   );
 
   return (
-    <section className="bg-[#222221] py-12 md:py-16 xl:py-[70px]">
+    <section className="bg-[#222221] py-12 md:py-16 xl:py-[70px] mb-[70px]">
       <div className="mx-auto flex max-w-[1850px] flex-col gap-12 px-5 sm:px-6 md:px-8 xl:flex-row xl:items-center xl:justify-between xl:px-[70px]">
         <div className="w-full xl:w-[430px] xl:shrink-0">
           <p
@@ -138,13 +138,13 @@ useEffect(() => {
                 to="/categories"
                 className="group text-center"
               >
-                <div className="overflow-hidden bg-black">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="h-[320px] w-full object-cover transition duration-700 group-hover:scale-105 sm:h-[260px] md:h-[280px] xl:h-[300px] 2xl:h-[340px]"
-                  />
-                </div>
+                <div className="overflow-hidden bg-black aspect-[3/5]">
+  <img
+    src={item.image}
+    alt={item.title}
+    className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
+  />
+</div>
 
                 <h3
                   className="mt-4 text-[12px] font-medium uppercase text-white"

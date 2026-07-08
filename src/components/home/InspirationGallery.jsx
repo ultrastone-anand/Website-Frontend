@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Columns2, Grid2x2, Square } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -22,6 +22,9 @@ const GalleryCard = memo(({ image, className, imageClassName, onClick }) => (
 ));
 
 const InspirationGallery = () => {
+  const sectionRef = useRef(null);
+
+  const [shouldFetch, setShouldFetch] = useState(false);
   const [layout, setLayout] = useState("grid");
   const [activeFilter, setActiveFilter] = useState("All");
   const [categories, setCategories] = useState([]);
@@ -29,6 +32,32 @@ const InspirationGallery = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
+    const section = sectionRef.current;
+
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldFetch(true);
+          observer.disconnect();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "300px",
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(section);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!shouldFetch) return;
+
     const controller = new AbortController();
 
     const fetchGalleryData = async () => {
@@ -58,7 +87,7 @@ const InspirationGallery = () => {
     fetchGalleryData();
 
     return () => controller.abort();
-  }, []);
+  }, [shouldFetch]);
 
   const filters = useMemo(
     () => ["All", ...categories.map((category) => category.name)],
@@ -85,7 +114,7 @@ const InspirationGallery = () => {
   };
 
   return (
-    <section className="bg-white py-[42px]">
+    <section ref={sectionRef} className="bg-white py-[42px]">
       <div className="mx-auto max-w-[1850px] px-6 xl:px-[52px]">
         <div className="mb-11 flex items-center justify-between">
           <h2
@@ -149,7 +178,9 @@ const InspirationGallery = () => {
           </div>
         </div>
 
-        {filteredImages.length > 0 ? (
+        {!shouldFetch ? (
+          <div className="h-[760px]" />
+        ) : filteredImages.length > 0 ? (
           layout === "grid" ? (
             <div className="min-h-[760px] overflow-x-auto overflow-y-hidden">
               <div
@@ -213,6 +244,7 @@ const InspirationGallery = () => {
             src={selectedImage.image_url}
             alt={selectedImage.image_alt || selectedImage.title || ""}
             decoding="async"
+            fetchPriority="high"
             className="max-h-[90vh] max-w-[95vw] object-contain"
             onClick={(event) => event.stopPropagation()}
           />

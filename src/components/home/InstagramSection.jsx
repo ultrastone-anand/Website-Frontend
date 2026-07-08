@@ -5,7 +5,7 @@ const InstagramSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="bg-white py-[48px]">
+    <section className="bg-white py-[48px] mb-[70px]">
       <div className="mx-auto">
         <div
           className="relative overflow-hidden bg-cover bg-center"

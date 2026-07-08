@@ -10,7 +10,7 @@ import LatestBlogsSection from "../components/home/LatestBlogsSection"
 
 const Home = () => {
   return (
-    <main className="bg-[#f7f3ee] overflow-hidden">
+    <main className="overflow-hidden">
 
       <Navbar />
 
