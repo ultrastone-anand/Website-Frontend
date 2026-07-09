@@ -229,7 +229,7 @@ const WarmToneGrid = () => {
                 products.map((item) => (
                   <Link
                     key={item.id || item.slug}
-                    to={`/product/${item.slug}`}
+                    to={`/product/${selectedCategory}/${item.slug}`}
                     className="group w-[230px] shrink-0 text-center sm:w-[260px] lg:w-[300px] xl:w-[360px]"
                   >
                     <div className="h-[300px] overflow-hidden bg-[#f1f1f1] sm:h-[340px] lg:h-[400px] xl:h-[460px]">

@@ -1,15 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
 import axios from "axios";
-
-import {
-  ChevronDown,
-  Menu,
-  Search,
-  X,
-} from "lucide-react";
-
+import { ChevronDown, Menu, Search, X } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -17,19 +9,17 @@ const Navbar = () => {
 
   const isHomePage = location.pathname === "/";
 
-  const [mobileMenu, setMobileMenu] =
-    useState(false);
-
-  const [mobileDropdown, setMobileDropdown] =
-    useState(null);
-
-  const [activeDropdown, setActiveDropdown] =
-    useState(null);
-
-  const [materials, setMaterials] = useState(
-    [],
-  );
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const [mobileDropdown, setMobileDropdown] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [materials, setMaterials] = useState([]);
   const [scrolled, setScrolled] = useState(false);
+
+  const dropdownTimeout = useRef(null);
+
+  const isTransparentNavbar = isHomePage && !scrolled;
+  const isLightNavbar = !isHomePage && !scrolled;
+  const isBlackNavbar = scrolled;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,54 +27,33 @@ const Navbar = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
+    handleScroll();
 
-    return () =>
-      window.removeEventListener(
-        "scroll",
-        handleScroll
-      );
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const dropdownTimeout = useRef(null);
-
-  const useDarkNavbar = scrolled || !isHomePage;
-
-  // ================= FETCH CATEGORIES =================
 
   useEffect(() => {
     const fetchMaterials = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/stones`,
+          `${import.meta.env.VITE_API_URL}/stones`
         );
 
         const result = response.data;
 
         if (result.success) {
-          const activeCategories =
-            result.data.filter(
-              (item) =>
-                item.is_active === true,
-            );
-
-          setMaterials(activeCategories);
+          setMaterials(result.data.filter((item) => item.is_active === true));
         }
       } catch (error) {
-        console.error(
-          "Error fetching materials:",
-          error,
-        );
+        console.error("Error fetching materials:", error);
       }
     };
 
     fetchMaterials();
   }, []);
 
-  // ================= DROPDOWN =================
-
   const openDropdown = (menu) => {
     clearTimeout(dropdownTimeout.current);
-
     setActiveDropdown(menu);
   };
 
@@ -94,160 +63,74 @@ const Navbar = () => {
     }, 120);
   };
 
-  // ================= STATIC DATA =================
-
   const experience = [
-    {
-      label: "About Us",
-      path: "/aboutus",
-    },
-    // {
-    //   label: "Showrooms",
-    //   path: "/showrooms",
-    // },
-    // {
-    //   label: "The Slab Pavilion",
-    //   path: "/slab-pavilion",
-    // },
-    {
-      label: "Our Process",
-      path: "/ourprocess",
-    },
+    { label: "About Us", path: "/aboutus" },
+    { label: "Our Process", path: "/ourprocess" },
   ];
 
   const resources = [
-    // {
-    //   label: "Resource Library",
-    //   path: "/resource-library",
-    // },
-    {
-      label: "Merchandising Displays",
-      path: "/merchandising-displays",
-    },
-    // {
-    //   label: "Silica Safety First",
-    //   path: "/silica-safety-first",
-    // },
-    {
-      label: "Videos",
-      path: "/videos",
-    },
-    {
-      label: "Our Blogs",
-      path: "/blogs",
-    },
-    {
-      label: "CEU",
-      path: "/ceu",
-    },
-    {
-      label: "Career",
-      path: "/career",
-    },
+    { label: "Merchandising Displays", path: "/merchandising-displays" },
+    { label: "Videos", path: "/videos" },
+    { label: "Our Blogs", path: "/blogs" },
+    { label: "CEU", path: "/ceu" },
+    { label: "Career", path: "/career" },
   ];
 
   const locations = [
-    {
-      label: "New York",
-      path: "/locations/new-york",
-    },
-    {
-      label: "Philadelphia",
-      path: "/locations/philadelphia",
-    },
+    { label: "New York", path: "/locations/new-york" },
+    { label: "Philadelphia", path: "/locations/philadelphia" },
   ];
 
   return (
     <header
       className={`
-    fixed
-    top-0
-    left-0
-    w-full
-    z-50
-    pt-1
-    transition-all
-    duration-500
-    ${scrolled
-          ? `
-          bg-white/75
-          backdrop-blur-md
-          shadow-md
-        `
-          : `
-          bg-transparent
-        `
+        fixed left-0 top-0 z-50 w-full pt-1 transition-all duration-500
+        ${
+          isBlackNavbar
+            ? "bg-black/65 backdrop-blur-md shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
+            : isLightNavbar
+            ? "bg-white "
+            : "bg-transparent"
         }
-  `}
+      `}
     >
-      <div
-        className="
-        max-w-[1850px]
-        mx-auto
-        px-6
-        xl:px-10
-        "
-      >
-        <div
-          className="
-          h-[88px]
-          flex
-          items-center
-          justify-between
-          gap-8
-          "
-        >
+      <div className="mx-auto max-w-[1850px] px-6 xl:px-10">
+        <div className="flex h-[88px] items-center justify-between gap-8">
           {/* LOGO */}
 
           <div
             className="shrink-0 cursor-pointer"
             onClick={() => {
-              window.scrollTo({
-                top: 0,
-                behavior: "smooth",
-              });
-
+              window.scrollTo({ top: 0, behavior: "smooth" });
               navigate("/");
             }}
           >
             <div className="relative h-[64px] w-[220px]">
-
-              {/* WHITE LOGO */}
               <img
                 src="/logo_white.png"
                 alt="Ultra Stones"
                 className={`
-absolute inset-0 h-full w-auto object-contain
-transition-all duration-500 ease-in-out
-${useDarkNavbar ? "opacity-0" : "opacity-100"}
-`}
+                  absolute inset-0 h-full w-auto object-contain
+                  transition-all duration-500 ease-in-out
+                  ${isLightNavbar ? "opacity-0" : "opacity-100"}
+                `}
               />
 
-              {/* DARK LOGO */}
               <img
                 src="/logo1.svg"
                 alt="Ultra Stones"
                 className={`
-absolute inset-0 h-full w-auto object-contain
-transition-all duration-500 ease-in-out
-${useDarkNavbar ? "opacity-100" : "opacity-0"}
-`}
+                  absolute inset-0 h-full w-auto object-contain
+                  transition-all duration-500 ease-in-out
+                  ${isLightNavbar ? "opacity-100" : "opacity-0"}
+                `}
               />
             </div>
           </div>
 
-
-
           {/* DESKTOP MENU */}
 
-          <nav
-            className="
-            hidden
-            xl:flex
-            items-center
-            gap-10
-            "
-          >
+          <nav className="hidden items-center gap-10 xl:flex">
             <Dropdown
               title="Ultra Experience"
               items={experience}
@@ -256,7 +139,7 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
               navigate={navigate}
-              scrolled={useDarkNavbar}
+              isLightNavbar={isLightNavbar}
             />
 
             <MegaMenu
@@ -268,7 +151,7 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
               navigate={navigate}
-              scrolled={useDarkNavbar}
+              isLightNavbar={isLightNavbar}
             />
 
             <Dropdown
@@ -279,7 +162,7 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
               navigate={navigate}
-              scrolled={useDarkNavbar}
+              isLightNavbar={isLightNavbar}
             />
 
             <Dropdown
@@ -290,95 +173,46 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
               navigate={navigate}
-              scrolled={useDarkNavbar}
+              isLightNavbar={isLightNavbar}
             />
 
             <NavLink
               title="Contact"
               onClick={() => navigate("/contact")}
-              scrolled={useDarkNavbar}
+              isLightNavbar={isLightNavbar}
             />
 
             {/* SEARCH */}
 
-            <div
-              className="
-    hidden
-    lg:flex
-    flex-1
-    max-w-[320px]
-    relative
-  "
-            >
+            <div className="relative hidden max-w-[320px] flex-1 lg:flex">
               <input
                 type="text"
                 placeholder="Search Material"
                 className={`
-      w-full
-      h-[34px]
-      rounded-md
-      px-4
-      pr-10
-      text-[12px]
-      outline-none
-      transition-all
-      duration-300
-      ${useDarkNavbar
-                    ? `
-            bg-[#f5f5f5]
-            border
-            border-gray-300
-            text-black
-            placeholder:text-gray-500
-          `
-                    : `
-            bg-white/10
-            border
-            border-white/30
-            text-white
-            placeholder:text-white/70
-          `
+                  h-[34px] w-full rounded-md border px-4 pr-10 text-[12px]
+                  outline-none transition-all duration-300
+                  ${
+                    isLightNavbar
+                      ? "border-gray-300 bg-white text-black placeholder:text-gray-500"
+                      : "border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-white/40 focus:bg-white/15"
                   }
-    `}
+                `}
               />
 
-              <button
-                className="
-      absolute
-      right-3
-      top-1/2
-      -translate-y-1/2
-    "
-              >
-                <Search
-                  size={14}
-                  color={
-                    scrolled
-                      ? "#000000"
-                      : "#fff9f9"
-                  }
-                />
+              <button className="absolute right-3 top-1/2 -translate-y-1/2">
+                <Search size={14} color={isLightNavbar ? "#111111" : "#fff"} />
               </button>
             </div>
-
           </nav>
 
           {/* MOBILE TOGGLE */}
 
           <button
             className={`
-    xl:hidden
-    transition-all
-    duration-300
-    z-[60]
-    ${useDarkNavbar
-                ? "text-black"
-                : "text-white"
-              }
-  `}
-            onClick={() =>
-              setMobileMenu(!mobileMenu)
-            }
+              z-[60] transition-all duration-300 xl:hidden
+              ${isLightNavbar ? "text-black" : "text-white"}
+            `}
+            onClick={() => setMobileMenu(!mobileMenu)}
           >
             {mobileMenu ? (
               <X size={24} strokeWidth={1.5} />
@@ -391,281 +225,112 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
 
           <div
             className={`
-    xl:hidden
-    fixed
-    top-[88px]
-    left-0
-    w-full
-    h-[calc(100vh-88px)]
-    bg-white
-    backdrop-blur-md
-    text-black
-    z-50
-    overflow-y-auto
-    transition-all
-    duration-500
-    ${mobileMenu
-                ? "translate-x-0 opacity-100"
-                : "translate-x-full opacity-0 pointer-events-none"
+              fixed left-0 top-[88px] z-50 h-[calc(100vh-88px)] w-full
+              overflow-y-auto bg-[#050B18] text-white backdrop-blur-md
+              transition-all duration-500 xl:hidden
+              ${
+                mobileMenu
+                  ? "translate-x-0 opacity-100"
+                  : "translate-x-full opacity-0 pointer-events-none"
               }
-  `}
+            `}
           >
             <div className="px-6 py-8">
-
-              {/* SEARCH */}
-
-              <div className="mb-8" >
-                <div className="relative" bord>
+              <div className="mb-8">
+                <div className="relative">
                   <input
                     type="text"
                     placeholder="Search Material"
                     className="
-            w-full
-            h-[48px]
-            bg-black/5
-            border
-            border-black/10
-            rounded-md
-            px-4
-            pr-12
-            text-sm
-            outline-none
-            placeholder:text-black/50
-          "
+                      h-[48px] w-full rounded-md border border-white/15 bg-white/10
+                      px-4 pr-12 text-sm text-white outline-none placeholder:text-white/50
+                    "
                   />
 
                   <Search
                     size={18}
-                    className="
-            absolute
-            right-4
-            top-1/2
-            -translate-y-1/2
-            text-black/50
-          "
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50"
                   />
                 </div>
               </div>
 
-              {/* ULTRA EXPERIENCE */}
+              <MobileDropdown
+                title="Ultra Experience"
+                dropdownKey="experience"
+                activeDropdown={mobileDropdown}
+                setActiveDropdown={setMobileDropdown}
+                items={experience}
+                navigate={navigate}
+                setMobileMenu={setMobileMenu}
+              />
 
-              <div className="border-b border-black/10">
+              <div className="border-b border-white/10">
                 <button
                   onClick={() =>
                     setMobileDropdown(
-                      mobileDropdown === "experience"
-                        ? null
-                        : "experience"
+                      mobileDropdown === "materials" ? null : "materials"
                     )
                   }
-                  className="
-          flex
-          items-center
-          justify-between
-          w-full
-          py-5
-          uppercase
-          tracking-[2px]
-          text-[13px]
-        "
-                >
-                  Ultra Experience
-
-                  <ChevronDown
-                    size={18}
-                    className={`transition-transform ${mobileDropdown === "experience"
-                      ? "rotate-180"
-                      : ""
-                      }`}
-                  />
-                </button>
-
-                {mobileDropdown ===
-                  "experience" && (
-                    <div className="pb-5 pl-3 space-y-4">
-                      {experience.map((item) => (
-                        <button
-                          key={item.path}
-                          onClick={() => {
-                            navigate(item.path);
-                            setMobileMenu(false);
-                          }}
-                          className="
-                block
-                text-left
-                text-black/70
-                hover:text-black
-                duration-300
-              "
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-              </div>
-
-              {/* MATERIAL PORTFOLIO */}
-
-              <div className="border-b border-black/10">
-                <button
-                  onClick={() =>
-                    setMobileDropdown(
-                      mobileDropdown === "materials"
-                        ? null
-                        : "materials"
-                    )
-                  }
-                  className="
-          flex
-          items-center
-          justify-between
-          w-full
-          py-5
-          uppercase
-          tracking-[2px]
-          text-[13px]
-        "
+                  className="flex w-full items-center justify-between py-5 text-[13px] uppercase tracking-[2px] text-white"
                 >
                   Material Portfolio
-
                   <ChevronDown
                     size={18}
-                    className={`transition-transform ${mobileDropdown === "materials"
-                      ? "rotate-180"
-                      : ""
-                      }`}
+                    className={`transition-transform ${
+                      mobileDropdown === "materials" ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
 
-                {mobileDropdown ===
-                  "materials" && (
-                    <div className="pb-5 pl-3 space-y-4">
-                      {materials
-                        .filter(
-                          (item) =>
-                            item.parent_id === null
-                        )
-                        .map((item) => (
-                          <button
-                            key={item.id}
-                            onClick={() => {
-                              navigate(
-                                `/product-category/${item.slug}`
-                              );
-                              setMobileMenu(false);
-                            }}
-                            className="
-                  block
-                  text-left
-                  text-black/70
-                  hover:text-black
-                  duration-300
-                "
-                          >
-                            {item.name}
-                          </button>
-                        ))}
-                    </div>
-                  )}
-              </div>
-
-              {/* RESOURCE CENTER */}
-
-              <div className="border-b border-black/10">
-                <button
-                  onClick={() =>
-                    setMobileDropdown(
-                      mobileDropdown === "resources"
-                        ? null
-                        : "resources"
-                    )
-                  }
-                  className="
-          flex
-          items-center
-          justify-between
-          w-full
-          py-5
-          uppercase
-          tracking-[2px]
-          text-[13px]
-        "
-                >
-                  Resource Center
-
-                  <ChevronDown
-                    size={18}
-                    className={`transition-transform ${mobileDropdown === "resources"
-                      ? "rotate-180"
-                      : ""
-                      }`}
-                  />
-                </button>
-
-                {mobileDropdown ===
-                  "resources" && (
-                    <div className="pb-5 pl-3 space-y-4">
-                      {resources.map((item) => (
+                {mobileDropdown === "materials" && (
+                  <div className="space-y-4 pb-5 pl-3">
+                    {materials
+                      .filter((item) => item.parent_id === null)
+                      .map((item) => (
                         <button
-                          key={item.path}
+                          key={item.id}
                           onClick={() => {
-                            navigate(item.path);
+                            navigate(`/product-category/${item.slug}`);
                             setMobileMenu(false);
                           }}
-                          className="
-                block
-                text-left
-                text-black/70
-                hover:text-black
-                duration-300
-              "
+                          className="block text-left text-white/70 duration-300 hover:text-white"
                         >
-                          {item.label}
+                          {item.name}
                         </button>
                       ))}
-                    </div>
-                  )}
+                  </div>
+                )}
               </div>
 
-              {/* DIRECT LINKS */}
+              <MobileDropdown
+                title="Resource Center"
+                dropdownKey="resources"
+                activeDropdown={mobileDropdown}
+                setActiveDropdown={setMobileDropdown}
+                items={resources}
+                navigate={navigate}
+                setMobileMenu={setMobileMenu}
+              />
 
-              <button
-                onClick={() => {
-                  navigate("/locations");
-                  setMobileMenu(false);
-                }}
-                className="
-        w-full
-        text-left
-        py-5
-        uppercase
-        tracking-[2px]
-        text-[13px]
-        border-b
-        border-black/10
-      "
-              >
-                Locations
-              </button>
+              <MobileDropdown
+                title="Locations"
+                dropdownKey="locations"
+                activeDropdown={mobileDropdown}
+                setActiveDropdown={setMobileDropdown}
+                items={locations}
+                navigate={navigate}
+                setMobileMenu={setMobileMenu}
+              />
 
               <button
                 onClick={() => {
                   navigate("/contact");
                   setMobileMenu(false);
                 }}
-                className="
-        w-full
-        text-left
-        py-5
-        uppercase
-        tracking-[2px]
-        text-[13px]
-      "
+                className="w-full border-b border-white/10 py-5 text-left text-[13px] uppercase tracking-[2px] text-white"
               >
                 Contact
               </button>
-
             </div>
           </div>
         </div>
@@ -676,25 +341,16 @@ ${useDarkNavbar ? "opacity-100" : "opacity-0"}
 
 export default Navbar;
 
-// ================= NAV LINK =================
-
-const NavLink = ({
-  title,
-  onClick,
-  scrolled,
-}) => {
+const NavLink = ({ title, onClick, isLightNavbar }) => {
   return (
     <button
       onClick={onClick}
       className={`
-        relative
-        text-[11px]
-        uppercase
-        tracking-[1px]
-        duration-300
-        ${scrolled
-          ? "text-[#555] hover:text-black"
-          : "text-white hover:text-white"
+        relative text-[11px] uppercase tracking-[1px] duration-300
+        ${
+          isLightNavbar
+            ? "text-[#444] hover:text-black"
+            : "text-white/85 hover:text-white"
         }
       `}
     >
@@ -703,7 +359,51 @@ const NavLink = ({
   );
 };
 
-// ================= NORMAL DROPDOWN =================
+const MobileDropdown = ({
+  title,
+  dropdownKey,
+  activeDropdown,
+  setActiveDropdown,
+  items,
+  navigate,
+  setMobileMenu,
+}) => {
+  return (
+    <div className="border-b border-white/10">
+      <button
+        onClick={() =>
+          setActiveDropdown(activeDropdown === dropdownKey ? null : dropdownKey)
+        }
+        className="flex w-full items-center justify-between py-5 text-[13px] uppercase tracking-[2px] text-white"
+      >
+        {title}
+        <ChevronDown
+          size={18}
+          className={`transition-transform ${
+            activeDropdown === dropdownKey ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {activeDropdown === dropdownKey && (
+        <div className="space-y-4 pb-5 pl-3">
+          {items.map((item) => (
+            <button
+              key={item.path}
+              onClick={() => {
+                navigate(item.path);
+                setMobileMenu(false);
+              }}
+              className="block text-left text-white/70 duration-300 hover:text-white"
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Dropdown = ({
   title,
@@ -713,114 +413,65 @@ const Dropdown = ({
   openDropdown,
   closeDropdown,
   navigate,
-  scrolled,
+  isLightNavbar,
 }) => {
-  const isActive =
-    activeDropdown === dropdownKey;
+  const isActive = activeDropdown === dropdownKey;
 
   return (
     <div
       className="relative"
-      onMouseEnter={() =>
-        openDropdown(dropdownKey)
-      }
+      onMouseEnter={() => openDropdown(dropdownKey)}
       onMouseLeave={closeDropdown}
     >
       <button
         className={`
-    flex
-    items-center
-    gap-1
-    text-[11px]
-    uppercase
-    tracking-[1px]
-    duration-300
-    ${scrolled
-            ? "text-[#555]"
-            : "text-white"
+          flex items-center gap-1 text-[11px] uppercase tracking-[1px] duration-300
+          ${
+            isLightNavbar
+              ? "text-[#444] hover:text-black"
+              : "text-white/85 hover:text-white"
           }
-  `}
+        `}
       >
         {title}
-
       </button>
 
-      {/* DROPDOWN */}
-
-<div
-  className={`
-    absolute
-    top-[45px]
-    left-0
-    w-[280px]
-    bg-white
-    rounded-2xl
-    border
-    border-black/5
-    shadow-[0_20px_60px_rgba(0,0,0,0.10)]
-    p-5
-    duration-300
-    z-50
-    ${
-      isActive
-        ? "opacity-100 visible translate-y-0"
-        : "opacity-0 invisible translate-y-3"
-    }
-  `}
->
-
-  <div className="space-y-2">
-    {items.map((item, index) => (
-      <button
-        key={index}
-        onClick={() =>
-          item.path &&
-          navigate(item.path)
-        }
-        className="
-          group
-          flex
-          items-center
-          justify-between
-          w-full
-          p-3
-          rounded-xl
-          text-left
-          hover:bg-[#f7f7f7]
-          duration-300
-        "
+      <div
+        className={`
+          absolute left-0 top-[45px] z-50 w-[280px] rounded-2xl
+          border border-black/5 bg-white p-5
+          shadow-[0_20px_60px_rgba(0,0,0,0.12)] duration-300
+          ${
+            isActive
+              ? "visible translate-y-0 opacity-100"
+              : "invisible translate-y-3 opacity-0"
+          }
+        `}
       >
-        <span
-          className="
-            text-[14px]
-            text-[#666]
-            group-hover:text-black
-            duration-300
-          "
-        >
-          {item.label}
-        </span>
+        <div className="space-y-2">
+          {items.map((item, index) => (
+            <button
+              key={index}
+              onClick={() => item.path && navigate(item.path)}
+              className="
+                group flex w-full items-center justify-between rounded-xl p-3
+                text-left duration-300 hover:bg-[#f7f7f7]
+              "
+            >
+              <span className="text-[14px] text-[#666] duration-300 group-hover:text-black">
+                {item.label}
+              </span>
 
-        <span
-          className="
-            opacity-0
-            translate-x-[-8px]
-            group-hover:opacity-100
-            group-hover:translate-x-0
-            duration-300
-          "
-        >
-          →
-        </span>
-      </button>
-    ))}
-  </div>
-</div>
+              <span className="translate-x-[-8px] text-black opacity-0 duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                →
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
-
-// ================= MEGA MENU =================
 
 const MegaMenu = ({
   title,
@@ -831,277 +482,142 @@ const MegaMenu = ({
   openDropdown,
   closeDropdown,
   navigate,
-  scrolled,
+  isLightNavbar,
 }) => {
-  const isActive =
-    activeDropdown === dropdownKey;
-
-  const [hoveredParent, setHoveredParent] =
-    useState(null);
-
-  // ================= PARENT CATEGORIES =================
+  const isActive = activeDropdown === dropdownKey;
+  const [hoveredParent, setHoveredParent] = useState(null);
 
   const parentCategories = materials
-    .filter(
-      (item) =>
-        item.parent_id === null &&
-        item.is_active
-    )
-    .sort(
-      (a, b) =>
-        a.display_order -
-        b.display_order
-    );
-
-  // ================= DEFAULT ACTIVE =================
+    .filter((item) => item.parent_id === null && item.is_active)
+    .sort((a, b) => {
+      const orderA = a.display_order ?? 999;
+      const orderB = b.display_order ?? 999;
+      return orderA - orderB;
+    });
 
   useEffect(() => {
-    if (
-      parentCategories.length > 0 &&
-      !hoveredParent
-    ) {
-      setHoveredParent(
-        parentCategories[0].id
-      );
+    if (parentCategories.length > 0 && !hoveredParent) {
+      setHoveredParent(parentCategories[0].id);
     }
   }, [parentCategories, hoveredParent]);
 
-  const activeParent =
-    parentCategories.find(
-      (parent) =>
-        parent.id === hoveredParent
-    );
+  const activeParent = parentCategories.find(
+    (parent) => parent.id === hoveredParent
+  );
 
   const children = materials
-    .filter(
-      (item) =>
-        item.parent_id === hoveredParent
-    )
-    .sort(
-      (a, b) =>
-        a.display_order -
-        b.display_order
-    );
+    .filter((item) => item.parent_id === hoveredParent)
+    .sort((a, b) => {
+      const orderA = a.display_order ?? 999;
+      const orderB = b.display_order ?? 999;
+      return orderA - orderB;
+    });
 
   return (
     <div
       className="relative"
-      onMouseEnter={() =>
-        openDropdown(dropdownKey)
-      }
+      onMouseEnter={() => openDropdown(dropdownKey)}
       onMouseLeave={closeDropdown}
     >
-      {/* NAV ITEM */}
-
       <button
-        onClick={() =>
-          path && navigate(path)
-        }
+        onClick={() => path && navigate(path)}
         className={`
-          flex
-          items-center
-          gap-1
-          text-[11px]
-          uppercase
-          tracking-[1px]
-          duration-300
-          ${scrolled
-            ? "text-[#555]"
-            : "text-white"
+          flex items-center gap-1 text-[11px] uppercase tracking-[1px] duration-300
+          ${
+            isLightNavbar
+              ? "text-[#444] hover:text-black"
+              : "text-white/85 hover:text-white"
           }
         `}
       >
         {title}
       </button>
 
-      {/* MEGA MENU */}
-
       <div
-        className={`
-          absolute
-          top-[48px]
-          left-[-250px]
-          w-[980px]
-          bg-white
-          shadow-[0_25px_80px_rgba(0,0,0,0.12)]
-          border
-          border-black/5
-          rounded-2xl
-          p-8
-          duration-300
-          z-50
-          ${isActive
-            ? "opacity-100 visible translate-y-0"
-            : "opacity-0 invisible translate-y-4"
+className={`
+  absolute left-[-250px] top-[48px] z-50 w-[980px] rounded-2xl
+  border border-black/5 bg-white p-8
+  shadow-[0_25px_80px_rgba(0,0,0,0.12)] duration-300
+          ${
+            isActive
+              ? "visible translate-y-0 opacity-100"
+              : "invisible translate-y-4 opacity-0"
           }
         `}
       >
-        <div
-          className="
-  grid
-  grid-cols-[320px_1fr]
-  gap-8
-  h-[600px]
-"
-        >
-          {/* =====================================
-              LEFT SIDE
-          ===================================== */}
-
-          <div
-            className="
-            border-r
-            border-black/10
-            pr-5
-            wid
-            h-full
-            overflow-y-auto
-            scrollbar-thin
-          "
-          >
+        <div className="grid h-[600px] grid-cols-[320px_1fr] gap-8">
+          <div className="h-full overflow-y-auto border-r border-black/10 pr-5 scrollbar-thin">
             <div className="space-y-2">
-              {parentCategories.map(
-                (parent) => (
-                  <button
-                    key={parent.id}
-                    onMouseEnter={() =>
-                      setHoveredParent(
-                        parent.id
-                      )
+              {parentCategories.map((parent) => (
+                <button
+                  key={parent.id}
+                  onMouseEnter={() => setHoveredParent(parent.id)}
+                  onClick={() => navigate(`/product-category/${parent.slug}`)}
+                  className={`
+                    flex w-full items-center gap-3 rounded-xl p-3 duration-300
+                    ${
+hoveredParent === parent.id
+  ? "bg-[#f5f5f5] shadow-sm"
+  : "hover:bg-[#fafafa]"
                     }
-                    onClick={() =>
-                      navigate(
-                        `/product-category/${parent.slug}`
-                      )
-                    }
+                  `}
+                >
+                  <div className="h-12 w-24 min-w-[48px] flex-shrink-0">
+                    <img
+                      src={parent.thumbnail_url || "/placeholder.jpg"}
+                      alt={parent.name}
+                      className="h-full w-full rounded-lg object-cover"
+                    />
+                  </div>
+
+                  <span
                     className={`
-                      flex
-                      items-center
-                      gap-3
-                      w-full
-                      p-3
-                      width-200
-                      rounded-xl
-                      duration-300
-                      ${hoveredParent ===
-                        parent.id
-                        ? "bg-[#f5f5f5] shadow-sm"
-                        : "hover:bg-[#f8f8f8]"
+                      text-[14px]
+                      ${
+hoveredParent === parent.id
+  ? "font-semibold text-black"
+  : "text-[#666]"
                       }
                     `}
                   >
-                  <div className="w-24 h-12 min-w-[48px] flex-shrink-0">
-                    <img
-                      src={
-                        parent.thumbnail_url ||
-                        "/placeholder.jpg"
-                      }
-                      alt={parent.name}
-                      className="
-                        w-full
-                        h-full
-                        rounded-lg
-                        object-cover
-                      "
-                    />
-                  </div>
-                    <span
-                      className={`
-                        text-[14px]
-                        ${hoveredParent ===
-                          parent.id
-                          ? "font-semibold text-black"
-                          : "text-[#666]"
-                        }
-                      `}
-                    >
-                      {parent.name}
-                    </span>
-                  </button>
-                )
-              )}
+                    {parent.name}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
-
-          {/* =====================================
-              CENTER IMAGE
-          ===================================== */}
 
           <div>
             {activeParent && (
               <>
-                <div
-                  className="
-                    overflow-hidden
-                    rounded-2xl
-                    bg-[#f5f5f5]
-                  "
-                >
+                <div className="overflow-hidden rounded-2xl bg-black/5">
                   <img
-                    src={
-                      activeParent.thumbnail_url ||
-                      "/placeholder.jpg"
-                    }
+                    src={activeParent.thumbnail_url || "/placeholder.jpg"}
                     alt={activeParent.name}
-                    className="
-                      w-full
-                      h-[280px]
-                      object-cover
-                      hover:scale-105
-                      duration-500
-                    "
+                    className="h-[280px] w-full object-cover duration-500 hover:scale-105"
                   />
                 </div>
 
-                <h3
-                  className="
-                    mt-5
-                    text-[22px]
-                    font-semibold
-                    text-black
-                  "
-                >
+                <h3 className="mt-5 text-[22px] font-semibold text-black">
                   {activeParent.name}
                 </h3>
 
-                <p
-                  className="
-                    mt-2
-                    text-[14px]
-                    leading-relaxed
-                    text-[#777]
-                  "
-                >
+                <p className="mt-2 text-[14px] leading-relaxed text-black/60">
                   {activeParent.description ||
                     "Explore our premium collection."}
                 </p>
 
                 <button
                   onClick={() =>
-                    navigate(
-                      `/product-category/${activeParent.slug}`
-                    )
+                    navigate(`/product-category/${activeParent.slug}`)
                   }
-                  className="
-                    mt-5
-                    text-[14px]
-                    font-medium
-                    hover:underline
-                  "
+                  className="mt-5 text-[14px] font-medium text-black hover:underline"
                 >
                   View All →
                 </button>
 
-                <div className="border-t pt-9">
-                  <h3
-                    className="
-    text-sm
-    font-semibold
-    uppercase
-    tracking-wider
-    mb-4
-  "
-                  >
+                <div className="mt-8 border-t border-black/10 pt-7">
+                  <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-black">
                     Collections
                   </h3>
 
@@ -1110,17 +626,12 @@ const MegaMenu = ({
                       <button
                         key={child.id}
                         onClick={() =>
-                          navigate(
-                            `/product-category/${child.slug}`
-                          )
+                          navigate(`/product-category/${child.slug}`)
                         }
                         className="
-          text-left
-          p-4
-          rounded-xl
-          bg-[#fafafa]
-          hover:bg-[#f5f5f5]
-        "
+                          rounded-xl bg-white/5 p-4 text-left text-white/70
+                          duration-300 hover:bg-white/10 hover:text-white
+                        "
                       >
                         {child.name}
                       </button>
@@ -1130,7 +641,6 @@ const MegaMenu = ({
               </>
             )}
           </div>
-
         </div>
       </div>
     </div>
