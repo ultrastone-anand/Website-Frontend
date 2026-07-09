@@ -7,6 +7,7 @@ import { Link, useParams, useNavigate, } from "react-router-dom";
 import Navbar from "../../../components/common/Navbar";
 import Footer from "../../../components/common/Footer";
 import Loading from "../../../components/common/Loading";
+import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
 
 const ProductCategory = () => {
 
@@ -671,19 +672,23 @@ const ProductCategory = () => {
                     "
                     >
 
-                      <img
-                        src={
-                          item.closeup_image
-                        }
-                        alt={item.name}
-                        className="
-                      w-full
-                      h-full
-                      object-cover
-                      duration-700
-                      group-hover:scale-[1.02]
+                    <img
+                      src={
+                        item.closeup_image
+                          ? getOptimizedImageUrl(item.closeup_image, 700, 85)
+                          : "https://placehold.co/700x700"
+                      }
+                      alt={item.name}
+                      loading="lazy"
+                      decoding="async"
+                      className="
+                        w-full
+                        h-full
+                        object-cover
+                        duration-700
+                        group-hover:scale-[1.02]
                       "
-                      />
+                    />
 
                     </div>
 

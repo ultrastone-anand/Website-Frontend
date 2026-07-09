@@ -25,6 +25,7 @@ import SEO from "../../../components/common/SEO";
 import Navbar from "../../../components/common/Navbar";
 import Loading from "../../../components/common/Loading";
 import { normalizeProductSeo } from "../../../utils/seoNormalizers";
+import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
 const Footer = lazy(() => import("../../../components/common/Footer"));
 const Social = lazy(() => import("../../../components/common/Socials"));
 const ModelViewer = lazy(() => import("../../../components/common/ModelViewer"),);
@@ -449,7 +450,7 @@ const ProductDetails = () => {
     product.silica_datasheet_url ||
     product.stone_categories?.silica_datasheet_url;
 
-
+console.log("Original URL:", activeMedia?.media_url);
 
   return (
     <>
@@ -593,8 +594,16 @@ const ProductDetails = () => {
     <img
       loading="lazy"
       decoding="async"
-      src={activeMedia?.media_url}
-      alt={product.name}
+      src={(() => {
+
+    const url = getOptimizedImageUrl(activeMedia?.media_url, 1600, 85);
+
+    console.log("Optimized URL:", url);
+
+    return url;
+
+  })()}      
+    alt={product.name}
       className="
         w-full
         h-[520px]
@@ -770,7 +779,7 @@ const ProductDetails = () => {
       <img
         loading="lazy"
         decoding="async"
-        src={activeMedia.media_url}
+        src={getOptimizedImageUrl(activeMedia.media_url, 2400, 90)}
         alt={product.name}
         className="
           relative
@@ -1902,7 +1911,11 @@ const RelatedProductCard = ({ item, navigate }) => {
         "
       >
         <img
-          src={item.closeup_image || "https://placehold.co/600x600"}
+          src={
+            item.closeup_image
+              ? getOptimizedImageUrl(item.closeup_image, 600, 85)
+              : "https://placehold.co/600x600"
+          }
           alt={item.name}
           className="
           w-full
