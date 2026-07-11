@@ -1,7 +1,18 @@
+import { Suspense } from "react";
 import AppRoutes from "./routes/AppRoutes";
 
 function App() {
-  return <AppRoutes />;
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <AppRoutes />
+    </Suspense>
+  );
 }
 
 export default App;
