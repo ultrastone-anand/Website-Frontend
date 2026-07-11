@@ -9,7 +9,7 @@ const INITIAL_LIMIT = 15;
 const GalleryCard = memo(({ image, className, imageClassName, onClick }) => (
   <div
     onClick={() => onClick(image)}
-    className={`cursor-pointer overflow-hidden bg-[#f3f3f3] ${className}`}
+    className={`cursor-pointer overflow-hidden  ${className}`}
   >
     <img
       src={getOptimizedImageUrl(image.image_url, 700, 82)}      

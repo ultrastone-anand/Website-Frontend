@@ -40,7 +40,7 @@ const Location = () => {
     <>
       <Navbar />
 
-      <div className="bg-[#f3f3f3] min-h-screen pt-[110px]">
+      <div className=" min-h-screen pt-[110px]">
         {/* Heading */}
         <section>
           <div className="max-w-[1650px] mx-auto px-6 xl:px-10">

@@ -114,7 +114,7 @@ const ProductCategory = () => {
         flex
         items-center
         justify-center
-        bg-[#f3f3f3]
+        
         "
       >
         <Loading />
@@ -130,7 +130,7 @@ const ProductCategory = () => {
 
       <div
         className="
-        bg-[#f3f3f3]
+        
         min-h-screen
         pt-[110px]
         "

@@ -39,7 +39,7 @@ export const Merchandise = () => {
     <>
       <Navbar />
 
-      <div className="bg-[#f3f3f3] min-h-screen pt-[110px]">
+      <div className=" min-h-screen pt-[110px]">
         {/* HEADER */}
         <section className="py-10">
           <div className="max-w-[1650px] mx-auto px-6 xl:px-10">

@@ -208,7 +208,6 @@ const handleSubmit = async (
 
       <div
         className="
-          bg-[#f3f3f3]
           min-h-screen
           pt-[110px]
         "

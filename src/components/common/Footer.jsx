@@ -96,7 +96,7 @@ const Footer = () => {
 
           <div className="xl:border-r xl:border-white/15 xl:pr-10">
             <img
-              src="/logo_white.png"
+              src="/logo_white.svg"
               alt="Ultra Stones"
               onClick={() => navigate("/")}
               className="mb-7 h-[72px] w-auto object-contain -translate-x-5 cursor-pointer" />

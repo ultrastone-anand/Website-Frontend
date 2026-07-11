@@ -57,7 +57,7 @@ export default function Category() {
           flex
           items-center
           justify-center
-          bg-[#f3f3f3]
+          
         "
       >
         <Loading />
@@ -80,7 +80,6 @@ export default function Category() {
 
       <div
         className="
-          bg-[#f3f3f3]
           min-h-screen
           pt-[110px]
         "

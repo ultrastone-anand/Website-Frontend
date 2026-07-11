@@ -38,7 +38,7 @@ const Aboutus = () => {
     return (
       <>
         <Navbar />
-        <div className="bg-[#f3f3f3] min-h-screen pt-[110px] flex items-center justify-center">
+        <div className=" min-h-screen pt-[110px] flex items-center justify-center">
           Loading...
         </div>
         <Footer />
@@ -50,7 +50,7 @@ const Aboutus = () => {
     return (
       <>
         <Navbar />
-        <div className="bg-[#f3f3f3] min-h-screen pt-[110px] flex items-center justify-center">
+        <div className=" min-h-screen pt-[110px] flex items-center justify-center">
           Page not found
         </div>
         <Footer />
@@ -64,7 +64,7 @@ const Aboutus = () => {
     <>
       <Navbar />
 
-      <div className="bg-[#f3f3f3] min-h-screen pt-[110px]">
+      <div className=" min-h-screen pt-[110px]">
         {/* HEADING */}
         <section>
           <div className="max-w-[1650px] mx-auto px-6 xl:px-10">

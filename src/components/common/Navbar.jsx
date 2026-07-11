@@ -107,7 +107,7 @@ const Navbar = () => {
           >
             <div className="relative h-[64px] w-[220px]">
               <img
-                src="/logo_white.png"
+                src="/logo_white.svg"
                 alt="Ultra Stones"
                 className={`
                   absolute inset-0 h-full w-auto object-contain
