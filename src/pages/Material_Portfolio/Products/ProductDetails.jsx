@@ -596,7 +596,7 @@ console.log("Original URL:", activeMedia?.media_url);
       decoding="async"
       src={(() => {
 
-    const url = getOptimizedImageUrl(activeMedia?.media_url, 1600, 85);
+    const url = getOptimizedImageUrl(activeMedia?.media_url, 2400, 90);
 
     console.log("Optimized URL:", url);
 

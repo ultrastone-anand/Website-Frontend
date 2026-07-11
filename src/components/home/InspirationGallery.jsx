@@ -10,7 +10,7 @@ const GalleryCard = memo(({ image, className, imageClassName, onClick }) => (
     className={`cursor-pointer overflow-hidden bg-[#f3f3f3] ${className}`}
   >
     <img
-      src={image.image_url}
+      src={getOptimizedImageUrl(image.image_url, 700, 82)}      
       alt={image.image_alt || image.title || ""}
       loading="lazy"
       decoding="async"
@@ -67,7 +67,7 @@ const InspirationGallery = () => {
             signal: controller.signal,
           }),
 
-          fetch(`${API_URL}/inspiration-gallery/images?limit=${INITIAL_LIMIT}`, {
+          fetch(`${API_URL}/inspiration-gallery/images`, {
             signal: controller.signal,
           }),
         ]);
@@ -241,7 +241,7 @@ const InspirationGallery = () => {
           </button>
 
           <img
-            src={selectedImage.image_url}
+            src={getOptimizedImageUrl(selectedImage.image_url, 2400, 90)}
             alt={selectedImage.image_alt || selectedImage.title || ""}
             decoding="async"
             fetchPriority="high"
