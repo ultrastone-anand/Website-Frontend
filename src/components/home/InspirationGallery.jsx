@@ -1,5 +1,7 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Columns2, Grid2x2, Square } from "lucide-react";
+import { getOptimizedImageUrl } from "../../utils/Mediahelper";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 const INITIAL_LIMIT = 15;
