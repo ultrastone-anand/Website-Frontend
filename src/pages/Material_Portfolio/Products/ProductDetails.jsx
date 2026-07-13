@@ -22,16 +22,12 @@ const ModelViewer = lazy(() => import("../../../components/common/ModelViewer"),
 
 const ProductDetails = () => {
   const { categorySlug, productSlug } = useParams();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
-
   const [activeImage, setActiveImage] = useState(0);
-
   const [openFaq, setOpenFaq] = useState(1);
   const [expanded, setExpanded] = useState(false);
-
-  const description = product?.long_description || product?.small_description || "";
-  const shouldTruncate = description.length > 300;
 
   const [zoomStyle, setZoomStyle] = useState({
     backgroundImage: "",
@@ -39,128 +35,123 @@ const ProductDetails = () => {
     backgroundSize: "1000%",
     opacity: 0,
   });
+
   const [lensPosition, setLensPosition] = useState({
     x: 0,
     y: 0,
     visible: false,
   });
 
-  const navigate = useNavigate();
-
   const [relatedProducts, setRelatedProducts] = useState([]);
-
   const [openPreview, setOpenPreview] = useState(false);
-  const modelSectionRef = useRef(null);
   const [shouldLoadModel, setShouldLoadModel] = useState(false);
 
+  const [modelSectionElement, setModelSectionElement] = useState(null);
   const relatedScrollRef = useRef(null);
 
-useEffect(() => {
-  const controller = new AbortController();
+  const description =
+    product?.long_description ||
+    product?.small_description ||
+    "";
 
-  const loadProduct = async () => {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/stones/productdetail/${productSlug}`,
-        {
-          signal: controller.signal,
-        },
-      );
-
-      if (response.data.success) {
-        setProduct(response.data.product);
-      }
-    } catch (error) {
-      if (
-        error.code !== "ERR_CANCELED" &&
-        error.name !== "CanceledError"
-      ) {
-        console.error("Failed to load product:", error);
-      }
-    }
-  };
-
-  setProduct(null);
-  setActiveImage(0);
-  setOpenPreview(false);
-  setExpanded(false);
-  setRelatedProducts([]);
-  setShouldLoadRelated(false);
-
-  loadProduct();
-
-  return () => controller.abort();
-}, [productSlug]);
-  const fetchRelatedProducts = async (categorySlug, currentSlug) => {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/stones/${categorySlug}`
-      );
-
-      const result = response.data;
-
-      if (result.success) {
-        const filteredProducts =
-          result.products?.filter(
-            (item) =>
-              item.slug !== currentSlug &&
-              item.is_active &&
-              item.is_published
-          ) || [];
-
-        setRelatedProducts(filteredProducts);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const scrollRelatedLeft = () => {
-    if (relatedScrollRef.current) {
-      relatedScrollRef.current.scrollBy({
-        left: -420,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  const scrollRelatedRight = () => {
-    if (relatedScrollRef.current) {
-      relatedScrollRef.current.scrollBy({
-        left: 420,
-        behavior: "smooth",
-      });
-    }
-  };
+  const shouldTruncate = description.length > 300;
 
   useEffect(() => {
-    if (!openPreview) return undefined;
+    const controller = new AbortController();
 
-    const handleEsc = (e) => {
-      if (e.key === "Escape") setOpenPreview(false);
+    const loadProduct = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/stones/productdetail/${productSlug}`,
+          {
+            signal: controller.signal,
+          },
+        );
+
+        if (response.data.success) {
+          setProduct(response.data.product);
+        }
+      } catch (error) {
+        if (
+          error.code !== "ERR_CANCELED" &&
+          error.name !== "CanceledError"
+        ) {
+          console.error("Failed to load product:", error);
+        }
+      }
+    };
+
+    setProduct(null);
+    setActiveImage(0);
+    setOpenPreview(false);
+    setExpanded(false);
+    setRelatedProducts([]);
+    setShouldLoadModel(false);
+
+    loadProduct();
+
+    return () => controller.abort();
+  }, [productSlug]);
+
+  useEffect(() => {
+  if (!product || !modelSectionElement) {
+    return undefined;
+  }
+
+  if (!("IntersectionObserver" in window)) {
+    setShouldLoadModel(true);
+    return undefined;
+  }
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        setShouldLoadModel(true);
+        observer.disconnect();
+      }
+    },
+    {
+      root: null,
+      rootMargin: "600px 0px",
+      threshold: 0,
+    },
+  );
+
+  observer.observe(modelSectionElement);
+
+  return () => {
+    observer.disconnect();
+  };
+}, [product, modelSectionElement]);
+
+  useEffect(() => {
+    if (!openPreview) {
+      return undefined;
+    }
+
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        setOpenPreview(false);
+      }
     };
 
     window.addEventListener("keydown", handleEsc);
 
-    return () => window.removeEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
   }, [openPreview]);
 
   if (!product) {
     return (
-      <div
-        className="
-        min-h-screen
-        flex
-        items-center
-        justify-center
-        bg-[#ffffff]
-        "
-      >
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <Loading />
       </div>
     );
   }
 
+  
+  // All product-derived variables go here.
   const closeupImages =
     product.media?.filter((item) => item.media_type === "CLOSEUP_IMAGE") || [];
 
@@ -385,31 +376,7 @@ useEffect(() => {
   88,
 );
 
-useEffect(() => {
-  const section = modelSectionRef.current;
 
-  if (!section) {
-    return undefined;
-  }
-
-  const observer = new IntersectionObserver(
-    ([entry]) => {
-      if (!entry.isIntersecting) {
-        return;
-      }
-
-      setShouldLoadModel(true);
-      observer.disconnect();
-    },
-    {
-      rootMargin: "400px 0px",
-    },
-  );
-
-  observer.observe(section);
-
-  return () => observer.disconnect();
-}, []);
 
   return (
     <>
@@ -1056,14 +1023,14 @@ useEffect(() => {
         </section>
 
         {/* 3D Stone */}
-       <section ref={modelSectionRef}>
+<section ref={setModelSectionElement}>
   <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
     <div className="relative min-h-[270px] bg-[#f7f7f7]">
       <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-xs md:text-sm px-3 py-1.5 rounded-full backdrop-blur-sm">
         Click to interact with the 3D model
       </div>
 
-      {shouldLoadModel && (
+      {shouldLoadModel ? (
         <Suspense
           fallback={
             <div className="h-[270px] flex items-center justify-center">
@@ -1071,16 +1038,22 @@ useEffect(() => {
             </div>
           }
         >
-          <ModelViewer
-            height={270}
-            poster={getOptimizedImageUrl(images[0]?.media_url, 900, 80)}
-            finishes={product?.finishes_available}
-          />
+<ModelViewer
+  height={270}
+  poster={images[0]?.media_url}
+  finishes={product?.finishes_available}
+/>
         </Suspense>
+      ) : (
+        <div className="h-[270px] flex items-center justify-center">
+          <span className="text-sm text-[#777]">
+            3D model loading…
+          </span>
+        </div>
       )}
     </div>
   </div>
-      </section>
+</section>
 
         {/* APPLICATIONS */}
         <section className="py-10 bg-white">
