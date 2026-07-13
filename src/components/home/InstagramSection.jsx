@@ -1,20 +1,36 @@
 import { useNavigate } from "react-router-dom";
+import { getOptimizedImageUrl } from "../../utils/Mediahelper";
 
 const InstagramSection = () => {
-
   const navigate = useNavigate();
 
+  const contactImage =
+    "https://cdn.ultrastone.in/Home%20Page/contact_home.jpg";
+
   return (
-    <section className="bg-white py-[48px] mb-[70px]">
+    <section className="mb-[70px] bg-white py-[48px]">
       <div className="mx-auto">
-        <div
-          className="relative overflow-hidden bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,.70) 33%, rgba(0,0,0,.20) 100%), url('https://cdn.ultrastone.in/Home%20Page/contact_home.jpg')",
-          }}
-        >
-          <div className="min-h-[520px] px-10 py-20 lg:px-[70px]">
+        <div className="relative overflow-hidden">
+          <img
+            src={getOptimizedImageUrl(contactImage, 1600, 72)}
+            srcSet={`
+              ${getOptimizedImageUrl(contactImage, 640, 68)} 640w,
+              ${getOptimizedImageUrl(contactImage, 1024, 70)} 1024w,
+              ${getOptimizedImageUrl(contactImage, 1600, 72)} 1600w,
+              ${getOptimizedImageUrl(contactImage, 1920, 74)} 1920w
+            `}
+            sizes="100vw"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,1)_0%,rgba(0,0,0,0.70)_33%,rgba(0,0,0,0.20)_100%)]" />
+
+          <div className="relative z-10 min-h-[520px] px-10 py-20 lg:px-[70px]">
             <div className="max-w-[520px]">
               <p
                 className="text-[16px] font-bold uppercase text-[#FF8000]"
@@ -44,7 +60,7 @@ const InstagramSection = () => {
 
               <div className="mt-9 flex flex-wrap gap-14">
                 <button
-                  className="bg-[#ff8a00] px-7 py-4 text-[13px] font-bold uppercase text-white hover:bg-white hover:text-[#ff8a00] cursor-pointer transition-all duration-300"
+                  className="cursor-pointer bg-[#ff8a00] px-7 py-4 text-[13px] font-bold uppercase text-white transition-all duration-300 hover:bg-white hover:text-[#ff8a00]"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                   onClick={() => navigate("/contact")}
                 >
@@ -53,7 +69,7 @@ const InstagramSection = () => {
                 </button>
 
                 <button
-                  className="border border-white/70 px-7 py-4 text-[13px] font-bold uppercase text-white cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#161412]"
+                  className="cursor-pointer border border-white/70 px-7 py-4 text-[13px] font-bold uppercase text-white transition-all duration-300 hover:bg-white hover:text-[#161412]"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                   onClick={() => navigate("/categories")}
                 >

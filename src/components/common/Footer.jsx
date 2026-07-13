@@ -13,6 +13,7 @@ import {
   FaInstagram,
   FaPinterestP,
 } from "react-icons/fa6";
+import { getOptimizedImageUrl } from "../../utils/Mediahelper";
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -82,7 +83,42 @@ const Footer = () => {
 
   return (
     <footer className="relative overflow-hidden bg-black text-white">
-      <div className="absolute inset-0 bg-[url('https://cdn.ultrastone.in/footer.png')] bg-cover bg-center" />
+      <img
+  src={getOptimizedImageUrl(
+    "https://cdn.ultrastone.in/footer.png",
+    1600,
+    68
+  )}
+  srcSet={`
+    ${getOptimizedImageUrl(
+      "https://cdn.ultrastone.in/footer.png",
+      640,
+      65
+    )} 640w,
+    ${getOptimizedImageUrl(
+      "https://cdn.ultrastone.in/footer.png",
+      1024,
+      67
+    )} 1024w,
+    ${getOptimizedImageUrl(
+      "https://cdn.ultrastone.in/footer.png",
+      1600,
+      68
+    )} 1600w,
+    ${getOptimizedImageUrl(
+      "https://cdn.ultrastone.in/footer.png",
+      1920,
+      70
+    )} 1920w
+  `}
+  sizes="100vw"
+  alt=""
+  aria-hidden="true"
+  loading="lazy"
+  decoding="async"
+  fetchPriority="low"
+  className="absolute inset-0 h-full w-full object-cover object-center"
+/>
       <div className="absolute inset-0 bg-black/70" />
 
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

@@ -6,22 +6,34 @@ const API_URL = import.meta.env.VITE_API_URL;
 const IMAGE_LIMIT = 20;
 
 const GalleryCard = memo(
-  ({ image, className, imageClassName, onClick }) => (
-    <div
-      onClick={() => onClick(image)}
-      className={`cursor-pointer overflow-hidden ${className}`}
-    >
-      <img
-        src={getOptimizedImageUrl(image.image_url, 700, 82)}
-        alt={image.image_alt || image.title || ""}
-        loading="lazy"
-        decoding="async"
-        fetchPriority="low"
-        draggable="false"
-        className={imageClassName}
-      />
-    </div>
-  )
+  ({ image, className, imageClassName, onClick }) => {
+    const imageAlt = image.image_alt || image.title || "";
+
+    return (
+      <div
+        onClick={() => onClick(image)}
+        className={`cursor-pointer overflow-hidden bg-[#f1f1f1] ${className}`}
+      >
+        <img
+          src={getOptimizedImageUrl(image.image_url, 480, 70)}
+          srcSet={`
+            ${getOptimizedImageUrl(image.image_url, 320, 68)} 320w,
+            ${getOptimizedImageUrl(image.image_url, 480, 70)} 480w,
+            ${getOptimizedImageUrl(image.image_url, 700, 72)} 700w
+          `}
+          sizes="320px"
+          width="320"
+          height="240"
+          alt={imageAlt}
+          loading="lazy"
+          decoding="async"
+          fetchPriority="low"
+          draggable="false"
+          className={imageClassName}
+        />
+      </div>
+    );
+  }
 );
 
 GalleryCard.displayName = "GalleryCard";

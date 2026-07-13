@@ -15,16 +15,47 @@ const encodeUrlPath = (url) => {
   }
 };
 
-export const getOptimizedImageUrl = (url, width = 1200, quality = 85) => {
+export const getOptimizedImageUrl = (
+  url,
+  width = 1200,
+  quality = 75
+) => {
   if (!url) return "";
 
-  const encodedUrl = encodeUrlPath(url);
+  try {
+    const parsed = new URL(url);
 
-  if (!encodedUrl.includes(CDN_DOMAIN)) return encodedUrl;
+    // Optimize only images from your CDN.
+    if (parsed.origin !== CDN_DOMAIN) {
+      return encodeUrlPath(url);
+    }
 
-  const path = encodedUrl.replace(CDN_DOMAIN, "");
+    // Avoid applying Cloudflare transformation twice.
+    if (parsed.pathname.startsWith("/cdn-cgi/image/")) {
+      return encodeUrlPath(url);
+    }
 
-  return `${CDN_DOMAIN}/cdn-cgi/image/width=${width},quality=${quality},format=auto${path}`;
+    const safeWidth = Math.max(
+      100,
+      Math.round(Number(width) || 1200)
+    );
+
+    const safeQuality = Math.min(
+      100,
+      Math.max(1, Math.round(Number(quality) || 75))
+    );
+
+    parsed.pathname = parsed.pathname
+      .split("/")
+      .map((part) => encodeURIComponent(decodeURIComponent(part)))
+      .join("/");
+
+    const originalPath = `${parsed.pathname}${parsed.search}`;
+
+    return `${CDN_DOMAIN}/cdn-cgi/image/width=${safeWidth},quality=${safeQuality},format=auto${originalPath}`;
+  } catch {
+    return encodeUrlPath(url);
+  }
 };
 
 export const getOriginalSafeUrl = (url) => {
