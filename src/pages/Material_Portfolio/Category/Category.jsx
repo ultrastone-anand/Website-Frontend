@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../../components/common/Navbar';
 import Footer from '../../../components/common/Footer';
 import Loading from '../../../components/common/Loading';
+import { getOptimizedImageUrl } from '../../../utils/Mediahelper';
 
 export default function Category() {
   const navigate = useNavigate();
@@ -199,41 +200,88 @@ export default function Category() {
               >
                 {/* Image */}
 
-                <div
-                  className="
+<div
+  className="
+    relative
+    aspect-[4/5]
     overflow-hidden
     bg-[#ececec]
-    aspect-[4/5]
-    relative
   "
-                >
-                  {item.thumbnail_url || item.banner_url ? (
-                    <img
-                      src={item.thumbnail_url || item.banner_url}
-                      alt={item.name}
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        e.target.nextSibling.style.display = "flex";
-                      }}
-                      className="
-        w-full
+>
+  {item.thumbnail_url || item.banner_url ? (
+    <img
+      src={getOptimizedImageUrl(
+        item.thumbnail_url || item.banner_url,
+        700,
+        72
+      )}
+      srcSet={`
+        ${getOptimizedImageUrl(
+          item.thumbnail_url || item.banner_url,
+          360,
+          68
+        )} 360w,
+        ${getOptimizedImageUrl(
+          item.thumbnail_url || item.banner_url,
+          520,
+          70
+        )} 520w,
+        ${getOptimizedImageUrl(
+          item.thumbnail_url || item.banner_url,
+          700,
+          72
+        )} 700w,
+        ${getOptimizedImageUrl(
+          item.thumbnail_url || item.banner_url,
+          900,
+          74
+        )} 900w
+      `}
+      sizes="
+        (max-width: 639px) calc(100vw - 48px),
+        (max-width: 1023px) calc(50vw - 40px),
+        (max-width: 1279px) calc(33vw - 32px),
+        390px
+      "
+      width="700"
+      height="875"
+      alt={item.name}
+      loading="lazy"
+      decoding="async"
+      fetchPriority="low"
+      draggable="false"
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+
+        const fallback =
+          event.currentTarget.parentElement?.querySelector(
+            "[data-image-fallback]"
+          );
+
+        if (fallback) {
+          fallback.style.display = "flex";
+        }
+      }}
+      className="
         h-full
+        w-full
         object-cover
         transition-transform
         duration-700
         group-hover:scale-105
       "
-                    />
-                  ) : null}
+    />
+  ) : null}
 
-                  <div
-                    style={{
-                      display:
-                        item.thumbnail_url || item.banner_url
-                          ? "none"
-                          : "flex",
-                    }}
-                    className="
+  <div
+    data-image-fallback
+    style={{
+      display:
+        item.thumbnail_url || item.banner_url
+          ? "none"
+          : "flex",
+    }}
+    className="
       absolute
       inset-0
       items-center
@@ -247,10 +295,10 @@ export default function Category() {
       tracking-wider
       select-none
     "
-                  >
-                    {getInitials(item.name)}
-                  </div>
-                </div>
+  >
+    {getInitials(item.name)}
+  </div>
+</div>
 
                 {/* Content */}
 
