@@ -132,14 +132,24 @@ const IntroSection = () => {
                   className="group w-[300px] shrink-0 cursor-pointer text-center sm:w-[340px] lg:w-[390px]"
                 >
                   <div className="overflow-hidden bg-gray-100">
-                    <img
-                      src={item.thumbnail_url}
-                      alt={item.name}
-                      loading="lazy"
-                      decoding="async"
-                      draggable="false"
-                      className="aspect-[4/5] w-full object-cover transition duration-700 group-hover:scale-105"
-                    />
+                   <img
+  src={getOptimizedImageUrl(item.thumbnail_url, 600, 72)}
+  srcSet={`
+    ${getOptimizedImageUrl(item.thumbnail_url, 360, 68)} 360w,
+    ${getOptimizedImageUrl(item.thumbnail_url, 480, 70)} 480w,
+    ${getOptimizedImageUrl(item.thumbnail_url, 600, 72)} 600w,
+    ${getOptimizedImageUrl(item.thumbnail_url, 800, 74)} 800w
+  `}
+  sizes="(max-width: 639px) 300px, (max-width: 1023px) 340px, 390px"
+  width="600"
+  height="750"
+  alt={item.name}
+  loading="lazy"
+  decoding="async"
+  fetchPriority="low"
+  draggable="false"
+  className="aspect-[4/5] w-full object-cover transition duration-700 group-hover:scale-105"
+/>
                   </div>
 
                   <h3

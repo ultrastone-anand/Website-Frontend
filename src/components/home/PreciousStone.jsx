@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { getOptimizedImageUrl } from "../../utils/Mediahelper";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -138,11 +139,23 @@ useEffect(() => {
                 to="/categories"
                 className="group text-center"
               >
-                <div className="overflow-hidden bg-black aspect-[3/5]">
+<div className="aspect-[3/5] overflow-hidden bg-black">
   <img
-    src={item.image}
+    src={getOptimizedImageUrl(item.image, 700, 70)}
+    srcSet={`
+      ${getOptimizedImageUrl(item.image, 420, 68)} 420w,
+      ${getOptimizedImageUrl(item.image, 560, 70)} 560w,
+      ${getOptimizedImageUrl(item.image, 700, 72)} 700w
+    `}
+    sizes="(max-width: 639px) 100vw, (max-width: 1279px) 33vw, 360px"
+    width="700"
+    height="1167"
     alt={item.title}
-    className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
+    loading="lazy"
+    decoding="async"
+    fetchPriority="low"
+    draggable="false"
+    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
   />
 </div>
 
