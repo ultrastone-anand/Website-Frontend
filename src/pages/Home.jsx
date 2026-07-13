@@ -1,37 +1,95 @@
-import Navbar from "../components/common/Navbar"
-import Footer from "../components/common/Footer"
-import HeroSection from "../components/home/HeroSection"
-import IntroSection from "../components/home/IntroSection"
-import WarmToneGrid from "../components/home/WarmToneGrid"
-import PreciousStoneSection from "../components/home/PreciousStone"
-import InspirationGallery from "../components/home/InspirationGallery"
-import InstagramSection from "../components/home/InstagramSection"
-import LatestBlogsSection from "../components/home/LatestBlogsSection"
+import { lazy } from "react";
+
+import Navbar from "../components/common/Navbar";
+import HeroSection from "../components/home/HeroSection";
+import LazySection from "../components/common/LazySection";
+
+const IntroSection = lazy(() =>
+  import("../components/home/IntroSection")
+);
+
+const WarmToneGrid = lazy(() =>
+  import("../components/home/WarmToneGrid")
+);
+
+const PreciousStoneSection = lazy(() =>
+  import("../components/home/PreciousStone")
+);
+
+const InspirationGallery = lazy(() =>
+  import("../components/home/InspirationGallery")
+);
+
+const LatestBlogsSection = lazy(() =>
+  import("../components/home/LatestBlogsSection")
+);
+
+const InstagramSection = lazy(() =>
+  import("../components/home/InstagramSection")
+);
+
+const Footer = lazy(() =>
+  import("../components/common/Footer")
+);
 
 const Home = () => {
   return (
     <main className="overflow-hidden">
-
+      {/* Above the fold: load immediately */}
       <Navbar />
-
       <HeroSection />
 
-      <IntroSection />
+      {/* Below the fold: load only near the viewport */}
+      <LazySection
+        minHeight="950px"
+        rootMargin="500px"
+      >
+        <IntroSection />
+      </LazySection>
 
-      <WarmToneGrid />
+      <LazySection
+        minHeight="850px"
+        rootMargin="400px"
+      >
+        <WarmToneGrid />
+      </LazySection>
 
-      <PreciousStoneSection/>
+      <LazySection
+        minHeight="760px"
+        rootMargin="350px"
+      >
+        <PreciousStoneSection />
+      </LazySection>
 
-      <InspirationGallery />
+      <LazySection
+        minHeight="900px"
+        rootMargin="300px"
+      >
+        <InspirationGallery />
+      </LazySection>
 
-      <LatestBlogsSection />
+      <LazySection
+        minHeight="650px"
+        rootMargin="250px"
+      >
+        <LatestBlogsSection />
+      </LazySection>
 
-      <InstagramSection />
+      <LazySection
+        minHeight="620px"
+        rootMargin="250px"
+      >
+        <InstagramSection />
+      </LazySection>
 
-      <Footer />
-
+      <LazySection
+        minHeight="450px"
+        rootMargin="200px"
+      >
+        <Footer />
+      </LazySection>
     </main>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
