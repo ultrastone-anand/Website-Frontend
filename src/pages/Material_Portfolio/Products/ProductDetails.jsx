@@ -5,16 +5,6 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
 import {
-  Sun,
-  Home,
-  Bath,
-  Flame,
-  Waves,
-  Table2,
-  Expand,
-  Sparkles,
-  Building2,
-  LayoutGrid,
   ChevronLeft,
   ChevronRight,
   ShoppingCart,
@@ -60,34 +50,47 @@ const ProductDetails = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
 
   const [openPreview, setOpenPreview] = useState(false);
+  const modelSectionRef = useRef(null);
+  const [shouldLoadModel, setShouldLoadModel] = useState(false);
 
   const relatedScrollRef = useRef(null);
 
-  useEffect(() => {
-    fetchProduct();
-  }, [productSlug]);
+useEffect(() => {
+  const controller = new AbortController();
 
-  const fetchProduct = async () => {
+  const loadProduct = async () => {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/stones/productdetail/${productSlug}`,
+        {
+          signal: controller.signal,
+        },
       );
 
-      const result = response.data;
-
-      if (result.success) {
-        setProduct(result.product);
-
-        fetchRelatedProducts(
-          result.product?.stone_categories?.slug,
-          result.product?.slug,
-        );
+      if (response.data.success) {
+        setProduct(response.data.product);
       }
     } catch (error) {
-      console.error(error);
+      if (
+        error.code !== "ERR_CANCELED" &&
+        error.name !== "CanceledError"
+      ) {
+        console.error("Failed to load product:", error);
+      }
     }
   };
 
+  setProduct(null);
+  setActiveImage(0);
+  setOpenPreview(false);
+  setExpanded(false);
+  setRelatedProducts([]);
+  setShouldLoadRelated(false);
+
+  loadProduct();
+
+  return () => controller.abort();
+}, [productSlug]);
   const fetchRelatedProducts = async (categorySlug, currentSlug) => {
     try {
       const response = await axios.get(
@@ -130,17 +133,17 @@ const ProductDetails = () => {
     }
   };
 
-      useEffect(() => {
-  if (!openPreview) return undefined;
+  useEffect(() => {
+    if (!openPreview) return undefined;
 
-  const handleEsc = (e) => {
-    if (e.key === "Escape") setOpenPreview(false);
-  };
+    const handleEsc = (e) => {
+      if (e.key === "Escape") setOpenPreview(false);
+    };
 
-  window.addEventListener("keydown", handleEsc);
+    window.addEventListener("keydown", handleEsc);
 
-  return () => window.removeEventListener("keydown", handleEsc);
-}, [openPreview]);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [openPreview]);
 
   if (!product) {
     return (
@@ -319,52 +322,6 @@ const ProductDetails = () => {
     },
   ];
 
-  const applications = [
-    {
-      label: "Countertops",
-      value: product.countertops_vanities,
-    },
-
-    {
-      label: "Interior Floor",
-      value: product.interior_floor,
-    },
-
-    {
-      label: "Fireplace",
-      value: product.fireplace,
-    },
-
-    {
-      label: "Shower Wall",
-      value: product.shower_wall,
-    },
-
-    {
-      label: "Shower Floor",
-      value: product.shower_floor,
-    },
-
-    {
-      label: "Exterior Floor",
-      value: product.exterior_floor,
-    },
-
-    {
-      label: "Exterior Wall",
-      value: product.exterior_wall,
-    },
-
-    {
-      label: "Pool",
-      value: product.pool_fountain,
-    },
-
-    {
-      label: "Furniture",
-      value: product.furniture_top,
-    },
-  ];
 
   const handleDownloadDatasheet = async () => {
     try {
@@ -411,34 +368,6 @@ const ProductDetails = () => {
 
   const activeVariation = product?.variation_level || "V1";
 
-  const faqs = [
-    {
-      question: "Does this material require sealing?",
-      answer:
-        "Most natural stones benefit from sealing depending on the finish and application.",
-    },
-    {
-      question: "Is this stone suitable for kitchen countertops?",
-      answer:
-        "Yes, this material is suitable for kitchen countertops when properly fabricated, installed, and maintained.",
-    },
-    {
-      question: "Can this stone be used in bathrooms and shower areas?",
-      answer:
-        "Yes, it performs well in bathroom and shower applications when installed correctly.",
-    },
-    {
-      question: "Is this material suitable for outdoor use?",
-      answer:
-        "Outdoor suitability depends on the stone type and local environmental conditions.",
-    },
-    {
-      question: "Can this stone be used in bathrooms and shower areas?",
-      answer:
-        "Yes, it can be used in wet areas when proper installation practices are followed.",
-    },
-  ];
-
   const silicaWarning =
     product.silica_warning || product.stone_categories?.silica_warning;
 
@@ -450,7 +379,37 @@ const ProductDetails = () => {
     product.silica_datasheet_url ||
     product.stone_categories?.silica_datasheet_url;
 
-console.log("Original URL:", activeMedia?.media_url);
+    const zoomImageUrl = getOptimizedImageUrl(
+  images[0]?.media_url,
+  1800,
+  88,
+);
+
+useEffect(() => {
+  const section = modelSectionRef.current;
+
+  if (!section) {
+    return undefined;
+  }
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting) {
+        return;
+      }
+
+      setShouldLoadModel(true);
+      observer.disconnect();
+    },
+    {
+      rootMargin: "400px 0px",
+    },
+  );
+
+  observer.observe(section);
+
+  return () => observer.disconnect();
+}, []);
 
   return (
     <>
@@ -567,9 +526,9 @@ console.log("Original URL:", activeMedia?.media_url);
             >
               {/* LEFT IMAGE */}
 
-<div>
-  <div
-    className="
+              <div>
+                <div
+                  className="
       relative
       overflow-hidden
       bg-[#f7f7f7]
@@ -577,49 +536,52 @@ console.log("Original URL:", activeMedia?.media_url);
       min-h-[520px]
       xl:min-h-[640px]
     "
-  >
-<div onClick={() => setOpenPreview(true)} className="cursor-zoom-in">
-  {openPreview ? null : activeMedia?.media_type === "FEATURED_VIDEO" ? (
-    <video
-      key={activeMedia.media_url}
-      className="w-full h-[520px] xl:h-[640px] object-cover"
-      autoPlay
-      muted
-      loop
-      playsInline
-    >
-      <source src={activeMedia.media_url} type="video/mp4" />
-    </video>
-  ) : (
-    <img
-      loading="lazy"
-      decoding="async"
-      src={(() => {
+                >
+                  <div onClick={() => setOpenPreview(true)} className="cursor-zoom-in">
+                    {openPreview ? null : activeMedia?.media_type === "FEATURED_VIDEO" ? (
+                      <video
+                        key={activeMedia.media_url}
+                        className="w-full h-[520px] xl:h-[640px] object-cover"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                      >
+                        <source src={activeMedia.media_url} type="video/mp4" />
+                      </video>
+                    ) : (
+                      <img
+                        key={activeMedia?.media_url}
+                        src={getOptimizedImageUrl(activeMedia?.media_url, 1200, 82)}
+                        srcSet={`
+    ${getOptimizedImageUrl(activeMedia?.media_url, 640, 76)} 640w,
+    ${getOptimizedImageUrl(activeMedia?.media_url, 960, 80)} 960w,
+    ${getOptimizedImageUrl(activeMedia?.media_url, 1200, 82)} 1200w,
+    ${getOptimizedImageUrl(activeMedia?.media_url, 1600, 84)} 1600w
+  `}
+                        sizes="(min-width: 1280px) 50vw, 100vw"
+                        alt={product.name}
+                        loading="eager"
+                        fetchPriority={activeImage === 0 ? "high" : "auto"}
+                        decoding="async"
+                        width="1200"
+                        height="800"
+                        className="
+    w-full
+    h-[520px]
+    xl:h-[640px]
+    object-cover
+    transition-transform
+    duration-700
+    group-hover:scale-[1.015]
+  "
+                      />
+                    )}
+                  </div>
 
-    const url = getOptimizedImageUrl(activeMedia?.media_url, 2400, 90);
-
-    console.log("Optimized URL:", url);
-
-    return url;
-
-  })()}      
-    alt={product.name}
-      className="
-        w-full
-        h-[520px]
-        xl:h-[640px]
-        object-cover
-        transition-transform
-        duration-700
-        group-hover:scale-[1.015]
-      "
-    />
-  )}
-</div>
-
-    {/* TOP GLASS BAR */}
-    <div
-      className="
+                  {/* TOP GLASS BAR */}
+                  <div
+                    className="
         absolute
         top-5
         left-5
@@ -630,10 +592,10 @@ console.log("Original URL:", activeMedia?.media_url);
         justify-between
         pointer-events-none
       "
-    >
+                  >
 
-      <div
-        className="
+                    <div
+                      className="
           bg-black/35
           backdrop-blur-xl
           border
@@ -645,23 +607,23 @@ console.log("Original URL:", activeMedia?.media_url);
           py-2
           shadow-lg
         "
-      >
-        {activeImage + 1} / {heroImages.length}
-      </div>
-    </div>
+                    >
+                      {activeImage + 1} / {heroImages.length}
+                    </div>
+                  </div>
 
-    {/* NAVIGATION */}
-    {heroImages.length > 1 && (
-      <>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setActiveImage(
-              activeImage === 0 ? heroImages.length - 1 : activeImage - 1
-            );
-          }}
-          className="
+                  {/* NAVIGATION */}
+                  {heroImages.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImage(
+                            activeImage === 0 ? heroImages.length - 1 : activeImage - 1
+                          );
+                        }}
+                        className="
             absolute
             left-5
             top-1/2
@@ -683,19 +645,19 @@ console.log("Original URL:", activeMedia?.media_url);
             transition-all
             duration-300
           "
-        >
-          <ChevronLeft size={22} strokeWidth={1.7} />
-        </button>
+                      >
+                        <ChevronLeft size={22} strokeWidth={1.7} />
+                      </button>
 
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setActiveImage(
-              activeImage === heroImages.length - 1 ? 0 : activeImage + 1
-            );
-          }}
-          className="
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImage(
+                            activeImage === heroImages.length - 1 ? 0 : activeImage + 1
+                          );
+                        }}
+                        className="
             absolute
             right-5
             top-1/2
@@ -717,17 +679,17 @@ console.log("Original URL:", activeMedia?.media_url);
             transition-all
             duration-300
           "
-        >
-          <ChevronRight size={22} strokeWidth={1.7} />
-        </button>
-      </>
-    )}
+                      >
+                        <ChevronRight size={22} strokeWidth={1.7} />
+                      </button>
+                    </>
+                  )}
 
-  </div>
+                </div>
 
-{openPreview && (
-  <div
-    className="
+                {openPreview && (
+                  <div
+                    className="
       fixed
       inset-0
       z-[9999]
@@ -737,12 +699,12 @@ console.log("Original URL:", activeMedia?.media_url);
       justify-center
       p-4
     "
-    onClick={() => setOpenPreview(false)}
-  >
-    <button
-      type="button"
-      onClick={() => setOpenPreview(false)}
-      className="
+                    onClick={() => setOpenPreview(false)}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenPreview(false)}
+                      className="
         absolute
         top-5
         right-6
@@ -751,15 +713,15 @@ console.log("Original URL:", activeMedia?.media_url);
         z-20
         leading-none
       "
-    >
-      ×
-    </button>
+                    >
+                      ×
+                    </button>
 
-    {activeMedia?.media_type === "FEATURED_VIDEO" ? (
-      <video
-        key={`preview-${activeMedia.media_url}`}
-        src={activeMedia.media_url}
-        className="
+                    {activeMedia?.media_type === "FEATURED_VIDEO" ? (
+                      <video
+                        key={`preview-${activeMedia.media_url}`}
+                        src={activeMedia.media_url}
+                        className="
           relative
           z-10
           max-w-[94vw]
@@ -769,31 +731,31 @@ console.log("Original URL:", activeMedia?.media_url);
           object-contain
           bg-black
         "
-        controls
-        autoPlay
-        muted
-        playsInline
-        onClick={(e) => e.stopPropagation()}
-      />
-    ) : (
-      <img
-        loading="lazy"
-        decoding="async"
-        src={getOptimizedImageUrl(activeMedia.media_url, 2400, 90)}
-        alt={product.name}
-        className="
+                        controls
+                        autoPlay
+                        muted
+                        playsInline
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <img
+                        loading="lazy"
+                        decoding="async"
+                        src={getOptimizedImageUrl(activeMedia.media_url, 2400, 90)}
+                        alt={product.name}
+                        className="
           relative
           z-10
           max-w-[94vw]
           max-h-[88vh]
           object-contain
         "
-        onClick={(e) => e.stopPropagation()}
-      />
-    )}
-  </div>
-)}
-</div>
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* RIGHT CONTENT */}
 
@@ -898,7 +860,7 @@ console.log("Original URL:", activeMedia?.media_url);
                     });
 
                     setZoomStyle({
-                      backgroundImage: `url("${images[0]?.media_url}")`,
+                      backgroundImage: `url("${zoomImageUrl}")`,
                       backgroundPosition: `${xPercent}% ${yPercent}%`,
                       backgroundSize: "1000%",
                       opacity: 1,
@@ -919,14 +881,24 @@ console.log("Original URL:", activeMedia?.media_url);
                   {/* IMAGE */}
 
                   <img
-                    src={images[0]?.media_url}
-                    alt={product.name}
+                    src={getOptimizedImageUrl(images[0]?.media_url, 900, 80)}
+                    srcSet={`
+                    ${getOptimizedImageUrl(images[0]?.media_url, 480, 74)} 480w,
+                    ${getOptimizedImageUrl(images[0]?.media_url, 700, 78)} 700w,
+                    ${getOptimizedImageUrl(images[0]?.media_url, 900, 80)} 900w
+                    `}
+                    sizes="(min-width: 1280px) 48vw, 100vw"
+                    alt={`${product.name} close-up`}
+                    loading="lazy"
+                    decoding="async"
+                    width="900"
+                    height="500"
                     className="
-    w-full
-    h-[300px]
-    object-cover
-    select-none
-    "
+                                w-full
+                                h-[300px]
+                                object-cover
+                                select-none
+                              "
                     draggable={false}
                   />
 
@@ -1084,21 +1056,31 @@ console.log("Original URL:", activeMedia?.media_url);
         </section>
 
         {/* 3D Stone */}
-        <section>
-          <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
-            <div className="relative">
-              <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-xs md:text-sm px-3 py-1.5 rounded-full backdrop-blur-sm">
-                Click interact with the 3D model
-              </div>
+       <section ref={modelSectionRef}>
+  <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
+    <div className="relative min-h-[270px] bg-[#f7f7f7]">
+      <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-xs md:text-sm px-3 py-1.5 rounded-full backdrop-blur-sm">
+        Click to interact with the 3D model
+      </div>
 
-              <ModelViewer
-                height={270}
-                poster={images[0]?.media_url}
-                finishes={product?.finishes_available}
-              />
+      {shouldLoadModel && (
+        <Suspense
+          fallback={
+            <div className="h-[270px] flex items-center justify-center">
+              <Loading />
             </div>
-          </div>
-        </section>
+          }
+        >
+          <ModelViewer
+            height={270}
+            poster={getOptimizedImageUrl(images[0]?.media_url, 900, 80)}
+            finishes={product?.finishes_available}
+          />
+        </Suspense>
+      )}
+    </div>
+  </div>
+      </section>
 
         {/* APPLICATIONS */}
         <section className="py-10 bg-white">
@@ -1723,7 +1705,14 @@ const ApplicationCard = ({ title, value, Icon }) => {
         text-[#161412]
         "
       >
-        <img src={Icon}></img>
+        <img
+  src={Icon}
+  alt=""
+  loading="lazy"
+  decoding="async"
+  width="58"
+  height="58"
+/>
       </div>
 
       {/* CONTENT */}
@@ -1910,22 +1899,37 @@ const RelatedProductCard = ({ item, navigate }) => {
         mb-4
         "
       >
-        <img
-          src={
-            item.closeup_image
-              ? getOptimizedImageUrl(item.closeup_image, 600, 85)
-              : "https://placehold.co/600x600"
-          }
-          alt={item.name}
-          className="
-          w-full
-          h-[320px]
-          object-cover
-          group-hover:scale-[1.03]
-          transition-all
-          duration-700
-          "
-        />
+       <img
+  src={
+    item.closeup_image
+      ? getOptimizedImageUrl(item.closeup_image, 480, 78)
+      : "https://placehold.co/600x600"
+  }
+  srcSet={
+    item.closeup_image
+      ? `
+        ${getOptimizedImageUrl(item.closeup_image, 320, 72)} 320w,
+        ${getOptimizedImageUrl(item.closeup_image, 480, 78)} 480w,
+        ${getOptimizedImageUrl(item.closeup_image, 640, 80)} 640w
+      `
+      : undefined
+  }
+  sizes="320px"
+  alt={item.name}
+  loading="lazy"
+  decoding="async"
+  fetchPriority="low"
+  width="320"
+  height="320"
+  className="
+    w-full
+    h-[320px]
+    object-cover
+    group-hover:scale-[1.03]
+    transition-all
+    duration-700
+  "
+/>
       </div>
 
       {/* CATEGORY */}
