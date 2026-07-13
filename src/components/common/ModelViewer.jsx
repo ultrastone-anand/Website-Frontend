@@ -2,6 +2,7 @@ import * as THREE from "three";
 import {Suspense,useEffect,useState} from "react";
 import {Canvas,useLoader,useThree,useFrame} from "@react-three/fiber";
 import {OrbitControls,Environment,Center,Html} from "@react-three/drei";
+import Loading from "./Loading";
 
 function Loader(){
 
@@ -13,7 +14,7 @@ function Loader(){
                     color:"#fff"
                 }}
             >
-                Loading...
+               <Loading/>
             </div>
 
         </Html>

@@ -62,7 +62,7 @@ const Loading = () => {
             "
           >
             <img
-              src="/favicon.png"
+              src="/favicon.svg"
               alt="Ultra Stones"
               className="
               w-[58px]

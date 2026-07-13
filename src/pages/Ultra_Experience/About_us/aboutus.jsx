@@ -7,6 +7,7 @@ import axios from "axios";
 import Navbar from "../../../components/common/Navbar";
 import Footer from "../../../components/common/Footer";
 import { Link } from "react-router-dom";
+import Loading from "../../../components/common/Loading";
 
 const Aboutus = () => {
   const [page, setPage] = useState(null);
@@ -39,7 +40,7 @@ const Aboutus = () => {
       <>
         <Navbar />
         <div className=" min-h-screen pt-[110px] flex items-center justify-center">
-          Loading...
+          <Loading />
         </div>
         <Footer />
       </>
