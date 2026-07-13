@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { getOptimizedImageUrl } from "../../utils/Mediahelper";
 
 const WarmToneGrid = () => {
   const scrollRef = useRef(null);
@@ -234,7 +235,7 @@ const WarmToneGrid = () => {
                   >
                     <div className="h-[300px] overflow-hidden bg-[#f1f1f1] sm:h-[340px] lg:h-[400px] xl:h-[460px]">
                       <img
-                        src={item.media?.[0]?.media_url || item.closeup_image}
+                        src={getOptimizedImageUrl(item.media?.[0]?.media_url || item.closeup_image)}
                         alt={item.name}
                         className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
                       />

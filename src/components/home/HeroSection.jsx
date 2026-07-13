@@ -1,9 +1,9 @@
-import React, { memo, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import frame0 from "../../assets/home/frame0.png"
+import React, { memo, useEffect, useRef, useState } from "react";
+import { getOptimizedImageUrl } from "../../utils/Mediahelper";
 
 const VIDEO_URL = "https://cdn.ultrastone.in/lv_0_20240514200655.mp4";
-const FIRST_FRAME_URL = frame0;
+const FIRST_FRAME_URL = "https://cdn.ultrastone.in/frame0.png";
 
 const smoothEase = [0.16, 1, 0.3, 1];
 
@@ -50,8 +50,14 @@ const HeroSection = () => {
         className="absolute inset-0 z-10"
       >
         <img
+
           src={FIRST_FRAME_URL}
           alt=""
+          width="1920"
+          height="1080"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           draggable="false"
           className="h-full w-full object-cover"
         />
