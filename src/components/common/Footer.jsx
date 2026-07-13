@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Phone, Mail, Clock3 } from "lucide-react";
 
 import {
@@ -84,41 +84,41 @@ const Footer = () => {
   return (
     <footer className="relative overflow-hidden bg-black text-white">
       <img
-  src={getOptimizedImageUrl(
-    "https://cdn.ultrastone.in/footer.png",
-    1600,
-    68
-  )}
-  srcSet={`
+        src={getOptimizedImageUrl(
+          "https://cdn.ultrastone.in/footer.png",
+          1600,
+          68
+        )}
+        srcSet={`
     ${getOptimizedImageUrl(
-      "https://cdn.ultrastone.in/footer.png",
-      640,
-      65
-    )} 640w,
+          "https://cdn.ultrastone.in/footer.png",
+          640,
+          65
+        )} 640w,
     ${getOptimizedImageUrl(
-      "https://cdn.ultrastone.in/footer.png",
-      1024,
-      67
-    )} 1024w,
+          "https://cdn.ultrastone.in/footer.png",
+          1024,
+          67
+        )} 1024w,
     ${getOptimizedImageUrl(
-      "https://cdn.ultrastone.in/footer.png",
-      1600,
-      68
-    )} 1600w,
+          "https://cdn.ultrastone.in/footer.png",
+          1600,
+          68
+        )} 1600w,
     ${getOptimizedImageUrl(
-      "https://cdn.ultrastone.in/footer.png",
-      1920,
-      70
-    )} 1920w
+          "https://cdn.ultrastone.in/footer.png",
+          1920,
+          70
+        )} 1920w
   `}
-  sizes="100vw"
-  alt=""
-  aria-hidden="true"
-  loading="lazy"
-  decoding="async"
-  fetchPriority="low"
-  className="absolute inset-0 h-full w-full object-cover object-center"
-/>
+        sizes="100vw"
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        fetchPriority="low"
+        className="absolute inset-0 h-full w-full object-cover object-center"
+      />
       <div className="absolute inset-0 bg-black/70" />
 
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -157,53 +157,53 @@ const Footer = () => {
           <FooterColumn title="Company" links={companyLinks} />
           <FooterColumn title="Showrooms" links={showroomLinks} />
           <div className="xl:pl-8">
-  <h4 className="mb-4 text-[12px] font-semibold uppercase tracking-[1.5px]">
-    Get In Touch
-  </h4>
+            <h4 className="mb-4 text-[12px] font-semibold uppercase tracking-[1.5px]">
+              Get In Touch
+            </h4>
 
-  <ContactRow
-    icon={<Phone size={12} />}
-    text={office?.primary_phone || "631-873-4747"}
-  />
+            <ContactRow
+              icon={<Phone size={12} />}
+              text={office?.primary_phone || "631-873-4747"}
+            />
 
-  <ContactRow
-    icon={<Mail size={12} />}
-    text={office?.email || "info@ultrastones.com"}
-  />
+            <ContactRow
+              icon={<Mail size={12} />}
+              text={office?.email || "info@ultrastones.com"}
+            />
 
-  <ContactRow
-    icon={<Clock3 size={12} />}
-    text={`Mon - Fri ${
-      office?.business_hours_mon_fri || "8:00 AM to 5:00 PM"
-    }`}
-  />
+            <ContactRow
+              icon={<Clock3 size={12} />}
+              text={`Mon - Fri ${office?.business_hours_mon_fri || "8:00 AM to 5:00 PM"
+                }`}
+            />
 
-  <ContactRow
-    icon={<Clock3 size={12} />}
-    text={`Sat - ${
-      office?.business_hours_saturday || "8:00 AM to 1:00 PM"
-    }`}
-  />
+            <ContactRow
+              icon={<Clock3 size={12} />}
+              text={`Sat - ${office?.business_hours_saturday || "8:00 AM to 1:00 PM"
+                }`}
+            />
 
-  <div className="mt-5 flex items-center gap-4">
-    {socials.map((social) => {
-      const Icon = socialIcons[social.platform?.toLowerCase()];
-      if (!Icon) return null;
+            <div className="mt-5 flex items-center gap-4">
+              {socials.map((social) => {
+                const Icon = socialIcons[social.platform?.toLowerCase()];
+                if (!Icon) return null;
 
-      return (
-        <a
-          key={social.id}
-          href={social.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-white/85 transition hover:text-white"
-        >
-          <Icon size={15} />
-        </a>
-      );
-    })}
-  </div>
-</div>
+                return (
+                  <a
+                    key={social.id}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Visit Ultra Stones on ${social.platform}`}
+                    title={`Visit Ultra Stones on ${social.platform}`}
+                    className="inline-flex h-11 w-11 items-center justify-center text-white/85 transition hover:text-white"
+                  >
+                    <Icon size={15} aria-hidden="true" focusable="false" />
+                  </a>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-white/15 pt-4 text-[10px] text-white/70 md:flex-row md:items-center md:justify-between">
@@ -223,23 +223,21 @@ const Footer = () => {
 export default Footer;
 
 const FooterColumn = ({ title, links, noBorder }) => {
-  const navigate = useNavigate();
-
   return (
     <div className={!noBorder ? "xl:border-r xl:border-white/15 xl:px-8" : ""}>
-      <h4 className="mb-4 text-[12px] font-semibold uppercase tracking-[1.5px]">
+      <p className="mb-3 text-[12px] font-semibold uppercase tracking-[1.5px]">
         {title}
-      </h4>
+      </p>
 
-      <div className="space-y-1.5">
+      <div>
         {links.map((item) => (
-          <button
+          <Link
             key={item.label}
-            onClick={() => navigate(item.path)}
-            className="block text-left text-[12px] leading-tight text-white/75 transition hover:text-white"
+            to={item.path}
+            className="flex min-h-11 items-center text-[12px] leading-normal text-white/75 transition hover:text-white"
           >
             {item.label}
-          </button>
+          </Link>
         ))}
       </div>
     </div>

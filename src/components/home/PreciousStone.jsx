@@ -39,32 +39,32 @@ const getRandomImage = (images) => {
 const PreciousStoneSection = () => {
   const [galleryImages, setGalleryImages] = useState([]);
 
-useEffect(() => {
-  const controller = new AbortController();
+  useEffect(() => {
+    const controller = new AbortController();
 
-  const fetchGalleryImages = async () => {
-    try {
-      const response = await fetch(
-        `${API_URL}/inspiration-gallery/images?limit=30`,
-        {
-          signal: controller.signal,
+    const fetchGalleryImages = async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/inspiration-gallery/images?limit=30`,
+          {
+            signal: controller.signal,
+          }
+        );
+
+        const data = await response.json();
+
+        setGalleryImages(data.data || []);
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error("Failed to fetch inspiration gallery images:", error);
         }
-      );
-
-      const data = await response.json();
-
-      setGalleryImages(data.data || []);
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        console.error("Failed to fetch inspiration gallery images:", error);
       }
-    }
-  };
+    };
 
-  fetchGalleryImages();
+    fetchGalleryImages();
 
-  return () => controller.abort();
-}, []);
+    return () => controller.abort();
+  }, []);
 
   const applicationImages = useMemo(
     () =>
@@ -139,25 +139,25 @@ useEffect(() => {
                 to="/categories"
                 className="group text-center"
               >
-<div className="aspect-[3/5] overflow-hidden bg-black">
-  <img
-    src={getOptimizedImageUrl(item.image, 700, 70)}
-    srcSet={`
+                <div className="aspect-[3/5] overflow-hidden bg-black">
+                  <img
+                    src={getOptimizedImageUrl(item.image, 700, 70)}
+                    srcSet={`
       ${getOptimizedImageUrl(item.image, 420, 68)} 420w,
       ${getOptimizedImageUrl(item.image, 560, 70)} 560w,
       ${getOptimizedImageUrl(item.image, 700, 72)} 700w
     `}
-    sizes="(max-width: 639px) 100vw, (max-width: 1279px) 33vw, 360px"
-    width="700"
-    height="1167"
-    alt={item.title}
-    loading="lazy"
-    decoding="async"
-    fetchPriority="low"
-    draggable="false"
-    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-  />
-</div>
+                    sizes="(max-width: 639px) 100vw, (max-width: 1279px) 33vw, 360px"
+                    width="700"
+                    height="1167"
+                    alt={item.title}
+                    loading="lazy"
+                    decoding="async"
+                    fetchPriority="low"
+                    draggable="false"
+                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                  />
+                </div>
 
                 <h3
                   className="mt-4 text-[12px] font-medium uppercase text-white"
@@ -167,7 +167,7 @@ useEffect(() => {
                 </h3>
 
                 <p
-                  className="mt-2 text-[12px] text-white/45"
+                  className="mt-2 text-[12px] text-white/75"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
                   {item.desc}

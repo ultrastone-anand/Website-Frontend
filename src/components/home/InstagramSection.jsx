@@ -48,7 +48,7 @@ const InstagramSection = () => {
                 for your next project.
               </h2>
 
-              <div className="mt-9 h-[2px] w-[78px] bg-[#ff8a00]" />
+              <div className="mt-9 h-[2px] w-[78px] bg-[#B45309]" />
 
               <p
                 className="mt-9 max-w-[380px] text-[14px] leading-[1.35] text-white/85"
@@ -60,7 +60,7 @@ const InstagramSection = () => {
 
               <div className="mt-9 flex flex-wrap gap-14">
                 <button
-                  className="cursor-pointer bg-[#ff8a00] px-7 py-4 text-[13px] font-bold uppercase text-white transition-all duration-300 hover:bg-white hover:text-[#ff8a00]"
+                  className="cursor-pointer bg-[#B45309] px-7 py-4 text-[13px] font-bold uppercase text-white transition-all duration-300 hover:bg-white hover:text-[#B45309]"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                   onClick={() => navigate("/contact")}
                 >

@@ -85,10 +85,9 @@ const Navbar = () => {
     <header
       className={`
         fixed left-0 top-0 z-50 w-full pt-1 transition-all duration-500
-        ${
-          isBlackNavbar
-            ? "bg-black/65 backdrop-blur-md shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
-            : isLightNavbar
+        ${isBlackNavbar
+          ? "bg-black/65 backdrop-blur-md shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
+          : isLightNavbar
             ? "bg-white "
             : "bg-transparent"
         }
@@ -189,18 +188,21 @@ const Navbar = () => {
                 type="text"
                 placeholder="Search Material"
                 className={`
-                  h-[34px] w-full rounded-md border px-4 pr-10 text-[12px]
+                  h-11 w-full rounded-md border px-4 pr-10 text-[12px]
                   outline-none transition-all duration-300
-                  ${
-                    isLightNavbar
-                      ? "border-gray-300 bg-white text-black placeholder:text-gray-500"
-                      : "border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-white/40 focus:bg-white/15"
+                  ${isLightNavbar
+                    ? "border-gray-300 bg-white text-black placeholder:text-gray-500"
+                    : "border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-white/40 focus:bg-white/15"
                   }
                 `}
               />
 
-              <button className="absolute right-3 top-1/2 -translate-y-1/2">
-                <Search size={14} color={isLightNavbar ? "#111111" : "#fff"} />
+              <button
+                type="button"
+                aria-label="Search materials"
+                className="absolute right-0 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center"
+              >
+                <Search size={17} aria-hidden="true" />
               </button>
             </div>
           </nav>
@@ -228,10 +230,9 @@ const Navbar = () => {
               fixed left-0 top-[88px] z-50 h-[calc(100vh-88px)] w-full
               overflow-y-auto bg-[#050B18] text-white backdrop-blur-md
               transition-all duration-500 xl:hidden
-              ${
-                mobileMenu
-                  ? "translate-x-0 opacity-100"
-                  : "translate-x-full opacity-0 pointer-events-none"
+              ${mobileMenu
+                ? "translate-x-0 opacity-100"
+                : "translate-x-full opacity-0 pointer-events-none"
               }
             `}
           >
@@ -276,9 +277,8 @@ const Navbar = () => {
                   Material Portfolio
                   <ChevronDown
                     size={18}
-                    className={`transition-transform ${
-                      mobileDropdown === "materials" ? "rotate-180" : ""
-                    }`}
+                    className={`transition-transform ${mobileDropdown === "materials" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -347,10 +347,9 @@ const NavLink = ({ title, onClick, isLightNavbar }) => {
       onClick={onClick}
       className={`
         relative text-[11px] uppercase tracking-[1px] duration-300
-        ${
-          isLightNavbar
-            ? "text-[#444] hover:text-black"
-            : "text-white/85 hover:text-white"
+        ${isLightNavbar
+          ? "text-[#444] hover:text-black"
+          : "text-white/85 hover:text-white"
         }
       `}
     >
@@ -379,9 +378,8 @@ const MobileDropdown = ({
         {title}
         <ChevronDown
           size={18}
-          className={`transition-transform ${
-            activeDropdown === dropdownKey ? "rotate-180" : ""
-          }`}
+          className={`transition-transform ${activeDropdown === dropdownKey ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -426,10 +424,9 @@ const Dropdown = ({
       <button
         className={`
           flex items-center gap-1 text-[11px] uppercase tracking-[1px] duration-300
-          ${
-            isLightNavbar
-              ? "text-[#444] hover:text-black"
-              : "text-white/85 hover:text-white"
+          ${isLightNavbar
+            ? "text-[#444] hover:text-black"
+            : "text-white/85 hover:text-white"
           }
         `}
       >
@@ -441,10 +438,9 @@ const Dropdown = ({
           absolute left-0 top-[45px] z-50 w-[280px] rounded-2xl
           border border-black/5 bg-white p-5
           shadow-[0_20px_60px_rgba(0,0,0,0.12)] duration-300
-          ${
-            isActive
-              ? "visible translate-y-0 opacity-100"
-              : "invisible translate-y-3 opacity-0"
+          ${isActive
+            ? "visible translate-y-0 opacity-100"
+            : "invisible translate-y-3 opacity-0"
           }
         `}
       >
@@ -523,10 +519,9 @@ const MegaMenu = ({
         onClick={() => path && navigate(path)}
         className={`
           flex items-center gap-1 text-[11px] uppercase tracking-[1px] duration-300
-          ${
-            isLightNavbar
-              ? "text-[#444] hover:text-black"
-              : "text-white/85 hover:text-white"
+          ${isLightNavbar
+            ? "text-[#444] hover:text-black"
+            : "text-white/85 hover:text-white"
           }
         `}
       >
@@ -534,14 +529,13 @@ const MegaMenu = ({
       </button>
 
       <div
-className={`
+        className={`
   absolute left-[-250px] top-[48px] z-50 w-[980px] rounded-2xl
   border border-black/5 bg-white p-8
   shadow-[0_25px_80px_rgba(0,0,0,0.12)] duration-300
-          ${
-            isActive
-              ? "visible translate-y-0 opacity-100"
-              : "invisible translate-y-4 opacity-0"
+          ${isActive
+            ? "visible translate-y-0 opacity-100"
+            : "invisible translate-y-4 opacity-0"
           }
         `}
       >
@@ -555,10 +549,9 @@ className={`
                   onClick={() => navigate(`/product-category/${parent.slug}`)}
                   className={`
                     flex w-full items-center gap-3 rounded-xl p-3 duration-300
-                    ${
-hoveredParent === parent.id
-  ? "bg-[#f5f5f5] shadow-sm"
-  : "hover:bg-[#fafafa]"
+                    ${hoveredParent === parent.id
+                      ? "bg-[#f5f5f5] shadow-sm"
+                      : "hover:bg-[#fafafa]"
                     }
                   `}
                 >
@@ -573,10 +566,9 @@ hoveredParent === parent.id
                   <span
                     className={`
                       text-[14px]
-                      ${
-hoveredParent === parent.id
-  ? "font-semibold text-black"
-  : "text-[#666]"
+                      ${hoveredParent === parent.id
+                        ? "font-semibold text-black"
+                        : "text-[#666]"
                       }
                     `}
                   >

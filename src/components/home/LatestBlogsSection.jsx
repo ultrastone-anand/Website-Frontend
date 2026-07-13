@@ -42,7 +42,7 @@ const LatestBlogsSection = () => {
   className="text-[18px] font-bold uppercase tracking-[0.03em] text-[#111]"
   style={{ fontFamily: "Montserrat, sans-serif" }}
 >
-  WHY CHOOSE <span className="text-[#FF7F00]">ULTRA STONES</span>
+  WHY CHOOSE <span className="text-[#B45309]">ULTRA STONES</span>
 </p>
 
             <h2
@@ -53,7 +53,7 @@ const LatestBlogsSection = () => {
             </h2>
 
             <p
-              className="mt-5 text-[27px] italic leading-none text-[#FF7F00]"
+              className="mt-5 text-[27px] italic leading-none text-[#B45309]"
               style={{ fontFamily: '"Cormorant Garamond", serif' }}
             >
               Selected with Care. Supplied with Confidence.
