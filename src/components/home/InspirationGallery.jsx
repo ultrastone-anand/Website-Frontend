@@ -5,33 +5,95 @@ import { getOptimizedImageUrl } from "../../utils/Mediahelper";
 const API_URL = import.meta.env.VITE_API_URL;
 const IMAGE_LIMIT = 20;
 
-const GalleryCard = memo(
-  ({ image, className, imageClassName, onClick }) => {
-    const imageAlt = image.image_alt || image.title || "";
-
+const GallerySkeleton = ({ layout }) => {
+  if (layout === "grid") {
     return (
       <div
+        className="min-h-[760px] overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          className="grid w-max grid-flow-col grid-rows-3 gap-5"
+          style={{ gridAutoColumns: "320px" }}
+        >
+          {Array.from({ length: 12 }).map((_, index) => (
+            <div
+              key={index}
+              className="gallery-skeleton h-[240px] w-[320px]"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const cardClass =
+    layout === "one"
+      ? "h-[650px] w-[calc(100vw-120px)]"
+      : "h-[520px] w-[calc(50vw-60px)]";
+
+  return (
+    <div
+      className="min-h-[700px] overflow-hidden"
+      aria-hidden="true"
+    >
+      <div className="flex flex-nowrap gap-5">
+        {Array.from({ length: layout === "one" ? 2 : 4 }).map(
+          (_, index) => (
+            <div
+              key={index}
+              className={`gallery-skeleton shrink-0 ${cardClass}`}
+            />
+          )
+        )}
+      </div>
+    </div>
+  );
+};
+
+const GalleryCard = memo(
+  ({
+    image,
+    className,
+    imageClassName,
+    onClick,
+    imageWidth = 480,
+    imageQuality = 70,
+    imageSizes = "320px",
+  }) => {
+    const imageAlt = image.image_alt || image.title || "Gallery image";
+
+    return (
+      <button
+        type="button"
         onClick={() => onClick(image)}
-        className={`cursor-pointer overflow-hidden bg-[#f1f1f1] ${className}`}
+        aria-label={`Open ${imageAlt} preview`}
+        className={`block cursor-pointer overflow-hidden bg-[#f1f1f1] text-left ${className}`}
       >
         <img
-          src={getOptimizedImageUrl(image.image_url, 480, 70)}
-          srcSet={`
-            ${getOptimizedImageUrl(image.image_url, 320, 68)} 320w,
-            ${getOptimizedImageUrl(image.image_url, 480, 70)} 480w,
-            ${getOptimizedImageUrl(image.image_url, 700, 72)} 700w
-          `}
-          sizes="320px"
-          width="320"
-          height="240"
-          alt={imageAlt}
-          loading="lazy"
-          decoding="async"
-          fetchPriority="low"
-          draggable="false"
-          className={imageClassName}
-        />
-      </div>
+  src={getOptimizedImageUrl(
+    image.image_url,
+    imageWidth,
+    imageQuality
+  )}
+  srcSet={`
+    ${getOptimizedImageUrl(image.image_url, 480, 74)} 480w,
+    ${getOptimizedImageUrl(image.image_url, 640, 76)} 640w,
+    ${getOptimizedImageUrl(image.image_url, 900, 78)} 900w,
+    ${getOptimizedImageUrl(image.image_url, 1200, 80)} 1200w,
+    ${getOptimizedImageUrl(image.image_url, 1600, 82)} 1600w
+  `}
+  sizes={imageSizes}
+  width="320"
+  height="240"
+  alt={imageAlt}
+  loading="lazy"
+  decoding="async"
+  fetchPriority="low"
+  draggable="false"
+  className={imageClassName}
+/>
+      </button>
     );
   }
 );
@@ -40,23 +102,10 @@ GalleryCard.displayName = "GalleryCard";
 
 const InspirationGallery = () => {
   const sectionRef = useRef(null);
-
-  /*
-   * Saves already-loaded category results so returning to a tab
-   * does not call the API again.
-   *
-   * Key:
-   * "all" or category ID
-   */
   const imageCacheRef = useRef(new Map());
 
   const [shouldFetch, setShouldFetch] = useState(false);
   const [layout, setLayout] = useState("grid");
-
-  /*
-   * Store category ID instead of category name.
-   * "all" represents the mixed gallery.
-   */
   const [activeCategoryId, setActiveCategoryId] = useState("all");
 
   const [categories, setCategories] = useState([]);
@@ -68,9 +117,6 @@ const InspirationGallery = () => {
 
   const [selectedImage, setSelectedImage] = useState(null);
 
-  /*
-   * Start loading shortly before the user reaches the section.
-   */
   useEffect(() => {
     const section = sectionRef.current;
 
@@ -78,15 +124,15 @@ const InspirationGallery = () => {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setShouldFetch(true);
-          observer.disconnect();
-        }
+        if (!entry.isIntersecting) return;
+
+        setShouldFetch(true);
+        observer.disconnect();
       },
       {
         root: null,
-        rootMargin: "300px",
-        threshold: 0.1,
+        rootMargin: "150px",
+        threshold: 0.01,
       }
     );
 
@@ -95,9 +141,6 @@ const InspirationGallery = () => {
     return () => observer.disconnect();
   }, []);
 
-  /*
-   * Fetch categories once.
-   */
   useEffect(() => {
     if (!shouldFetch) return undefined;
 
@@ -115,13 +158,17 @@ const InspirationGallery = () => {
         );
 
         if (!response.ok) {
-          throw new Error(`Categories request failed: ${response.status}`);
+          throw new Error(
+            `Categories request failed: ${response.status}`
+          );
         }
 
         const result = await response.json();
 
         if (!result.success) {
-          throw new Error(result.message || "Failed to load categories");
+          throw new Error(
+            result.message || "Failed to load categories"
+          );
         }
 
         setCategories(result.data || []);
@@ -144,15 +191,6 @@ const InspirationGallery = () => {
     return () => controller.abort();
   }, [shouldFetch]);
 
-  /*
-   * Fetch:
-   *
-   * All tab:
-   * /images?limit=20
-   *
-   * Category tab:
-   * /images?categoryId=1&limit=20
-   */
   useEffect(() => {
     if (!shouldFetch) return undefined;
 
@@ -189,13 +227,17 @@ const InspirationGallery = () => {
         );
 
         if (!response.ok) {
-          throw new Error(`Images request failed: ${response.status}`);
+          throw new Error(
+            `Images request failed: ${response.status}`
+          );
         }
 
         const result = await response.json();
 
         if (!result.success) {
-          throw new Error(result.message || "Failed to load images");
+          throw new Error(
+            result.message || "Failed to load images"
+          );
         }
 
         const images = result.data || [];
@@ -210,7 +252,9 @@ const InspirationGallery = () => {
           );
 
           setGalleryImages([]);
-          setGalleryError("Unable to load inspiration images.");
+          setGalleryError(
+            "Unable to load inspiration images."
+          );
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -236,7 +280,7 @@ const InspirationGallery = () => {
   );
 
   const iconClass = (type) =>
-    `cursor-pointer transition-colors duration-200 ${
+    `transition-colors duration-200 ${
       layout === type
         ? "text-black"
         : "text-[#666] hover:text-black"
@@ -244,27 +288,102 @@ const InspirationGallery = () => {
 
   const getImageCardClass = () => {
     if (layout === "two") {
-      return "w-[calc(50vw-60px)] h-[520px]";
+      return "h-[520px] w-[calc(50vw-60px)]";
     }
 
     if (layout === "one") {
-      return "w-[calc(100vw-120px)] h-[650px]";
+      return "h-[650px] w-[calc(100vw-120px)]";
     }
 
     return "";
   };
 
+  const getResponsiveImageSettings = () => {
+    if (layout === "one") {
+      return {
+        imageWidth: 1400,
+        imageQuality: 80,
+        imageSizes: "calc(100vw - 120px)",
+      };
+    }
+
+    if (layout === "two") {
+      return {
+        imageWidth: 1000,
+        imageQuality: 76,
+        imageSizes: "calc(50vw - 60px)",
+      };
+    }
+
+    return {
+      imageWidth: 480,
+      imageQuality: 70,
+      imageSizes: "320px",
+    };
+  };
+
+  const responsiveImageSettings =
+    getResponsiveImageSettings();
+
   return (
-    <section ref={sectionRef} className="bg-white py-[42px]">
+    <section
+      ref={sectionRef}
+      className="bg-white py-[42px]"
+    >
+      <style>
+        {`
+          @keyframes galleryShimmer {
+            0% {
+              transform: translateX(-100%);
+            }
+
+            100% {
+              transform: translateX(100%);
+            }
+          }
+
+          .gallery-skeleton {
+            position: relative;
+            overflow: hidden;
+            background: #eeeeee;
+          }
+
+          .gallery-skeleton::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(255, 255, 255, 0.75),
+              transparent
+            );
+            animation: galleryShimmer 1.4s infinite;
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .gallery-skeleton::after {
+              animation: none;
+            }
+          }
+        `}
+      </style>
+
       <div className="mx-auto max-w-[1850px] px-6 xl:px-[52px]">
         <div className="mb-11 flex items-center justify-between">
           <h2
             className="flex items-center gap-7 text-[18px] font-bold uppercase text-[#111] md:text-[22px]"
-            style={{ fontFamily: "Montserrat, sans-serif" }}
+            style={{
+              fontFamily: "Montserrat, sans-serif",
+            }}
           >
             INSPIRATION GALLERIES
 
-            <span className="cursor-pointer text-[24px] font-normal text-[#FF8000] transition-colors duration-300 hover:text-[#8D8D8D]">
+            <span
+              aria-hidden="true"
+              className="text-[24px] font-normal text-[#B45309]"
+            >
               &rarr;
             </span>
           </h2>
@@ -280,9 +399,14 @@ const InspirationGallery = () => {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setActiveCategoryId(item.id)}
-                  className="group relative pb-2 text-[14px]"
-                  style={{ fontFamily: "Inter, sans-serif" }}
+                  onClick={() =>
+                    setActiveCategoryId(item.id)
+                  }
+                  aria-pressed={isActive}
+                  className="group relative min-h-11 px-1 pb-2 text-[14px]"
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                  }}
                 >
                   <span
                     className={`transition-colors duration-300 ${
@@ -295,6 +419,7 @@ const InspirationGallery = () => {
                   </span>
 
                   <span
+                    aria-hidden="true"
                     className={`absolute bottom-0 left-0 h-[1.5px] bg-black transition-all duration-300 ${
                       isActive
                         ? "w-full"
@@ -305,48 +430,64 @@ const InspirationGallery = () => {
               );
             })}
 
-            {loadingCategories && categories.length === 0 && (
-              <span className="pb-2 text-[14px] text-[#888]">
-                Loading categories...
-              </span>
-            )}
+            {loadingCategories &&
+              categories.length === 0 && (
+                <span className="flex min-h-11 items-center text-[14px] text-[#666]">
+                  Loading categories...
+                </span>
+              )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <Grid2x2
-              size={18}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Show gallery in grid layout"
+              aria-pressed={layout === "grid"}
               onClick={() => setLayout("grid")}
-              className={iconClass("grid")}
-            />
+              className="flex h-11 w-11 items-center justify-center"
+            >
+              <Grid2x2
+                size={18}
+                aria-hidden="true"
+                className={iconClass("grid")}
+              />
+            </button>
 
-            <Columns2
-              size={18}
+            <button
+              type="button"
+              aria-label="Show gallery in two-column layout"
+              aria-pressed={layout === "two"}
               onClick={() => setLayout("two")}
-              className={iconClass("two")}
-            />
+              className="flex h-11 w-11 items-center justify-center"
+            >
+              <Columns2
+                size={18}
+                aria-hidden="true"
+                className={iconClass("two")}
+              />
+            </button>
 
-            <Square
-              size={18}
+            <button
+              type="button"
+              aria-label="Show gallery in single-column layout"
+              aria-pressed={layout === "one"}
               onClick={() => setLayout("one")}
-              className={iconClass("one")}
-            />
+              className="flex h-11 w-11 items-center justify-center"
+            >
+              <Square
+                size={18}
+                aria-hidden="true"
+                className={iconClass("one")}
+              />
+            </button>
           </div>
         </div>
 
-        {!shouldFetch ? (
-          <div className="h-[760px]" />
-        ) : loadingImages ? (
-          <div className="grid min-h-[760px] grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 12 }).map((_, index) => (
-              <div
-                key={index}
-                className="h-[240px] animate-pulse bg-[#F1F1F1]"
-              />
-            ))}
-          </div>
+        {!shouldFetch || loadingImages ? (
+          <GallerySkeleton layout={layout} />
         ) : galleryError ? (
           <div className="flex h-[700px] items-center justify-center border border-[#ECECEC] bg-[#FAFAFA]">
-            <p className="text-[16px] text-[#777]">
+            <p className="text-[16px] text-[#666]">
               {galleryError}
             </p>
           </div>
@@ -362,6 +503,9 @@ const InspirationGallery = () => {
                     key={image.id}
                     image={image}
                     onClick={setSelectedImage}
+                    imageWidth={480}
+                    imageQuality={70}
+                    imageSizes="320px"
                     className="h-[240px] w-[320px]"
                     imageClassName="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                   />
@@ -376,7 +520,8 @@ const InspirationGallery = () => {
                     key={image.id}
                     image={image}
                     onClick={setSelectedImage}
-                    className={`flex-shrink-0 ${getImageCardClass()}`}
+                    {...responsiveImageSettings}
+                    className={`shrink-0 ${getImageCardClass()}`}
                     imageClassName="h-full w-full object-cover"
                   />
                 ))}
@@ -390,7 +535,7 @@ const InspirationGallery = () => {
                 No inspiration images found
               </p>
 
-              <p className="mt-2 text-[14px] text-[#888]">
+              <p className="mt-2 text-[14px] text-[#666]">
                 Images for this category will appear here.
               </p>
             </div>
@@ -400,6 +545,9 @@ const InspirationGallery = () => {
 
       {selectedImage && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image preview"
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-5"
           onClick={() => setSelectedImage(null)}
         >
@@ -407,26 +555,28 @@ const InspirationGallery = () => {
             type="button"
             aria-label="Close image preview"
             onClick={() => setSelectedImage(null)}
-            className="absolute right-6 top-5 text-4xl font-light text-white transition hover:text-[#FF8000]"
+            className="absolute right-4 top-4 flex h-12 w-12 items-center justify-center text-4xl font-light text-white transition hover:text-[#FF8000]"
           >
-            ×
+            <span aria-hidden="true">×</span>
           </button>
 
           <img
             src={getOptimizedImageUrl(
               selectedImage.image_url,
-              2400,
-              90
+              1800,
+              82
             )}
             alt={
               selectedImage.image_alt ||
               selectedImage.title ||
-              ""
+              "Selected gallery image"
             }
             decoding="async"
             fetchPriority="high"
             className="max-h-[90vh] max-w-[95vw] object-contain"
-            onClick={(event) => event.stopPropagation()}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
           />
         </div>
       )}

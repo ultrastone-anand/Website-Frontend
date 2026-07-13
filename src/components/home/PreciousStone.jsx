@@ -141,22 +141,27 @@ const PreciousStoneSection = () => {
               >
                 <div className="aspect-[3/5] overflow-hidden bg-black">
                   <img
-                    src={getOptimizedImageUrl(item.image, 700, 70)}
-                    srcSet={`
-      ${getOptimizedImageUrl(item.image, 420, 68)} 420w,
-      ${getOptimizedImageUrl(item.image, 560, 70)} 560w,
-      ${getOptimizedImageUrl(item.image, 700, 72)} 700w
-    `}
-                    sizes="(max-width: 639px) 100vw, (max-width: 1279px) 33vw, 360px"
-                    width="700"
-                    height="1167"
-                    alt={item.title}
-                    loading="lazy"
-                    decoding="async"
-                    fetchPriority="low"
-                    draggable="false"
-                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                  />
+  src={getOptimizedImageUrl(item.image, 900, 78)}
+  srcSet={`
+    ${getOptimizedImageUrl(item.image, 480, 74)} 480w,
+    ${getOptimizedImageUrl(item.image, 700, 76)} 700w,
+    ${getOptimizedImageUrl(item.image, 900, 78)} 900w,
+    ${getOptimizedImageUrl(item.image, 1200, 80)} 1200w
+  `}
+  sizes="
+    (max-width: 639px) calc(100vw - 40px),
+    (max-width: 1279px) calc(33vw - 20px),
+    360px
+  "
+  width="900"
+  height="1500"
+  alt={item.title}
+  loading="lazy"
+  decoding="async"
+  fetchPriority="low"
+  draggable="false"
+  className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+/>
                 </div>
 
                 <h3
