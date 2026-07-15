@@ -44,7 +44,63 @@ export const getOriginalSafeUrl = (url) => {
   return encodeUrlPath(url);
 };
 
-export const getOptimizedVideoUrl = (url) => {
+export const getOptimizedVideoUrl = (
+  url,
+  {
+    width = 1280,
+    height,
+    fit = "scale-down",
+    audio = false,
+    duration,
+    time,
+  } = {}
+) => {
   if (!url) return "";
-  return encodeUrlPath(url);
+
+  try {
+    const parsed = new URL(url);
+
+    if (parsed.origin !== CDN_DOMAIN) {
+      return encodeUrlPath(url);
+    }
+
+    if (
+      parsed.pathname.startsWith(
+        "/cdn-cgi/media/"
+      )
+    ) {
+      return encodeUrlPath(url);
+    }
+
+    const encodedUrl =
+      encodeUrlPath(url);
+
+    const encodedParsed =
+      new URL(encodedUrl);
+
+    const sourcePath =
+      `${encodedParsed.pathname}${encodedParsed.search}`;
+
+    const options = [
+      "mode=video",
+      `width=${width}`,
+      height
+        ? `height=${height}`
+        : null,
+      `fit=${fit}`,
+      `audio=${audio}`,
+      time
+        ? `time=${time}`
+        : null,
+      duration
+        ? `duration=${duration}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(",");
+
+    return `${CDN_DOMAIN}/cdn-cgi/media/${options}${sourcePath}`;
+  } catch {
+    return encodeUrlPath(url);
+  }
 };
