@@ -70,7 +70,7 @@ const Navbar = () => {
 
   const resources = [
     { label: "Merchandising Displays", path: "/merchandising-displays" },
-    { label: "Videos", path: "/videos" },
+    { label: "Gallery", path: "/gallery" },
     { label: "Our Blogs", path: "/blogs" },
     { label: "CEU", path: "/ceu" },
     { label: "Career", path: "/career" },

@@ -33,8 +33,8 @@ const Career = lazy(() =>
 const CareerDetails = lazy(() =>
   import("../pages/Resource_Center/Career/CareerDetails")
 );
-const Videos = lazy(() =>
-  import("../pages/Resource_Center/Videos/Videos")
+const Gallery = lazy(() =>
+  import("../pages/Resource_Center/Gallery/Gallery")
 );
 const Merchandise = lazy(() =>
   import("../pages/Resource_Center/MerchandisingDisplays/MerchandisingDisplays")
@@ -61,7 +61,7 @@ const AppRoutes = () => {
         <Route path="/ceu" element={<Ceu />} />
         <Route path="/career" element={<Career />} />
         <Route path="/careers/:slug" element={<CareerDetails />} />
-        <Route path="/videos" element={<Videos />} />
+        <Route path="/gallery" element={<Gallery />} />
         <Route
           path="/merchandising-displays"
           element={<Merchandise />}

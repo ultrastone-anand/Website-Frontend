@@ -94,35 +94,35 @@ const ProductDetails = () => {
   }, [productSlug]);
 
   useEffect(() => {
-  if (!product || !modelSectionElement) {
-    return undefined;
-  }
+    if (!product || !modelSectionElement) {
+      return undefined;
+    }
 
-  if (!("IntersectionObserver" in window)) {
-    setShouldLoadModel(true);
-    return undefined;
-  }
+    if (!("IntersectionObserver" in window)) {
+      setShouldLoadModel(true);
+      return undefined;
+    }
 
-  const observer = new IntersectionObserver(
-    ([entry]) => {
-      if (entry.isIntersecting) {
-        setShouldLoadModel(true);
-        observer.disconnect();
-      }
-    },
-    {
-      root: null,
-      rootMargin: "600px 0px",
-      threshold: 0,
-    },
-  );
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadModel(true);
+          observer.disconnect();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "600px 0px",
+        threshold: 0,
+      },
+    );
 
-  observer.observe(modelSectionElement);
+    observer.observe(modelSectionElement);
 
-  return () => {
-    observer.disconnect();
-  };
-}, [product, modelSectionElement]);
+    return () => {
+      observer.disconnect();
+    };
+  }, [product, modelSectionElement]);
 
   useEffect(() => {
     if (!openPreview) {
@@ -150,7 +150,7 @@ const ProductDetails = () => {
     );
   }
 
-  
+
   // All product-derived variables go here.
   const closeupImages =
     product.media?.filter((item) => item.media_type === "CLOSEUP_IMAGE") || [];
@@ -370,11 +370,11 @@ const ProductDetails = () => {
     product.silica_datasheet_url ||
     product.stone_categories?.silica_datasheet_url;
 
-    const zoomImageUrl = getOptimizedImageUrl(
-  images[0]?.media_url,
-  1800,
-  88,
-);
+  const zoomImageUrl = getOptimizedImageUrl(
+    images[0]?.media_url,
+    1800,
+    88,
+  );
 
 
 
@@ -584,70 +584,88 @@ const ProductDetails = () => {
                     <>
                       <button
                         type="button"
+                        aria-label="Show previous product image"
+                        title="Previous image"
                         onClick={(e) => {
                           e.stopPropagation();
                           setActiveImage(
-                            activeImage === 0 ? heroImages.length - 1 : activeImage - 1
+                            activeImage === 0
+                              ? heroImages.length - 1
+                              : activeImage - 1,
                           );
                         }}
                         className="
-            absolute
-            left-5
-            top-1/2
-            z-30
-            -translate-y-1/2
-            w-12
-            h-12
-            rounded-full
-            bg-white/20
-            backdrop-blur-xl
-            border
-            border-white/30
-            text-white
-            flex
-            items-center
-            justify-center
-            hover:bg-white
-            hover:text-black
-            transition-all
-            duration-300
-          "
+    absolute
+    left-5
+    top-1/2
+    z-30
+    -translate-y-1/2
+    w-12
+    h-12
+    rounded-full
+    bg-white/20
+    backdrop-blur-xl
+    border
+    border-white/30
+    text-white
+    flex
+    items-center
+    justify-center
+    hover:bg-white
+    hover:text-black
+    transition-all
+    duration-300
+  "
                       >
-                        <ChevronLeft size={22} strokeWidth={1.7} />
+                        <ChevronLeft
+                          size={22}
+                          strokeWidth={1.7}
+                          aria-hidden="true"
+                          focusable="false"
+                        />
                       </button>
 
                       <button
                         type="button"
+                        aria-label="Show next product image"
+                        title="Next image"
                         onClick={(e) => {
                           e.stopPropagation();
                           setActiveImage(
-                            activeImage === heroImages.length - 1 ? 0 : activeImage + 1
+                            activeImage === heroImages.length - 1
+                              ? 0
+                              : activeImage + 1,
                           );
                         }}
                         className="
-            absolute
-            right-5
-            top-1/2
-            z-30
-            -translate-y-1/2
-            w-12
-            h-12
-            rounded-full
-            bg-white/20
-            backdrop-blur-xl
-            border
-            border-white/30
-            text-white
-            flex
-            items-center
-            justify-center
-            hover:bg-white
-            hover:text-black
-            transition-all
-            duration-300
-          "
+    absolute
+    right-5
+    top-1/2
+    z-30
+    -translate-y-1/2
+    w-12
+    h-12
+    rounded-full
+    bg-white/20
+    backdrop-blur-xl
+    border
+    border-white/30
+    text-white
+    flex
+    items-center
+    justify-center
+    hover:bg-white
+    hover:text-black
+    transition-all
+    duration-300
+  "
                       >
-                        <ChevronRight size={22} strokeWidth={1.7} />
+                        <ChevronRight
+                          size={22}
+                          strokeWidth={1.7}
+                          aria-hidden="true"
+                          focusable="false"
+                        />
                       </button>
                     </>
                   )}
@@ -1023,37 +1041,37 @@ const ProductDetails = () => {
         </section>
 
         {/* 3D Stone */}
-<section ref={setModelSectionElement}>
-  <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
-    <div className="relative min-h-[270px] bg-[#f7f7f7]">
-      <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-xs md:text-sm px-3 py-1.5 rounded-full backdrop-blur-sm">
-        Click to interact with the 3D model
-      </div>
+        <section ref={setModelSectionElement}>
+          <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
+            <div className="relative min-h-[270px] bg-[#f7f7f7]">
+              <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-xs md:text-sm px-3 py-1.5 rounded-full backdrop-blur-sm">
+                Click to interact with the 3D model
+              </div>
 
-      {shouldLoadModel ? (
-        <Suspense
-          fallback={
-            <div className="h-[270px] flex items-center justify-center">
-              <Loading />
+              {shouldLoadModel ? (
+                <Suspense
+                  fallback={
+                    <div className="h-[270px] flex items-center justify-center">
+                      <Loading />
+                    </div>
+                  }
+                >
+                  <ModelViewer
+                    height={270}
+                    poster={images[0]?.media_url}
+                    finishes={product?.finishes_available}
+                  />
+                </Suspense>
+              ) : (
+                <div className="h-[270px] flex items-center justify-center">
+                  <span className="text-sm text-[#777]">
+                    3D model loading…
+                  </span>
+                </div>
+              )}
             </div>
-          }
-        >
-<ModelViewer
-  height={270}
-  poster={images[0]?.media_url}
-  finishes={product?.finishes_available}
-/>
-        </Suspense>
-      ) : (
-        <div className="h-[270px] flex items-center justify-center">
-          <span className="text-sm text-[#777]">
-            3D model loading…
-          </span>
-        </div>
-      )}
-    </div>
-  </div>
-</section>
+          </div>
+        </section>
 
         {/* APPLICATIONS */}
         <section className="py-10 bg-white">
@@ -1540,6 +1558,9 @@ const ProductDetails = () => {
               {relatedProducts.length > 4 && (
                 <div className="flex items-center gap-3">
                   <button
+                    type="button"
+                    aria-label="Scroll related products left"
+                    title="Previous related products"
                     onClick={scrollRelatedLeft}
                     className="
                               w-11
@@ -1559,6 +1580,9 @@ const ProductDetails = () => {
                   </button>
 
                   <button
+                    type="button"
+                    aria-label="Scroll related products right"
+                    title="Next related products"
                     onClick={scrollRelatedRight}
                     className="
             w-11
@@ -1679,13 +1703,13 @@ const ApplicationCard = ({ title, value, Icon }) => {
         "
       >
         <img
-  src={Icon}
-  alt=""
-  loading="lazy"
-  decoding="async"
-  width="58"
-  height="58"
-/>
+          src={Icon}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          width="58"
+          height="58"
+        />
       </div>
 
       {/* CONTENT */}
@@ -1872,29 +1896,29 @@ const RelatedProductCard = ({ item, navigate }) => {
         mb-4
         "
       >
-       <img
-  src={
-    item.closeup_image
-      ? getOptimizedImageUrl(item.closeup_image, 480, 78)
-      : "https://placehold.co/600x600"
-  }
-  srcSet={
-    item.closeup_image
-      ? `
+        <img
+          src={
+            item.closeup_image
+              ? getOptimizedImageUrl(item.closeup_image, 480, 78)
+              : "https://placehold.co/600x600"
+          }
+          srcSet={
+            item.closeup_image
+              ? `
         ${getOptimizedImageUrl(item.closeup_image, 320, 72)} 320w,
         ${getOptimizedImageUrl(item.closeup_image, 480, 78)} 480w,
         ${getOptimizedImageUrl(item.closeup_image, 640, 80)} 640w
       `
-      : undefined
-  }
-  sizes="320px"
-  alt={item.name}
-  loading="lazy"
-  decoding="async"
-  fetchPriority="low"
-  width="320"
-  height="320"
-  className="
+              : undefined
+          }
+          sizes="320px"
+          alt={item.name}
+          loading="lazy"
+          decoding="async"
+          fetchPriority="low"
+          width="320"
+          height="320"
+          className="
     w-full
     h-[320px]
     object-cover
@@ -1902,7 +1926,7 @@ const RelatedProductCard = ({ item, navigate }) => {
     transition-all
     duration-700
   "
-/>
+        />
       </div>
 
       {/* CATEGORY */}
