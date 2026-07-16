@@ -653,70 +653,7 @@ const IntroSection = () => {
         </div>
 
         <div className="mt-[40px]">
-          <div className="mb-5 flex justify-end gap-4">
-            <button
-              type="button"
-              aria-label="Previous collection"
-              disabled={
-                loading ||
-                materials.length < 2
-              }
-              onClick={() =>
-                scrollCategories("left")
-              }
-              className="
-                flex
-                h-11
-                w-11
-                items-center
-                justify-center
-                border
-                border-[#d5d5d5]
-                text-[24px]
-                text-[#111]
-                transition
-                hover:border-black
-                hover:bg-black
-                hover:text-white
-                disabled:cursor-not-allowed
-                disabled:opacity-30
-              "
-            >
-              ←
-            </button>
 
-            <button
-              type="button"
-              aria-label="Next collection"
-              disabled={
-                loading ||
-                materials.length < 2 ||
-                !canScrollRight
-              }
-              onClick={() =>
-                scrollCategories("right")
-              }
-              className="
-                flex
-                h-11
-                w-11
-                items-center
-                justify-center
-                border
-                border-[#d5d5d5]
-                text-[24px]
-                text-[#111]
-                transition
-                hover:border-black
-                hover:bg-black
-                hover:text-white
-                disabled:cursor-not-allowed
-                disabled:opacity-30
-              "
-            >
-              →
-            </button>
-          </div>
 
           {loading ? (
             <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">

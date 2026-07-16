@@ -85,28 +85,28 @@ const Footer = () => {
     <footer className="relative overflow-hidden bg-black text-white">
       <img
         src={getOptimizedImageUrl(
-          "https://cdn.ultrastone.in/footer.png",
+          "https://cdn.ultrastone.in/footer_main.png",
           1600,
           68
         )}
         srcSet={`
     ${getOptimizedImageUrl(
-          "https://cdn.ultrastone.in/footer.png",
+          "https://cdn.ultrastone.in/footer_main.png",
           640,
           65
         )} 640w,
     ${getOptimizedImageUrl(
-          "https://cdn.ultrastone.in/footer.png",
+          "https://cdn.ultrastone.in/footer_main.png",
           1024,
           67
         )} 1024w,
     ${getOptimizedImageUrl(
-          "https://cdn.ultrastone.in/footer.png",
+          "https://cdn.ultrastone.in/footer_main.png",
           1600,
           68
         )} 1600w,
     ${getOptimizedImageUrl(
-          "https://cdn.ultrastone.in/footer.png",
+          "https://cdn.ultrastone.in/footer_main.png",
           1920,
           70
         )} 1920w
