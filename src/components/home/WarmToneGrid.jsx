@@ -50,34 +50,24 @@ const WarmToneGrid = () => {
     setCanScrollRight,
   ] = useState(false);
 
-  const updateScrollControls =
-    useCallback(() => {
-      const container =
-        scrollRef.current;
+const updateScrollControls = useCallback(() => {
+  const container = scrollRef.current;
 
-      if (!container) {
-        setCanScrollLeft(false);
-        setCanScrollRight(false);
-        return;
-      }
+  if (!container) return;
 
-      const {
-        scrollLeft,
-        scrollWidth,
-        clientWidth,
-      } = container;
+  const maxScrollLeft =
+    container.scrollWidth - container.clientWidth;
 
-      const tolerance = 4;
+  setCanScrollLeft(
+    container.scrollLeft > 2
+  );
 
-      setCanScrollLeft(
-        scrollLeft > tolerance
-      );
-
-      setCanScrollRight(
-        scrollLeft + clientWidth <
-          scrollWidth - tolerance
-      );
-    }, []);
+  setCanScrollRight(
+    maxScrollLeft > 2 &&
+      container.scrollLeft <
+        maxScrollLeft - 2
+  );
+}, []);
 
   const fetchProductsByCategory =
     useCallback(
