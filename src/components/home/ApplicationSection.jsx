@@ -24,8 +24,8 @@ const applications = [
 
 const fallbackImages = [
   "https://cdn.ultrastone.in/Home%20Page/inspiration%20galleries/bathroom/1783518137508-32b313c4-3b86-43c5-81d6-24b3d075c486-1783518137466-c234cb81-8026-4796-83a1-921ff406afea-bathroom.jpg",
-  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?q=80&w=1200&auto=format&fit=crop",
+  "https://cdn.ultrastone.in/Home%20Page/inspiration%20galleries/kitchen/1783529992231-043802ea-cef7-4817-996d-a3e3fa4b0240-cipollino-verde-2cm-hon.jpg",
+  "https://cdn.ultrastone.in/Home%20Page/inspiration%20galleries/outdoors/1783530312160-6c2d96f4-be10-4825-bd02-0eaeebb4997b-pool-deck-scene.jpg",
 ];
 
 const getRandomImage = (images) => {
@@ -36,7 +36,7 @@ const getRandomImage = (images) => {
   return images[randomIndex];
 };
 
-const PreciousStoneSection = () => {
+const ApplicationSection = () => {
   const [galleryImages, setGalleryImages] = useState([]);
 
   useEffect(() => {
@@ -186,4 +186,4 @@ const PreciousStoneSection = () => {
   );
 };
 
-export default PreciousStoneSection;
+export default ApplicationSection;

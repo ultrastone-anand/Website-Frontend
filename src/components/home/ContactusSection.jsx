@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { getOptimizedImageUrl } from "../../utils/Mediahelper";
 
-const InstagramSection = () => {
+const ContactusSection = () => {
   const navigate = useNavigate();
 
   const contactImage =
@@ -94,4 +94,4 @@ const InstagramSection = () => {
   );
 };
 
-export default InstagramSection;
+export default ContactusSection;

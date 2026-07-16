@@ -4,28 +4,28 @@ import Navbar from "../components/common/Navbar";
 import HeroSection from "../components/home/HeroSection";
 import LazySection from "../components/common/LazySection";
 
-const IntroSection = lazy(() =>
-  import("../components/home/IntroSection")
+const OurCollectionSection = lazy(() =>
+  import("../components/home/OurCollectionSection")
 );
 
-const WarmToneGrid = lazy(() =>
-  import("../components/home/WarmToneGrid")
+const FeaturedStones = lazy(() =>
+  import("../components/home/FeaturedStones")
 );
 
-const PreciousStoneSection = lazy(() =>
-  import("../components/home/PreciousStone")
+const ApplicationSection = lazy(() =>
+  import("../components/home/ApplicationSection")
 );
 
 const InspirationGallery = lazy(() =>
   import("../components/home/InspirationGallery")
 );
 
-const LatestBlogsSection = lazy(() =>
-  import("../components/home/LatestBlogsSection")
+const WhyUltraSection = lazy(() =>
+  import("../components/home/WhyUltraSection")
 );
 
-const InstagramSection = lazy(() =>
-  import("../components/home/InstagramSection")
+const ContactusSection = lazy(() =>
+  import("../components/home/ContactusSection")
 );
 
 const Footer = lazy(() =>
@@ -44,21 +44,21 @@ const Home = () => {
         minHeight="950px"
         rootMargin="500px"
       >
-        <IntroSection />
+        <OurCollectionSection />
       </LazySection>
 
       <LazySection
         minHeight="850px"
         rootMargin="400px"
       >
-        <WarmToneGrid />
+        <FeaturedStones />
       </LazySection>
 
       <LazySection
         minHeight="760px"
         rootMargin="350px"
       >
-        <PreciousStoneSection />
+        <ApplicationSection />
       </LazySection>
 
       <LazySection
@@ -72,14 +72,14 @@ const Home = () => {
         minHeight="650px"
         rootMargin="250px"
       >
-        <LatestBlogsSection />
+        <WhyUltraSection />
       </LazySection>
 
       <LazySection
         minHeight="620px"
         rootMargin="250px"
       >
-        <InstagramSection />
+        <ContactusSection />
       </LazySection>
 
       <LazySection

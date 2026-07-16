@@ -32,7 +32,7 @@ const features = [
   },
 ];
 
-const LatestBlogsSection = () => {
+const WhyUltraSection = () => {
   return (
     <section className="bg-white py-[40px]">
       <div className="mx-auto max-w-[1850px] px-6">
@@ -104,4 +104,4 @@ const LatestBlogsSection = () => {
   );
 };
 
-export default LatestBlogsSection;
+export default WhyUltraSection;

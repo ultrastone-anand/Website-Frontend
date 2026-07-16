@@ -141,6 +141,18 @@ const Navbar = () => {
               isLightNavbar={isLightNavbar}
             />
 
+            <NavLink
+              title="Online Inventory"
+              onClick={() =>
+                window.open(
+                  "https://ultrastones.stoneprofitsweb.com/",
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }
+              isLightNavbar={isLightNavbar}
+            />
+
             <MegaMenu
               title="Material Portfolio"
               path="/categories"

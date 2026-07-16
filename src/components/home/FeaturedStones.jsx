@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { getOptimizedImageUrl } from "../../utils/Mediahelper";
 
-const WarmToneGrid = () => {
+const FeaturedStones = () => {
   const scrollRef = useRef(null);
 
   const [stoneTypes, setStoneTypes] = useState([]);
@@ -270,4 +270,4 @@ const WarmToneGrid = () => {
   );
 };
 
-export default WarmToneGrid;
+export default FeaturedStones;

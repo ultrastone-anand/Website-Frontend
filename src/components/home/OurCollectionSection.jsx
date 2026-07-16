@@ -16,7 +16,7 @@ const AUTO_SCROLL_SPEED = 0.55;
 const CARD_GAP = 40;
 const RESUME_DELAY = 2500;
 
-const IntroSection = () => {
+const OurCollectionSection = () => {
   const navigate = useNavigate();
 
   const scrollRef = useRef(null);
@@ -812,4 +812,4 @@ const IntroSection = () => {
   );
 };
 
-export default IntroSection;
+export default OurCollectionSection;
