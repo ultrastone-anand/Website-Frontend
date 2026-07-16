@@ -214,7 +214,7 @@ const Navbar = () => {
                 aria-label="Search materials"
                 className="absolute right-0 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center"
               >
-                <Search size={17} aria-hidden="true" />
+                <Search size={17} aria-hidden="true" color="white" />
               </button>
             </div>
           </nav>
