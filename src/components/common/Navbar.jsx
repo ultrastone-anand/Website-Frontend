@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { ChevronDown, Menu, Search, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
+import GlobalSearch from "./GlobalSearch";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -195,28 +196,12 @@ const Navbar = () => {
 
             {/* SEARCH */}
 
-            <div className="relative hidden max-w-[320px] flex-1 lg:flex">
-              <input
-                type="text"
-                placeholder="Search Material"
-                className={`
-                  h-11 w-full rounded-md border px-4 pr-10 text-[12px]
-                  outline-none transition-all duration-300
-                  ${isLightNavbar
-                    ? "border-gray-300 bg-white text-black placeholder:text-gray-500"
-                    : "border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-white/40 focus:bg-white/15"
-                  }
-                `}
-              />
-
-              <button
-                type="button"
-                aria-label="Search materials"
-                className="absolute right-0 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center"
-              >
-                <Search size={17} aria-hidden="true" color="white" />
-              </button>
-            </div>
+<div className="hidden min-w-[260px] max-w-[320px] flex-1 lg:block">
+  <GlobalSearch
+    materials={materials}
+    isLightNavbar={isLightNavbar}
+  />
+</div>
           </nav>
 
           {/* MOBILE TOGGLE */}
@@ -249,23 +234,16 @@ const Navbar = () => {
             `}
           >
             <div className="px-6 py-8">
-              <div className="mb-8">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search Material"
-                    className="
-                      h-[48px] w-full rounded-md border border-white/15 bg-white/10
-                      px-4 pr-12 text-sm text-white outline-none placeholder:text-white/50
-                    "
-                  />
-
-                  <Search
-                    size={18}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50"
-                  />
-                </div>
-              </div>
+<div className="mb-8">
+  <GlobalSearch
+    materials={materials}
+    mobile
+    onResultClick={() => {
+      setMobileMenu(false);
+      setMobileDropdown(null);
+    }}
+  />
+</div>
 
               <MobileDropdown
                 title="Ultra Experience"
@@ -277,42 +255,107 @@ const Navbar = () => {
                 setMobileMenu={setMobileMenu}
               />
 
-              <div className="border-b border-white/10">
-                <button
-                  onClick={() =>
-                    setMobileDropdown(
-                      mobileDropdown === "materials" ? null : "materials"
-                    )
-                  }
-                  className="flex w-full items-center justify-between py-5 text-[13px] uppercase tracking-[2px] text-white"
-                >
-                  Material Portfolio
-                  <ChevronDown
-                    size={18}
-                    className={`transition-transform ${mobileDropdown === "materials" ? "rotate-180" : ""
-                      }`}
-                  />
-                </button>
+              <button
+                type="button"
+                onClick={() => {
+                  window.open(
+                    "https://ultrastones.stoneprofitsweb.com/",
+                    "_blank",
+                    "noopener,noreferrer"
+                  );
 
-                {mobileDropdown === "materials" && (
-                  <div className="space-y-4 pb-5 pl-3">
-                    {materials
-                      .filter((item) => item.parent_id === null)
-                      .map((item) => (
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            navigate(`/product-category/${item.slug}`);
-                            setMobileMenu(false);
-                          }}
-                          className="block text-left text-white/70 duration-300 hover:text-white"
-                        >
-                          {item.name}
-                        </button>
-                      ))}
+                  setMobileMenu(false);
+                }}
+                className="
+                          w-full border-b border-white/10 py-5 text-left
+                          text-[13px] uppercase tracking-[2px] text-white
+                        "
+              >
+                Online Inventory
+              </button>
+
+              <div className="border-b border-white/10">
+                <div className="flex w-full items-stretch">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigate("/categories");
+                      setMobileMenu(false);
+                      setMobileDropdown(null);
+                    }}
+                    className="
+        flex flex-1 items-center py-5 text-left
+        text-[13px] uppercase tracking-[2px] text-white
+      "
+                  >
+                    Material Portfolio
+                  </button>
+
+                  <button
+                    type="button"
+                    aria-label="Toggle Material Portfolio menu"
+                    aria-expanded={mobileDropdown === "materials"}
+                    onClick={() =>
+                      setMobileDropdown((current) =>
+                        current === "materials" ? null : "materials"
+                      )
+                    }
+                    className="
+        flex w-10 shrink-0 items-center justify-end
+        py-5 text-white
+      "
+                  >
+                    <ChevronDown
+                      size={18}
+                      className={`
+          transition-transform duration-300
+          ${mobileDropdown === "materials" ? "rotate-180" : ""}
+        `}
+                    />
+                  </button>
+                </div>
+
+                <div
+                  className={`
+      grid transition-all duration-300
+      ${mobileDropdown === "materials"
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
+                    }
+    `}
+                >
+                  <div className="overflow-hidden">
+                    <div className="space-y-4 pb-5 pl-3">
+                      {materials
+                        .filter((item) => item.parent_id === null)
+                        .sort((a, b) => {
+                          const orderA = a.display_order ?? 999;
+                          const orderB = b.display_order ?? 999;
+
+                          return orderA - orderB;
+                        })
+                        .map((item) => (
+                          <button
+                            type="button"
+                            key={item.id}
+                            onClick={() => {
+                              navigate(`/product-category/${item.slug}`);
+                              setMobileMenu(false);
+                              setMobileDropdown(null);
+                            }}
+                            className="
+                block w-full text-left text-white/70
+                duration-300 hover:text-white
+              "
+                          >
+                            {item.name}
+                          </button>
+                        ))}
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
+
 
               <MobileDropdown
                 title="Resource Center"
