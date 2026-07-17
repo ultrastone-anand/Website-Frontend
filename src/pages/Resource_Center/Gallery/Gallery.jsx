@@ -1045,7 +1045,7 @@ export const Gallery = () => {
               {" / "}
 
               <span className="font-semibold text-[#161412]">
-                Gallery
+                Portfolio
               </span>
             </p>
           </div>
