@@ -1,19 +1,154 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+
 import { getOptimizedImageUrl } from "../../utils/Mediahelper";
+
+const BROWSE_CATEGORY = {
+  id: "browse",
+  name: "Browse",
+  slug: "browse",
+  isVirtual: true,
+};
+
+const MAX_BROWSE_PRODUCTS = 12;
+
+const shuffleArray = (items) => {
+  const shuffledItems = [...items];
+
+  for (let index = shuffledItems.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+
+    [shuffledItems[index], shuffledItems[randomIndex]] = [
+      shuffledItems[randomIndex],
+      shuffledItems[index],
+    ];
+  }
+
+  return shuffledItems;
+};
+
+const getActiveProducts = (result) =>
+  (result.products || result.data || []).filter((item) => {
+    const hasImage =
+      Boolean(item.closeup_image) ||
+      Boolean(item.media?.[0]?.media_url);
+
+    return (
+      item.is_active === true &&
+      item.is_published === true &&
+      hasImage
+    );
+  });
 
 const FeaturedStones = () => {
   const scrollRef = useRef(null);
+  const requestIdRef = useRef(0);
 
   const [stoneTypes, setStoneTypes] = useState([]);
   const [products, setProducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedCategoryName, setSelectedCategoryName] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("browse");
+  const [selectedCategoryName, setSelectedCategoryName] = useState("Browse");
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(false);
 
-  const fetchProductsByCategory = async (categorySlug) => {
+  const resetProductScroll = () => {
+    scrollRef.current?.scrollTo({
+      left: 0,
+      behavior: "smooth",
+    });
+  };
+
+  const fetchBrowseProducts = useCallback(async (categories) => {
+    if (!Array.isArray(categories) || categories.length === 0) {
+      setProducts([]);
+      return;
+    }
+
+    const currentRequestId = requestIdRef.current + 1;
+    requestIdRef.current = currentRequestId;
+
+    try {
+      setLoadingProducts(true);
+      setSelectedCategoryName("Browse");
+
+      /*
+       * Randomize category order first.
+       * Every category is requested only once, and only one random
+       * product from each category is added to Browse.
+       */
+      const shuffledCategories = shuffleArray(categories);
+
+      const categoryRequests = shuffledCategories.map(async (category) => {
+        try {
+          const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/stones/${category.slug}`
+          );
+
+          const result = response.data;
+
+          if (!result.success) {
+            return null;
+          }
+
+          const activeProducts = getActiveProducts(result);
+
+          if (activeProducts.length === 0) {
+            return null;
+          }
+
+          const randomProduct =
+            activeProducts[
+              Math.floor(Math.random() * activeProducts.length)
+            ];
+
+          return {
+            ...randomProduct,
+            _categorySlug: category.slug,
+            _categoryName: result.category?.name || category.name,
+          };
+        } catch (error) {
+          console.error(
+            `Error fetching Browse product from ${category.name}:`,
+            error
+          );
+
+          return null;
+        }
+      });
+
+      const browseResults = await Promise.all(categoryRequests);
+
+      if (requestIdRef.current !== currentRequestId) {
+        return;
+      }
+
+      const randomBrowseProducts = browseResults
+        .filter(Boolean)
+        .slice(0, MAX_BROWSE_PRODUCTS);
+
+      setProducts(randomBrowseProducts);
+
+      window.requestAnimationFrame(() => {
+        resetProductScroll();
+      });
+    } catch (error) {
+      console.error("Error fetching Browse products:", error);
+
+      if (requestIdRef.current === currentRequestId) {
+        setProducts([]);
+      }
+    } finally {
+      if (requestIdRef.current === currentRequestId) {
+        setLoadingProducts(false);
+      }
+    }
+  }, []);
+
+  const fetchProductsByCategory = useCallback(async (categorySlug) => {
+    const currentRequestId = requestIdRef.current + 1;
+    requestIdRef.current = currentRequestId;
+
     try {
       setLoadingProducts(true);
 
@@ -23,31 +158,47 @@ const FeaturedStones = () => {
 
       const result = response.data;
 
-      if (result.success) {
-        setSelectedCategoryName(result.category?.name || "");
+      if (requestIdRef.current !== currentRequestId) {
+        return;
+      }
 
-        const activeProducts = (result.products || result.data || []).filter(
-          (item) =>
-            item.is_active === true &&
-            item.is_published === true &&
-            item.media?.length > 0
-        );
+      if (result.success) {
+        const categoryName = result.category?.name || "";
+
+        setSelectedCategoryName(categoryName);
+
+        const activeProducts = getActiveProducts(result).map((item) => ({
+          ...item,
+          _categorySlug: categorySlug,
+          _categoryName: categoryName,
+        }));
 
         setProducts(activeProducts);
       } else {
         setProducts([]);
       }
+
+      window.requestAnimationFrame(() => {
+        resetProductScroll();
+      });
     } catch (error) {
       console.error("Error fetching products:", error);
-      setProducts([]);
+
+      if (requestIdRef.current === currentRequestId) {
+        setProducts([]);
+      }
     } finally {
-      setLoadingProducts(false);
+      if (requestIdRef.current === currentRequestId) {
+        setLoadingProducts(false);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
     const fetchStoneTypes = async () => {
       try {
+        setLoadingCategories(true);
+
         const response = await axios.get(
           `${import.meta.env.VITE_API_URL}/stones`
         );
@@ -55,13 +206,18 @@ const FeaturedStones = () => {
         const result = response.data;
 
         if (result.success) {
-          const activeCategories = result.data
-            .filter((item) => item.is_active === true && item.parent_id === null)
+          const activeCategories = (result.data || [])
+            .filter(
+              (item) =>
+                item.is_active === true && item.parent_id === null
+            )
             .sort((a, b) => {
               const orderA = a.display_order ?? 999;
               const orderB = b.display_order ?? 999;
 
-              if (orderA !== orderB) return orderA - orderB;
+              if (orderA !== orderB) {
+                return orderA - orderB;
+              }
 
               return a.name.localeCompare(b.name, undefined, {
                 sensitivity: "base",
@@ -69,29 +225,41 @@ const FeaturedStones = () => {
             });
 
           setStoneTypes(activeCategories);
+          setSelectedCategory("browse");
+          setSelectedCategoryName("Browse");
 
-          if (activeCategories.length > 0) {
-            setSelectedCategory(activeCategories[0].slug);
-            fetchProductsByCategory(activeCategories[0].slug);
-          }
+          await fetchBrowseProducts(activeCategories);
+        } else {
+          setStoneTypes([]);
+          setProducts([]);
         }
       } catch (error) {
         console.error("Error fetching stone types:", error);
+        setStoneTypes([]);
+        setProducts([]);
       } finally {
         setLoadingCategories(false);
       }
     };
 
     fetchStoneTypes();
-  }, []);
+  }, [fetchBrowseProducts]);
 
   const handleCategoryClick = (slug) => {
     setSelectedCategory(slug);
+
+    if (slug === "browse") {
+      fetchBrowseProducts(stoneTypes);
+      return;
+    }
+
     fetchProductsByCategory(slug);
   };
 
   const scrollProducts = (direction) => {
-    if (!scrollRef.current) return;
+    if (!scrollRef.current) {
+      return;
+    }
 
     scrollRef.current.scrollBy({
       left: direction === "left" ? -320 : 320,
@@ -99,8 +267,10 @@ const FeaturedStones = () => {
     });
   };
 
+  const displayCategories = [BROWSE_CATEGORY, ...stoneTypes];
+
   return (
-    <section className="bg-white py-10 md:py-[24px] mb-[70px]">
+    <section className="mb-[70px] bg-white py-10 md:py-[24px]">
       <div className="mx-auto max-w-[1850px] px-5 md:px-6 xl:px-[52px]">
         <div className="mb-8 flex items-center justify-between md:mb-[44px]">
           <h2
@@ -108,6 +278,7 @@ const FeaturedStones = () => {
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
             FEATURED STONES
+
             <span className="text-[24px] font-normal text-[#FF8000] md:text-[28px]">
               →
             </span>
@@ -116,6 +287,7 @@ const FeaturedStones = () => {
           <div className="flex items-center gap-5 text-[28px] text-[#111] md:gap-7 md:text-[34px]">
             <button
               type="button"
+              aria-label="Scroll featured stones left"
               onClick={() => scrollProducts("left")}
               className="leading-none transition hover:text-black"
             >
@@ -124,6 +296,7 @@ const FeaturedStones = () => {
 
             <button
               type="button"
+              aria-label="Scroll featured stones right"
               onClick={() => scrollProducts("right")}
               className="leading-none transition hover:text-black"
             >
@@ -140,7 +313,7 @@ const FeaturedStones = () => {
                   className="h-8 w-24 shrink-0 animate-pulse bg-gray-200"
                 />
               ))
-            : stoneTypes.map((item) => (
+            : displayCategories.map((item) => (
                 <button
                   key={item.id}
                   type="button"
@@ -148,7 +321,7 @@ const FeaturedStones = () => {
                   className={`shrink-0 border px-4 py-2 text-[13px] transition ${
                     selectedCategory === item.slug
                       ? "border-[#d97918] bg-[#d97918] text-white"
-                      : "border-[#d0d0d0] text-[#5f5f5f]"
+                      : "border-[#d0d0d0] text-[#5f5f5f] hover:border-[#d97918] hover:text-[#111]"
                   }`}
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
@@ -174,7 +347,7 @@ const FeaturedStones = () => {
                       className="ml-3 h-4 w-24 animate-pulse bg-gray-200"
                     />
                   ))
-                : stoneTypes.map((item) => (
+                : displayCategories.map((item) => (
                     <button
                       key={item.id}
                       type="button"
@@ -182,7 +355,7 @@ const FeaturedStones = () => {
                       className={`block w-full pl-3 text-left text-[14px] transition hover:text-black ${
                         selectedCategory === item.slug
                           ? "border-l-2 border-[#d97918] font-semibold text-[#111]"
-                          : "text-[#5f5f5f]"
+                          : "border-l-2 border-transparent text-[#5f5f5f]"
                       }`}
                       style={{ fontFamily: "Inter, sans-serif" }}
                     >
@@ -207,59 +380,81 @@ const FeaturedStones = () => {
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
                   {item}
+
                   <span className="text-[16px]">⌄</span>
                 </button>
               ))}
             </div>
           </aside>
 
-          <div ref={scrollRef} className="overflow-x-auto overflow-y-hidden">
+          <div
+            ref={scrollRef}
+            className="overflow-x-auto overflow-y-hidden"
+          >
             <div className="flex gap-5 pb-3 md:gap-6">
               {loadingProducts ? (
-                Array.from({ length: 4 }).map((_, index) => (
+                Array.from({ length: 6 }).map((_, index) => (
                   <div
                     key={index}
                     className="w-[230px] shrink-0 animate-pulse sm:w-[260px] lg:w-[300px] xl:w-[360px]"
                   >
                     <div className="h-[300px] bg-gray-200 sm:h-[340px] lg:h-[400px] xl:h-[460px]" />
+
                     <div className="mx-auto mt-5 h-5 w-32 bg-gray-200" />
+
                     <div className="mx-auto mt-3 h-4 w-24 bg-gray-100" />
                   </div>
                 ))
               ) : products.length > 0 ? (
-                products.map((item) => (
-                  <Link
-                    key={item.id || item.slug}
-                    to={`/product/${selectedCategory}/${item.slug}`}
-                    className="group w-[230px] shrink-0 text-center sm:w-[260px] lg:w-[300px] xl:w-[360px]"
-                  >
-                    <div className="h-[300px] overflow-hidden bg-[#f1f1f1] sm:h-[340px] lg:h-[400px] xl:h-[460px]">
-                      <img
-                        src={getOptimizedImageUrl(item.media?.[0]?.media_url || item.closeup_image)}
-                        alt={item.name}
-                        className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                      />
-                    </div>
+                products.map((item) => {
+                  const productCategorySlug =
+                    item._categorySlug || selectedCategory;
 
-                    <h3
-                      className="mt-4 text-[16px] font-bold uppercase leading-tight text-[#111] md:mt-5 md:text-[18px]"
-                      style={{ fontFamily: "Montserrat, sans-serif" }}
-                    >
-                      {item.name}
-                    </h3>
+                  const productCategoryName =
+                    item._categoryName || selectedCategoryName;
 
-                    <p
-                      className="mt-2 text-[12px] text-[#5f5f5f] md:text-[13px]"
-                      style={{ fontFamily: "Inter, sans-serif" }}
+                  const productImage =
+                    item.media?.[0]?.media_url || item.closeup_image;
+
+                  return (
+                    <Link
+                      key={`${productCategorySlug}-${item.id || item.slug}`}
+                      to={`/product/${productCategorySlug}/${item.slug}`}
+                      className="group w-[230px] shrink-0 text-center sm:w-[260px] lg:w-[300px] xl:w-[360px]"
                     >
-                      {item.stone_group || selectedCategoryName}
-                      {item.pattern ? ` • ${item.pattern}` : ""}
-                    </p>
-                  </Link>
-                ))
+                      <div className="h-[300px] overflow-hidden bg-[#f1f1f1] sm:h-[340px] lg:h-[400px] xl:h-[460px]">
+                        <img
+                          src={getOptimizedImageUrl(productImage)}
+                          alt={item.name}
+                          loading="lazy"
+                          decoding="async"
+                          className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                        />
+                      </div>
+
+                      <h3
+                        className="mt-4 text-[16px] font-bold uppercase leading-tight text-[#111] md:mt-5 md:text-[18px]"
+                        style={{
+                          fontFamily: "Montserrat, sans-serif",
+                        }}
+                      >
+                        {item.name}
+                      </h3>
+
+                      <p
+                        className="mt-2 text-[12px] text-[#5f5f5f] md:text-[13px]"
+                        style={{ fontFamily: "Inter, sans-serif" }}
+                      >
+                        {item.stone_group || productCategoryName}
+
+                        {item.pattern ? ` • ${item.pattern}` : ""}
+                      </p>
+                    </Link>
+                  );
+                })
               ) : (
-                <div className="flex h-[300px] w-full items-center justify-center text-[16px] text-[#FF8000]">
-                  No Stones found
+                <div className="flex h-[300px] min-w-full items-center justify-center text-[16px] text-[#FF8000]">
+                  No stones found
                 </div>
               )}
             </div>
@@ -270,4 +465,4 @@ const FeaturedStones = () => {
   );
 };
 
-export default FeaturedStones;
+export default FeaturedStones

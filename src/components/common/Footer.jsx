@@ -1,19 +1,92 @@
 // src/components/common/Footer.jsx
 
 import axios from "axios";
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Phone, Mail, Clock3 } from "lucide-react";
+import { Clock3, Mail, Phone } from "lucide-react";
 
 import {
-  FaHouzz,
-  FaYoutube,
-  FaXTwitter,
   FaFacebookF,
+  FaHouzz,
   FaInstagram,
   FaPinterestP,
+  FaXTwitter,
+  FaYoutube,
 } from "react-icons/fa6";
+
 import { getOptimizedImageUrl } from "../../utils/Mediahelper";
+
+const EXPLORE_LINKS = [
+  {
+    label: "Browse Products",
+    path: "/categories",
+  },
+  {
+    label: "Featured Stones",
+    path: "/products",
+  },
+  {
+    label: "Applications",
+    path: "/applications",
+  },
+  {
+    label: "Inspiration Gallery",
+    path: "/inspiration",
+  },
+];
+
+const COMPANY_LINKS = [
+  {
+    label: "About Us",
+    path: "/aboutus",
+  },
+  {
+    label: "Our Story",
+    path: "/ourprocess",
+  },
+  {
+    label: "Resources",
+    path: "/resource-library",
+  },
+  {
+    label: "Care & Maintenance",
+    path: "/care-maintenance",
+  },
+  {
+    label: "Blog",
+    path: "/blogs",
+  },
+  {
+    label: "Careers",
+    path: "/career",
+  },
+  {
+    label: "Privacy Policy",
+    path: "/privacy-policy",
+  },
+];
+
+const SHOWROOM_LINKS = [
+  {
+    label: "New York",
+    path: "/locations/new-york",
+  },
+  {
+    label: "Philadelphia",
+    path: "/locations/philadelphia",
+  },
+];
+
+const SOCIAL_ICONS = {
+  youtube: FaYoutube,
+  facebook: FaFacebookF,
+  instagram: FaInstagram,
+  twitter: FaXTwitter,
+  x: FaXTwitter,
+  pinterest: FaPinterestP,
+  houzz: FaHouzz,
+};
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -21,184 +94,269 @@ const Footer = () => {
   const [socials, setSocials] = useState([]);
   const [showrooms, setShowrooms] = useState([]);
 
-  const exploreLinks = [
-    { label: "Browse Products", path: "/categories" },
-    { label: "Featured Stones", path: "/products" },
-    { label: "Applications", path: "/applications" },
-    { label: "Inspiration Gallery", path: "/inspiration" },
-  ];
-
-  const companyLinks = [
-    { label: "About Us", path: "/aboutus" },
-    { label: "Our Story", path: "/ourprocess" },
-    { label: "Resources", path: "/resource-library" },
-    { label: "Care & Maintenance", path: "/care-maintenance" },
-    { label: "Blog", path: "/blogs" },
-    { label: "Career", path: "/career" },
-  ];
-
-  const showroomLinks = [
-    { label: "New York", path: "/locations/new-york" },
-    { label: "Philadelphia", path: "/locations/philadelphia" },
-  ];
-
-  const socialIcons = {
-    youtube: FaYoutube,
-    facebook: FaFacebookF,
-    instagram: FaInstagram,
-    twitter: FaXTwitter,
-    x: FaXTwitter,
-    pinterest: FaPinterestP,
-    houzz: FaHouzz,
-  };
-
   useEffect(() => {
+    let isMounted = true;
+
     const fetchFooterData = async () => {
       try {
-        const [socialRes, companyRes] = await Promise.all([
-          axios.get(`${import.meta.env.VITE_API_URL}/company/socialmedia`),
-          axios.get(`${import.meta.env.VITE_API_URL}/company`),
-        ]);
+        const [socialResponse, companyResponse] =
+          await Promise.allSettled([
+            axios.get(
+              `${import.meta.env.VITE_API_URL}/company/socialmedia`
+            ),
+            axios.get(
+              `${import.meta.env.VITE_API_URL}/company`
+            ),
+          ]);
 
-        if (socialRes.data.success) {
-          setSocials(
-            socialRes.data.data
-              .filter((item) => item.is_active)
-              .sort((a, b) => a.display_order - b.display_order)
-          );
+        if (
+          isMounted &&
+          socialResponse.status === "fulfilled" &&
+          socialResponse.value.data?.success
+        ) {
+          const socialData = Array.isArray(
+            socialResponse.value.data.data
+          )
+            ? socialResponse.value.data.data
+            : [];
+
+          const activeSocials = socialData
+            .filter((item) => item?.is_active)
+            .sort(
+              (firstItem, secondItem) =>
+                Number(firstItem?.display_order || 0) -
+                Number(secondItem?.display_order || 0)
+            );
+
+          setSocials(activeSocials);
         }
 
-        if (companyRes.data.success) {
-          setShowrooms(companyRes.data.data || []);
+        if (
+          isMounted &&
+          companyResponse.status === "fulfilled" &&
+          companyResponse.value.data?.success
+        ) {
+          const companyData = Array.isArray(
+            companyResponse.value.data.data
+          )
+            ? companyResponse.value.data.data
+            : [];
+
+          setShowrooms(companyData);
         }
       } catch (error) {
-        console.error(error);
+        console.error("Unable to load footer data:", error);
       }
     };
 
     fetchFooterData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const office = showrooms?.[0];
 
+  const phoneNumber =
+    office?.primary_phone || "631-873-4747";
+
+  const emailAddress =
+    office?.email || "info@ultrastones.com";
+
+  const weekdayHours =
+    office?.business_hours_mon_fri ||
+    "8:00 AM to 5:00 PM";
+
+  const saturdayHours =
+    office?.business_hours_saturday ||
+    "9:00 AM to 1:00 PM";
+
   return (
-    <footer className="relative overflow-hidden bg-black text-white">
+    <footer className="relative isolate block w-full shrink-0 overflow-hidden bg-black text-white">
+      {/* Background image */}
       <img
         src={getOptimizedImageUrl(
           "https://cdn.ultrastone.in/footer_main.png",
-          1600,
-          68
+          1920,
+          72
         )}
         srcSet={`
-    ${getOptimizedImageUrl(
-          "https://cdn.ultrastone.in/footer_main.png",
-          640,
-          65
-        )} 640w,
-    ${getOptimizedImageUrl(
-          "https://cdn.ultrastone.in/footer_main.png",
-          1024,
-          67
-        )} 1024w,
-    ${getOptimizedImageUrl(
-          "https://cdn.ultrastone.in/footer_main.png",
-          1600,
-          68
-        )} 1600w,
-    ${getOptimizedImageUrl(
-          "https://cdn.ultrastone.in/footer_main.png",
-          1920,
-          70
-        )} 1920w
-  `}
+          ${getOptimizedImageUrl(
+            "https://cdn.ultrastone.in/footer_main.png",
+            768,
+            68
+          )} 768w,
+          ${getOptimizedImageUrl(
+            "https://cdn.ultrastone.in/footer_main.png",
+            1280,
+            70
+          )} 1280w,
+          ${getOptimizedImageUrl(
+            "https://cdn.ultrastone.in/footer_main.png",
+            1600,
+            72
+          )} 1600w,
+          ${getOptimizedImageUrl(
+            "https://cdn.ultrastone.in/footer_main.png",
+            1920,
+            72
+          )} 1920w
+        `}
         sizes="100vw"
         alt=""
         aria-hidden="true"
         loading="lazy"
         decoding="async"
-        fetchPriority="low"
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        className="absolute inset-0 -z-30 block h-full w-full object-cover object-center"
       />
-      <div className="absolute inset-0 bg-black/70" />
 
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <h2 className="select-none text-[80px] md:text-[150px] xl:text-[230px] font-semibold tracking-[-10px] text-white/[0.06] mt-24">
+      {/* Background overlays */}
+      <div className="absolute inset-0 -z-20 bg-black/60" />
+
+      <div className="absolute inset-0 -z-20 bg-gradient-to-r from-black/25 via-transparent to-black/20" />
+
+      {/* Large Ultra Stones watermark */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-[48px] -z-10 hidden overflow-hidden lg:block"
+      >
+        <p className="whitespace-nowrap text-center text-[clamp(110px,14vw,220px)] font-semibold leading-[0.7] tracking-[-0.065em] text-white/[0.055]">
           Ultra Stones
-        </h2>
+        </p>
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1650px] px-6 py-8 xl:px-10">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-[0.95fr_0.8fr_0.85fr_0.85fr_0.65fr_1fr]">
-
-          <div className="xl:border-r xl:border-white/15 xl:pr-10">
-            <img
-              src="/logo_white.svg"
-              alt="Ultra Stones"
+      {/* Footer content */}
+      <div className="mx-auto w-full max-w-[1850px] px-6 pb-4 pt-8 sm:px-8 lg:px-10 lg:pb-5 lg:pt-10 xl:px-12 2xl:px-14">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-[1.35fr_1fr_1fr_1fr_0.82fr_1.35fr] lg:gap-0">
+          {/* Logo and heading */}
+          <div className="lg:border-r lg:border-white/15 lg:pr-8 xl:pr-10">
+            <button
+              type="button"
               onClick={() => navigate("/")}
-              className="mb-7 h-[72px] w-auto object-contain -translate-x-5 cursor-pointer" />
+              aria-label="Go to Ultra Stones homepage"
+              className="block cursor-pointer border-0 bg-transparent p-0"
+            >
+              <img
+                src="/logo_white.svg"
+                alt="Ultra Stones"
+                className="mb-8 block h-[68px] w-auto object-contain sm:h-[72px] lg:h-[70px]"
+              />
+            </button>
 
-            <h2 className="max-w-[320px] font-serif text-[32px] uppercase leading-[1.08] tracking-[7px] md:text-[38px]">
-              Lets Create Timeless Spaces
+            <h2 className="max-w-[300px] font-serif text-[30px] uppercase leading-[1.1] tracking-[6px] text-white sm:text-[34px] lg:text-[31px] xl:text-[35px] xl:tracking-[7px]">
+              Let&apos;s Create
+              <br />
+              Timeless
+              <br />
+              Spaces
             </h2>
           </div>
 
-          <div className="xl:border-r xl:border-white/15 xl:px-8">
-            <p className="mb-5 max-w-[170px] text-[12px] leading-[1.55] text-white/80">
+          {/* Company intro */}
+          <div className="lg:border-r lg:border-white/15 lg:px-6 xl:px-8">
+            <p className="mb-3 text-center text-[10px] font-medium leading-[1.5] text-white/90 xl:text-[14px]">
               500+ Premium Surfaces
-              <br />
-              Premium natural stone and engineered surfaces for extraordinary projects.
             </p>
 
-            <FooterAction label="View Collection" onClick={() => navigate("/categories")} />
-            <FooterAction label="Contact Us" onClick={() => navigate("/contact")} />
+            <p className="mb-6 mx-auto max-w-[170px] text-center text-[9px] leading-[1.55] text-white/75 xl:text-[10px]">
+  Premium natural stone and engineered
+  surfaces for extraordinary projects.
+</p>
+
+            <FooterAction
+              label="View Collection"
+              onClick={() => navigate("/categories")}
+            />
+
+            <hr className="my-3 border-white/15" />
+
+            <FooterAction
+              label="Contact Us"
+              onClick={() => navigate("/contact")}
+            />
           </div>
 
-          <FooterColumn title="Explore" links={exploreLinks} />
-          <FooterColumn title="Company" links={companyLinks} />
-          <FooterColumn title="Showrooms" links={showroomLinks} />
-          <div className="xl:pl-8">
-            <h4 className="mb-4 text-[12px] font-semibold uppercase tracking-[1.5px]">
+          {/* Explore */}
+          <FooterColumn
+            title="Explore"
+            links={EXPLORE_LINKS}
+          />
+
+          {/* Company */}
+          <FooterColumn
+            title="Company"
+            links={COMPANY_LINKS}
+          />
+
+          {/* Showrooms */}
+          <FooterColumn
+            title="Showrooms"
+            links={SHOWROOM_LINKS}
+          />
+
+          {/* Contact */}
+          <div className="lg:pl-6 xl:pl-8">
+            <h3 className="mb-4 text-[14px] font-semibold uppercase tracking-[1.4px] text-white">
               Get In Touch
-            </h4>
+            </h3>
 
             <ContactRow
-              icon={<Phone size={12} />}
-              text={office?.primary_phone || "631-873-4747"}
+              icon={<Phone size={11} />}
+              text={phoneNumber}
+              href={`tel:${phoneNumber.replace(
+                /[^\d+]/g,
+                ""
+              )}`}
             />
 
             <ContactRow
-              icon={<Mail size={12} />}
-              text={office?.email || "info@ultrastones.com"}
+              icon={<Mail size={11} />}
+              text={emailAddress}
+              href={`mailto:${emailAddress}`}
             />
 
             <ContactRow
-              icon={<Clock3 size={12} />}
-              text={`Mon - Fri ${office?.business_hours_mon_fri || "8:00 AM to 5:00 PM"
-                }`}
+              icon={<Clock3 size={11} />}
+              text={`Mon - Fri: ${weekdayHours}`}
             />
 
             <ContactRow
-              icon={<Clock3 size={12} />}
-              text={`Sat - ${office?.business_hours_saturday || "8:00 AM to 1:00 PM"
-                }`}
+              icon={<Clock3 size={11} />}
+              text={`Sat - ${saturdayHours}`}
             />
 
-            <div className="mt-5 flex items-center gap-4">
+            <div className="mt-5 flex flex-wrap items-center gap-1">
               {socials.map((social) => {
-                const Icon = socialIcons[social.platform?.toLowerCase()];
-                if (!Icon) return null;
+                const platform =
+                  social?.platform
+                    ?.toLowerCase()
+                    .trim() || "";
+
+                const Icon = SOCIAL_ICONS[platform];
+
+                if (!Icon || !social?.url) {
+                  return null;
+                }
 
                 return (
                   <a
-                    key={social.id}
+                    key={
+                      social.id ||
+                      `${platform}-${social.url}`
+                    }
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`Visit Ultra Stones on ${social.platform}`}
-                    title={`Visit Ultra Stones on ${social.platform}`}
-                    className="inline-flex h-11 w-11 items-center justify-center text-white/85 transition hover:text-white"
+                    title={social.platform}
+                    className="inline-flex h-8 w-8 items-center justify-center text-white/85 transition-colors duration-200 hover:text-white"
                   >
-                    <Icon size={15} aria-hidden="true" focusable="false" />
+                    <Icon
+                      size={13}
+                      aria-hidden="true"
+                      focusable="false"
+                    />
                   </a>
                 );
               })}
@@ -206,13 +364,16 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 border-t border-white/15 pt-4 text-[10px] text-white/70 md:flex-row md:items-center md:justify-between">
+        {/* Bottom information */}
+        <div className="mt-8 flex flex-col gap-3 border-t border-white/15 pt-4 text-[8px] leading-relaxed text-white/65 sm:text-[9px] md:flex-row md:items-center md:justify-between lg:mt-7">
           <p>
-            Trusted By Architects • Interior Designers • Builders • Fabricators • Dealers • Homeowners
+            Trusted by Architects • Interior Designers •
+            Builders • Fabricators • Dealers • Homeowners
           </p>
 
-          <p>
-            © {new Date().getFullYear()} Ultra Stones LLC. All Rights Reserved.
+          <p className="shrink-0">
+            © {new Date().getFullYear()} Ultra Stones
+            LLC. All Rights Reserved.
           </p>
         </div>
       </div>
@@ -220,26 +381,27 @@ const Footer = () => {
   );
 };
 
-export default Footer;
-
-const FooterColumn = ({ title, links, noBorder }) => {
+const FooterColumn = ({ title, links }) => {
   return (
-    <div className={!noBorder ? "xl:border-r xl:border-white/15 xl:px-8" : ""}>
-      <p className="mb-3 text-[12px] font-semibold uppercase tracking-[1.5px]">
+    <div className="lg:border-r lg:border-white/15 lg:px-6 xl:px-8">
+      <h3 className="mb-2 text-[14px] font-semibold uppercase tracking-[1.4px] text-white">
         {title}
-      </p>
+      </h3>
 
-      <div>
-        {links.map((item) => (
-          <Link
-            key={item.label}
-            to={item.path}
-            className="flex min-h-11 items-center text-[12px] leading-normal text-white/75 transition hover:text-white"
-          >
-            {item.label}
-          </Link>
-        ))}
-      </div>
+      <nav aria-label={`${title} footer navigation`}>
+        <ul className="space-y-[3px]">
+          {links.map((item) => (
+            <li key={item.label}>
+              <Link
+                to={item.path}
+                className="inline-block text-[9px] leading-[1.3] text-white/75 transition-colors duration-200 hover:text-white xl:text-[10px]"
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </div>
   );
 };
@@ -247,19 +409,74 @@ const FooterColumn = ({ title, links, noBorder }) => {
 const FooterAction = ({ label, onClick }) => {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className="mb-3 block text-[10px] uppercase tracking-[1px] text-white transition hover:text-white/70"
+      className="mb-4 mx-auto flex items-center justify-center gap-2 border-0 bg-transparent p-0 text-[9px] font-medium uppercase tracking-[0.8px] text-white transition-colors duration-200 hover:text-white/70"
     >
-      {label} <span className="ml-1 text-[#d9a441]">→</span>
+      <span>{label}</span>
+
+      <span
+        aria-hidden="true"
+        className="text-[#d9a441]"
+      >
+        →
+      </span>
     </button>
   );
 };
 
-const ContactRow = ({ icon, text }) => {
-  return (
-    <div className="mb-2 flex items-start gap-2 text-[11px] leading-[1.35] text-white/75">
-      <span className="mt-[2px] text-white/80">{icon}</span>
+const ContactRow = ({ icon, text, href }) => {
+  const content = (
+    <>
+      <span className="mt-[1px] shrink-0 text-white/80">
+        {icon}
+      </span>
+
       <span>{text}</span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        className="mb-[7px] flex items-start gap-2 text-[9px] leading-[1.4] text-white/75 transition-colors duration-200 hover:text-white xl:text-[10px]"
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <div className="mb-[7px] flex items-start gap-2 text-[9px] leading-[1.4] text-white/75 xl:text-[10px]">
+      {content}
     </div>
   );
 };
+
+FooterColumn.propTypes = {
+  title: PropTypes.string.isRequired,
+  links: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      path: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+};
+
+FooterAction.propTypes = {
+  label: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
+ContactRow.propTypes = {
+  icon: PropTypes.node.isRequired,
+  text: PropTypes.string.isRequired,
+  href: PropTypes.string,
+};
+
+ContactRow.defaultProps = {
+  href: undefined,
+};
+
+export default Footer;

@@ -1,4 +1,6 @@
-import { lazy } from "react";
+// src/pages/Home.jsx
+
+import { lazy, Suspense } from "react";
 
 import Navbar from "../components/common/Navbar";
 import HeroSection from "../components/home/HeroSection";
@@ -34,12 +36,12 @@ const Footer = lazy(() =>
 
 const Home = () => {
   return (
-    <main className="overflow-hidden">
-      {/* Above the fold: load immediately */}
+    <main className="w-full overflow-x-hidden">
+      {/* Above the fold */}
       <Navbar />
       <HeroSection />
 
-      {/* Below the fold: load only near the viewport */}
+      {/* Below-the-fold sections */}
       <LazySection
         minHeight="950px"
         rootMargin="500px"
@@ -82,12 +84,17 @@ const Home = () => {
         <ContactusSection />
       </LazySection>
 
-      <LazySection
-        minHeight="450px"
-        rootMargin="200px"
+      {/* Footer must not use LazySection minHeight */}
+      <Suspense
+        fallback={
+          <div
+            className="h-[320px] w-full bg-black"
+            aria-hidden="true"
+          />
+        }
       >
         <Footer />
-      </LazySection>
+      </Suspense>
     </main>
   );
 };

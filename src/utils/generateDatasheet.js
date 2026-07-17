@@ -33,48 +33,30 @@ import caution from '../assets/maintaniance/caution.png';
 
 import uslogo from '../assets/uslogo.png';
 import { color } from 'framer-motion';
+import { getOptimizedImageUrl } from './Mediahelper';
 
 const getMediaUrl = (product, type) =>
   product?.media?.find((m) => m.media_type === type)?.media_url;
 
+
+const API_URL = import.meta.env.VITE_API_URL;
+
 const loadImageAsBase64 = async (url) => {
-  console.log("========== DATASHEET IMAGE TEST ==========");
-  console.log("Image URL:", url);
+  const response = await fetch(
+    `${API_URL}/stones/media/base64?url=${encodeURIComponent(url)}`
+  );
 
-  const finalUrl = `${url}?t=${Date.now()}`;
-
-  try {
-    const response = await fetch(finalUrl, {
-      mode: "cors",
-      cache: "no-cache",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Image fetch failed: ${response.status}`);
-    }
-
-    const blob = await response.blob();
-
-    return await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        console.log("✅ Datasheet image converted to Base64");
-        resolve(reader.result);
-      };
-
-      reader.onerror = (err) => {
-        console.error("❌ Base64 conversion failed", err);
-        reject(err);
-      };
-
-      reader.readAsDataURL(blob);
-    });
-  } catch (error) {
-    console.error("❌ Datasheet image failed");
-    console.error(error);
-    return null;
+  if (!response.ok) {
+    throw new Error("Failed to load image");
   }
+
+  const data = await response.json();
+
+  console.log(response.url);
+  console.log(response.status);
+  console.log(data);
+
+  return data.base64;
 };
 
 const formatRating = (value) => {
@@ -107,9 +89,9 @@ export const generateDatasheet = async ({ product }) => {
     getMediaUrl(product, 'CLOSEUP_IMAGE') ||
     getMediaUrl(product, 'SLAB_IMAGE');
 
-  const heroBase64 = heroImage
-    ? await loadImageAsBase64(heroImage)
-    : null;
+const heroBase64 = heroImage
+  ? await loadImageAsBase64(heroImage)
+  : null;
 
   const qrUrl = `${window.location.origin}/product/${product.stone_categories.slug}/${product.slug}`;
 
