@@ -50,7 +50,7 @@ const Home = () => {
       </LazySection>
 
       <LazySection
-        minHeight="850px"
+        minHeight="800px"
         rootMargin="400px"
       >
         <FeaturedStones />

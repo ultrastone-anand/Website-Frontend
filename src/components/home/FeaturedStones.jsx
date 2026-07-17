@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { getOptimizedImageUrl } from "../../utils/Mediahelper";
+import { ChevronDown } from "lucide-react";
 
 const BROWSE_CATEGORY = {
   id: "browse",
@@ -407,7 +408,7 @@ const FeaturedStones = () => {
                   )}
             </div>
 
-            <div className="mt-6 border-t border-[#bdbdbd] pt-4">
+            {/* <div className="mt-6 border-t border-[#bdbdbd] pt-4">
               <h4
                 className="mb-3 text-[14px] font-bold uppercase text-[#111]"
                 style={{
@@ -419,9 +420,8 @@ const FeaturedStones = () => {
               </h4>
 
               {[
-                "Color",
                 "Finish",
-                "Application",
+                "Thickness",
               ].map((item) => (
                 <button
                   key={item}
@@ -433,12 +433,12 @@ const FeaturedStones = () => {
                 >
                   {item}
 
-                  <span className="text-[16px]">
-                    ⌄
+                  <span className="text-[12px]">
+                    <ChevronDown size={18} />
                   </span>
                 </button>
               ))}
-            </div>
+            </div> */}
           </aside>
 
           {/* Products */}
