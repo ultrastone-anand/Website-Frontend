@@ -454,121 +454,93 @@ const OurCollectionSection = () => {
     []
   );
 
-  const handlePointerDown = (
-    event
-  ) => {
-    const container =
-      scrollRef.current;
+const handlePointerDown = (event) => {
+  const container = scrollRef.current;
 
-    if (!container) {
-      return;
-    }
+  if (!container) {
+    return;
+  }
 
-    if (
-      event.pointerType === "mouse" &&
-      event.button !== 0
-    ) {
-      return;
-    }
+  if (
+    event.pointerType === "mouse" &&
+    event.button !== 0
+  ) {
+    return;
+  }
 
-    pointerDownRef.current = true;
-    hasDraggedRef.current = false;
+  pointerDownRef.current = true;
+  hasDraggedRef.current = false;
+  pointerStartXRef.current = event.clientX;
+  scrollStartLeftRef.current =
+    container.scrollLeft;
 
-    pointerStartXRef.current =
-      event.clientX;
+  setIsPaused(true);
 
-    scrollStartLeftRef.current =
-      container.scrollLeft;
+  // Do not call setPointerCapture here.
+};
 
+const handlePointerMove = (event) => {
+  const container = scrollRef.current;
+
+  if (
+    !container ||
+    !pointerDownRef.current
+  ) {
+    return;
+  }
+
+  const distance =
+    event.clientX -
+    pointerStartXRef.current;
+
+  if (Math.abs(distance) > 6) {
+    hasDraggedRef.current = true;
     setIsDragging(true);
-    setIsPaused(true);
+  }
 
-    if (
-      event.pointerType === "mouse"
-    ) {
-      container.setPointerCapture?.(
-        event.pointerId
-      );
-    }
-  };
+  if (
+    event.pointerType === "mouse" &&
+    hasDraggedRef.current
+  ) {
+    event.preventDefault();
 
-  const handlePointerMove = (
-    event
-  ) => {
-    const container =
-      scrollRef.current;
-
-    if (
-      !container ||
-      !pointerDownRef.current
-    ) {
-      return;
-    }
-
-    const distance =
-      event.clientX -
-      pointerStartXRef.current;
-
-    if (
-      Math.abs(distance) > 5
-    ) {
-      hasDraggedRef.current = true;
-    }
-
-    if (
-      event.pointerType === "mouse"
-    ) {
-      container.scrollLeft =
-        scrollStartLeftRef.current -
-        distance;
-
-      normalizeLoopPosition();
-    }
-  };
-
-  const handlePointerEnd = (
-    event
-  ) => {
-    const container =
-      scrollRef.current;
-
-    pointerDownRef.current = false;
-    setIsDragging(false);
-
-    if (
-      container &&
-      event.pointerType === "mouse" &&
-      container.hasPointerCapture?.(
-        event.pointerId
-      )
-    ) {
-      container.releasePointerCapture(
-        event.pointerId
-      );
-    }
+    container.scrollLeft =
+      scrollStartLeftRef.current -
+      distance;
 
     normalizeLoopPosition();
-    pauseAndResume();
+  }
+};
 
-    window.setTimeout(() => {
-      hasDraggedRef.current = false;
-    }, 100);
-  };
+const handlePointerEnd = () => {
+  pointerDownRef.current = false;
+  setIsDragging(false);
 
-  const handleCardClick = (
-    event,
-    slug
-  ) => {
-    if (hasDraggedRef.current) {
-      event.preventDefault();
-      event.stopPropagation();
-      return;
-    }
+  normalizeLoopPosition();
+  pauseAndResume();
 
-    navigate(
-      `/product-category/${slug}`
-    );
-  };
+  /*
+   * Keep the dragged state through the click event.
+   * The click event fires immediately after pointerup.
+   */
+  window.setTimeout(() => {
+    hasDraggedRef.current = false;
+  }, 0);
+};
+const handleCardClick = (
+  event,
+  slug
+) => {
+  if (hasDraggedRef.current) {
+    event.preventDefault();
+    event.stopPropagation();
+    return;
+  }
+
+  navigate(
+    `/product-category/${slug}`
+  );
+};
 
   const handleMouseEnter = () => {
     setIsPaused(true);
