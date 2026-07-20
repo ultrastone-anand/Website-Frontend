@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { ChevronDown, Menu, X } from "lucide-react";
 import GlobalSearch from "./GlobalSearch";
+import { getOptimizedImageUrl } from "../../utils/Mediahelper";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -538,45 +539,96 @@ const MegaMenu = ({
   const isActive = activeDropdown === dropdownKey;
   const [hoveredParent, setHoveredParent] = useState(null);
 
-  const parentCategories = materials
-    .filter((item) => item.parent_id === null && item.is_active)
-    .sort((a, b) => {
-      const orderA = a.display_order ?? 999;
-      const orderB = b.display_order ?? 999;
-      return orderA - orderB;
-    });
+  const parentCategories = useMemo(
+    () =>
+      materials
+        .filter(
+          (item) =>
+            item.parent_id === null &&
+            item.is_active
+        )
+        .sort((a, b) => {
+          const orderA =
+            a.display_order ?? 999;
 
-  useEffect(() => {
-    if (parentCategories.length > 0 && !hoveredParent) {
-      setHoveredParent(parentCategories[0].id);
-    }
-  }, [parentCategories, hoveredParent]);
+          const orderB =
+            b.display_order ?? 999;
 
-  const activeParent = parentCategories.find(
-    (parent) => parent.id === hoveredParent
+          return orderA - orderB;
+        }),
+    [materials]
   );
 
-  const children = materials
-    .filter((item) => item.parent_id === hoveredParent)
-    .sort((a, b) => {
-      const orderA = a.display_order ?? 999;
-      const orderB = b.display_order ?? 999;
-      return orderA - orderB;
-    });
+  useEffect(() => {
+    if (
+      parentCategories.length > 0 &&
+      !hoveredParent
+    ) {
+      setHoveredParent(
+        parentCategories[0].id
+      );
+    }
+  }, [
+    parentCategories,
+    hoveredParent,
+  ]);
+
+  const activeParent =
+    parentCategories.find(
+      (parent) =>
+        parent.id === hoveredParent
+    );
+
+  const children = useMemo(
+    () =>
+      materials
+        .filter(
+          (item) =>
+            item.parent_id ===
+            hoveredParent
+        )
+        .sort((a, b) => {
+          const orderA =
+            a.display_order ?? 999;
+
+          const orderB =
+            b.display_order ?? 999;
+
+          return orderA - orderB;
+        }),
+    [materials, hoveredParent]
+  );
+
+  const getThumbnailUrl = (
+    url,
+    width = 220,
+    quality = 68
+  ) =>
+    getOptimizedImageUrl(
+      url || "/placeholder.jpg",
+      width,
+      quality
+    );
 
   return (
     <div
       className="relative"
-      onMouseEnter={() => openDropdown(dropdownKey)}
+      onMouseEnter={() =>
+        openDropdown(dropdownKey)
+      }
       onMouseLeave={closeDropdown}
     >
       <button
-        onClick={() => path && navigate(path)}
+        type="button"
+        onClick={() =>
+          path && navigate(path)
+        }
         className={`
           flex items-center gap-1 text-[11px] uppercase tracking-[1px] duration-300
-          ${isLightNavbar
-            ? "text-[#444] hover:text-black"
-            : "text-white/85 hover:text-white"
+          ${
+            isLightNavbar
+              ? "text-[#444] hover:text-black"
+              : "text-white/85 hover:text-white"
           }
         `}
       >
@@ -585,52 +637,93 @@ const MegaMenu = ({
 
       <div
         className={`
-  absolute left-[-250px] top-[48px] z-50 w-[980px] rounded-2xl
-  border border-black/5 bg-white p-8
-  shadow-[0_25px_80px_rgba(0,0,0,0.12)] duration-300
-          ${isActive
-            ? "visible translate-y-0 opacity-100"
-            : "invisible translate-y-4 opacity-0"
+          absolute left-[-250px] top-[48px] z-50 w-[980px] rounded-2xl
+          border border-black/5 bg-white p-8
+          shadow-[0_25px_80px_rgba(0,0,0,0.12)] duration-300
+          ${
+            isActive
+              ? "visible translate-y-0 opacity-100"
+              : "invisible translate-y-4 opacity-0"
           }
         `}
       >
         <div className="grid h-[600px] grid-cols-[320px_1fr] gap-8">
           <div className="h-full overflow-y-auto border-r border-black/10 pr-5 scrollbar-thin">
             <div className="space-y-2">
-              {parentCategories.map((parent) => (
-                <button
-                  key={parent.id}
-                  onMouseEnter={() => setHoveredParent(parent.id)}
-                  onClick={() => navigate(`/product-category/${parent.slug}`)}
-                  className={`
-                    flex w-full items-center gap-3 rounded-xl p-3 duration-300
-                    ${hoveredParent === parent.id
-                      ? "bg-[#f5f5f5] shadow-sm"
-                      : "hover:bg-[#fafafa]"
-                    }
-                  `}
-                >
-                  <div className="h-12 w-24 min-w-[48px] flex-shrink-0">
-                    <img
-                      src={parent.thumbnail_url || "/placeholder.jpg"}
-                      alt={parent.name}
-                      className="h-full w-full rounded-lg object-cover"
-                    />
-                  </div>
+              {parentCategories.map(
+                (parent) => {
+                  const thumbnailUrl =
+                    getThumbnailUrl(
+                      parent.thumbnail_url,
+                      240,
+                      65
+                    );
 
-                  <span
-                    className={`
-                      text-[14px]
-                      ${hoveredParent === parent.id
-                        ? "font-semibold text-black"
-                        : "text-[#666]"
+                  return (
+                    <button
+                      type="button"
+                      key={parent.id}
+                      onMouseEnter={() =>
+                        setHoveredParent(
+                          parent.id
+                        )
                       }
-                    `}
-                  >
-                    {parent.name}
-                  </span>
-                </button>
-              ))}
+                      onClick={() =>
+                        navigate(
+                          `/product-category/${parent.slug}`
+                        )
+                      }
+                      className={`
+                        flex w-full items-center gap-3 rounded-xl p-3 duration-300
+                        ${
+                          hoveredParent ===
+                          parent.id
+                            ? "bg-[#f5f5f5] shadow-sm"
+                            : "hover:bg-[#fafafa]"
+                        }
+                      `}
+                    >
+                      <div className="h-12 w-24 min-w-[96px] flex-shrink-0 overflow-hidden rounded-lg bg-black/5">
+                        <img
+                          src={thumbnailUrl}
+                          srcSet={`
+                            ${getThumbnailUrl(
+                              parent.thumbnail_url,
+                              160,
+                              62
+                            )} 160w,
+                            ${getThumbnailUrl(
+                              parent.thumbnail_url,
+                              240,
+                              65
+                            )} 240w
+                          `}
+                          sizes="96px"
+                          alt={parent.name}
+                          loading="lazy"
+                          decoding="async"
+                          fetchPriority="low"
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+
+                      <span
+                        className={`
+                          text-[14px]
+                          ${
+                            hoveredParent ===
+                            parent.id
+                              ? "font-semibold text-black"
+                              : "text-[#666]"
+                          }
+                        `}
+                      >
+                        {parent.name}
+                      </span>
+                    </button>
+                  );
+                }
+              )}
             </div>
           </div>
 
@@ -639,8 +732,34 @@ const MegaMenu = ({
               <>
                 <div className="overflow-hidden rounded-2xl bg-black/5">
                   <img
-                    src={activeParent.thumbnail_url || "/placeholder.jpg"}
+                    key={activeParent.id}
+                    src={getThumbnailUrl(
+                      activeParent.thumbnail_url,
+                      900,
+                      72
+                    )}
+                    srcSet={`
+                      ${getThumbnailUrl(
+                        activeParent.thumbnail_url,
+                        640,
+                        68
+                      )} 640w,
+                      ${getThumbnailUrl(
+                        activeParent.thumbnail_url,
+                        900,
+                        72
+                      )} 900w,
+                      ${getThumbnailUrl(
+                        activeParent.thumbnail_url,
+                        1200,
+                        74
+                      )} 1200w
+                    `}
+                    sizes="600px"
                     alt={activeParent.name}
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
                     className="h-[280px] w-full object-cover duration-500 hover:scale-105"
                   />
                 </div>
@@ -655,8 +774,11 @@ const MegaMenu = ({
                 </p>
 
                 <button
+                  type="button"
                   onClick={() =>
-                    navigate(`/product-category/${activeParent.slug}`)
+                    navigate(
+                      `/product-category/${activeParent.slug}`
+                    )
                   }
                   className="mt-5 text-[14px] font-medium text-black hover:underline"
                 >
@@ -669,20 +791,25 @@ const MegaMenu = ({
                   </h3>
 
                   <div className="grid grid-cols-3 gap-3">
-                    {children.map((child) => (
-                      <button
-                        key={child.id}
-                        onClick={() =>
-                          navigate(`/product-category/${child.slug}`)
-                        }
-                        className="
-                          rounded-xl bg-white/5 p-4 text-left text-white/70
-                          duration-300 hover:bg-white/10 hover:text-white
-                        "
-                      >
-                        {child.name}
-                      </button>
-                    ))}
+                    {children.map(
+                      (child) => (
+                        <button
+                          type="button"
+                          key={child.id}
+                          onClick={() =>
+                            navigate(
+                              `/product-category/${child.slug}`
+                            )
+                          }
+                          className="
+                            rounded-xl bg-black/[0.03] p-4 text-left text-black/65
+                            duration-300 hover:bg-black/[0.07] hover:text-black
+                          "
+                        >
+                          {child.name}
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
               </>
