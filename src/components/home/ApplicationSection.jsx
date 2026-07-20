@@ -66,24 +66,34 @@ const ApplicationSection = () => {
     return () => controller.abort();
   }, []);
 
-  const applicationImages = useMemo(
-    () =>
-      applications.map((application, index) => {
-        const matchedImages = galleryImages.filter((image) =>
-          application.categoryNames.includes(
-            image.inspiration_gallery_categories?.name
-          )
+const applicationImages = useMemo(
+  () =>
+    applications.map((application, index) => {
+      const matchedImages = galleryImages.filter((image) => {
+        const categoryName =
+          image.inspiration_gallery_categories?.name?.trim().toLowerCase();
+
+        return application.categoryNames.some(
+          (name) => name.toLowerCase() === categoryName
         );
+      });
 
-        const randomImage = getRandomImage(matchedImages);
+      const usableImages = matchedImages.filter((image) => {
+        if (!image.width || !image.height) return true;
 
-        return {
-          ...application,
-          image: randomImage?.image_url || fallbackImages[index],
-        };
-      }),
-    [galleryImages]
-  );
+        return image.width >= 1000 && image.height >= 1200;
+      });
+
+      const imagePool = usableImages.length ? usableImages : matchedImages;
+      const selectedImage = getRandomImage(imagePool);
+
+      return {
+        ...application,
+        image: selectedImage?.image_url || fallbackImages[index],
+      };
+    }),
+  [galleryImages]
+);
 
   return (
     <section className="bg-[#222221] py-12 md:py-16 xl:py-[70px] mb-[70px]">
@@ -141,26 +151,29 @@ const ApplicationSection = () => {
               >
                 <div className="aspect-[3/5] overflow-hidden bg-black">
                   <img
-  src={getOptimizedImageUrl(item.image, 900, 78)}
-  srcSet={`
-    ${getOptimizedImageUrl(item.image, 480, 74)} 480w,
-    ${getOptimizedImageUrl(item.image, 700, 76)} 700w,
-    ${getOptimizedImageUrl(item.image, 900, 78)} 900w,
-    ${getOptimizedImageUrl(item.image, 1200, 80)} 1200w
-  `}
+  src={getOptimizedImageUrl(item.image, 1400, 90)}
+  srcSet={[
+    `${getOptimizedImageUrl(item.image, 600, 84)} 600w`,
+    `${getOptimizedImageUrl(item.image, 900, 86)} 900w`,
+    `${getOptimizedImageUrl(item.image, 1200, 88)} 1200w`,
+    `${getOptimizedImageUrl(item.image, 1600, 90)} 1600w`,
+  ].join(", ")}
   sizes="
     (max-width: 639px) calc(100vw - 40px),
-    (max-width: 1279px) calc(33vw - 20px),
+    (max-width: 1279px) calc((100vw - 80px) / 3),
     360px
   "
-  width="900"
-  height="1500"
+  width="1200"
+  height="2000"
   alt={item.title}
   loading="lazy"
   decoding="async"
-  fetchPriority="low"
   draggable="false"
-  className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+  onError={(event) => {
+    event.currentTarget.src = item.image;
+    event.currentTarget.srcset = "";
+  }}
 />
                 </div>
 
