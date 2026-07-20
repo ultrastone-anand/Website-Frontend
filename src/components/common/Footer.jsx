@@ -4,7 +4,7 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Clock3, Mail, Phone } from "lucide-react";
+
 
 import {
   FaFacebookF,
@@ -302,7 +302,7 @@ const Footer = () => {
             </h3>
 
             <ContactRow
-              icon={<Phone size={11} />}
+              // icon={<Phone size={11} />}
               text={phoneNumber}
               href={`tel:${phoneNumber.replace(
                 /[^\d+]/g,
@@ -311,18 +311,18 @@ const Footer = () => {
             />
 
             <ContactRow
-              icon={<Mail size={11} />}
+              // icon={<Mail size={11} />}
               text={emailAddress}
               href={`mailto:${emailAddress}`}
             />
 
             <ContactRow
-              icon={<Clock3 size={11} />}
+              // icon={<Clock3 size={11} />}
               text={`Mon - Fri: ${weekdayHours}`}
             />
 
             <ContactRow
-              icon={<Clock3 size={11} />}
+              // icon={<Clock3 size={11} />}
               text={`Sat - ${saturdayHours}`}
             />
 
