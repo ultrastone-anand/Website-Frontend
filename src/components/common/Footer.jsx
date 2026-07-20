@@ -22,14 +22,6 @@ const EXPLORE_LINKS = [
     label: "Browse Products",
     path: "/categories",
   },
-  // {
-  //   label: "Featured Stones",
-  //   path: "/products",
-  // },
-  // {
-  //   label: "Applications",
-  //   path: "/applications",
-  // },
   {
     label: "Inspiration Gallery",
     path: "/gallery",
@@ -45,14 +37,6 @@ const COMPANY_LINKS = [
     label: "Our Process",
     path: "/ourprocess",
   },
-  // {
-  //   label: "Resources",
-  //   path: "/resource-library",
-  // },
-  // {
-  //   label: "Care & Maintenance",
-  //   path: "/care-maintenance",
-  // },
   {
     label: "Blog",
     path: "/blogs",
@@ -61,10 +45,6 @@ const COMPANY_LINKS = [
     label: "Careers",
     path: "/career",
   },
-  // {
-  //   label: "Privacy Policy",
-  //   path: "/privacy-policy",
-  // },
 ];
 
 const SHOWROOM_LINKS = [
