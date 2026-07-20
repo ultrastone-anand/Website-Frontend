@@ -4,15 +4,18 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Clock3, Mail, Phone } from "lucide-react";
+
 import {
-  Clock3,
-  Mail,
-  Phone,
-} from "lucide-react";
+  FaFacebookF,
+  FaHouzz,
+  FaInstagram,
+  FaPinterestP,
+  FaXTwitter,
+  FaYoutube,
+} from "react-icons/fa6";
 
 import { getOptimizedImageUrl } from "../../utils/Mediahelper";
-
-// ----------------------------------------------------------------------
 
 const EXPLORE_LINKS = [
   {
@@ -75,17 +78,15 @@ const SHOWROOM_LINKS = [
   },
 ];
 
-const SOCIAL_LABELS = {
-  youtube: "YT",
-  facebook: "FB",
-  instagram: "IG",
-  twitter: "X",
-  x: "X",
-  pinterest: "P",
-  houzz: "H",
+const SOCIAL_ICONS = {
+  youtube: FaYoutube,
+  facebook: FaFacebookF,
+  instagram: FaInstagram,
+  twitter: FaXTwitter,
+  x: FaXTwitter,
+  pinterest: FaPinterestP,
+  houzz: FaHouzz,
 };
-
-// ----------------------------------------------------------------------
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -98,17 +99,15 @@ const Footer = () => {
 
     const fetchFooterData = async () => {
       try {
-        const [
-          socialResponse,
-          companyResponse,
-        ] = await Promise.allSettled([
-          axios.get(
-            `${import.meta.env.VITE_API_URL}/company/socialmedia`
-          ),
-          axios.get(
-            `${import.meta.env.VITE_API_URL}/company`
-          ),
-        ]);
+        const [socialResponse, companyResponse] =
+          await Promise.allSettled([
+            axios.get(
+              `${import.meta.env.VITE_API_URL}/company/socialmedia`
+            ),
+            axios.get(
+              `${import.meta.env.VITE_API_URL}/company`
+            ),
+          ]);
 
         if (
           isMounted &&
@@ -125,12 +124,8 @@ const Footer = () => {
             .filter((item) => item?.is_active)
             .sort(
               (firstItem, secondItem) =>
-                Number(
-                  firstItem?.display_order || 0
-                ) -
-                Number(
-                  secondItem?.display_order || 0
-                )
+                Number(firstItem?.display_order || 0) -
+                Number(secondItem?.display_order || 0)
             );
 
           setSocials(activeSocials);
@@ -150,10 +145,7 @@ const Footer = () => {
           setShowrooms(companyData);
         }
       } catch (error) {
-        console.error(
-          "Unable to load footer data:",
-          error
-        );
+        console.error("Unable to load footer data:", error);
       }
     };
 
@@ -167,12 +159,10 @@ const Footer = () => {
   const office = showrooms?.[0];
 
   const phoneNumber =
-    office?.primary_phone ||
-    "631-873-4747";
+    office?.primary_phone || "631-873-4747";
 
   const emailAddress =
-    office?.email ||
-    "info@ultrastones.com";
+    office?.email || "info@ultrastones.com";
 
   const weekdayHours =
     office?.business_hours_mon_fri ||
@@ -226,7 +216,7 @@ const Footer = () => {
 
       <div className="absolute inset-0 -z-20 bg-gradient-to-r from-black/25 via-transparent to-black/20" />
 
-      {/* Large watermark */}
+      {/* Large Ultra Stones watermark */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-[48px] -z-10 hidden overflow-hidden lg:block"
@@ -243,9 +233,7 @@ const Footer = () => {
           <div className="lg:border-r lg:border-white/15 lg:pr-8 xl:pr-10">
             <button
               type="button"
-              onClick={() =>
-                navigate("/")
-              }
+              onClick={() => navigate("/")}
               aria-label="Go to Ultra Stones homepage"
               className="block cursor-pointer border-0 bg-transparent p-0"
             >
@@ -271,39 +259,37 @@ const Footer = () => {
               500+ Premium Surfaces
             </p>
 
-            <p className="mx-auto mb-6 max-w-[170px] text-center text-[9px] leading-[1.55] text-white/75 xl:text-[10px]">
-              Premium natural stone and
-              engineered surfaces for
-              extraordinary projects.
-            </p>
+            <p className="mb-6 mx-auto max-w-[170px] text-center text-[9px] leading-[1.55] text-white/75 xl:text-[10px]">
+  Premium natural stone and engineered
+  surfaces for extraordinary projects.
+</p>
 
             <FooterAction
               label="View Collection"
-              onClick={() =>
-                navigate("/categories")
-              }
+              onClick={() => navigate("/categories")}
             />
 
             <hr className="my-3 border-white/15" />
 
             <FooterAction
               label="Contact Us"
-              onClick={() =>
-                navigate("/contact")
-              }
+              onClick={() => navigate("/contact")}
             />
           </div>
 
+          {/* Explore */}
           <FooterColumn
             title="Explore"
             links={EXPLORE_LINKS}
           />
 
+          {/* Company */}
           <FooterColumn
             title="Company"
             links={COMPANY_LINKS}
           />
 
+          {/* Showrooms */}
           <FooterColumn
             title="Showrooms"
             links={SHOWROOM_LINKS}
@@ -316,12 +302,7 @@ const Footer = () => {
             </h3>
 
             <ContactRow
-              icon={
-                <Phone
-                  size={11}
-                  strokeWidth={1.8}
-                />
-              }
+              icon={<Phone size={11} />}
               text={phoneNumber}
               href={`tel:${phoneNumber.replace(
                 /[^\d+]/g,
@@ -330,51 +311,69 @@ const Footer = () => {
             />
 
             <ContactRow
-              icon={
-                <Mail
-                  size={11}
-                  strokeWidth={1.8}
-                />
-              }
+              icon={<Mail size={11} />}
               text={emailAddress}
               href={`mailto:${emailAddress}`}
             />
 
             <ContactRow
-              icon={
-                <Clock3
-                  size={11}
-                  strokeWidth={1.8}
-                />
-              }
+              icon={<Clock3 size={11} />}
               text={`Mon - Fri: ${weekdayHours}`}
             />
 
             <ContactRow
-              icon={
-                <Clock3
-                  size={11}
-                  strokeWidth={1.8}
-                />
-              }
-              text={`Sat: ${saturdayHours}`}
+              icon={<Clock3 size={11} />}
+              text={`Sat - ${saturdayHours}`}
             />
 
-            <SocialLinks socials={socials} />
+            <div className="mt-5 flex flex-wrap items-center gap-1">
+              {socials.map((social) => {
+                const platform =
+                  social?.platform
+                    ?.toLowerCase()
+                    .trim() || "";
+
+                const Icon = SOCIAL_ICONS[platform];
+
+                if (!Icon || !social?.url) {
+                  return null;
+                }
+
+                return (
+                  <a
+                    key={
+                      social.id ||
+                      `${platform}-${social.url}`
+                    }
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Visit Ultra Stones on ${social.platform}`}
+                    title={social.platform}
+                    className="inline-flex h-8 w-8 items-center justify-center text-white/85 transition-colors duration-200 hover:text-white"
+                  >
+                    <Icon
+                      size={13}
+                      aria-hidden="true"
+                      focusable="false"
+                    />
+                  </a>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {/* Bottom information */}
         <div className="mt-8 flex flex-col gap-3 border-t border-white/15 pt-4 text-[8px] leading-relaxed text-white/65 sm:text-[9px] md:flex-row md:items-center md:justify-between lg:mt-7">
           <p>
-            Trusted by Architects • Interior
-            Designers • Builders • Fabricators •
-            Dealers • Homeowners
+            Trusted by Architects • Interior Designers •
+            Builders • Fabricators • Dealers • Homeowners
           </p>
 
           <p className="shrink-0">
-            © {new Date().getFullYear()} Ultra
-            Stones LLC. All Rights Reserved.
+            © {new Date().getFullYear()} Ultra Stones
+            LLC. All Rights Reserved.
           </p>
         </div>
       </div>
@@ -382,65 +381,51 @@ const Footer = () => {
   );
 };
 
-// ----------------------------------------------------------------------
+const FooterColumn = ({ title, links }) => {
+  return (
+    <div className="lg:border-r lg:border-white/15 lg:px-6 xl:px-8">
+      <h3 className="mb-2 text-[14px] font-semibold uppercase tracking-[1.4px] text-white">
+        {title}
+      </h3>
 
-const FooterColumn = ({
-  title,
-  links,
-}) => (
-  <div className="lg:border-r lg:border-white/15 lg:px-6 xl:px-8">
-    <h3 className="mb-2 text-[14px] font-semibold uppercase tracking-[1.4px] text-white">
-      {title}
-    </h3>
+      <nav aria-label={`${title} footer navigation`}>
+        <ul className="space-y-[3px]">
+          {links.map((item) => (
+            <li key={item.label}>
+              <Link
+                to={item.path}
+                className="inline-block text-[9px] leading-[1.3] text-white/75 transition-colors duration-200 hover:text-white xl:text-[10px]"
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  );
+};
 
-    <nav
-      aria-label={`${title} footer navigation`}
+const FooterAction = ({ label, onClick }) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="mb-4 mx-auto flex items-center justify-center gap-2 border-0 bg-transparent p-0 text-[9px] font-medium uppercase tracking-[0.8px] text-white transition-colors duration-200 hover:text-white/70"
     >
-      <ul className="space-y-[3px]">
-        {links.map((item) => (
-          <li key={item.label}>
-            <Link
-              to={item.path}
-              className="inline-block text-[9px] leading-[1.3] text-white/75 transition-colors duration-200 hover:text-white xl:text-[10px]"
-            >
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  </div>
-);
+      <span>{label}</span>
 
-// ----------------------------------------------------------------------
+      <span
+        aria-hidden="true"
+        className="text-[#d9a441]"
+      >
+        →
+      </span>
+    </button>
+  );
+};
 
-const FooterAction = ({
-  label,
-  onClick,
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="mx-auto mb-4 flex items-center justify-center gap-2 border-0 bg-transparent p-0 text-[9px] font-medium uppercase tracking-[0.8px] text-white transition-colors duration-200 hover:text-white/70"
-  >
-    <span>{label}</span>
-
-    <span
-      aria-hidden="true"
-      className="text-[#d9a441]"
-    >
-      →
-    </span>
-  </button>
-);
-
-// ----------------------------------------------------------------------
-
-const ContactRow = ({
-  icon,
-  text,
-  href,
-}) => {
+const ContactRow = ({ icon, text, href }) => {
   const content = (
     <>
       <span className="mt-[1px] shrink-0 text-white/80">
@@ -451,14 +436,11 @@ const ContactRow = ({
     </>
   );
 
-  const className =
-    "mb-[7px] flex items-start gap-2 text-[9px] leading-[1.4] text-white/75 transition-colors duration-200 hover:text-white xl:text-[10px]";
-
   if (href) {
     return (
       <a
         href={href}
-        className={className}
+        className="mb-[7px] flex items-start gap-2 text-[9px] leading-[1.4] text-white/75 transition-colors duration-200 hover:text-white xl:text-[10px]"
       >
         {content}
       </a>
@@ -466,143 +448,35 @@ const ContactRow = ({
   }
 
   return (
-    <div className={className}>
+    <div className="mb-[7px] flex items-start gap-2 text-[9px] leading-[1.4] text-white/75 xl:text-[10px]">
       {content}
     </div>
   );
 };
 
-// ----------------------------------------------------------------------
-
-const SocialLinks = ({
-  socials,
-}) => {
-  if (!socials.length) {
-    return null;
-  }
-
-  return (
-    <div className="mt-5 flex flex-wrap items-center gap-2">
-      {socials.map((social) => {
-        const platform =
-          social?.platform
-            ?.toLowerCase()
-            .trim() || "";
-
-        const label =
-          SOCIAL_LABELS[platform] ||
-          platform
-            .slice(0, 2)
-            .toUpperCase();
-
-        if (!social?.url) {
-          return null;
-        }
-
-        return (
-          <a
-            key={
-              social.id ||
-              `${platform}-${social.url}`
-            }
-            href={social.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Visit Ultra Stones on ${
-              social.platform ||
-              platform
-            }`}
-            title={
-              social.platform ||
-              platform
-            }
-            className="
-              inline-flex
-              h-8
-              min-w-8
-              items-center
-              justify-center
-              rounded-full
-              border
-              border-white/25
-              px-2
-              text-[9px]
-              font-semibold
-              uppercase
-              tracking-[0.05em]
-              text-white/80
-              transition-all
-              duration-200
-              hover:border-white
-              hover:bg-white
-              hover:text-black
-            "
-          >
-            {label}
-          </a>
-        );
-      })}
-    </div>
-  );
-};
-
-// ----------------------------------------------------------------------
-
 FooterColumn.propTypes = {
-  title:
-    PropTypes.string.isRequired,
-
+  title: PropTypes.string.isRequired,
   links: PropTypes.arrayOf(
     PropTypes.shape({
-      label:
-        PropTypes.string.isRequired,
-
-      path:
-        PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      path: PropTypes.string.isRequired,
     })
   ).isRequired,
 };
 
 FooterAction.propTypes = {
-  label:
-    PropTypes.string.isRequired,
-
-  onClick:
-    PropTypes.func.isRequired,
+  label: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 ContactRow.propTypes = {
-  icon:
-    PropTypes.node.isRequired,
-
-  text:
-    PropTypes.string.isRequired,
-
-  href:
-    PropTypes.string,
+  icon: PropTypes.node.isRequired,
+  text: PropTypes.string.isRequired,
+  href: PropTypes.string,
 };
 
 ContactRow.defaultProps = {
   href: undefined,
-};
-
-SocialLinks.propTypes = {
-  socials: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.string,
-      ]),
-      platform:
-        PropTypes.string,
-      url:
-        PropTypes.string,
-    })
-  ),
-};
-
-SocialLinks.defaultProps = {
-  socials: [],
 };
 
 export default Footer;
