@@ -2,6 +2,7 @@ import { lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import ScrollToTop from "../components/common/ScrollToTop";
+import BlogDetailedView from "../pages/Resource_Center/Our_Blogs/blog-detailed-view";
 
 const Home = lazy(() => import("../pages/Home"));
 const Contact = lazy(() => import("../pages/Contact/Contact"));
@@ -65,6 +66,10 @@ const AppRoutes = () => {
         <Route
           path="/merchandising-displays"
           element={<Merchandise />}
+        />
+        <Route
+          path="/blog/:blogId"
+          element={<BlogDetailedView />}
         />
       </Routes>
     </>

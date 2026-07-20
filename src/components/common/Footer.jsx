@@ -22,17 +22,17 @@ const EXPLORE_LINKS = [
     label: "Browse Products",
     path: "/categories",
   },
-  {
-    label: "Featured Stones",
-    path: "/products",
-  },
-  {
-    label: "Applications",
-    path: "/applications",
-  },
+  // {
+  //   label: "Featured Stones",
+  //   path: "/products",
+  // },
+  // {
+  //   label: "Applications",
+  //   path: "/applications",
+  // },
   {
     label: "Inspiration Gallery",
-    path: "/inspiration",
+    path: "/gallery",
   },
 ];
 
@@ -42,17 +42,17 @@ const COMPANY_LINKS = [
     path: "/aboutus",
   },
   {
-    label: "Our Story",
+    label: "Our Process",
     path: "/ourprocess",
   },
-  {
-    label: "Resources",
-    path: "/resource-library",
-  },
-  {
-    label: "Care & Maintenance",
-    path: "/care-maintenance",
-  },
+  // {
+  //   label: "Resources",
+  //   path: "/resource-library",
+  // },
+  // {
+  //   label: "Care & Maintenance",
+  //   path: "/care-maintenance",
+  // },
   {
     label: "Blog",
     path: "/blogs",
@@ -61,10 +61,10 @@ const COMPANY_LINKS = [
     label: "Careers",
     path: "/career",
   },
-  {
-    label: "Privacy Policy",
-    path: "/privacy-policy",
-  },
+  // {
+  //   label: "Privacy Policy",
+  //   path: "/privacy-policy",
+  // },
 ];
 
 const SHOWROOM_LINKS = [
@@ -162,7 +162,7 @@ const Footer = () => {
     office?.primary_phone || "631-873-4747";
 
   const emailAddress =
-    office?.email || "info@ultrastones.com";
+    "info@ultrastones.com";
 
   const weekdayHours =
     office?.business_hours_mon_fri ||
