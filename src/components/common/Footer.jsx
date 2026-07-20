@@ -4,7 +4,7 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import { Clock3, Mail, Phone } from "lucide-react";
 
 import {
   FaFacebookF,
@@ -23,8 +23,16 @@ const EXPLORE_LINKS = [
     path: "/categories",
   },
   {
+    label: "Featured Stones",
+    path: "/products",
+  },
+  {
+    label: "Applications",
+    path: "/applications",
+  },
+  {
     label: "Inspiration Gallery",
-    path: "/gallery",
+    path: "/inspiration",
   },
 ];
 
@@ -38,12 +46,24 @@ const COMPANY_LINKS = [
     path: "/ourprocess",
   },
   {
+    label: "Resources",
+    path: "/resource-library",
+  },
+  {
+    label: "Care & Maintenance",
+    path: "/care-maintenance",
+  },
+  {
     label: "Blog",
     path: "/blogs",
   },
   {
     label: "Careers",
     path: "/career",
+  },
+  {
+    label: "Privacy Policy",
+    path: "/privacy-policy",
   },
 ];
 
@@ -142,7 +162,7 @@ const Footer = () => {
     office?.primary_phone || "631-873-4747";
 
   const emailAddress =
-    "info@ultrastones.com";
+    office?.email || "info@ultrastones.com";
 
   const weekdayHours =
     office?.business_hours_mon_fri ||
@@ -282,7 +302,7 @@ const Footer = () => {
             </h3>
 
             <ContactRow
-              // icon={<Phone size={11} />}
+              icon={<Phone size={11} />}
               text={phoneNumber}
               href={`tel:${phoneNumber.replace(
                 /[^\d+]/g,
@@ -291,18 +311,18 @@ const Footer = () => {
             />
 
             <ContactRow
-              // icon={<Mail size={11} />}
+              icon={<Mail size={11} />}
               text={emailAddress}
               href={`mailto:${emailAddress}`}
             />
 
             <ContactRow
-              // icon={<Clock3 size={11} />}
+              icon={<Clock3 size={11} />}
               text={`Mon - Fri: ${weekdayHours}`}
             />
 
             <ContactRow
-              // icon={<Clock3 size={11} />}
+              icon={<Clock3 size={11} />}
               text={`Sat - ${saturdayHours}`}
             />
 
