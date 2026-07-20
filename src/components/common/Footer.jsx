@@ -47,7 +47,7 @@ const COMPANY_LINKS = [
   },
   {
     label: "Privacy Policy",
-    path: "/privacy-policy",
+    path: "/PrivacyPolicy",
   },
 ];
 

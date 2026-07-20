@@ -2,7 +2,6 @@ import { lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import ScrollToTop from "../components/common/ScrollToTop";
-import BlogDetailedView from "../pages/Resource_Center/Our_Blogs/blog-detailed-view";
 
 const Home = lazy(() => import("../pages/Home"));
 const Contact = lazy(() => import("../pages/Contact/Contact"));
@@ -40,6 +39,13 @@ const Gallery = lazy(() =>
 const Merchandise = lazy(() =>
   import("../pages/Resource_Center/MerchandisingDisplays/MerchandisingDisplays")
 );
+const BlogDetailedView = lazy(() =>
+  import("../pages/Resource_Center/Our_Blogs/blog-detailed-view")
+);
+const PrivacyPolicy = lazy(() =>
+  import("../pages/Resource_Center/privacy-policy")
+);
+
 
 const AppRoutes = () => {
   return (
@@ -60,6 +66,7 @@ const AppRoutes = () => {
         <Route path="/ourprocess" element={<OurProcess />} />
         <Route path="/blogs" element={<Ourblogs />} />
         <Route path="/ceu" element={<Ceu />} />
+        <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
         <Route path="/career" element={<Career />} />
         <Route path="/careers/:slug" element={<CareerDetails />} />
         <Route path="/gallery" element={<Gallery />} />
