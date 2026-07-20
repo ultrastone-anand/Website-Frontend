@@ -151,7 +151,7 @@ const applicationImages = useMemo(
               >
                 <div className="aspect-[3/5] overflow-hidden bg-black">
                   <img
-  src={getOptimizedImageUrl(item.image, 1400, 90)}
+  src={getOptimizedImageUrl(item.image, 1600, 90)}
   srcSet={[
     `${getOptimizedImageUrl(item.image, 600, 84)} 600w`,
     `${getOptimizedImageUrl(item.image, 900, 86)} 900w`,
