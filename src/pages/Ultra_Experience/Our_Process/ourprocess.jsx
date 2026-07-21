@@ -184,30 +184,7 @@ const OurProcess = () => {
                         {step.description}
                       </p>
 
-                      {step.buttonText && (
-                        <button
-                          className="
-                            border
-                            border-[#d71920]
-                            text-[#d71920]
-                            text-[14px]
-                            uppercase
-                            tracking-[1px]
-                            px-4
-                            py-2
-                            hover:bg-[#d71920]
-                            hover:text-white
-                            transition
-                          "
-                          onClick={() => {
-                            if (step.buttonLink) {
-                              window.location.href = step.buttonLink;
-                            }
-                          }}
-                        >
-                          {step.buttonText}
-                        </button>
-                      )}
+
                     </div>
                   </div>
                 </div>
