@@ -317,14 +317,6 @@ const GlobalSearch = ({
         setIsSearching(true);
         setSearchError("");
 
-        /*
-         * Use this when VITE_API_URL already contains /api:
-         *
-         * VITE_API_URL=http://localhost:5000/api
-         *
-         * Final URL:
-         * http://localhost:5000/api/search
-         */
         const response = await axios.get(
           `${import.meta.env.VITE_API_URL}/search`,
           {
