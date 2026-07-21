@@ -1,6 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
@@ -53,6 +56,8 @@ const getDirectionsUrl = (showroom) => {
 };
 
 export default function Contact() {
+  const navigate = useNavigate();
+
   const [showrooms, setShowrooms] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -79,12 +84,16 @@ export default function Contact() {
 
         if (!isMounted) return;
 
-        if (response.data?.success && Array.isArray(response.data?.data)) {
+        if (
+          response.data?.success &&
+          Array.isArray(response.data?.data)
+        ) {
           const activeShowrooms = response.data.data
             .filter((item) => item.is_active)
             .sort(
               (a, b) =>
-                (a.display_order || 0) - (b.display_order || 0)
+                (a.display_order || 0) -
+                (b.display_order || 0)
             );
 
           setShowrooms(activeShowrooms);
@@ -94,7 +103,11 @@ export default function Contact() {
       } catch (error) {
         if (!isMounted) return;
 
-        console.error("Failed to fetch showrooms:", error);
+        console.error(
+          "Failed to fetch showrooms:",
+          error
+        );
+
         setShowrooms([]);
       } finally {
         if (isMounted) {
@@ -122,8 +135,13 @@ export default function Contact() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const cleanedPhone = formData.phone.replace(/\D/g, "");
+    if (loading) return;
+
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const cleanedPhone =
+      formData.phone.replace(/\D/g, "");
 
     if (!formData.name.trim()) {
       alert("Name is required");
@@ -150,7 +168,10 @@ export default function Contact() {
       return;
     }
 
-    if (cleanedPhone.length < 10 || cleanedPhone.length > 15) {
+    if (
+      cleanedPhone.length < 10 ||
+      cleanedPhone.length > 15
+    ) {
       alert("Please enter a valid phone number");
       return;
     }
@@ -170,8 +191,6 @@ export default function Contact() {
       );
 
       if (response.data?.success) {
-        alert("Enquiry submitted successfully");
-
         setFormData({
           name: "",
           subject: "",
@@ -179,11 +198,23 @@ export default function Contact() {
           phone: "",
           message: "",
         });
-      } else {
-        alert(response.data?.message || "Unable to submit enquiry");
+
+        navigate("/thankyou", {
+          replace: true,
+        });
+
+        return;
       }
+
+      alert(
+        response.data?.message ||
+          "Unable to submit enquiry"
+      );
     } catch (error) {
-      console.error("Failed to submit contact form:", error);
+      console.error(
+        "Failed to submit contact form:",
+        error
+      );
 
       alert(
         error.response?.data?.message ||
@@ -206,7 +237,8 @@ export default function Contact() {
             <h1
               className="text-[34px] font-semibold leading-none text-[#161412] md:text-[42px]"
               style={{
-                fontFamily: "Montserrat, sans-serif",
+                fontFamily:
+                  "Montserrat, sans-serif",
               }}
             >
               Contact Us
@@ -217,7 +249,8 @@ export default function Contact() {
             <p
               className="text-[13px] text-[#777]"
               style={{
-                fontFamily: "Montserrat, sans-serif",
+                fontFamily:
+                  "Montserrat, sans-serif",
               }}
             >
               <Link
@@ -248,10 +281,12 @@ export default function Contact() {
               </h2>
 
               <p className="mb-10 text-[13px] leading-[24px] text-[#666]">
-                Thank you for your interest in our services. If you have any
-                questions or would like to discuss a project, please do not
-                hesitate to contact us. Our team is dedicated to providing you
-                with the highest level of service and support.
+                Thank you for your interest in our
+                services. If you have any questions or
+                would like to discuss a project, please
+                do not hesitate to contact us. Our team
+                is dedicated to providing you with the
+                highest level of service and support.
               </p>
 
               <div className="grid gap-10 sm:grid-cols-2 sm:gap-12">
@@ -283,7 +318,10 @@ export default function Contact() {
                             {showroom.address || "-"}
                             <br />
 
-                            {[showroom.city, showroom.state]
+                            {[
+                              showroom.city,
+                              showroom.state,
+                            ]
                               .filter(Boolean)
                               .join(", ")}
 
@@ -309,18 +347,27 @@ export default function Contact() {
                   ) : showrooms.length > 0 ? (
                     <div className="text-[12px] leading-5 text-[#666]">
                       <p>Monday - Friday</p>
+
                       <p className="mb-3">
-                        {showrooms[0].business_hours_mon_fri || "-"}
+                        {showrooms[0]
+                          .business_hours_mon_fri ||
+                          "-"}
                       </p>
 
                       <p>Saturday</p>
+
                       <p className="mb-3">
-                        {showrooms[0].business_hours_saturday || "-"}
+                        {showrooms[0]
+                          .business_hours_saturday ||
+                          "-"}
                       </p>
 
                       <p>Sunday</p>
+
                       <p>
-                        {showrooms[0].business_hours_sunday || "-"}
+                        {showrooms[0]
+                          .business_hours_sunday ||
+                          "-"}
                       </p>
                     </div>
                   ) : (
@@ -352,7 +399,8 @@ export default function Contact() {
                       value={formData.name}
                       onChange={handleChange}
                       autoComplete="name"
-                      className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-colors focus:border-[#c91f26]"
+                      disabled={loading}
+                      className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-colors focus:border-[#c91f26] disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
 
@@ -370,7 +418,8 @@ export default function Contact() {
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-colors focus:border-[#c91f26]"
+                      disabled={loading}
+                      className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-colors focus:border-[#c91f26] disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
 
@@ -389,7 +438,8 @@ export default function Contact() {
                       value={formData.email}
                       onChange={handleChange}
                       autoComplete="email"
-                      className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-colors focus:border-[#c91f26]"
+                      disabled={loading}
+                      className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-colors focus:border-[#c91f26] disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
 
@@ -409,7 +459,8 @@ export default function Contact() {
                       onChange={handleChange}
                       autoComplete="tel"
                       inputMode="tel"
-                      className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-colors focus:border-[#c91f26]"
+                      disabled={loading}
+                      className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-colors focus:border-[#c91f26] disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
                 </div>
@@ -428,7 +479,8 @@ export default function Contact() {
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full resize-none border border-[#e1ddd8] bg-[#ece9e5] p-4 text-[13px] outline-none transition-colors focus:border-[#c91f26]"
+                    disabled={loading}
+                    className="w-full resize-none border border-[#e1ddd8] bg-[#ece9e5] p-4 text-[13px] outline-none transition-colors focus:border-[#c91f26] disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
 
@@ -437,7 +489,9 @@ export default function Contact() {
                   disabled={loading}
                   className="mt-6 h-[32px] min-w-[90px] bg-[#0c5562] px-4 text-[11px] uppercase tracking-wider text-white transition-all hover:bg-[#08414b] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {loading ? "Sending..." : "Submit"}
+                  {loading
+                    ? "Sending..."
+                    : "Submit"}
                 </button>
               </form>
             </div>
@@ -461,11 +515,13 @@ export default function Contact() {
             ) : (
               <div className="grid gap-14 lg:grid-cols-2">
                 {showrooms.map((showroom) => {
-                  const mapEmbedUrl = extractIframeSrc(
-                    showroom.google_maps_url
-                  );
+                  const mapEmbedUrl =
+                    extractIframeSrc(
+                      showroom.google_maps_url
+                    );
 
-                  const directionsUrl = getDirectionsUrl(showroom);
+                  const directionsUrl =
+                    getDirectionsUrl(showroom);
 
                   return (
                     <article key={showroom.id}>
@@ -481,7 +537,8 @@ export default function Contact() {
                           />
                         ) : (
                           <div className="flex h-[300px] w-full items-center justify-center text-[13px] text-[#777]">
-                            Map is currently unavailable.
+                            Map is currently
+                            unavailable.
                           </div>
                         )}
                       </div>
@@ -497,7 +554,10 @@ export default function Contact() {
                         {showroom.address || "-"}
                         <br />
 
-                        {[showroom.city, showroom.state]
+                        {[
+                          showroom.city,
+                          showroom.state,
+                        ]
                           .filter(Boolean)
                           .join(", ")}
 
@@ -515,15 +575,18 @@ export default function Contact() {
 
                       <p className="mt-3 text-[12px] leading-5 text-[#555]">
                         Monday - Friday:{" "}
-                        {showroom.business_hours_mon_fri || "-"}
+                        {showroom.business_hours_mon_fri ||
+                          "-"}
                         <br />
 
                         Saturday:{" "}
-                        {showroom.business_hours_saturday || "-"}
+                        {showroom.business_hours_saturday ||
+                          "-"}
                         <br />
 
                         Sunday:{" "}
-                        {showroom.business_hours_sunday || "-"}
+                        {showroom.business_hours_sunday ||
+                          "-"}
                       </p>
 
                       <div className="mt-4 flex flex-wrap gap-3">
