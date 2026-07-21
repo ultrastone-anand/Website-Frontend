@@ -108,7 +108,7 @@ const applicationImages = useMemo(
           </p>
 
           <h2
-            className="mt-5 text-[25px] uppercase leading-[1.45] tracking-[0.18em] text-white sm:text-[20px] md:text-[20px] xl:text-[24px]"
+            className="mt-5 uppercase leading-[1.45] tracking-[0.2em] text-white sm:text-[22px] md:text-[22px] xl:text-[24px]"
             style={{
               fontFamily: '"BBH Bartle", sans-serif',
               fontWeight: 400,

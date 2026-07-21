@@ -238,11 +238,11 @@ const Footer = () => {
 
           {/* Company intro */}
           <div className="lg:border-r lg:border-white/15 lg:px-6 xl:px-8">
-            <p className="mb-3 text-center text-[10px] font-medium leading-[1.5] text-white/90 xl:text-[14px]">
+            <p className="mb-3 text-center text-[14px] font-medium leading-[1.5] text-white/90 xl:text-[16px]">
               500+ Premium Surfaces
             </p>
 
-            <p className="mb-6 mx-auto max-w-[170px] text-center text-[9px] leading-[1.55] text-white/75 xl:text-[10px]">
+            <p className="mb-6 mx-auto max-w-[170px] text-center text-[12px] leading-[1.55] text-white/75 xl:text-[14px]">
   Premium natural stone and engineered
   surfaces for extraordinary projects.
 </p>
@@ -279,76 +279,64 @@ const Footer = () => {
           />
 
           {/* Contact */}
-          <div className="lg:pl-6 xl:pl-8">
-            <h3 className="mb-4 text-[14px] font-semibold uppercase tracking-[1.4px] text-white">
-              Get In Touch
-            </h3>
+<div className="text-center lg:pl-6 xl:pl-8">
+  <h3 className="mb-4 text-[16px] font-semibold uppercase tracking-[1.4px] text-white">
+    Get In Touch
+  </h3>
 
-            <ContactRow
-              icon={<Phone size={11} />}
-              text={phoneNumber}
-              href={`tel:${phoneNumber.replace(
-                /[^\d+]/g,
-                ""
-              )}`}
-            />
+  <div className="flex flex-col items-center">
+    <ContactRow
+      icon={<Phone size={11} />}
+      text={phoneNumber}
+      href={`tel:${phoneNumber.replace(/[^\d+]/g, "")}`}
+    />
 
-            <ContactRow
-              icon={<Mail size={11} />}
-              text={emailAddress}
-              href={`mailto:${emailAddress}`}
-            />
+    <ContactRow
+      icon={<Mail size={11} />}
+      text={emailAddress}
+      href={`mailto:${emailAddress}`}
+    />
 
-            <ContactRow
-              icon={<Clock3 size={11} />}
-              text={`Mon - Fri: ${weekdayHours}`}
-            />
+    <ContactRow
+      icon={<Clock3 size={11} />}
+      text={`Mon - Fri: ${weekdayHours}`}
+    />
 
-            <ContactRow
-              icon={<Clock3 size={11} />}
-              text={`Sat - ${saturdayHours}`}
-            />
+    <ContactRow
+      icon={<Clock3 size={11} />}
+      text={`Sat - ${saturdayHours}`}
+    />
+  </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-1">
-              {socials.map((social) => {
-                const platform =
-                  social?.platform
-                    ?.toLowerCase()
-                    .trim() || "";
+  <div className="mt-5 flex justify-center gap-2">
+    {socials.map((social) => {
+      const platform =
+        social?.platform?.toLowerCase().trim() || "";
 
-                const Icon = SOCIAL_ICONS[platform];
+      const Icon = SOCIAL_ICONS[platform];
 
-                if (!Icon || !social?.url) {
-                  return null;
-                }
+      if (!Icon || !social?.url) return null;
 
-                return (
-                  <a
-                    key={
-                      social.id ||
-                      `${platform}-${social.url}`
-                    }
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Visit Ultra Stones on ${social.platform}`}
-                    title={social.platform}
-                    className="inline-flex h-8 w-8 items-center justify-center text-white/85 transition-colors duration-200 hover:text-white"
-                  >
-                    <Icon
-                      size={13}
-                      aria-hidden="true"
-                      focusable="false"
-                    />
-                  </a>
-                );
-              })}
-            </div>
-          </div>
+      return (
+        <a
+          key={social.id || `${platform}-${social.url}`}
+          href={social.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Visit Ultra Stones on ${social.platform}`}
+          title={social.platform}
+          className="inline-flex h-8 w-8 items-center justify-center text-white/85 transition-colors duration-200 hover:text-white"
+        >
+          <Icon size={18} aria-hidden="true" focusable="false" />
+        </a>
+      );
+    })}
+  </div>
+</div>
         </div>
 
         {/* Bottom information */}
-        <div className="mt-8 flex flex-col gap-3 border-t border-white/15 pt-4 text-[8px] leading-relaxed text-white/65 sm:text-[9px] md:flex-row md:items-center md:justify-between lg:mt-7">
+        <div className="mt-8 flex flex-col gap-3 border-t border-white/15 pt-4 text-[10px] leading-relaxed text-white/65 sm:text-[10px] md:flex-row md:items-center md:justify-between lg:mt-7">
           <p>
             Trusted by Architects • Interior Designers •
             Builders • Fabricators • Dealers • Homeowners
@@ -366,8 +354,8 @@ const Footer = () => {
 
 const FooterColumn = ({ title, links }) => {
   return (
-    <div className="lg:border-r lg:border-white/15 lg:px-6 xl:px-8">
-      <h3 className="mb-2 text-[14px] font-semibold uppercase tracking-[1.4px] text-white">
+    <div className="text-center lg:border-r lg:border-white/15 lg:px-6 xl:px-8">
+      <h3 className="mb-2 text-[16px] font-semibold uppercase tracking-[1.4px] text-white">
         {title}
       </h3>
 
@@ -377,7 +365,7 @@ const FooterColumn = ({ title, links }) => {
             <li key={item.label}>
               <Link
                 to={item.path}
-                className="inline-block text-[9px] leading-[1.3] text-white/75 transition-colors duration-200 hover:text-white xl:text-[10px]"
+                className="inline-block text-[13px] leading-[1.5] text-white/75 transition-colors duration-200 hover:text-white lg:text-[13px] xl:text-[14px]"
               >
                 {item.label}
               </Link>
@@ -388,13 +376,12 @@ const FooterColumn = ({ title, links }) => {
     </div>
   );
 };
-
 const FooterAction = ({ label, onClick }) => {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="mb-4 mx-auto flex items-center justify-center gap-2 border-0 bg-transparent p-0 text-[9px] font-medium uppercase tracking-[0.8px] text-white transition-colors duration-200 hover:text-white/70"
+      className="mb-4 mx-auto flex items-center justify-center gap-2 border-0 bg-transparent p-0 text-[12px] font-medium uppercase tracking-[0.8px] text-white transition-colors duration-200 hover:text-white/70"
     >
       <span>{label}</span>
 
@@ -423,7 +410,7 @@ const ContactRow = ({ icon, text, href }) => {
     return (
       <a
         href={href}
-        className="mb-[7px] flex items-start gap-2 text-[9px] leading-[1.4] text-white/75 transition-colors duration-200 hover:text-white xl:text-[10px]"
+        className="mb-[7px] flex items-start gap-2 text-[12px] leading-[1.4] text-white/75 transition-colors duration-200 hover:text-white xl:text-[14px]"
       >
         {content}
       </a>
@@ -431,7 +418,7 @@ const ContactRow = ({ icon, text, href }) => {
   }
 
   return (
-    <div className="mb-[7px] flex items-start gap-2 text-[9px] leading-[1.4] text-white/75 xl:text-[10px]">
+    <div className="mb-[7px] flex items-start gap-2 text-[12px] leading-[1.4] text-white/75 xl:text-[14px]">
       {content}
     </div>
   );
