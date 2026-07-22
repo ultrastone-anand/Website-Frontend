@@ -26,6 +26,10 @@ const WhyUltraSection = lazy(() =>
   import("../components/home/WhyUltraSection")
 );
 
+const InstagramSection = lazy(() =>
+  import("../components/home/InstagramSection")
+);
+
 const ContactusSection = lazy(() =>
   import("../components/home/ContactusSection")
 );
@@ -68,6 +72,13 @@ const Home = () => {
         rootMargin="300px"
       >
         <InspirationGallery />
+      </LazySection>
+      
+      <LazySection
+        minHeight="350px"
+        rootMargin="200px"
+      >
+        <InstagramSection />
       </LazySection>
 
       <LazySection

@@ -74,7 +74,7 @@ const Navbar = () => {
     { label: "Merchandising Displays", path: "/merchandising-displays" },
     { label: "Portfolio", path: "/gallery" },
     { label: "Our Blogs", path: "/blogs" },
-    { label: "CEU", path: "/ceu" },
+    // { label: "CEU", path: "/ceu" },
     { label: "Career", path: "/career" },
   ];
 
