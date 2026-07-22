@@ -1,46 +1,85 @@
-import React from "react";
-import Navbar from "../../../components/common/Navbar";
-import Footer from "../../../components/common/Footer";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 
-const displays = [
-  {
-    id: 1,
-    name: "Kaolin Display",
-    size: '15"W x 10"H x 16.5"W',
-    image:
-      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea7?w=800",
-  },
-  {
-    id: 2,
-    name: "Ultra Quartz Tower",
-    size: '21"W x 70"H x 24"W',
-    image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800",
-  },
-  {
-    id: 3,
-    name: "Semi Precious Stone",
-    size: '16"W x 12"H x 28"W',
-    image:
-      "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800",
-  },
-  {
-    id: 4,
-    name: "Ultra Quartz Table Display",
-    size: '26"W x 33"H x 14"W',
-    image:
-      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800",
-  },
-];
+import Navbar from "../../../components/common/Navbar";
+import Footer from "../../../components/common/Footer";
+import Loading from "../../../components/common/Loading";
 
-export const Merchandise = () => {
+const Merchandise = () => {
+  const [page, setPage] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPage = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/pages/merchandising-displays`
+        );
+
+        const result = response.data;
+
+        if (result.success) {
+          setPage(result.data);
+        }
+      } catch (error) {
+        console.error(
+          "Error fetching Merchandising Displays page:",
+          error
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPage();
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+
+        <div className="min-h-screen pt-[110px] flex items-center justify-center">
+          <Loading />
+        </div>
+
+        <Footer />
+      </>
+    );
+  }
+
+  if (!page) {
+    return (
+      <>
+        <Navbar />
+
+        <div className="min-h-screen pt-[110px] flex items-center justify-center">
+          Page not found
+        </div>
+
+        <Footer />
+      </>
+    );
+  }
+
+  const content = page.content || {};
+  const displays = content.displaySection?.items || [];
+
+  const handlePdfDownload = (pdfUrl) => {
+    if (!pdfUrl || pdfUrl === "#") {
+      return;
+    }
+
+    window.open(pdfUrl, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <>
       <Navbar />
 
-      <div className=" min-h-screen pt-[110px]">
-        {/* HEADER */}
+      <main className="min-h-screen pt-[110px]">
+        {/* PAGE HEADER */}
         <section className="py-10">
           <div className="max-w-[1650px] mx-auto px-6 xl:px-10">
             <h1
@@ -49,12 +88,19 @@ export const Merchandise = () => {
                 fontFamily: "Montserrat, sans-serif",
               }}
             >
-              Merchandising Displays
+              {content.pageHeader?.heading ||
+                page.title ||
+                "Merchandising Displays"}
             </h1>
 
             <div className="w-[70px] h-[4px] bg-[#c91f26] mt-3 mb-5" />
 
-            <p className="text-[13px] text-[#777]">
+            <p
+              className="text-[13px] text-[#777]"
+              style={{
+                fontFamily: "Montserrat, sans-serif",
+              }}
+            >
               <Link
                 to="/"
                 className="hover:text-[#161412] duration-300"
@@ -74,248 +120,301 @@ export const Merchandise = () => {
               {" / "}
 
               <span className="text-[#161412] font-semibold">
-                Merchandising Displays
+                {content.pageHeader?.heading ||
+                  page.title ||
+                  "Merchandising Displays"}
               </span>
             </p>
 
-            <p className="mt-4 text-[#777] text-sm">
-              Showing all 4 results
+            <p
+              className="mt-4 text-[#777] text-sm"
+              style={{
+                fontFamily: "Montserrat, sans-serif",
+              }}
+            >
+              Showing all {displays.length}{" "}
+              {displays.length === 1 ? "result" : "results"}
             </p>
           </div>
         </section>
 
-        {/* HERO */}
-        <section>
-          <div className="grid lg:grid-cols-2">
-            <div className="bg-[#edf1f6] flex items-center justify-center p-10">
+        {/* HERO — COMPLETE IMAGE, NO LOGO */}
+        {content.hero?.image && (
+          <section>
+            <div className="relative overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea7"
-                alt=""
+                src={content.hero.image}
+                alt={
+                  content.hero.imageAlt ||
+                  content.hero.title ||
+                  "Merchandising Displays"
+                }
                 className="
                   w-full
-                  max-w-[650px]
-                  h-[450px]
+                  h-[350px]
+                  sm:h-[450px]
+                  lg:h-[600px]
                   object-cover
                 "
               />
+
+              <div className="absolute inset-0 bg-black/25" />
+
+              {content.hero?.title && (
+                <div className="absolute inset-0 flex items-center justify-center px-6">
+                  <h2
+                    className="
+                      text-center
+                      text-white
+                      text-[36px]
+                      sm:text-[46px]
+                      lg:text-[60px]
+                      leading-[1.1]
+                    "
+                    style={{
+                      fontFamily: '"Cormorant Garamond", serif',
+                    }}
+                  >
+                    {content.hero.title}
+                  </h2>
+                </div>
+              )}
             </div>
+          </section>
+        )}
 
-<div
-  className="
-    bg-[#edf1f6]
-    flex
-    flex-col
-    justify-center
-    items-center
-    text-center
-    p-10
-  "
->
-  <h2
-    className="
-      text-[30px]
-      md:text-[42px]
-      text-[#161412]
-      mb-6
-    "
-    style={{
-      fontFamily:
-        '"Cormorant Garamond", serif',
-    }}
-  >
-    Merchandising Displays
-  </h2>
-
-<img
-  src="/logo.png"
-  alt="Ultra Stones"
-  className="
-    w-[280px]
-    max-w-[280px]
-    h-auto
-    object-contain
-  "
-/>
-</div>
-          </div>
-        </section>
-
-        {/* OUR DISPLAYS */}
-        <section className="py-20">
+        {/* DISPLAY SECTION */}
+        <section className="py-16 lg:py-20">
           <div className="max-w-[1500px] mx-auto px-6">
             <h2
               className="
                 text-center
-                text-[42px]
+                text-[34px]
+                md:text-[42px]
                 text-[#161412]
-                mb-14
+                mb-12
+                lg:mb-14
               "
               style={{
-                fontFamily:
-                  '"Cormorant Garamond", serif',
+                fontFamily: '"Cormorant Garamond", serif',
               }}
             >
-              Our Displays
+              {content.displaySection?.heading || "Our Displays"}
             </h2>
 
-            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8">
-              {displays.map((item) => (
-                <div
-                  key={item.id}
-                  className="text-center"
-                >
-                  <div
-                    className="
-                      bg-white
-                      border
-                      border-[#e5e5e5]
-                      p-5
-                    "
+            {displays.length > 0 ? (
+              <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-8">
+                {displays.map((item, index) => (
+                  <article
+                    key={item.id || `${item.name}-${index}`}
+                    className="text-center"
                   >
-                    <img
-                      src={item.image}
-                      alt={item.name}
+                    <div
                       className="
-                        w-full
-                        h-[220px]
-                        object-cover
+                        bg-white
+                        border
+                        border-[#e5e5e5]
+                        p-5
+                        overflow-hidden
                       "
-                    />
-                  </div>
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.imageAlt || item.name || "Display"}
+                        loading="lazy"
+                        className="
+                          w-full
+                          h-[220px]
+                          object-cover
+                          duration-500
+                          hover:scale-[1.03]
+                        "
+                      />
+                    </div>
 
-                  <h3
-                    className="
-                      mt-4
-                      text-[22px]
-                      text-[#161412]
-                    "
-                    style={{
-                      fontFamily:
-                        '"Cormorant Garamond", serif',
-                    }}
-                  >
-                    {item.name}
-                  </h3>
+                    <h3
+                      className="
+                        mt-4
+                        text-[22px]
+                        text-[#161412]
+                      "
+                      style={{
+                        fontFamily: '"Cormorant Garamond", serif',
+                      }}
+                    >
+                      {item.name}
+                    </h3>
 
-                  <p className="text-[#777] text-sm mt-1">
-                    {item.size}
-                  </p>
+                    {item.size && (
+                      <p
+                        className="text-[#777] text-sm mt-1"
+                        style={{
+                          fontFamily: "Montserrat, sans-serif",
+                        }}
+                      >
+                        {item.size}
+                      </p>
+                    )}
 
-                  <button
-                    className="
-                      mt-4
-                      border
-                      border-[#c91f26]
-                      text-[#c91f26]
-                      px-5
-                      py-2
-                      text-sm
-                      hover:bg-[#c91f26]
-                      hover:text-white
-                      duration-300
-                    "
-                  >
-                    Download PDF
-                  </button>
-                </div>
-              ))}
-            </div>
+                    <button
+                      type="button"
+                      onClick={() => handlePdfDownload(item.pdfUrl)}
+                      disabled={!item.pdfUrl || item.pdfUrl === "#"}
+                      className="
+                        mt-4
+                        border
+                        border-[#c91f26]
+                        text-[#c91f26]
+                        px-5
+                        py-2
+                        text-sm
+                        duration-300
+                        hover:bg-[#c91f26]
+                        hover:text-white
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50
+                        disabled:hover:bg-transparent
+                        disabled:hover:text-[#c91f26]
+                      "
+                      style={{
+                        fontFamily: "Montserrat, sans-serif",
+                      }}
+                    >
+                      {item.buttonText || "Download PDF"}
+                    </button>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-[#777]">
+                No merchandising displays found.
+              </p>
+            )}
           </div>
         </section>
 
-        {/* QUOTE SECTION */}
-        <section
+  {/* QUOTE SECTION */}
+{content.quoteSection?.description && (
+  <section
+    className="
+      relative
+      py-16
+      mb-10
+      lg:mb-16
+      bg-cover
+      bg-center
+    "
+    style={{
+      backgroundImage: content.quoteSection?.backgroundImage
+        ? `url(${content.quoteSection.backgroundImage})`
+        : undefined,
+      backgroundColor: content.quoteSection?.backgroundImage
+        ? undefined
+        : "#161412",
+    }}
+  >
+    <div className="absolute inset-0 bg-black/75" />
+
+    <div className="relative max-w-[1200px] mx-auto px-6">
+      <p
+        className="
+          text-center
+          text-white
+          text-[22px]
+          sm:text-[24px]
+          leading-[1.8]
+        "
+        style={{
+          fontFamily: '"Cormorant Garamond", serif',
+        }}
+      >
+        {content.quoteSection.description}
+      </p>
+    </div>
+  </section>
+)}
+
+{/* CTA SECTION */}
+{content.cta?.image && (
+  <section className="relative mb-12 lg:mb-20">
+    <img
+      src={content.cta.image}
+      alt={
+        content.cta.imageAlt ||
+        content.cta.title ||
+        "Request Your Display"
+      }
+      className="
+        w-full
+        h-[400px]
+        sm:h-[500px]
+        object-cover
+      "
+    />
+
+    <div className="absolute inset-0 bg-black/30" />
+
+    <div className="absolute inset-0 flex items-center justify-center px-6">
+      <div className="text-center">
+        <h2
           className="
-            py-16
-            bg-cover
-            bg-center
-            relative
+            text-white
+            text-[38px]
+            sm:text-[46px]
+            md:text-[56px]
+            leading-[1.1]
+            mb-6
           "
           style={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=1600)",
+            fontFamily: '"Cormorant Garamond", serif',
           }}
         >
-          <div className="absolute inset-0 bg-black/75" />
+          {content.cta.title || "Request Your Display"}
+        </h2>
 
-          <div className="relative max-w-[1200px] mx-auto px-6">
-            <p
-              className="
-                text-center
-                text-white
-                text-[24px]
-                leading-[1.8]
-              "
-              style={{
-                fontFamily:
-                  '"Cormorant Garamond", serif',
-              }}
-            >
-              Explore our premium tower and table
-              displays, designed to beautifully
-              showcase our quartz, porcelain and
-              precious stone collections. Our sleek,
-              space-efficient merchandising displays
-              help interior designers and homeowners
-              better understand colors, finishes and
-              textures.
-            </p>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="relative py-20">
-          <img
-            src="https://images.unsplash.com/photo-1513694203232-719a280e022f?w=1800"
-            alt=""
+        {content.cta.buttonLink &&
+        content.cta.buttonLink !== "#" ? (
+          <Link
+            to={content.cta.buttonLink}
             className="
-              w-full
-              h-[500px]
-              object-cover
+              inline-block
+              bg-[#c91f26]
+              text-white
+              px-8
+              py-3
+              hover:bg-[#aa1a20]
+              duration-300
             "
-          />
-
-          <div
-            className="
-              absolute
-              inset-0
-              flex
-              items-center
-              justify-center
-            "
+            style={{
+              fontFamily: "Montserrat, sans-serif",
+            }}
           >
-            <div className="text-center">
-              <h2
-                className="
-                  text-white
-                  text-[42px]
-                  md:text-[56px]
-                  mb-5
-                "
-                style={{
-                  fontFamily:
-                    '"Cormorant Garamond", serif',
-                }}
-              >
-                Request Your Display
-              </h2>
-
-              <button
-                className="
-                  bg-[#c91f26]
-                  text-white
-                  px-8
-                  py-3
-                  hover:bg-[#aa1a20]
-                  duration-300
-                "
-              >
-                Click Here
-              </button>
-            </div>
-          </div>
-        </section>
+            {content.cta.buttonText || "Click Here"}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="
+              bg-[#c91f26]
+              text-white
+              px-8
+              py-3
+              opacity-60
+              cursor-not-allowed
+            "
+            style={{
+              fontFamily: "Montserrat, sans-serif",
+            }}
+          >
+            {content.cta.buttonText || "Click Here"}
+          </button>
+        )}
       </div>
+    </div>
+  </section>
+)}
+      </main>
 
       <Footer />
     </>
