@@ -47,14 +47,14 @@ const Home = () => {
 
       {/* Below-the-fold sections */}
       <LazySection
-        minHeight="950px"
+        minHeight="850px"
         rootMargin="500px"
       >
         <OurCollectionSection />
       </LazySection>
 
       <LazySection
-        minHeight="800px"
+        minHeight="750px"
         rootMargin="400px"
       >
         <FeaturedStones />
