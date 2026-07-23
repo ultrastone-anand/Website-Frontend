@@ -50,80 +50,141 @@ const ApplicationSection = () => {
   const [galleryImages, setGalleryImages] =
     useState([]);
 
-  useEffect(() => {
-    const controller = new AbortController();
+useEffect(() => {
+  const controller = new AbortController();
 
-    const fetchGalleryImages = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/inspiration-gallery/images?limit=30`,
-          {
-            signal: controller.signal,
-          }
+  const fetchGalleryImages = async () => {
+    try {
+      const response = await fetch(
+        `${API_URL}/inspiration-gallery/images?limit=30`,
+        {
+          signal: controller.signal,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Request failed with status ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+
+      /*
+       * Supports common API response formats:
+       *
+       * { data: [...] }
+       * { data: { images: [...] } }
+       * { images: [...] }
+       * [...]
+       */
+      const images = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.data)
+          ? data.data
+          : Array.isArray(data?.data?.images)
+            ? data.data.images
+            : Array.isArray(data?.images)
+              ? data.images
+              : [];
+
+      setGalleryImages(images);
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error(
+          "Failed to fetch inspiration gallery images:",
+          error
         );
 
-        const data = await response.json();
-
-        setGalleryImages(data.data || []);
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          console.error(
-            "Failed to fetch inspiration gallery images:",
-            error
-          );
-        }
+        setGalleryImages([]);
       }
-    };
+    }
+  };
 
-    fetchGalleryImages();
+  fetchGalleryImages();
 
-    return () => controller.abort();
-  }, []);
+  return () => controller.abort();
+}, []);
 
-  const applicationImages = useMemo(
-    () =>
-      applications.map((application, index) => {
-        const matchedImages =
-          galleryImages.filter((image) => {
-            const categoryName =
-              image.inspiration_gallery_categories?.name
+const applicationImages = useMemo(() => {
+  const safeGalleryImages = Array.isArray(galleryImages)
+    ? galleryImages
+    : [];
+
+  return applications.map((application, index) => {
+    const allowedCategoryNames =
+      application.categoryNames.map((name) =>
+        name.trim().toLowerCase()
+      );
+
+    const matchedImages = safeGalleryImages.filter(
+      (image) => {
+        /*
+         * Supports either:
+         *
+         * inspiration_gallery_categories: { name: "Bathroom" }
+         *
+         * or:
+         *
+         * inspiration_gallery_categories: [
+         *   { name: "Bathroom" }
+         * ]
+         */
+        const categoryData =
+          image?.inspiration_gallery_categories;
+
+        const imageCategoryNames = Array.isArray(
+          categoryData
+        )
+          ? categoryData
+              .map((category) =>
+                category?.name
+                  ?.trim()
+                  .toLowerCase()
+              )
+              .filter(Boolean)
+          : [
+              categoryData?.name
                 ?.trim()
-                .toLowerCase();
+                .toLowerCase(),
+            ].filter(Boolean);
 
-            return application.categoryNames.some(
-              (name) =>
-                name.toLowerCase() === categoryName
-            );
-          });
+        return imageCategoryNames.some(
+          (categoryName) =>
+            allowedCategoryNames.includes(categoryName)
+        );
+      }
+    );
 
-        const usableImages =
-          matchedImages.filter((image) => {
-            if (!image.width || !image.height) {
-              return true;
-            }
+    const usableImages = matchedImages.filter(
+      (image) => {
+        const width = Number(image?.width);
+        const height = Number(image?.height);
 
-            return (
-              image.width >= 1000 &&
-              image.height >= 1200
-            );
-          });
+        if (!width || !height) {
+          return true;
+        }
 
-        const imagePool = usableImages.length
-          ? usableImages
-          : matchedImages;
+        return width >= 1000 && height >= 1200;
+      }
+    );
 
-        const selectedImage =
-          getRandomImage(imagePool);
+    const imagePool =
+      usableImages.length > 0
+        ? usableImages
+        : matchedImages;
 
-        return {
-          ...application,
-          image:
-            selectedImage?.image_url ||
-            fallbackImages[index],
-        };
-      }),
-    [galleryImages]
-  );
+    const selectedImage = getRandomImage(imagePool);
+
+    return {
+      ...application,
+      image:
+        selectedImage?.image_url ||
+        selectedImage?.url ||
+        fallbackImages[index],
+    };
+  });
+}, [galleryImages]);
 
   return (
     <section className="mb-10 bg-[#222221] py-9 sm:mb-14 sm:py-12 md:py-16 xl:mb-[70px] xl:py-[70px]">
