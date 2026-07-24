@@ -1,0 +1,15 @@
+export const DEFAULT_ACCESSIBILITY_SETTINGS = {
+  contrast: "default",
+  textScale: 1,
+  letterSpacing: 0,
+  lineHeight: 1,
+  highlightLinks: false,
+  pauseAnimations: false,
+  hideImages: false,
+  dyslexiaFriendly: false,
+  largeCursor: false,
+  textAlign: "default",
+  saturation: 100,
+  grayscale: false,
+  readingGuide: false,
+};

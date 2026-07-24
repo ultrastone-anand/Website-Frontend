@@ -1,18 +1,26 @@
 import { Suspense } from "react";
-import AppRoutes from "./routes/AppRoutes";
+
 import Loading from "./components/common/Loading";
+import AppRoutes from "./routes/AppRoutes";
+import AccessibilityMenu from "./accessibility/AccessibilityMenu";
 
 function App() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <Loading />
-        </div>
-      }
-    >
-      <AppRoutes />
-    </Suspense>
+    <>
+      <div className="site-content">
+        <Suspense
+          fallback={
+            <div className="flex min-h-screen items-center justify-center">
+              <Loading />
+            </div>
+          }
+        >
+          <AppRoutes />
+        </Suspense>
+      </div>
+
+      <AccessibilityMenu />
+    </>
   );
 }
 

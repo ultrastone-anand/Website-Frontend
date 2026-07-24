@@ -1,0 +1,243 @@
+:root {
+  --a11y-text-scale: 1;
+  --a11y-letter-spacing: 0px;
+  --a11y-line-height: normal;
+
+  --a11y-contrast: 1;
+  --a11y-saturation: 100%;
+  --a11y-grayscale: 0%;
+}
+
+/* =====================================================
+   TEXT SIZE
+===================================================== */
+
+html {
+  font-size: calc(100% * var(--a11y-text-scale));
+}
+
+/* =====================================================
+   TEXT SPACING
+===================================================== */
+
+html[data-a11y-text-spacing="true"] body,
+html[data-a11y-text-spacing="true"] body * {
+  letter-spacing: var(--a11y-letter-spacing) !important;
+}
+
+/* Do not alter the accessibility panel */
+html[data-a11y-text-spacing="true"]
+  #accessibility-menu,
+html[data-a11y-text-spacing="true"]
+  #accessibility-menu * {
+  letter-spacing: normal !important;
+}
+
+/* =====================================================
+   LINE HEIGHT
+===================================================== */
+
+html[data-a11y-line-height="true"] body,
+html[data-a11y-line-height="true"] body p,
+html[data-a11y-line-height="true"] body li,
+html[data-a11y-line-height="true"] body span,
+html[data-a11y-line-height="true"] body a,
+html[data-a11y-line-height="true"] body label,
+html[data-a11y-line-height="true"] body h1,
+html[data-a11y-line-height="true"] body h2,
+html[data-a11y-line-height="true"] body h3,
+html[data-a11y-line-height="true"] body h4,
+html[data-a11y-line-height="true"] body h5,
+html[data-a11y-line-height="true"] body h6 {
+  line-height: var(--a11y-line-height) !important;
+}
+
+/* Do not alter the accessibility panel */
+html[data-a11y-line-height="true"]
+  #accessibility-menu,
+html[data-a11y-line-height="true"]
+  #accessibility-menu * {
+  line-height: normal !important;
+}
+
+/* =====================================================
+   VISUAL FILTERS
+   Never apply filter to html, body or #root.
+===================================================== */
+
+.site-content {
+  min-height: 100vh;
+
+  filter:
+    contrast(var(--a11y-contrast))
+    saturate(var(--a11y-saturation))
+    grayscale(var(--a11y-grayscale));
+}
+
+/* Default contrast */
+html:not([data-a11y-contrast="high"]) {
+  --a11y-contrast: 1;
+}
+
+/* High contrast */
+html[data-a11y-contrast="high"] {
+  --a11y-contrast: 1.45;
+}
+
+/* =====================================================
+   HIGHLIGHT LINKS
+===================================================== */
+
+html[data-a11y-highlight-links="true"] body a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 3px !important;
+  text-underline-offset: 4px !important;
+  outline: 2px solid currentColor !important;
+  outline-offset: 3px !important;
+}
+
+/* Do not restyle links inside the accessibility menu */
+html[data-a11y-highlight-links="true"]
+  #accessibility-menu a {
+  text-decoration: none !important;
+  outline: none !important;
+}
+
+/* =====================================================
+   READABLE FONT
+===================================================== */
+
+html[data-a11y-readable-font="true"] body,
+html[data-a11y-readable-font="true"] body * {
+  font-family:
+    Arial,
+    Verdana,
+    Tahoma,
+    sans-serif !important;
+  font-style: normal !important;
+  font-variant-ligatures: none !important;
+}
+
+/* Keep panel font independent */
+html[data-a11y-readable-font="true"]
+  #accessibility-menu,
+html[data-a11y-readable-font="true"]
+  #accessibility-menu * {
+  font-family: inherit !important;
+}
+
+/* =====================================================
+   TEXT ALIGNMENT
+===================================================== */
+
+html[data-a11y-text-align="left"] body {
+  text-align: left !important;
+}
+
+html[data-a11y-text-align="center"] body {
+  text-align: center !important;
+}
+
+html[data-a11y-text-align="right"] body {
+  text-align: right !important;
+}
+
+/* Keep accessibility menu alignment unchanged */
+html[data-a11y-text-align]
+  #accessibility-menu,
+html[data-a11y-text-align]
+  #accessibility-menu * {
+  text-align: initial !important;
+}
+
+/* =====================================================
+   PAUSE CSS ANIMATIONS
+===================================================== */
+
+html[data-a11y-pause-animations="true"] *,
+html[data-a11y-pause-animations="true"] *::before,
+html[data-a11y-pause-animations="true"] *::after {
+  animation-play-state: paused !important;
+  animation-duration: 0.001ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+
+  scroll-behavior: auto !important;
+}
+
+/* =====================================================
+   HIDE IMAGES
+===================================================== */
+
+html[data-a11y-hide-images="true"]
+  img:not([data-a11y-essential="true"]),
+html[data-a11y-hide-images="true"]
+  picture:not([data-a11y-essential="true"]),
+html[data-a11y-hide-images="true"]
+  video:not([data-a11y-essential="true"]),
+html[data-a11y-hide-images="true"]
+  canvas:not([data-a11y-essential="true"]),
+html[data-a11y-hide-images="true"]
+  svg:not([data-a11y-essential="true"]),
+html[data-a11y-hide-images="true"]
+  [data-a11y-background="true"] {
+  visibility: hidden !important;
+}
+
+/* Keep menu icons visible */
+html[data-a11y-hide-images="true"]
+  #accessibility-menu svg {
+  visibility: visible !important;
+}
+
+/* =====================================================
+   LARGE CURSOR
+===================================================== */
+
+html[data-a11y-large-cursor="true"],
+html[data-a11y-large-cursor="true"] body,
+html[data-a11y-large-cursor="true"] body * {
+  cursor:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M6 3L6 39L16 29L23 45L31 41L24 25L39 25Z' fill='%23ffffff' stroke='%23000000' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E")
+      6 3,
+    default !important;
+}
+
+html[data-a11y-large-cursor="true"] a,
+html[data-a11y-large-cursor="true"] button,
+html[data-a11y-large-cursor="true"] label,
+html[data-a11y-large-cursor="true"] select,
+html[data-a11y-large-cursor="true"] summary,
+html[data-a11y-large-cursor="true"]
+  [role="button"],
+html[data-a11y-large-cursor="true"]
+  input[type="button"],
+html[data-a11y-large-cursor="true"]
+  input[type="submit"],
+html[data-a11y-large-cursor="true"]
+  input[type="checkbox"],
+html[data-a11y-large-cursor="true"]
+  input[type="radio"] {
+  cursor:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M16 4C13.8 4 12 5.8 12 8V25L8.6 21.6C7 20 4.4 20 2.8 21.6C1.2 23.2 1.2 25.8 2.8 27.4L16.2 40.8C18.3 42.9 21.1 44 24 44H31C37.6 44 43 38.6 43 32V18C43 15.8 41.2 14 39 14C37.9 14 36.9 14.4 36.2 15.2C35.7 13.4 34.1 12 32 12C30.9 12 29.9 12.4 29.2 13.2C28.7 11.4 27.1 10 25 10C23.9 10 22.9 10.4 22.2 11.2V8C22 5.8 20.2 4 18 4Z' fill='%23ffffff' stroke='%23000000' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E")
+      16 4,
+    pointer !important;
+}
+
+/* =====================================================
+   OPERATING SYSTEM REDUCED MOTION
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
