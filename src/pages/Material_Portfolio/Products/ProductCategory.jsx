@@ -103,23 +103,23 @@ const ProductCategory = () => {
       a.name.localeCompare(b.name)
     );
 
-  if (!category) {
+  // if (!category) {
 
-    return (
-      <div
-        className="
-        min-h-screen
-        flex
-        items-center
-        justify-center
+  //   return (
+  //     <div
+  //       className="
+  //       min-h-screen
+  //       flex
+  //       items-center
+  //       justify-center
         
-        "
-      >
-        <Loading />
-      </div>
-    );
+  //       "
+  //     >
+  //       <Loading />
+  //     </div>
+  //   );
 
-  }
+  // }
 
 
   return (

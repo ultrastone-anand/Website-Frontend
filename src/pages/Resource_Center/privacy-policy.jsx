@@ -40,17 +40,17 @@ const PrivacyPolicy = () => {
     fetchPage();
   }, []);
 
-  if (loading) {
-    return (
-      <>
+  // if (loading) {
+  //   return (
+  //     <>
 
-        <div className="min-h-screen pt-[110px] flex items-center justify-center">
-          <Loading />
-        </div>
+  //       <div className="min-h-screen pt-[110px] flex items-center justify-center">
+  //         <Loading />
+  //       </div>
 
-      </>
-    );
-  }
+  //     </>
+  //   );
+  // }
 
   if (!page) {
     return (

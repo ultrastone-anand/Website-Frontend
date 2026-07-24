@@ -140,13 +140,13 @@ const ProductDetails = () => {
     };
   }, [openPreview]);
 
-  if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <Loading />
-      </div>
-    );
-  }
+  // if (!product) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-white">
+  //       <Loading />
+  //     </div>
+  //   );
+  // }
 
 
   // All product-derived variables go here.
