@@ -142,9 +142,7 @@ const ProductDetails = () => {
 
 if (!product) {
   return (
-    <div className="min-h-[calc(100vh-89px)] flex items-center justify-center bg-white">
       <Loading />
-    </div>
   );
 }
 
@@ -1048,9 +1046,7 @@ if (!product) {
               {shouldLoadModel ? (
                 <Suspense
                   fallback={
-                    <div className="h-[270px] flex items-center justify-center">
                       <Loading />
-                    </div>
                   }
                 >
                   <ModelViewer

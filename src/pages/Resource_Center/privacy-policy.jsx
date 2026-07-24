@@ -41,17 +41,9 @@ const PrivacyPolicy = () => {
   }, []);
 
 if (loading) {
-
   return (
-
-    <div className="min-h-[calc(100vh-89px)] flex items-center justify-center">
-
       <Loading />
-
-    </div>
-
   );
-
 }
 
   if (!page) {
