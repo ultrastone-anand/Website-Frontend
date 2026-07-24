@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
-import Navbar from '../../../components/common/Navbar';
-import Footer from '../../../components/common/Footer';
 import Loading from '../../../components/common/Loading';
 import { getOptimizedImageUrl } from '../../../utils/Mediahelper';
 
@@ -77,8 +75,6 @@ export default function Category() {
 
   return (
     <>
-      <Navbar />
-
       <div
         className="
           min-h-screen
@@ -356,8 +352,6 @@ export default function Category() {
           </div>
         </section>
       </div>
-
-      <Footer />
     </>
   );
 }

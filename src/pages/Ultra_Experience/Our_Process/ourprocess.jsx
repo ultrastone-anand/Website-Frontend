@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-import Navbar from "../../../components/common/Navbar";
-import Footer from "../../../components/common/Footer";
 import Loading from "../../../components/common/Loading";
 
 const OurProcess = () => {
@@ -35,11 +33,9 @@ const OurProcess = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
         <div className=" min-h-screen pt-[110px] flex items-center justify-center">
           <Loading />
         </div>
-        <Footer />
       </>
     );
   }
@@ -47,11 +43,9 @@ const OurProcess = () => {
   if (!page) {
     return (
       <>
-        <Navbar />
         <div className=" min-h-screen pt-[110px] flex items-center justify-center">
           Page not found
         </div>
-        <Footer />
       </>
     );
   }
@@ -61,7 +55,6 @@ const OurProcess = () => {
 
   return (
     <>
-      <Navbar />
 
       <div className=" min-h-screen pt-[110px]">
         {/* HEADING */}
@@ -199,8 +192,6 @@ const OurProcess = () => {
           </div>
         </section>
       </div>
-
-      <Footer />
     </>
   );
 };

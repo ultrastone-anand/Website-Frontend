@@ -4,8 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Link, useParams, useNavigate, } from "react-router-dom";
 
-import Navbar from "../../../components/common/Navbar";
-import Footer from "../../../components/common/Footer";
 import Loading from "../../../components/common/Loading";
 import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
 
@@ -126,8 +124,6 @@ const ProductCategory = () => {
 
   return (
     <>
-      <Navbar />
-
       <div
         className="
         
@@ -744,7 +740,6 @@ const ProductCategory = () => {
 
       </div>
 
-      <Footer />
     </>
   );
 };

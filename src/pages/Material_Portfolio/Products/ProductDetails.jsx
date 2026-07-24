@@ -12,11 +12,9 @@ import {
 
 import Icons from "../../../assets/icons";
 import SEO from "../../../components/common/SEO";
-import Navbar from "../../../components/common/Navbar";
 import Loading from "../../../components/common/Loading";
 import { normalizeProductSeo } from "../../../utils/seoNormalizers";
 import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
-const Footer = lazy(() => import("../../../components/common/Footer"));
 const Social = lazy(() => import("../../../components/common/Socials"));
 const ModelViewer = lazy(() => import("../../../components/common/ModelViewer"),);
 
@@ -381,7 +379,6 @@ const ProductDetails = () => {
   return (
     <>
       <SEO {...normalizeProductSeo(product, categorySlug)} />
-      <Navbar />
 
       <div className="bg-white w-full overflow-hidden">
         {/* HEADING */}
@@ -1629,9 +1626,7 @@ const ProductDetails = () => {
 
       </div>
 
-      <Suspense fallback={null}>
-        <Footer />
-      </Suspense>
+
     </>
   );
 };

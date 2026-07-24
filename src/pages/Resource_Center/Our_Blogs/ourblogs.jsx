@@ -6,9 +6,6 @@ import {
 
 import { Link } from "react-router-dom";
 
-import Footer from "../../../components/common/Footer";
-import Navbar from "../../../components/common/Navbar";
-
 const API_URL = import.meta.env.VITE_API_URL;
 
 const BLOGS_PER_PAGE = 6;
@@ -242,7 +239,6 @@ export const Ourblogs = () => {
 
   return (
     <>
-      <Navbar />
 
       <main className="min-h-screen pt-[110px]">
         {/* Header */}
@@ -367,7 +363,6 @@ export const Ourblogs = () => {
         </section>
       </main>
 
-      <Footer />
     </>
   );
 };

@@ -7,8 +7,6 @@ import {
   useParams,
 } from 'react-router-dom';
 
-import Navbar from '../../../components/common/Navbar';
-import Footer from '../../../components/common/Footer';
 
 const API_URL =
   import.meta.env.VITE_API_URL;
@@ -409,8 +407,6 @@ const CareerDetails = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
-
         <div
           className="
             min-h-screen
@@ -440,7 +436,6 @@ const CareerDetails = () => {
           </div>
         </div>
 
-        <Footer />
       </>
     );
   }
@@ -448,8 +443,6 @@ const CareerDetails = () => {
   if (error || !job) {
     return (
       <>
-        <Navbar />
-
         <div
           className="
             min-h-screen
@@ -497,14 +490,12 @@ const CareerDetails = () => {
           </div>
         </div>
 
-        <Footer />
       </>
     );
   }
 
   return (
     <>
-      <Navbar />
 
       <div className="min-h-screen pt-[110px]">
         <section className="py-12">
@@ -1256,8 +1247,6 @@ const CareerDetails = () => {
           </div>
         </section>
       </div>
-
-      <Footer />
     </>
   );
 };

@@ -2,8 +2,6 @@ import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import Navbar from "../../components/common/Navbar";
-import Footer from "../../components/common/Footer";
 
 const normalizeExternalUrl = (value) => {
   if (!value || typeof value !== "string") return "";
@@ -167,8 +165,6 @@ const Location = () => {
 
   return (
     <>
-      <Navbar />
-
       <main className="min-h-screen pt-[110px]">
         <section>
           <div className="mx-auto max-w-[1650px] px-6 xl:px-10">
@@ -379,7 +375,6 @@ const Location = () => {
         </section>
       </main>
 
-      <Footer />
     </>
   );
 };

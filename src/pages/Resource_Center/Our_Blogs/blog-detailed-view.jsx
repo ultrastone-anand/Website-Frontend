@@ -9,8 +9,6 @@ import {
   useParams,
 } from "react-router-dom";
 
-import Footer from "../../../components/common/Footer";
-import Navbar from "../../../components/common/Navbar";
 
 const API_URL =
   import.meta.env.VITE_API_URL;
@@ -298,7 +296,6 @@ export default function BlogDetailedView() {
 
   return (
     <>
-      <Navbar />
 
       <main className="min-h-screen bg-white pt-[90px]">
         {loading && (
@@ -320,7 +317,6 @@ export default function BlogDetailedView() {
           )}
       </main>
 
-      <Footer />
     </>
   );
 }

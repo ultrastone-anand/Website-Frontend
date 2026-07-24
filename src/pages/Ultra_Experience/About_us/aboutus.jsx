@@ -4,8 +4,6 @@ import React, {
 } from "react";
 
 import axios from "axios";
-import Navbar from "../../../components/common/Navbar";
-import Footer from "../../../components/common/Footer";
 import { Link } from "react-router-dom";
 import Loading from "../../../components/common/Loading";
 
@@ -38,11 +36,9 @@ const Aboutus = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
         <div className=" min-h-screen pt-[110px] flex items-center justify-center">
           <Loading />
         </div>
-        <Footer />
       </>
     );
   }
@@ -50,11 +46,9 @@ const Aboutus = () => {
   if (!page) {
     return (
       <>
-        <Navbar />
         <div className=" min-h-screen pt-[110px] flex items-center justify-center">
           Page not found
         </div>
-        <Footer />
       </>
     );
   }
@@ -63,7 +57,6 @@ const Aboutus = () => {
 
   return (
     <>
-      <Navbar />
 
       <div className=" min-h-screen pt-[110px]">
         {/* HEADING */}
@@ -190,8 +183,6 @@ const Aboutus = () => {
           </div>
         </section>
       </div>
-
-      <Footer />
     </>
   );
 };

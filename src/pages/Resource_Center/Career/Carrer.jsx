@@ -6,8 +6,6 @@ import {
 } from 'react';
 import { Link } from 'react-router-dom';
 
-import Navbar from '../../../components/common/Navbar';
-import Footer from '../../../components/common/Footer';
 
 const API_URL =
   import.meta.env.VITE_API_URL;
@@ -487,7 +485,6 @@ const Career = () => {
 
   return (
     <>
-      <Navbar />
 
       <div className="min-h-screen pt-[110px]">
         <section className="py-12">
@@ -1138,7 +1135,6 @@ const Career = () => {
         </section>
       </div>
 
-      <Footer />
     </>
   );
 };

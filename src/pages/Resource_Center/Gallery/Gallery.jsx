@@ -20,8 +20,6 @@ import {
 
 import { Link } from "react-router-dom";
 
-import Footer from "../../../components/common/Footer";
-import Navbar from "../../../components/common/Navbar";
 import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -1008,8 +1006,6 @@ export const Gallery = () => {
         `}
       </style>
 
-      <Navbar />
-
       <div className="min-h-screen pt-[110px]">
         <section>
           <div className="mx-auto max-w-[1650px] px-6 xl:px-10">
@@ -1527,7 +1523,6 @@ export const Gallery = () => {
           </div>
         )}
 
-      <Footer />
     </>
   );
 };

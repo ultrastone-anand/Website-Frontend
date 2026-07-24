@@ -1,8 +1,6 @@
 // src/pages/Home.jsx
 
 import { lazy, Suspense } from "react";
-
-import Navbar from "../components/common/Navbar";
 import HeroSection from "../components/home/HeroSection";
 import LazySection from "../components/common/LazySection";
 
@@ -34,15 +32,10 @@ const ContactusSection = lazy(() =>
   import("../components/home/ContactusSection")
 );
 
-const Footer = lazy(() =>
-  import("../components/common/Footer")
-);
-
 const Home = () => {
   return (
     <main className="w-full overflow-x-hidden">
       {/* Above the fold */}
-      <Navbar />
       <HeroSection />
 
       {/* Below-the-fold sections */}
@@ -104,8 +97,7 @@ const Home = () => {
           />
         }
       >
-        <Footer />
-      </Suspense>
+              </Suspense>
     </main>
   );
 };

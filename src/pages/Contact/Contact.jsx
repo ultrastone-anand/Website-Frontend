@@ -5,9 +5,6 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import Navbar from "../../components/common/Navbar";
-import Footer from "../../components/common/Footer";
-
 const extractIframeSrc = (value) => {
   if (!value || typeof value !== "string") return "";
 
@@ -227,7 +224,6 @@ export default function Contact() {
 
   return (
     <>
-      <Navbar />
 
       <main className="min-h-screen pt-[110px]">
         {/* HEADING */}
@@ -617,7 +613,6 @@ export default function Contact() {
         </section>
       </main>
 
-      <Footer />
     </>
   );
 }

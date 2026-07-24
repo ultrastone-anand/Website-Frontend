@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
 
-import Navbar from "../../components/common/Navbar";
-import Footer from "../../components/common/Footer";
-
 export default function ThankYou() {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(5);
@@ -35,8 +32,6 @@ export default function ThankYou() {
 
   return (
     <>
-      <Navbar />
-
       <main className="flex min-h-screen items-center justify-center  px-6 pb-20 pt-[130px]">
         <section className="w-full max-w-[760px] text-center">
           <div className="mx-auto flex h-[74px] w-[74px] items-center justify-center rounded-full bg-[#0c5562]">
@@ -98,7 +93,6 @@ export default function ThankYou() {
         </section>
       </main>
 
-      <Footer />
     </>
   );
 }

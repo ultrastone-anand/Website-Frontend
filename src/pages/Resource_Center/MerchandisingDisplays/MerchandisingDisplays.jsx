@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-import Navbar from "../../../components/common/Navbar";
-import Footer from "../../../components/common/Footer";
 import Loading from "../../../components/common/Loading";
 
 const Merchandise = () => {
@@ -38,13 +36,11 @@ const Merchandise = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
 
         <div className="min-h-screen pt-[110px] flex items-center justify-center">
           <Loading />
         </div>
 
-        <Footer />
       </>
     );
   }
@@ -52,13 +48,11 @@ const Merchandise = () => {
   if (!page) {
     return (
       <>
-        <Navbar />
 
         <div className="min-h-screen pt-[110px] flex items-center justify-center">
           Page not found
         </div>
 
-        <Footer />
       </>
     );
   }
@@ -76,7 +70,6 @@ const Merchandise = () => {
 
   return (
     <>
-      <Navbar />
 
       <main className="min-h-screen pt-[110px]">
         {/* PAGE HEADER */}
@@ -416,7 +409,6 @@ const Merchandise = () => {
 )}
       </main>
 
-      <Footer />
     </>
   );
 };

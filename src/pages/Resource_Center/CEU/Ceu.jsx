@@ -1,6 +1,4 @@
 import React from "react";
-import Footer from "../../../components/common/Footer";
-import Navbar from "../../../components/common/Navbar";
 import { Link } from "react-router-dom";
 
 const courses = [
@@ -51,8 +49,6 @@ const courses = [
 export const Ceu = () => {
   return (
     <>
-      <Navbar />
-
       <div className=" min-h-screen pt-[110px]">
         {/* Header */}
         <section>
@@ -273,7 +269,6 @@ export const Ceu = () => {
         </section>
       </div>
 
-      <Footer />
     </>
   );
 };
