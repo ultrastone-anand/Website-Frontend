@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ChevronDown, Menu, X } from "lucide-react";
+
 import GlobalSearch from "./GlobalSearch";
 import { getOptimizedImageUrl } from "../../utils/Mediahelper";
 
@@ -19,10 +20,12 @@ const Navbar = () => {
 
   const dropdownTimeout = useRef(null);
 
-  const isTransparentNavbar = isHomePage && !scrolled;
   const isLightNavbar = !isHomePage && !scrolled;
   const isBlackNavbar = scrolled;
 
+  /*
+   * Navbar background on scroll
+   */
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
@@ -31,9 +34,14 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     handleScroll();
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
+  /*
+   * Fetch material categories
+   */
   useEffect(() => {
     const fetchMaterials = async () => {
       try {
@@ -44,7 +52,9 @@ const Navbar = () => {
         const result = response.data;
 
         if (result.success) {
-          setMaterials(result.data.filter((item) => item.is_active === true));
+          setMaterials(
+            result.data.filter((item) => item.is_active === true)
+          );
         }
       } catch (error) {
         console.error("Error fetching materials:", error);
@@ -52,6 +62,41 @@ const Navbar = () => {
     };
 
     fetchMaterials();
+  }, []);
+
+  /*
+   * Close menus after route changes
+   */
+  useEffect(() => {
+    setMobileMenu(false);
+    setMobileDropdown(null);
+    setActiveDropdown(null);
+  }, [location.pathname]);
+
+  /*
+   * Prevent page scrolling while mobile menu is open
+   */
+  useEffect(() => {
+    if (!mobileMenu) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileMenu]);
+
+  /*
+   * Clear desktop dropdown timeout
+   */
+  useEffect(() => {
+    return () => {
+      clearTimeout(dropdownTimeout.current);
+    };
   }, []);
 
   const openDropdown = (menu) => {
@@ -65,48 +110,94 @@ const Navbar = () => {
     }, 120);
   };
 
+  const closeMobileMenu = () => {
+    setMobileMenu(false);
+    setMobileDropdown(null);
+  };
+
   const experience = [
-    { label: "About Us", path: "/aboutus" },
-    { label: "Our Process", path: "/ourprocess" },
+    {
+      label: "About Us",
+      path: "/aboutus",
+    },
+    {
+      label: "Our Process",
+      path: "/ourprocess",
+    },
   ];
 
   const resources = [
-    { label: "Merchandising Displays", path: "/merchandising-displays" },
-    { label: "Portfolio", path: "/gallery" },
-    { label: "Our Blogs", path: "/blogs" },
-    // { label: "CEU", path: "/ceu" },
-    { label: "Career", path: "/career" },
+    {
+      label: "Merchandising Displays",
+      path: "/merchandising-displays",
+    },
+    {
+      label: "Portfolio",
+      path: "/gallery",
+    },
+        {
+      label: "Silica Safety First",
+      path: "/safety-first",
+    },
+    {
+      label: "Our Blogs",
+      path: "/blogs",
+    },
+    {
+      label: "Career",
+      path: "/career",
+    },
   ];
 
   const locations = [
-    { label: "New York", path: "/locations/new-york" },
-    { label: "Philadelphia", path: "/locations/philadelphia" },
+    {
+      label: "New York",
+      path: "/locations/new-york",
+    },
+    {
+      label: "Philadelphia",
+      path: "/locations/philadelphia",
+    },
   ];
 
   return (
     <header
       className={`
-        fixed left-0 top-0 z-50 w-full pt-1 transition-all duration-500
-        ${isBlackNavbar
-          ? "bg-black/65 backdrop-blur-md shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
-          : isLightNavbar
-            ? "bg-white "
-            : "bg-transparent"
+        fixed left-0 top-0 z-50 w-full pt-1
+        transition-all duration-500
+        ${
+          isBlackNavbar
+            ? "bg-black/65 shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-md"
+            : isLightNavbar
+              ? "bg-white"
+              : "bg-transparent"
         }
       `}
     >
-      <div className="mx-auto max-w-[1850px] px-6 xl:px-10">
-        <div className="flex h-[88px] items-center justify-between gap-8">
-          {/* LOGO */}
+      <div className="mx-auto max-w-[1850px] px-4 sm:px-6 xl:px-8 2xl:px-10">
+        <div className="flex h-[88px] items-center justify-between gap-4 2xl:gap-8">
+          {/* Logo */}
 
-          <div
-            className="shrink-0 cursor-pointer"
+          <button
+            type="button"
+            aria-label="Go to Ultra Stones home page"
+            className="shrink-0"
             onClick={() => {
-              window.scrollTo({ top: 0, behavior: "smooth" });
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+
               navigate("/");
             }}
           >
-            <div className="relative h-[64px] w-[220px]">
+            <div
+              className="
+                relative h-[54px] w-[180px]
+                sm:h-[58px] sm:w-[195px]
+                2xl:h-[64px] 2xl:w-[220px]
+              "
+            >
               <img
                 src="/logo_white.svg"
                 alt="Ultra Stones"
@@ -127,11 +218,18 @@ const Navbar = () => {
                 `}
               />
             </div>
-          </div>
+          </button>
 
-          {/* DESKTOP MENU */}
+          {/* Desktop Navigation */}
 
-          <nav className="hidden items-center gap-10 xl:flex">
+          <nav
+            className="
+              hidden min-w-0 flex-1 items-center justify-end
+              gap-3 xl:flex
+              min-[1360px]:gap-4
+              2xl:gap-8
+            "
+          >
             <Dropdown
               title="Ultra Experience"
               items={experience}
@@ -145,13 +243,13 @@ const Navbar = () => {
 
             <NavLink
               title="Online Inventory"
-              onClick={() =>
+              onClick={() => {
                 window.open(
                   "https://ultrastones.stoneprofitsweb.com/",
                   "_blank",
                   "noopener,noreferrer"
-                )
-              }
+                );
+              }}
               isLightNavbar={isLightNavbar}
             />
 
@@ -195,56 +293,86 @@ const Navbar = () => {
               isLightNavbar={isLightNavbar}
             />
 
-            {/* SEARCH */}
+            {/* Desktop Search — visible on 13-inch MacBook */}
 
-<div className="hidden min-w-[260px] max-w-[320px] flex-1 lg:block">
-  <GlobalSearch
-    materials={materials}
-    isLightNavbar={isLightNavbar}
-  />
-</div>
+            <div
+              className="
+                hidden w-[150px] shrink-0 xl:block
+                min-[1360px]:w-[180px]
+                min-[1500px]:w-[220px]
+                2xl:w-[260px]
+              "
+            >
+              <GlobalSearch
+                materials={materials}
+                isLightNavbar={isLightNavbar}
+              />
+            </div>
           </nav>
 
-          {/* MOBILE TOGGLE */}
+          {/* Mobile Menu Toggle */}
 
           <button
+            type="button"
+            aria-label={
+              mobileMenu
+                ? "Close navigation menu"
+                : "Open navigation menu"
+            }
+            aria-expanded={mobileMenu}
             className={`
-              z-[60] transition-all duration-300 xl:hidden
-              ${isLightNavbar ? "text-black" : "text-white"}
+              z-[60] flex h-11 w-11 shrink-0
+              items-center justify-center rounded-full
+              transition-all duration-300 xl:hidden
+              ${
+                isLightNavbar && !mobileMenu
+                  ? "text-black hover:bg-black/5"
+                  : "text-white hover:bg-white/10"
+              }
             `}
-            onClick={() => setMobileMenu(!mobileMenu)}
+            onClick={() => {
+              setMobileMenu((current) => !current);
+              setMobileDropdown(null);
+            }}
           >
             {mobileMenu ? (
-              <X size={24} strokeWidth={1.5} />
+              <X size={25} strokeWidth={1.5} />
             ) : (
-              <Menu size={24} strokeWidth={1.5} />
+              <Menu size={25} strokeWidth={1.5} />
             )}
           </button>
 
-          {/* MOBILE MENU */}
+          {/* Mobile Side Navigation */}
 
           <div
             className={`
-              fixed left-0 top-[88px] z-50 h-[calc(100vh-88px)] w-full
-              overflow-y-auto bg-[#050B18] text-white backdrop-blur-md
+              fixed left-0 top-[88px] z-50
+              h-[calc(100dvh-88px)] w-full
+              overflow-y-auto overscroll-contain
+              bg-[#050B18] text-white
               transition-all duration-500 xl:hidden
-              ${mobileMenu
-                ? "translate-x-0 opacity-100"
-                : "translate-x-full opacity-0 pointer-events-none"
+              ${
+                mobileMenu
+                  ? "pointer-events-auto translate-x-0 opacity-100"
+                  : "pointer-events-none translate-x-full opacity-0"
               }
             `}
           >
-            <div className="px-6 py-8">
-<div className="mb-8">
-  <GlobalSearch
-    materials={materials}
-    mobile
-    onResultClick={() => {
-      setMobileMenu(false);
-      setMobileDropdown(null);
-    }}
-  />
-</div>
+            <div
+              className="
+                px-[clamp(20px,5vw,40px)]
+                py-[clamp(24px,5vw,40px)]
+              "
+            >
+              {/* Mobile Search */}
+
+              <div className="mb-[clamp(24px,5vw,40px)]">
+                <GlobalSearch
+                  materials={materials}
+                  mobile
+                  onResultClick={closeMobileMenu}
+                />
+              </div>
 
               <MobileDropdown
                 title="Ultra Experience"
@@ -253,11 +381,11 @@ const Navbar = () => {
                 setActiveDropdown={setMobileDropdown}
                 items={experience}
                 navigate={navigate}
-                setMobileMenu={setMobileMenu}
+                closeMobileMenu={closeMobileMenu}
               />
 
-              <button
-                type="button"
+              <MobileNavButton
+                title="Online Inventory"
                 onClick={() => {
                   window.open(
                     "https://ultrastones.stoneprofitsweb.com/",
@@ -265,15 +393,11 @@ const Navbar = () => {
                     "noopener,noreferrer"
                   );
 
-                  setMobileMenu(false);
+                  closeMobileMenu();
                 }}
-                className="
-                          w-full border-b border-white/10 py-5 text-left
-                          text-[13px] uppercase tracking-[2px] text-white
-                        "
-              >
-                Online Inventory
-              </button>
+              />
+
+              {/* Mobile Material Portfolio */}
 
               <div className="border-b border-white/10">
                 <div className="flex w-full items-stretch">
@@ -281,13 +405,20 @@ const Navbar = () => {
                     type="button"
                     onClick={() => {
                       navigate("/categories");
-                      setMobileMenu(false);
-                      setMobileDropdown(null);
+                      closeMobileMenu();
                     }}
                     className="
-        flex flex-1 items-center py-5 text-left
-        text-[13px] uppercase tracking-[2px] text-white
-      "
+                      flex flex-1 items-center
+                      py-[clamp(16px,4vw,22px)]
+                      text-left
+                      text-[clamp(12px,2.8vw,14px)]
+                      font-medium uppercase
+                      leading-[1.4]
+                      tracking-[clamp(1.4px,0.4vw,2px)]
+                      text-white
+                      transition-colors duration-300
+                      hover:text-white/75
+                    "
                   >
                     Material Portfolio
                   </button>
@@ -296,39 +427,55 @@ const Navbar = () => {
                     type="button"
                     aria-label="Toggle Material Portfolio menu"
                     aria-expanded={mobileDropdown === "materials"}
-                    onClick={() =>
+                    onClick={() => {
                       setMobileDropdown((current) =>
                         current === "materials" ? null : "materials"
-                      )
-                    }
+                      );
+                    }}
                     className="
-        flex w-10 shrink-0 items-center justify-end
-        py-5 text-white
-      "
+                      flex w-[clamp(38px,10vw,48px)]
+                      shrink-0 items-center justify-end
+                      py-[clamp(16px,4vw,22px)]
+                      text-white
+                    "
                   >
                     <ChevronDown
                       size={18}
                       className={`
-          transition-transform duration-300
-          ${mobileDropdown === "materials" ? "rotate-180" : ""}
-        `}
+                        shrink-0 transition-transform duration-300
+                        ${
+                          mobileDropdown === "materials"
+                            ? "rotate-180"
+                            : ""
+                        }
+                      `}
                     />
                   </button>
                 </div>
 
                 <div
                   className={`
-      grid transition-all duration-300
-      ${mobileDropdown === "materials"
-                      ? "grid-rows-[1fr] opacity-100"
-                      : "grid-rows-[0fr] opacity-0"
+                    grid transition-all duration-300
+                    ${
+                      mobileDropdown === "materials"
+                        ? "grid-rows-[1fr] opacity-100"
+                        : "grid-rows-[0fr] opacity-0"
                     }
-    `}
+                  `}
                 >
                   <div className="overflow-hidden">
-                    <div className="space-y-4 pb-5 pl-3">
+                    <div
+                      className="
+                        space-y-[clamp(14px,3vw,20px)]
+                        pb-[clamp(18px,4vw,24px)]
+                        pl-[clamp(8px,2vw,16px)]
+                      "
+                    >
                       {materials
-                        .filter((item) => item.parent_id === null)
+                        .filter(
+                          (item) =>
+                            item.parent_id === null && item.is_active
+                        )
                         .sort((a, b) => {
                           const orderA = a.display_order ?? 999;
                           const orderB = b.display_order ?? 999;
@@ -340,14 +487,19 @@ const Navbar = () => {
                             type="button"
                             key={item.id}
                             onClick={() => {
-                              navigate(`/product-category/${item.slug}`);
-                              setMobileMenu(false);
-                              setMobileDropdown(null);
+                              navigate(
+                                `/product-category/${item.slug}`
+                              );
+
+                              closeMobileMenu();
                             }}
                             className="
-                block w-full text-left text-white/70
-                duration-300 hover:text-white
-              "
+                              block w-full text-left
+                              text-[clamp(14px,3.4vw,16px)]
+                              leading-[1.45] text-white/70
+                              transition-colors duration-300
+                              hover:text-white
+                            "
                           >
                             {item.name}
                           </button>
@@ -357,7 +509,6 @@ const Navbar = () => {
                 </div>
               </div>
 
-
               <MobileDropdown
                 title="Resource Center"
                 dropdownKey="resources"
@@ -365,7 +516,7 @@ const Navbar = () => {
                 setActiveDropdown={setMobileDropdown}
                 items={resources}
                 navigate={navigate}
-                setMobileMenu={setMobileMenu}
+                closeMobileMenu={closeMobileMenu}
               />
 
               <MobileDropdown
@@ -375,18 +526,16 @@ const Navbar = () => {
                 setActiveDropdown={setMobileDropdown}
                 items={locations}
                 navigate={navigate}
-                setMobileMenu={setMobileMenu}
+                closeMobileMenu={closeMobileMenu}
               />
 
-              <button
+              <MobileNavButton
+                title="Contact"
                 onClick={() => {
                   navigate("/contact");
-                  setMobileMenu(false);
+                  closeMobileMenu();
                 }}
-                className="w-full border-b border-white/10 py-5 text-left text-[13px] uppercase tracking-[2px] text-white"
-              >
-                Contact
-              </button>
+              />
             </div>
           </div>
         </div>
@@ -397,15 +546,24 @@ const Navbar = () => {
 
 export default Navbar;
 
+/*
+ * Desktop standard navigation link
+ */
 const NavLink = ({ title, onClick, isLightNavbar }) => {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={`
-        relative text-[11px] uppercase tracking-[1px] duration-300
-        ${isLightNavbar
-          ? "text-[#444] hover:text-black"
-          : "text-white/85 hover:text-white"
+        relative shrink-0 whitespace-nowrap
+        text-[10px] uppercase tracking-[0.8px]
+        transition-colors duration-300
+        min-[1500px]:text-[11px]
+        min-[1500px]:tracking-[1px]
+        ${
+          isLightNavbar
+            ? "text-[#444] hover:text-black"
+            : "text-white/85 hover:text-white"
         }
       `}
     >
@@ -414,6 +572,35 @@ const NavLink = ({ title, onClick, isLightNavbar }) => {
   );
 };
 
+/*
+ * Mobile standard navigation button
+ */
+const MobileNavButton = ({ title, onClick }) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="
+        w-full border-b border-white/10
+        py-[clamp(16px,4vw,22px)]
+        text-left
+        text-[clamp(12px,2.8vw,14px)]
+        font-medium uppercase
+        leading-[1.4]
+        tracking-[clamp(1.4px,0.4vw,2px)]
+        text-white
+        transition-colors duration-300
+        hover:text-white/75
+      "
+    >
+      {title}
+    </button>
+  );
+};
+
+/*
+ * Mobile expandable dropdown
+ */
 const MobileDropdown = ({
   title,
   dropdownKey,
@@ -421,44 +608,87 @@ const MobileDropdown = ({
   setActiveDropdown,
   items,
   navigate,
-  setMobileMenu,
+  closeMobileMenu,
 }) => {
+  const isOpen = activeDropdown === dropdownKey;
+
   return (
     <div className="border-b border-white/10">
       <button
-        onClick={() =>
-          setActiveDropdown(activeDropdown === dropdownKey ? null : dropdownKey)
-        }
-        className="flex w-full items-center justify-between py-5 text-[13px] uppercase tracking-[2px] text-white"
+        type="button"
+        aria-expanded={isOpen}
+        onClick={() => {
+          setActiveDropdown(isOpen ? null : dropdownKey);
+        }}
+        className="
+          flex w-full items-center justify-between gap-4
+          py-[clamp(16px,4vw,22px)]
+          text-left
+          text-[clamp(12px,2.8vw,14px)]
+          font-medium uppercase
+          leading-[1.4]
+          tracking-[clamp(1.4px,0.4vw,2px)]
+          text-white
+        "
       >
-        {title}
+        <span>{title}</span>
+
         <ChevronDown
           size={18}
-          className={`transition-transform ${activeDropdown === dropdownKey ? "rotate-180" : ""
-            }`}
+          className={`
+            shrink-0 transition-transform duration-300
+            ${isOpen ? "rotate-180" : ""}
+          `}
         />
       </button>
 
-      {activeDropdown === dropdownKey && (
-        <div className="space-y-4 pb-5 pl-3">
-          {items.map((item) => (
-            <button
-              key={item.path}
-              onClick={() => {
-                navigate(item.path);
-                setMobileMenu(false);
-              }}
-              className="block text-left text-white/70 duration-300 hover:text-white"
-            >
-              {item.label}
-            </button>
-          ))}
+      <div
+        className={`
+          grid transition-all duration-300
+          ${
+            isOpen
+              ? "grid-rows-[1fr] opacity-100"
+              : "grid-rows-[0fr] opacity-0"
+          }
+        `}
+      >
+        <div className="overflow-hidden">
+          <div
+            className="
+              space-y-[clamp(14px,3vw,20px)]
+              pb-[clamp(18px,4vw,24px)]
+              pl-[clamp(8px,2vw,16px)]
+            "
+          >
+            {items.map((item) => (
+              <button
+                type="button"
+                key={item.path}
+                onClick={() => {
+                  navigate(item.path);
+                  closeMobileMenu();
+                }}
+                className="
+                  block w-full text-left
+                  text-[clamp(14px,3.4vw,16px)]
+                  leading-[1.45] text-white/70
+                  transition-colors duration-300
+                  hover:text-white
+                "
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
+/*
+ * Desktop standard dropdown
+ */
 const Dropdown = ({
   title,
   items,
@@ -473,16 +703,22 @@ const Dropdown = ({
 
   return (
     <div
-      className="relative"
+      className="relative shrink-0"
       onMouseEnter={() => openDropdown(dropdownKey)}
       onMouseLeave={closeDropdown}
     >
       <button
+        type="button"
         className={`
-          flex items-center gap-1 text-[11px] uppercase tracking-[1px] duration-300
-          ${isLightNavbar
-            ? "text-[#444] hover:text-black"
-            : "text-white/85 hover:text-white"
+          flex items-center whitespace-nowrap
+          text-[10px] uppercase tracking-[0.8px]
+          transition-colors duration-300
+          min-[1500px]:text-[11px]
+          min-[1500px]:tracking-[1px]
+          ${
+            isLightNavbar
+              ? "text-[#444] hover:text-black"
+              : "text-white/85 hover:text-white"
           }
         `}
       >
@@ -491,30 +727,53 @@ const Dropdown = ({
 
       <div
         className={`
-          absolute left-0 top-[45px] z-50 w-[280px] rounded-2xl
+          absolute left-0 top-[45px] z-50
+          w-[280px] rounded-2xl
           border border-black/5 bg-white p-5
-          shadow-[0_20px_60px_rgba(0,0,0,0.12)] duration-300
-          ${isActive
-            ? "visible translate-y-0 opacity-100"
-            : "invisible translate-y-3 opacity-0"
+          shadow-[0_20px_60px_rgba(0,0,0,0.12)]
+          transition-all duration-300
+          ${
+            isActive
+              ? "visible translate-y-0 opacity-100"
+              : "invisible translate-y-3 opacity-0"
           }
         `}
       >
         <div className="space-y-2">
-          {items.map((item, index) => (
+          {items.map((item) => (
             <button
-              key={index}
-              onClick={() => item.path && navigate(item.path)}
+              type="button"
+              key={item.path}
+              onClick={() => {
+                if (item.path) {
+                  navigate(item.path);
+                }
+              }}
               className="
-                group flex w-full items-center justify-between rounded-xl p-3
-                text-left duration-300 hover:bg-[#f7f7f7]
+                group flex w-full items-center justify-between
+                rounded-xl p-3 text-left
+                transition-colors duration-300
+                hover:bg-[#f7f7f7]
               "
             >
-              <span className="text-[14px] text-[#666] duration-300 group-hover:text-black">
+              <span
+                className="
+                  text-[14px] text-[#666]
+                  transition-colors duration-300
+                  group-hover:text-black
+                "
+              >
                 {item.label}
               </span>
 
-              <span className="translate-x-[-8px] text-black opacity-0 duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+              <span
+                className="
+                  -translate-x-2 text-black opacity-0
+                  transition-all duration-300
+                  group-hover:translate-x-0
+                  group-hover:opacity-100
+                "
+              >
                 →
               </span>
             </button>
@@ -525,6 +784,9 @@ const Dropdown = ({
   );
 };
 
+/*
+ * Desktop Material Portfolio mega menu
+ */
 const MegaMenu = ({
   title,
   path,
@@ -539,92 +801,77 @@ const MegaMenu = ({
   const isActive = activeDropdown === dropdownKey;
   const [hoveredParent, setHoveredParent] = useState(null);
 
-  const parentCategories = useMemo(
-    () =>
-      materials
-        .filter(
-          (item) =>
-            item.parent_id === null &&
-            item.is_active
-        )
-        .sort((a, b) => {
-          const orderA =
-            a.display_order ?? 999;
+  const parentCategories = useMemo(() => {
+    return materials
+      .filter((item) => item.parent_id === null && item.is_active)
+      .sort((a, b) => {
+        const orderA = a.display_order ?? 999;
+        const orderB = b.display_order ?? 999;
 
-          const orderB =
-            b.display_order ?? 999;
-
-          return orderA - orderB;
-        }),
-    [materials]
-  );
+        return orderA - orderB;
+      });
+  }, [materials]);
 
   useEffect(() => {
-    if (
-      parentCategories.length > 0 &&
-      !hoveredParent
-    ) {
-      setHoveredParent(
-        parentCategories[0].id
-      );
+    if (parentCategories.length === 0) {
+      setHoveredParent(null);
+      return;
     }
-  }, [
-    parentCategories,
-    hoveredParent,
-  ]);
 
-  const activeParent =
-    parentCategories.find(
-      (parent) =>
-        parent.id === hoveredParent
+    const selectedParentStillExists = parentCategories.some(
+      (parent) => parent.id === hoveredParent
     );
 
-  const children = useMemo(
-    () =>
-      materials
-        .filter(
-          (item) =>
-            item.parent_id ===
-            hoveredParent
-        )
-        .sort((a, b) => {
-          const orderA =
-            a.display_order ?? 999;
+    if (!selectedParentStillExists) {
+      setHoveredParent(parentCategories[0].id);
+    }
+  }, [parentCategories, hoveredParent]);
 
-          const orderB =
-            b.display_order ?? 999;
-
-          return orderA - orderB;
-        }),
-    [materials, hoveredParent]
+  const activeParent = parentCategories.find(
+    (parent) => parent.id === hoveredParent
   );
 
-  const getThumbnailUrl = (
-    url,
-    width = 220,
-    quality = 68
-  ) =>
-    getOptimizedImageUrl(
+  const children = useMemo(() => {
+    return materials
+      .filter(
+        (item) =>
+          item.parent_id === hoveredParent && item.is_active
+      )
+      .sort((a, b) => {
+        const orderA = a.display_order ?? 999;
+        const orderB = b.display_order ?? 999;
+
+        return orderA - orderB;
+      });
+  }, [materials, hoveredParent]);
+
+  const getThumbnailUrl = (url, width = 220, quality = 68) => {
+    return getOptimizedImageUrl(
       url || "/placeholder.jpg",
       width,
       quality
     );
+  };
 
   return (
     <div
-      className="relative"
-      onMouseEnter={() =>
-        openDropdown(dropdownKey)
-      }
+      className="relative shrink-0"
+      onMouseEnter={() => openDropdown(dropdownKey)}
       onMouseLeave={closeDropdown}
     >
       <button
         type="button"
-        onClick={() =>
-          path && navigate(path)
-        }
+        onClick={() => {
+          if (path) {
+            navigate(path);
+          }
+        }}
         className={`
-          flex items-center gap-1 text-[11px] uppercase tracking-[1px] duration-300
+          flex items-center whitespace-nowrap
+          text-[10px] uppercase tracking-[0.8px]
+          transition-colors duration-300
+          min-[1500px]:text-[11px]
+          min-[1500px]:tracking-[1px]
           ${
             isLightNavbar
               ? "text-[#444] hover:text-black"
@@ -637,9 +884,12 @@ const MegaMenu = ({
 
       <div
         className={`
-          absolute left-[-250px] top-[48px] z-50 w-[980px] rounded-2xl
-          border border-black/5 bg-white p-8
-          shadow-[0_25px_80px_rgba(0,0,0,0.12)] duration-300
+          absolute left-[-250px] top-[48px] z-50
+          w-[min(980px,calc(100vw-64px))]
+          rounded-2xl border border-black/5
+          bg-white p-8
+          shadow-[0_25px_80px_rgba(0,0,0,0.12)]
+          transition-all duration-300
           ${
             isActive
               ? "visible translate-y-0 opacity-100"
@@ -648,86 +898,96 @@ const MegaMenu = ({
         `}
       >
         <div className="grid h-[600px] grid-cols-[320px_1fr] gap-8">
-          <div className="h-full overflow-y-auto border-r border-black/10 pr-5 scrollbar-thin">
-            <div className="space-y-2">
-              {parentCategories.map(
-                (parent) => {
-                  const thumbnailUrl =
-                    getThumbnailUrl(
-                      parent.thumbnail_url,
-                      240,
-                      65
-                    );
+          {/* Parent Categories */}
 
-                  return (
-                    <button
-                      type="button"
-                      key={parent.id}
-                      onMouseEnter={() =>
-                        setHoveredParent(
-                          parent.id
-                        )
+          <div
+            className="
+              scrollbar-thin h-full overflow-y-auto
+              border-r border-black/10 pr-5
+            "
+          >
+            <div className="space-y-2">
+              {parentCategories.map((parent) => {
+                const thumbnailUrl = getThumbnailUrl(
+                  parent.thumbnail_url,
+                  240,
+                  65
+                );
+
+                return (
+                  <button
+                    type="button"
+                    key={parent.id}
+                    onMouseEnter={() => {
+                      setHoveredParent(parent.id);
+                    }}
+                    onFocus={() => {
+                      setHoveredParent(parent.id);
+                    }}
+                    onClick={() => {
+                      navigate(`/product-category/${parent.slug}`);
+                    }}
+                    className={`
+                      flex w-full items-center gap-3
+                      rounded-xl p-3
+                      transition-all duration-300
+                      ${
+                        hoveredParent === parent.id
+                          ? "bg-[#f5f5f5] shadow-sm"
+                          : "hover:bg-[#fafafa]"
                       }
-                      onClick={() =>
-                        navigate(
-                          `/product-category/${parent.slug}`
-                        )
-                      }
+                    `}
+                  >
+                    <div
+                      className="
+                        h-12 w-24 min-w-[96px] shrink-0
+                        overflow-hidden rounded-lg bg-black/5
+                      "
+                    >
+                      <img
+                        src={thumbnailUrl}
+                        srcSet={`
+                          ${getThumbnailUrl(
+                            parent.thumbnail_url,
+                            160,
+                            62
+                          )} 160w,
+                          ${getThumbnailUrl(
+                            parent.thumbnail_url,
+                            240,
+                            65
+                          )} 240w
+                        `}
+                        sizes="96px"
+                        alt={parent.name}
+                        loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+
+                    <span
                       className={`
-                        flex w-full items-center gap-3 rounded-xl p-3 duration-300
+                        text-left text-[14px]
                         ${
-                          hoveredParent ===
-                          parent.id
-                            ? "bg-[#f5f5f5] shadow-sm"
-                            : "hover:bg-[#fafafa]"
+                          hoveredParent === parent.id
+                            ? "font-semibold text-black"
+                            : "text-[#666]"
                         }
                       `}
                     >
-                      <div className="h-12 w-24 min-w-[96px] flex-shrink-0 overflow-hidden rounded-lg bg-black/5">
-                        <img
-                          src={thumbnailUrl}
-                          srcSet={`
-                            ${getThumbnailUrl(
-                              parent.thumbnail_url,
-                              160,
-                              62
-                            )} 160w,
-                            ${getThumbnailUrl(
-                              parent.thumbnail_url,
-                              240,
-                              65
-                            )} 240w
-                          `}
-                          sizes="96px"
-                          alt={parent.name}
-                          loading="lazy"
-                          decoding="async"
-                          fetchPriority="low"
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-
-                      <span
-                        className={`
-                          text-[14px]
-                          ${
-                            hoveredParent ===
-                            parent.id
-                              ? "font-semibold text-black"
-                              : "text-[#666]"
-                          }
-                        `}
-                      >
-                        {parent.name}
-                      </span>
-                    </button>
-                  );
-                }
-              )}
+                      {parent.name}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div>
+          {/* Active Category */}
+
+          <div className="min-w-0">
             {activeParent && (
               <>
                 <div className="overflow-hidden rounded-2xl bg-black/5">
@@ -760,7 +1020,11 @@ const MegaMenu = ({
                     loading="eager"
                     decoding="async"
                     fetchPriority="high"
-                    className="h-[280px] w-full object-cover duration-500 hover:scale-105"
+                    className="
+                      h-[280px] w-full object-cover
+                      transition-transform duration-500
+                      hover:scale-105
+                    "
                   />
                 </div>
 
@@ -775,43 +1039,54 @@ const MegaMenu = ({
 
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={() => {
                     navigate(
                       `/product-category/${activeParent.slug}`
-                    )
-                  }
-                  className="mt-5 text-[14px] font-medium text-black hover:underline"
+                    );
+                  }}
+                  className="
+                    mt-5 text-[14px] font-medium
+                    text-black hover:underline
+                  "
                 >
                   View All →
                 </button>
 
-                <div className="mt-8 border-t border-black/10 pt-7">
-                  <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-black">
-                    Collections
-                  </h3>
+                {children.length > 0 && (
+                  <div className="mt-8 border-t border-black/10 pt-7">
+                    <h3
+                      className="
+                        mb-4 text-sm font-semibold uppercase
+                        tracking-wider text-black
+                      "
+                    >
+                      Collections
+                    </h3>
 
-                  <div className="grid grid-cols-3 gap-3">
-                    {children.map(
-                      (child) => (
+                    <div className="grid grid-cols-3 gap-3">
+                      {children.map((child) => (
                         <button
                           type="button"
                           key={child.id}
-                          onClick={() =>
+                          onClick={() => {
                             navigate(
                               `/product-category/${child.slug}`
-                            )
-                          }
+                            );
+                          }}
                           className="
-                            rounded-xl bg-black/[0.03] p-4 text-left text-black/65
-                            duration-300 hover:bg-black/[0.07] hover:text-black
+                            rounded-xl bg-black/[0.03] p-4
+                            text-left text-black/65
+                            transition-all duration-300
+                            hover:bg-black/[0.07]
+                            hover:text-black
                           "
                         >
                           {child.name}
                         </button>
-                      )
-                    )}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             )}
           </div>
