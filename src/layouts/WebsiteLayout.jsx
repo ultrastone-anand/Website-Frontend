@@ -1,21 +1,34 @@
-import { Outlet } from "react-router-dom";
+import { createPortal } from "react-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
-import AccessibilityMenu from "../accessibility/AccessibilityMenu";
 
 const WebsiteLayout = () => {
+  const location = useLocation();
+
+  const isHomePage =
+    location.pathname === "/";
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <>
+      {createPortal(
+        <Navbar />,
+        document.body
+      )}
 
-      <main className="flex-1">
-        <Outlet />
-      </main>
+      <div className="min-h-screen flex flex-col">
+        <main
+          className={`flex-1 ${
+            isHomePage ? "" : "pt-[89px]"
+          }`}
+        >
+          <Outlet />
+        </main>
 
-      <Footer />
-
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 };
 
