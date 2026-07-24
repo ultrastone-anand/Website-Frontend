@@ -29,16 +29,14 @@ const OurProcess = () => {
 
     fetchPage();
   }, []);
-
-  // if (loading) {
-  //   return (
-  //     <>
-  //       <div className=" min-h-screen pt-[110px] flex items-center justify-center">
-  //         <Loading />
-  //       </div>
-  //     </>
-  //   );
-  // }
+  
+if (loading) {
+  return (
+    <div className="min-h-[calc(100vh-89px)] flex items-center justify-center">
+      <Loading />
+    </div>
+  );
+}
 
   if (!page) {
     return (
