@@ -2,6 +2,8 @@ import axios from "axios";
 
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 
+import { createPortal } from "react-dom";
+
 import { useParams, useNavigate, Link } from "react-router-dom";
 
 import {
@@ -122,23 +124,44 @@ const ProductDetails = () => {
     };
   }, [product, modelSectionElement]);
 
-  useEffect(() => {
-    if (!openPreview) {
-      return undefined;
+useEffect(() => {
+  if (!openPreview) {
+    return undefined;
+  }
+
+  const previousBodyOverflow =
+    document.body.style.overflow;
+
+  const previousHtmlOverflow =
+    document.documentElement.style.overflow;
+
+  document.body.style.overflow = "hidden";
+  document.documentElement.style.overflow = "hidden";
+
+  const handleEsc = (event) => {
+    if (event.key === "Escape") {
+      setOpenPreview(false);
     }
+  };
 
-    const handleEsc = (event) => {
-      if (event.key === "Escape") {
-        setOpenPreview(false);
-      }
-    };
+  window.addEventListener(
+    "keydown",
+    handleEsc,
+  );
 
-    window.addEventListener("keydown", handleEsc);
+  return () => {
+    document.body.style.overflow =
+      previousBodyOverflow;
 
-    return () => {
-      window.removeEventListener("keydown", handleEsc);
-    };
-  }, [openPreview]);
+    document.documentElement.style.overflow =
+      previousHtmlOverflow;
+
+    window.removeEventListener(
+      "keydown",
+      handleEsc,
+    );
+  };
+}, [openPreview]);
 
 if (!product) {
   return (
@@ -372,6 +395,21 @@ if (!product) {
     88,
   );
 
+  const showPreviousMedia = () => {
+  setActiveImage((currentIndex) =>
+    currentIndex === 0
+      ? heroImages.length - 1
+      : currentIndex - 1,
+  );
+};
+
+const showNextMedia = () => {
+  setActiveImage((currentIndex) =>
+    currentIndex === heroImages.length - 1
+      ? 0
+      : currentIndex + 1,
+  );
+};
 
 
   return (
@@ -667,74 +705,114 @@ if (!product) {
 
                 </div>
 
-                {openPreview && (
-                  <div
-                    className="
-      fixed
-      inset-0
-      z-[9999]
-      bg-black
-      flex
-      items-center
-      justify-center
-      p-4
-    "
-                    onClick={() => setOpenPreview(false)}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setOpenPreview(false)}
-                      className="
-        absolute
-        top-5
-        right-6
-        text-white
-        text-5xl
-        z-20
-        leading-none
+{openPreview &&
+  createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${product.name} media preview`}
+      className="
+        fixed
+        inset-0
+        z-[999999]
+        w-screen
+        h-[100dvh]
+        bg-black
+        flex
+        items-center
+        justify-center
+        overflow-hidden
+        p-4
+        sm:p-6
       "
-                    >
-                      ×
-                    </button>
+      onClick={() =>
+        setOpenPreview(false)
+      }
+    >
+      <button
+        type="button"
+        aria-label="Close preview"
+        onClick={(event) => {
+          event.stopPropagation();
+          setOpenPreview(false);
+        }}
+        className="
+          fixed
+          top-4
+          right-4
+          sm:top-6
+          sm:right-7
+          z-[1000000]
+          w-12
+          h-12
+          rounded-full
+          border
+          border-white/20
+          bg-black/50
+          text-white
+          text-[38px]
+          leading-none
+          flex
+          items-center
+          justify-center
+          hover:bg-white
+          hover:text-black
+          transition-colors
+          duration-300
+        "
+      >
+        ×
+      </button>
 
-                    {activeMedia?.media_type === "FEATURED_VIDEO" ? (
-                      <video
-                        key={`preview-${activeMedia.media_url}`}
-                        src={activeMedia.media_url}
-                        className="
-          relative
-          z-10
-          max-w-[94vw]
-          max-h-[88vh]
-          w-auto
-          h-auto
-          object-contain
-          bg-black
-        "
-                        controls
-                        autoPlay
-                        muted
-                        playsInline
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : (
-                      <img
-                        loading="lazy"
-                        decoding="async"
-                        src={getOptimizedImageUrl(activeMedia.media_url, 2400, 90)}
-                        alt={product.name}
-                        className="
-          relative
-          z-10
-          max-w-[94vw]
-          max-h-[88vh]
-          object-contain
-        "
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    )}
-                  </div>
-                )}
+      {activeMedia?.media_type ===
+      "FEATURED_VIDEO" ? (
+        <video
+          key={`preview-${activeMedia.media_url}`}
+          src={activeMedia.media_url}
+          className="
+            block
+            max-w-[94vw]
+            max-h-[90dvh]
+            w-auto
+            h-auto
+            object-contain
+            bg-black
+          "
+          controls
+          autoPlay
+          muted
+          playsInline
+          preload="metadata"
+          onClick={(event) =>
+            event.stopPropagation()
+          }
+        />
+      ) : (
+        <img
+          src={getOptimizedImageUrl(
+            activeMedia?.media_url,
+            2400,
+            90,
+          )}
+          alt={product.name}
+          className="
+            block
+            max-w-[94vw]
+            max-h-[90dvh]
+            w-auto
+            h-auto
+            object-contain
+            select-none
+          "
+          decoding="async"
+          onClick={(event) =>
+            event.stopPropagation()
+          }
+        />
+      )}
+    </div>,
+    document.body,
+  )}
               </div>
 
               {/* RIGHT CONTENT */}

@@ -20,7 +20,7 @@ const WebsiteLayout = () => {
       <div className="min-h-screen flex flex-col">
         <main
           className={`flex-1 ${
-            isHomePage ? "" : "pt-[89px]"
+            isHomePage ? "" : "pt-[49px]"
           }`}
         >
           <Outlet />

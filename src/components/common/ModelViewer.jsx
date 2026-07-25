@@ -611,7 +611,7 @@ function ModelViewer({
           role="button"
           tabIndex={0}
           aria-label="Open stone slab viewer"
-          onClick={() => setOpen(true)}
+          // onClick={() => setOpen(true)}
           onKeyDown={(event) => {
             if (
               event.key === "Enter" ||
@@ -624,7 +624,7 @@ function ModelViewer({
           style={{
             width: "100%",
             height,
-            cursor: "pointer",
+            // cursor: "pointer",
             overflow: "hidden",
             borderRadius: 8,
             position: "relative",
@@ -663,9 +663,9 @@ function ModelViewer({
           <button
             type="button"
             aria-label="Close viewer"
-            onClick={() =>
-              setOpen(false)
-            }
+            // onClick={() =>
+            //   setOpen(false)
+            // }
             style={{
               position: "absolute",
               right: 30,
