@@ -124,50 +124,50 @@ const ProductDetails = () => {
     };
   }, [product, modelSectionElement]);
 
-useEffect(() => {
-  if (!openPreview) {
-    return undefined;
-  }
-
-  const previousBodyOverflow =
-    document.body.style.overflow;
-
-  const previousHtmlOverflow =
-    document.documentElement.style.overflow;
-
-  document.body.style.overflow = "hidden";
-  document.documentElement.style.overflow = "hidden";
-
-  const handleEsc = (event) => {
-    if (event.key === "Escape") {
-      setOpenPreview(false);
+  useEffect(() => {
+    if (!openPreview) {
+      return undefined;
     }
-  };
 
-  window.addEventListener(
-    "keydown",
-    handleEsc,
-  );
+    const previousBodyOverflow =
+      document.body.style.overflow;
 
-  return () => {
-    document.body.style.overflow =
-      previousBodyOverflow;
+    const previousHtmlOverflow =
+      document.documentElement.style.overflow;
 
-    document.documentElement.style.overflow =
-      previousHtmlOverflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
-    window.removeEventListener(
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        setOpenPreview(false);
+      }
+    };
+
+    window.addEventListener(
       "keydown",
       handleEsc,
     );
-  };
-}, [openPreview]);
 
-if (!product) {
-  return (
+    return () => {
+      document.body.style.overflow =
+        previousBodyOverflow;
+
+      document.documentElement.style.overflow =
+        previousHtmlOverflow;
+
+      window.removeEventListener(
+        "keydown",
+        handleEsc,
+      );
+    };
+  }, [openPreview]);
+
+  if (!product) {
+    return (
       <Loading />
-  );
-}
+    );
+  }
 
 
   // All product-derived variables go here.
@@ -396,20 +396,20 @@ if (!product) {
   );
 
   const showPreviousMedia = () => {
-  setActiveImage((currentIndex) =>
-    currentIndex === 0
-      ? heroImages.length - 1
-      : currentIndex - 1,
-  );
-};
+    setActiveImage((currentIndex) =>
+      currentIndex === 0
+        ? heroImages.length - 1
+        : currentIndex - 1,
+    );
+  };
 
-const showNextMedia = () => {
-  setActiveImage((currentIndex) =>
-    currentIndex === heroImages.length - 1
-      ? 0
-      : currentIndex + 1,
-  );
-};
+  const showNextMedia = () => {
+    setActiveImage((currentIndex) =>
+      currentIndex === heroImages.length - 1
+        ? 0
+        : currentIndex + 1,
+    );
+  };
 
 
   return (
@@ -705,13 +705,13 @@ const showNextMedia = () => {
 
                 </div>
 
-{openPreview &&
-  createPortal(
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={`${product.name} media preview`}
-      className="
+                {openPreview &&
+                  createPortal(
+                    <div
+                      role="dialog"
+                      aria-modal="true"
+                      aria-label={`${product.name} media preview`}
+                      className="
         fixed
         inset-0
         z-[999999]
@@ -725,18 +725,18 @@ const showNextMedia = () => {
         p-4
         sm:p-6
       "
-      onClick={() =>
-        setOpenPreview(false)
-      }
-    >
-      <button
-        type="button"
-        aria-label="Close preview"
-        onClick={(event) => {
-          event.stopPropagation();
-          setOpenPreview(false);
-        }}
-        className="
+                      onClick={() =>
+                        setOpenPreview(false)
+                      }
+                    >
+                      <button
+                        type="button"
+                        aria-label="Close preview"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setOpenPreview(false);
+                        }}
+                        className="
           fixed
           top-4
           right-4
@@ -760,16 +760,16 @@ const showNextMedia = () => {
           transition-colors
           duration-300
         "
-      >
-        ×
-      </button>
+                      >
+                        ×
+                      </button>
 
-      {activeMedia?.media_type ===
-      "FEATURED_VIDEO" ? (
-        <video
-          key={`preview-${activeMedia.media_url}`}
-          src={activeMedia.media_url}
-          className="
+                      {activeMedia?.media_type ===
+                        "FEATURED_VIDEO" ? (
+                        <video
+                          key={`preview-${activeMedia.media_url}`}
+                          src={activeMedia.media_url}
+                          className="
             block
             max-w-[94vw]
             max-h-[90dvh]
@@ -778,24 +778,24 @@ const showNextMedia = () => {
             object-contain
             bg-black
           "
-          controls
-          autoPlay
-          muted
-          playsInline
-          preload="metadata"
-          onClick={(event) =>
-            event.stopPropagation()
-          }
-        />
-      ) : (
-        <img
-          src={getOptimizedImageUrl(
-            activeMedia?.media_url,
-            2400,
-            90,
-          )}
-          alt={product.name}
-          className="
+                          controls
+                          autoPlay
+                          muted
+                          playsInline
+                          preload="metadata"
+                          onClick={(event) =>
+                            event.stopPropagation()
+                          }
+                        />
+                      ) : (
+                        <img
+                          src={getOptimizedImageUrl(
+                            activeMedia?.media_url,
+                            2400,
+                            90,
+                          )}
+                          alt={product.name}
+                          className="
             block
             max-w-[94vw]
             max-h-[90dvh]
@@ -804,15 +804,15 @@ const showNextMedia = () => {
             object-contain
             select-none
           "
-          decoding="async"
-          onClick={(event) =>
-            event.stopPropagation()
-          }
-        />
-      )}
-    </div>,
-    document.body,
-  )}
+                          decoding="async"
+                          onClick={(event) =>
+                            event.stopPropagation()
+                          }
+                        />
+                      )}
+                    </div>,
+                    document.body,
+                  )}
               </div>
 
               {/* RIGHT CONTENT */}
@@ -1124,7 +1124,7 @@ const showNextMedia = () => {
               {shouldLoadModel ? (
                 <Suspense
                   fallback={
-                      <Loading />
+                    <Loading />
                   }
                 >
                   <ModelViewer

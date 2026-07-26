@@ -1,761 +1,548 @@
 import * as THREE from "three";
-import {
-  Component,
-  memo,
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import {
-  Canvas,
-  useThree,
-} from "@react-three/fiber";
-
-import {
-  Html,
-  OrbitControls,
-  useTexture,
-} from "@react-three/drei";
-
+import { createPortal } from "react-dom";
+import { Suspense, useEffect, useState } from "react";
+import { Canvas, useLoader, useThree, useFrame } from "@react-three/fiber";
+import { OrbitControls, Environment, Center, Html } from "@react-three/drei";
 import Loading from "./Loading";
 
-THREE.Cache.enabled = true;
-
-/*
-|--------------------------------------------------------------------------
-| Finish settings
-|--------------------------------------------------------------------------
-*/
-
-const FINISH_SETTINGS = {
-  POLISHED: {
-    roughness: 0.08,
-    envMapIntensity: 2,
-  },
-
-  BRUSHED: {
-    roughness: 0.75,
-    envMapIntensity: 0.4,
-  },
-
-  HONED: {
-    roughness: 0.55,
-    envMapIntensity: 0.6,
-  },
-
-  LEATHER: {
-    roughness: 0.8,
-    envMapIntensity: 0.3,
-  },
-
-  FLAMMED: {
-    roughness: 1,
-    envMapIntensity: 0.2,
-  },
-
-  FLAMED: {
-    roughness: 1,
-    envMapIntensity: 0.2,
-  },
-
-  MATT: {
-    roughness: 0.95,
-    envMapIntensity: 0.2,
-  },
-
-  MATTE: {
-    roughness: 0.95,
-    envMapIntensity: 0.2,
-  },
-};
-
-const DEFAULT_FINISH = "POLISHED";
-
-/*
-|--------------------------------------------------------------------------
-| Camera settings
-|--------------------------------------------------------------------------
-*/
-
-const PREVIEW_CAMERA = {
-  position: [0.5, -10.05, -1.95],
-  fov: 5,
-  near: 0.1,
-  far: 100,
-};
-
-const FULLSCREEN_CAMERA = {
-  position: [3.5, -5.86, -27.58],
-  fov: 10,
-  near: 0.1,
-  far: 100,
-};
-
-/*
-|--------------------------------------------------------------------------
-| CDN URL helper
-|--------------------------------------------------------------------------
-|
-| Development:
-|
-| https://cdn.ultrastone.in/example.avif
-|
-| becomes:
-|
-| /stone-cdn/example.avif
-|
-| This requires the Vite proxy configuration shown below.
-|
-*/
-
-function getTextureUrl(url) {
-  if (
-    typeof url !== "string" ||
-    !url.trim()
-  ) {
-    return "";
-  }
-
-  const cleanUrl = url.trim();
-
-  if (
-    import.meta.env.DEV &&
-    cleanUrl.startsWith(
-      "https://cdn.ultrastone.in/"
-    )
-  ) {
-    return cleanUrl.replace(
-      "https://cdn.ultrastone.in",
-      "/stone-cdn"
-    );
-  }
-
-  return cleanUrl;
-}
-
-/*
-|--------------------------------------------------------------------------
-| Loading component
-|--------------------------------------------------------------------------
-*/
-
 function Loader() {
-  return (
-    <Html center>
-      <div
-        style={{
-          color: "#fff",
-          pointerEvents: "none",
-        }}
-      >
-        <Loading />
-      </div>
-    </Html>
-  );
-}
 
-/*
-|--------------------------------------------------------------------------
-| Error boundary
-|--------------------------------------------------------------------------
-*/
+    return (
+        <Html center>
 
-class ViewerErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
+            <div
+                style={{
+                    color: "#fff"
+                }}
+            >
+                <Loading />
+            </div>
 
-    this.state = {
-      hasError: false,
-    };
-  }
-
-  static getDerivedStateFromError() {
-    return {
-      hasError: true,
-    };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error(
-      "Model viewer error:",
-      error,
-      errorInfo
+        </Html>
     );
-  }
 
-  componentDidUpdate(previousProps) {
-    if (
-      previousProps.resetKey !==
-        this.props.resetKey &&
-      this.state.hasError
-    ) {
-      this.setState({
-        hasError: false,
-      });
-    }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "#f3f3f3",
-            color: "#666",
-            textAlign: "center",
-            padding: 20,
-          }}
-        >
-          <strong
-            style={{
-              fontSize: 15,
-              marginBottom: 5,
-            }}
-          >
-            Unable to load 3D preview
-          </strong>
-
-          <span
-            style={{
-              fontSize: 13,
-            }}
-          >
-            The slab texture could not be loaded.
-          </span>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Texture setup
-|--------------------------------------------------------------------------
-*/
+function CameraDebugger() {
 
-function useConfiguredTexture(textureUrl) {
-  const sourceTexture =
-    useTexture(textureUrl);
+    const { camera } = useThree();
 
-  const { gl } = useThree();
 
-  const texture = useMemo(() => {
-    return sourceTexture.clone();
-  }, [sourceTexture]);
+    const [position, setPosition] = useState({
 
-  useEffect(() => {
-    const maxAnisotropy =
-      gl.capabilities.getMaxAnisotropy();
+        x: 0,
+        y: 0,
+        z: 0
+
+    });
+
+
+
+    useFrame(() => {
+
+
+        setPosition({
+
+            x: camera.position.x.toFixed(2),
+
+            y: camera.position.y.toFixed(2),
+
+            z: camera.position.z.toFixed(2)
+
+        });
+
+
+    });
+
+
+
+    return (
+
+        <Html
+            fullscreen
+            style={{
+
+                pointerEvents: "none"
+
+            }}
+        >
+
+
+            <div
+
+                style={{
+
+                    position: "absolute",
+
+                    top: 100,
+
+                    right: 30,
+
+                    background: "rgba(0,0,0,.75)",
+
+                    color: "#fff",
+
+                    padding: "15px",
+
+                    borderRadius: "10px",
+
+                    fontSize: "14px",
+
+                    lineHeight: "22px"
+
+                }}
+
+            >
+
+
+                <b>Camera Position</b>
+
+                <br />
+
+                X : {position.x}
+
+                <br />
+
+                Y : {position.y}
+
+                <br />
+
+                Z : {position.z}
+
+
+            </div>
+
+
+
+        </Html>
+
+    );
+
+}
+
+function StoneSlab({
+    textureUrl,
+    finish
+}) {
+
+
+    const [texture, setTexture] = useState(null);
+
+    useEffect(() => {
+        console.log("========== TEXTURE TEST ==========");
+        console.log("Texture URL:", textureUrl);
+
+        const manager = new THREE.LoadingManager();
+
+        manager.setURLModifier((url) => {
+            console.log("Loading:", url);
+            return `${url}?t=${Date.now()}`;
+        });
+
+        const loader = new THREE.TextureLoader(manager);
+
+        loader.crossOrigin = "anonymous";
+
+        loader.setCrossOrigin("anonymous");
+
+        loader.load(
+            textureUrl,
+            (tex) => {
+                console.log("✅ Texture loaded");
+                console.log(tex);
+
+                console.log("Image:", tex.image);
+                console.log("Width:", tex.image.width);
+                console.log("Height:", tex.image.height);
+
+                setTexture(tex);
+            },
+            (event) => {
+                console.log("Progress:", event);
+            },
+            (err) => {
+                console.error("❌ Texture failed");
+                console.error(err);
+            }
+        );
+
+        return () => {
+            console.log("StoneSlab cleanup");
+        };
+    }, [textureUrl]);
+
+    if (!texture) {
+        return null;
+    }
 
     texture.colorSpace =
-      THREE.SRGBColorSpace;
+        THREE.SRGBColorSpace;
 
-    texture.anisotropy = Math.min(
-      maxAnisotropy,
-      8
-    );
+
+    texture.anisotropy = 16;
+
 
     texture.generateMipmaps = true;
 
+
     texture.minFilter =
-      THREE.LinearMipmapLinearFilter;
+        THREE.LinearMipmapLinearFilter;
 
-    texture.magFilter =
-      THREE.LinearFilter;
 
-    texture.wrapS =
-      THREE.ClampToEdgeWrapping;
 
-    texture.wrapT =
-      THREE.ClampToEdgeWrapping;
 
-    texture.needsUpdate = true;
 
-    return () => {
-      texture.dispose();
+    const finishSettings = {
+
+
+        POLISHED: {
+            roughness: 0.08,
+            envMapIntensity: 2
+        },
+
+
+        BRUSHED: {
+            roughness: 0.75,
+            envMapIntensity: 0.4
+        },
+
+
+        HONED: {
+            roughness: 0.55,
+            envMapIntensity: 0.6
+        },
+
+
+        LEATHER: {
+            roughness: 0.8,
+            envMapIntensity: 0.3
+        },
+
+
+        FLAMMED: {
+            roughness: 1,
+            envMapIntensity: 0.2
+        },
+
+
+        MATT: {
+            roughness: 0.95,
+            envMapIntensity: 0.2
+        }
+
+
     };
-  }, [texture, gl]);
 
-  return texture;
+
+
+    const material =
+        finishSettings[
+        finish?.toUpperCase()
+        ]
+        ||
+        finishSettings.POLISHED;
+
+
+
+
+
+    return (
+
+        <Center>
+
+
+            <mesh
+
+                castShadow
+
+                receiveShadow
+
+                rotation={[
+                    -0.08,
+                    -0.25,
+                    0
+                ]}
+
+
+            >
+
+                <boxGeometry
+
+                    args={[
+                        4,
+                        2.4,
+                        0.05
+                    ]}
+
+                />
+
+
+                <meshStandardMaterial
+
+                    map={texture}
+
+                    {...material}
+
+                />
+
+            </mesh>
+
+
+        </Center>
+
+
+    );
+
 }
 
-/*
-|--------------------------------------------------------------------------
-| Stone slab
-|--------------------------------------------------------------------------
-*/
+function ViewerCanvas({
 
-const StoneSlab = memo(function StoneSlab({
-  textureUrl,
-  finish,
-}) {
-  const texture =
-    useConfiguredTexture(textureUrl);
-
-  const material = useMemo(() => {
-    const finishName =
-      typeof finish === "string"
-        ? finish.trim().toUpperCase()
-        : DEFAULT_FINISH;
-
-    return (
-      FINISH_SETTINGS[finishName] ||
-      FINISH_SETTINGS[DEFAULT_FINISH]
-    );
-  }, [finish]);
-
-  return (
-    <mesh
-      rotation={[-0.08, -0.25, 0]}
-      frustumCulled
-    >
-      <boxGeometry
-        args={[4, 2.4, 0.05]}
-      />
-
-      <meshStandardMaterial
-        map={texture}
-        roughness={material.roughness}
-        envMapIntensity={
-          material.envMapIntensity
-        }
-        metalness={0}
-        side={THREE.FrontSide}
-      />
-    </mesh>
-  );
-});
-
-/*
-|--------------------------------------------------------------------------
-| Lighting
-|--------------------------------------------------------------------------
-*/
-
-const SceneLights = memo(
-  function SceneLights({ preview }) {
-    return (
-      <>
-        <ambientLight
-          intensity={preview ? 1.8 : 2}
-        />
-
-        <directionalLight
-          position={[10, 10, 10]}
-          intensity={0.65}
-        />
-
-        <directionalLight
-          position={[-10, 10, 10]}
-          intensity={0.45}
-        />
-
-        <directionalLight
-          position={[10, 10, -10]}
-          intensity={0.3}
-        />
-      </>
-    );
-  }
-);
-
-/*
-|--------------------------------------------------------------------------
-| Viewer scene
-|--------------------------------------------------------------------------
-*/
-
-const ViewerScene = memo(
-  function ViewerScene({
     poster,
+
     finish,
-    preview,
-  }) {
-    return (
-      <>
-        <SceneLights preview={preview} />
 
-        <Suspense fallback={<Loader />}>
-          <StoneSlab
-            textureUrl={poster}
-            finish={finish}
-          />
-        </Suspense>
+    preview = false
 
-        {!preview && (
-          <OrbitControls
-            makeDefault
-            enableZoom
-            enablePan
-            enableRotate
-            enableDamping
-            dampingFactor={0.06}
-            rotateSpeed={0.65}
-            zoomSpeed={0.8}
-            panSpeed={0.7}
-            autoRotate
-            autoRotateSpeed={2}
-            minDistance={4}
-            maxDistance={45}
-          />
-        )}
-      </>
-    );
-  }
-);
-
-/*
-|--------------------------------------------------------------------------
-| Canvas
-|--------------------------------------------------------------------------
-*/
-
-const ViewerCanvas = memo(
-  function ViewerCanvas({
-    poster,
-    finish,
-    preview = false,
-  }) {
-    const cameraSettings = preview
-      ? PREVIEW_CAMERA
-      : FULLSCREEN_CAMERA;
-
-    return (
-      <Canvas
-        frameloop={
-          preview ? "demand" : "always"
-        }
-        dpr={
-          preview ? 1 : [1, 1.5]
-        }
-        camera={cameraSettings}
-        gl={{
-          antialias: !preview,
-          alpha: true,
-          powerPreference:
-            "high-performance",
-          preserveDrawingBuffer: false,
-          stencil: false,
-          depth: true,
-        }}
-        performance={{
-          min: 0.5,
-          max: 1,
-          debounce: 200,
-        }}
-        onCreated={({ gl }) => {
-          gl.outputColorSpace =
-            THREE.SRGBColorSpace;
-
-          gl.toneMapping =
-            THREE.ACESFilmicToneMapping;
-
-          gl.toneMappingExposure = 1;
-
-          gl.setClearColor(
-            0x000000,
-            0
-          );
-        }}
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "block",
-        }}
-      >
-        <ViewerScene
-          poster={poster}
-          finish={finish}
-          preview={preview}
-        />
-      </Canvas>
-    );
-  }
-);
-
-/*
-|--------------------------------------------------------------------------
-| Main component
-|--------------------------------------------------------------------------
-*/
-
-function ModelViewer({
-  poster,
-  height = 270,
-  finishes = [],
 }) {
-  const normalizedPoster = useMemo(
-    () => getTextureUrl(poster),
-    [poster]
-  );
 
-  const normalizedFinishes = useMemo(() => {
-    if (!Array.isArray(finishes)) {
-      return [];
-    }
 
-    return finishes
-      .filter(
-        (item) =>
-          typeof item === "string" &&
-          item.trim()
-      )
-      .map((item) => item.trim());
-  }, [finishes]);
 
-  const defaultFinish =
-    normalizedFinishes[0] ||
-    "Polished";
+    return (
 
-  const [open, setOpen] =
-    useState(false);
+        <Canvas
 
-  const [
-    selectedFinish,
-    setSelectedFinish,
-  ] = useState(defaultFinish);
+            shadows
+            dpr={[1, 1.5]}
+            camera={{ position: preview ? [0.50, -10.05, -1.95] : [3.50, -5.86, -27.58], fov: preview ? 5 : 10 }}
+            onCreated={({ gl }) => {
 
-  useEffect(() => {
-    setSelectedFinish(
-      (currentFinish) => {
-        if (
-          normalizedFinishes.includes(
-            currentFinish
-          )
-        ) {
-          return currentFinish;
+                console.log("WebGL created");
+
+                gl.domElement.addEventListener(
+                    "webglcontextlost",
+                    (e) => {
+                        console.error("🔥 WEBGL CONTEXT LOST");
+                        console.error(e);
+                    }
+                );
+
+                gl.domElement.addEventListener(
+                    "webglcontextrestored",
+                    () => {
+                        console.log("✅ WEBGL CONTEXT RESTORED");
+                    }
+                );
+            }}
+        >
+
+            <ambientLight intensity={2} />
+
+            <directionalLight
+                position={[10, 10, 10]}
+                intensity={0.5}
+            />
+
+            <directionalLight
+                position={[-10, 10, 10]}
+                intensity={0.5}
+            />
+
+            <directionalLight
+                position={[10, 10, -10]}
+                intensity={0.5}
+            />
+
+            <directionalLight
+                position={[-10, 10, -10]}
+                intensity={0.5}
+            />
+
+            <Suspense fallback={<Loader />}>
+
+                <StoneSlab
+                    textureUrl={poster}
+                    finish={finish}
+                />
+
+                {
+                    !preview &&
+                    <CameraDebugger />
+                }
+            </Suspense>
+
+            <OrbitControls
+                enableZoom={!preview}
+                enablePan={!preview}
+                enableRotate={!preview}
+                autoRotate={!preview}
+                autoRotateSpeed={2}
+            />
+
+        </Canvas>
+    )
+}
+
+export default function ModelViewer({ poster, height = 270, finishes = [] }) {
+
+    console.log("========== MODEL VIEWER ==========");
+    console.log("Poster:", poster);
+    console.log("Finishes:", finishes);
+
+    const [open, setOpen] = useState(false);
+
+    const [selectedFinish, setSelectedFinish] = useState(finishes?.[0] || "Polished");
+
+useEffect(() => {
+    const close = (e) => {
+        if (e.key === "Escape") {
+            setOpen(false);
         }
-
-        return defaultFinish;
-      }
-    );
-  }, [
-    normalizedFinishes,
-    defaultFinish,
-  ]);
-
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    const previousOverflow =
-      document.body.style.overflow;
-
-    document.body.style.overflow =
-      "hidden";
-
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
     };
 
     window.addEventListener(
-      "keydown",
-      handleKeyDown
+        "keydown",
+        close
     );
 
     return () => {
-      document.body.style.overflow =
-        previousOverflow;
-
-      window.removeEventListener(
-        "keydown",
-        handleKeyDown
-      );
+        window.removeEventListener(
+            "keydown",
+            close
+        );
     };
-  }, [open]);
+}, []);
 
-  if (!normalizedPoster) {
+useEffect(() => {
+    if (!open) {
+        return;
+    }
+
+    const previousOverflow =
+        document.body.style.overflow;
+
+    document.body.style.overflow =
+        "hidden";
+
+    return () => {
+        document.body.style.overflow =
+            previousOverflow;
+    };
+}, [open]);
+
     return (
-      <div
-        style={{
-          width: "100%",
-          height,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#f3f3f3",
-          color: "#666",
-          borderRadius: 8,
-          fontSize: 14,
-        }}
-      >
-        Preview unavailable
-      </div>
-    );
-  }
 
-  return (
-    <>
-      {/*
-       * Only one Canvas is mounted at a time.
-       *
-       * This prevents multiple WebGL contexts
-       * and improves performance.
-       */}
-      {!open && (
-        <div
-          role="button"
-          tabIndex={0}
-          aria-label="Open stone slab viewer"
-          // onClick={() => setOpen(true)}
-          onKeyDown={(event) => {
-            if (
-              event.key === "Enter" ||
-              event.key === " "
-            ) {
-              event.preventDefault();
-              setOpen(true);
-            }
-          }}
-          style={{
-            width: "100%",
-            height,
-            // cursor: "pointer",
-            overflow: "hidden",
-            borderRadius: 8,
-            position: "relative",
-            background: "#f3f3f3",
-            contain: "layout paint size",
-          }}
-        >
-          <ViewerErrorBoundary
-            resetKey={normalizedPoster}
-          >
-            <ViewerCanvas
-              poster={normalizedPoster}
-              finish={selectedFinish}
-              preview
-            />
-          </ViewerErrorBoundary>
-        </div>
-      )}
-
-      {open && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Stone slab viewer"
-          style={{
-            position: "fixed",
-            inset: 0,
-            width: "100vw",
-            height: "100vh",
-            background:
-              "rgba(0,0,0,.92)",
-            zIndex: 99999,
-            overflow: "hidden",
-          }}
-        >
-          <button
-            type="button"
-            aria-label="Close viewer"
-            // onClick={() =>
-            //   setOpen(false)
-            // }
-            style={{
-              position: "absolute",
-              right: 30,
-              top: 20,
-              zIndex: 100000,
-              width: 48,
-              height: 48,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 40,
-              lineHeight: 1,
-              color: "#fff",
-              background:
-                "rgba(0,0,0,.35)",
-              border:
-                "1px solid rgba(255,255,255,.2)",
-              borderRadius: "50%",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            ×
-          </button>
-
-          {normalizedFinishes.length >
-            0 && (
+        <>
+            {/* STATIC VIEW */}
             <div
-              style={{
-                position: "absolute",
-                top: 30,
-                left: 30,
-                zIndex: 100000,
-              }}
-            >
-              <select
-                value={selectedFinish}
-                onChange={(event) =>
-                  setSelectedFinish(
-                    event.target.value
-                  )
-                }
+                onClick={() => setOpen(true)}
                 style={{
-                  minWidth: 150,
-                  padding:
-                    "12px 38px 12px 20px",
-                  background: "#111",
-                  color: "#fff",
-                  border:
-                    "1px solid rgba(255,255,255,.2)",
-                  borderRadius: 10,
-                  fontSize: 16,
-                  cursor: "pointer",
-                  outline: "none",
+                    width: "100%",
+                    height,
+                    cursor: "pointer",
+                    overflow: "hidden",
+                    borderRadius: 8,
+                    position: "relative"
                 }}
-              >
-                {normalizedFinishes.map(
-                  (item) => (
-                    <option
-                      key={item}
-                      value={item}
-                    >
-                      {item}
-                    </option>
-                  )
-                )}
-              </select>
-            </div>
-          )}
-
-          <div
-            style={{
-              width: "100vw",
-              height: "100vh",
-            }}
-          >
-            <ViewerErrorBoundary
-              resetKey={normalizedPoster}
             >
-              <ViewerCanvas
-                poster={normalizedPoster}
-                finish={selectedFinish}
-                preview={false}
-              />
-            </ViewerErrorBoundary>
-          </div>
-        </div>
-      )}
-    </>
-  );
+
+                <ViewerCanvas
+                    poster={poster}
+                    finish={selectedFinish}
+                    preview={true}
+                />
+
+            </div>
+
+            {/* FULL SCREEN */}
+
+
+{/* FULL SCREEN */}
+
+{open &&
+    createPortal(
+        <div
+            style={{
+                position: "fixed",
+                inset: 0,
+                width: "100vw",
+                height: "100dvh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "rgba(0,0,0,.92)",
+                zIndex: 99999,
+                overflow: "hidden"
+            }}
+        >
+            <button
+                onClick={() => setOpen(false)}
+                style={{
+                    position: "absolute",
+                    right: 30,
+                    top: 20,
+                    zIndex: 100000,
+                    fontSize: 40,
+                    color: "#fff",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer"
+                }}
+            >
+                ×
+            </button>
+
+            <div
+                style={{
+                    position: "absolute",
+                    top: 30,
+                    left: 30,
+                    zIndex: 100000
+                }}
+            >
+                <select
+                    value={selectedFinish}
+                    onChange={(e) =>
+                        setSelectedFinish(
+                            e.target.value
+                        )
+                    }
+                    style={{
+                        padding: "12px 20px",
+                        background: "#111",
+                        color: "#fff",
+                        borderRadius: 10,
+                        fontSize: 16
+                    }}
+                >
+                    {finishes.map(item => (
+                        <option
+                            key={item}
+                            value={item}
+                        >
+                            {item}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            <div
+                style={{
+                    width: "100vw",
+                    height: "100dvh",
+                    position: "relative"
+                }}
+            >
+                <ViewerCanvas
+                    poster={poster}
+                    finish={selectedFinish}
+                    preview={false}
+                />
+            </div>
+        </div>,
+        document.body
+    )
 }
 
-export default memo(ModelViewer);
+        </>
+    )
+}
