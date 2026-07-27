@@ -248,7 +248,7 @@ const productApplicationImages =
 const applicationImages = [
   ...productApplicationImages,
   ...inspirationImages,
-];MIn
+];
 
   const bookmatchslipmatch =
     product.media?.filter(
