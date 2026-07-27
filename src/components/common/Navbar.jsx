@@ -801,16 +801,16 @@ const MegaMenu = ({
   const isActive = activeDropdown === dropdownKey;
   const [hoveredParent, setHoveredParent] = useState(null);
 
-  const parentCategories = useMemo(() => {
-    return materials
-      .filter((item) => item.parent_id === null && item.is_active)
-      .sort((a, b) => {
-        const orderA = a.display_order ?? 999;
-        const orderB = b.display_order ?? 999;
-
-        return orderA - orderB;
-      });
-  }, [materials]);
+const parentCategories = useMemo(() => {
+  return materials
+    .filter((item) => item.parent_id === null && item.is_active)
+    .sort((a, b) =>
+      String(a.name || '').localeCompare(String(b.name || ''), undefined, {
+        sensitivity: 'base',
+        numeric: true,
+      })
+    );
+}, [materials]);
 
   useEffect(() => {
     if (parentCategories.length === 0) {
@@ -831,19 +831,19 @@ const MegaMenu = ({
     (parent) => parent.id === hoveredParent
   );
 
-  const children = useMemo(() => {
-    return materials
-      .filter(
-        (item) =>
-          item.parent_id === hoveredParent && item.is_active
-      )
-      .sort((a, b) => {
-        const orderA = a.display_order ?? 999;
-        const orderB = b.display_order ?? 999;
-
-        return orderA - orderB;
-      });
-  }, [materials, hoveredParent]);
+const children = useMemo(() => {
+  return materials
+    .filter(
+      (item) =>
+        item.parent_id === hoveredParent && item.is_active
+    )
+    .sort((a, b) =>
+      String(a.name || '').localeCompare(String(b.name || ''), undefined, {
+        sensitivity: 'base',
+        numeric: true,
+      })
+    );
+}, [materials, hoveredParent]);
 
   const getThumbnailUrl = (url, width = 220, quality = 68) => {
     return getOptimizedImageUrl(
