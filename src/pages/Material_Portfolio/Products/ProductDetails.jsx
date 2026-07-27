@@ -94,6 +94,47 @@ const ProductDetails = () => {
   }, [productSlug]);
 
   useEffect(() => {
+  const controller = new AbortController();
+
+  const loadInspirationImages = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/inspiration-gallery/images/product/${productSlug}`,
+        {
+          signal: controller.signal,
+        },
+      );
+
+      console.log(
+        "Inspiration gallery response:",
+        response.data,
+      );
+
+      console.log(
+        "Inspiration gallery images:",
+        response.data?.data?.images || [],
+      );
+    } catch (error) {
+      if (
+        error.code !== "ERR_CANCELED" &&
+        error.name !== "CanceledError"
+      ) {
+        console.error(
+          "Failed to load inspiration gallery images:",
+          error,
+        );
+      }
+    }
+  };
+
+  if (productSlug) {
+    loadInspirationImages();
+  }
+
+  return () => controller.abort();
+}, [productSlug]);
+
+  useEffect(() => {
     if (!product || !modelSectionElement) {
       return undefined;
     }
