@@ -1,5 +1,6 @@
 import axios from "axios";
 import PropTypes from "prop-types";
+
 import {
   BriefcaseBusiness,
   Building2,
@@ -13,12 +14,14 @@ import {
   Users,
   X,
 } from "lucide-react";
+
 import {
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 const WEBSITE_PAGES = [
@@ -206,7 +209,9 @@ const normalizeText = (value = "") =>
     .replace(/\s+/g, " ");
 
 const getResultIcon = (type) => {
-  const normalizedType = String(type || "").toLowerCase();
+  const normalizedType = String(
+    type || ""
+  ).toLowerCase();
 
   if (normalizedType === "product") {
     return PackageSearch;
@@ -236,8 +241,10 @@ const getResultIcon = (type) => {
 
 const GlobalSearch = ({
   materials = [],
-  isLightNavbar = false,
   mobile = false,
+  isLightNavbar = false,
+  expanded = false,
+  desktopModal = false,
   onResultClick,
 }) => {
   const navigate = useNavigate();
@@ -249,14 +256,15 @@ const GlobalSearch = ({
   const [query, setQuery] = useState("");
   const [apiResults, setApiResults] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchError, setSearchError] = useState("");
-  const [activeIndex, setActiveIndex] = useState(-1);
+  const [isSearching, setIsSearching] =
+    useState(false);
+  const [searchError, setSearchError] =
+    useState("");
+  const [activeIndex, setActiveIndex] =
+    useState(-1);
 
   /*
-   * Local items provide immediate results for website menu pages.
-   * Materials are also included so category matches can appear
-   * without waiting for the API request.
+   * Local pages and material categories.
    */
   const localSearchItems = useMemo(() => {
     const materialItems = materials
@@ -275,7 +283,9 @@ const GlobalSearch = ({
           id: `local-material-${material.id}`,
           label: material.name,
           path: `/product-category/${material.slug}`,
-          type: isParent ? "Material" : "Collection",
+          type: isParent
+            ? "Material"
+            : "Collection",
           keywords: [
             material.name,
             material.slug,
@@ -285,19 +295,23 @@ const GlobalSearch = ({
               ? "material category stone"
               : "collection subcategory stone",
           ].filter(Boolean),
-          image: material.thumbnail_url || null,
+          image:
+            material.thumbnail_url || null,
           icon: PackageSearch,
-          displayOrder: material.display_order ?? 999,
+          displayOrder:
+            material.display_order ?? 999,
           score: 0,
         };
       });
 
-    return [...WEBSITE_PAGES, ...materialItems];
+    return [
+      ...WEBSITE_PAGES,
+      ...materialItems,
+    ];
   }, [materials]);
 
   /*
-   * Search the backend after the user types at least two characters.
-   * The delay prevents an API request for every immediate keystroke.
+   * Search backend after two characters.
    */
   useEffect(() => {
     const trimmedQuery = query.trim();
@@ -310,70 +324,98 @@ const GlobalSearch = ({
       return undefined;
     }
 
-    const controller = new AbortController();
+    const controller =
+      new AbortController();
 
-    const timeoutId = window.setTimeout(async () => {
-      try {
-        setIsSearching(true);
-        setSearchError("");
+    const timeoutId = window.setTimeout(
+      async () => {
+        try {
+          setIsSearching(true);
+          setSearchError("");
 
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/search`,
-          {
-            params: {
-              q: trimmedQuery,
-              limit: 15,
-            },
-            signal: controller.signal,
-          }
-        );
-
-        const returnedResults =
-          response.data?.data?.results;
-
-        if (Array.isArray(returnedResults)) {
-          const formattedResults = returnedResults
-            .filter(
-              (item) =>
-                item?.label &&
-                item?.path
-            )
-            .map((item, index) => ({
-              ...item,
-              id:
-                item.id ||
-                `api-result-${item.type}-${item.path}-${index}`,
-              icon: getResultIcon(item.type),
-              external:
-                item.external === true ||
-                String(item.path).startsWith("http"),
-              score: Number(item.score) || 0,
-            }));
-
-          setApiResults(formattedResults);
-        } else {
-          setApiResults([]);
-        }
-      } catch (error) {
-        const isCanceled =
-          error.name === "CanceledError" ||
-          error.code === "ERR_CANCELED" ||
-          axios.isCancel(error);
-
-        if (!isCanceled) {
-          console.error("Global search failed:", error);
-
-          setApiResults([]);
-          setSearchError(
-            "Unable to load product search results."
+          const response = await axios.get(
+            `${
+              import.meta.env.VITE_API_URL
+            }/search`,
+            {
+              params: {
+                q: trimmedQuery,
+                limit: 15,
+              },
+              signal: controller.signal,
+            }
           );
+
+          const returnedResults =
+            response.data?.data?.results;
+
+          if (
+            Array.isArray(returnedResults)
+          ) {
+            const formattedResults =
+              returnedResults
+                .filter(
+                  (item) =>
+                    item?.label &&
+                    item?.path
+                )
+                .map((item, index) => ({
+                  ...item,
+
+                  id:
+                    item.id ||
+                    `api-result-${item.type}-${item.path}-${index}`,
+
+                  icon: getResultIcon(
+                    item.type
+                  ),
+
+                  external:
+                    item.external === true ||
+                    String(
+                      item.path
+                    ).startsWith("http"),
+
+                  score:
+                    Number(item.score) || 0,
+                }));
+
+            setApiResults(
+              formattedResults
+            );
+          } else {
+            setApiResults([]);
+          }
+        } catch (error) {
+          const isCanceled =
+            error.name ===
+              "CanceledError" ||
+            error.code ===
+              "ERR_CANCELED" ||
+            axios.isCancel(error);
+
+          if (!isCanceled) {
+            console.error(
+              "Global search failed:",
+              error
+            );
+
+            setApiResults([]);
+
+            setSearchError(
+              "Unable to load product search results."
+            );
+          }
+        } finally {
+          if (
+            !controller.signal.aborted
+          ) {
+            setIsSearching(false);
+          }
         }
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsSearching(false);
-        }
-      }
-    }, 300);
+      },
+      300
+    );
 
     return () => {
       window.clearTimeout(timeoutId);
@@ -382,55 +424,84 @@ const GlobalSearch = ({
   }, [query]);
 
   /*
-   * Search static pages and already-loaded categories locally.
+   * Search local pages and categories.
    */
   const localResults = useMemo(() => {
-    const normalizedQuery = normalizeText(query);
+    const normalizedQuery =
+      normalizeText(query);
 
     if (!normalizedQuery) {
       return [];
     }
 
-    const queryWords = normalizedQuery
-      .split(" ")
-      .filter(Boolean);
+    const queryWords =
+      normalizedQuery
+        .split(" ")
+        .filter(Boolean);
 
     return localSearchItems
       .map((item) => {
-        const normalizedLabel = normalizeText(item.label);
+        const normalizedLabel =
+          normalizeText(item.label);
 
-        const normalizedKeywords = normalizeText(
-          (item.keywords || []).join(" ")
-        );
+        const normalizedKeywords =
+          normalizeText(
+            (item.keywords || []).join(" ")
+          );
 
         let score = 0;
 
-        if (normalizedLabel === normalizedQuery) {
+        if (
+          normalizedLabel ===
+          normalizedQuery
+        ) {
           score += 200;
         }
 
-        if (normalizedLabel.startsWith(normalizedQuery)) {
+        if (
+          normalizedLabel.startsWith(
+            normalizedQuery
+          )
+        ) {
           score += 140;
         }
 
-        if (normalizedLabel.includes(normalizedQuery)) {
+        if (
+          normalizedLabel.includes(
+            normalizedQuery
+          )
+        ) {
           score += 100;
         }
 
-        if (normalizedKeywords.includes(normalizedQuery)) {
+        if (
+          normalizedKeywords.includes(
+            normalizedQuery
+          )
+        ) {
           score += 50;
         }
 
         queryWords.forEach((word) => {
-          if (normalizedLabel.startsWith(word)) {
+          if (
+            normalizedLabel.startsWith(
+              word
+            )
+          ) {
             score += 30;
           }
 
-          if (normalizedLabel.includes(word)) {
+          if (
+            normalizedLabel.includes(word)
+          ) {
             score += 20;
           }
 
-          if (normalizedKeywords.includes(word)) {
+          if (
+            normalizedKeywords.includes(
+              word
+            )
+          ) {
             score += 10;
           }
         });
@@ -440,12 +511,16 @@ const GlobalSearch = ({
           score,
         };
       })
-      .filter((item) => item.score > 0);
-  }, [query, localSearchItems]);
+      .filter(
+        (item) => item.score > 0
+      );
+  }, [
+    query,
+    localSearchItems,
+  ]);
 
   /*
-   * Merge backend results with local website results.
-   * Duplicate paths are removed.
+   * Merge API and local results.
    */
   const results = useMemo(() => {
     if (!query.trim()) {
@@ -460,7 +535,9 @@ const GlobalSearch = ({
     const uniqueResults = Array.from(
       new Map(
         combinedResults.map((item) => [
-          `${String(item.type).toLowerCase()}-${item.path}`,
+          `${String(
+            item.type
+          ).toLowerCase()}-${item.path}`,
           item,
         ])
       ).values()
@@ -468,35 +545,51 @@ const GlobalSearch = ({
 
     return uniqueResults
       .sort((a, b) => {
-        const scoreA = Number(a.score) || 0;
-        const scoreB = Number(b.score) || 0;
+        const scoreA =
+          Number(a.score) || 0;
+
+        const scoreB =
+          Number(b.score) || 0;
 
         if (scoreB !== scoreA) {
           return scoreB - scoreA;
         }
 
-        const orderA = a.displayOrder ?? 999;
-        const orderB = b.displayOrder ?? 999;
+        const orderA =
+          a.displayOrder ?? 999;
+
+        const orderB =
+          b.displayOrder ?? 999;
 
         if (orderA !== orderB) {
           return orderA - orderB;
         }
 
-        return String(a.label).localeCompare(
+        return String(
+          a.label
+        ).localeCompare(
           String(b.label)
         );
       })
       .slice(0, 15);
-  }, [query, apiResults, localResults]);
+  }, [
+    query,
+    apiResults,
+    localResults,
+  ]);
 
   /*
-   * Close results when clicking outside the component.
+   * Close results when clicking outside.
    */
   useEffect(() => {
-    const handleOutsideClick = (event) => {
+    const handleOutsideClick = (
+      event
+    ) => {
       if (
         searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target)
+        !searchContainerRef.current.contains(
+          event.target
+        )
       ) {
         setIsOpen(false);
         setActiveIndex(-1);
@@ -521,13 +614,18 @@ const GlobalSearch = ({
   }, [query]);
 
   useEffect(() => {
-    if (activeIndex >= results.length) {
+    if (
+      activeIndex >= results.length
+    ) {
       setActiveIndex(-1);
     }
-  }, [activeIndex, results.length]);
+  }, [
+    activeIndex,
+    results.length,
+  ]);
 
   /*
-   * Keep the keyboard-selected result visible.
+   * Keep selected result visible.
    */
   useEffect(() => {
     if (
@@ -571,7 +669,9 @@ const GlobalSearch = ({
 
     const isExternal =
       item.external === true ||
-      String(item.path).startsWith("http");
+      String(item.path).startsWith(
+        "http"
+      );
 
     if (isExternal) {
       window.open(
@@ -601,7 +701,10 @@ const GlobalSearch = ({
       activeIndex >= 0 &&
       results[activeIndex]
     ) {
-      openResult(results[activeIndex]);
+      openResult(
+        results[activeIndex]
+      );
+
       return;
     }
 
@@ -630,10 +733,12 @@ const GlobalSearch = ({
         return;
       }
 
-      setActiveIndex((currentIndex) =>
-        currentIndex >= results.length - 1
-          ? 0
-          : currentIndex + 1
+      setActiveIndex(
+        (currentIndex) =>
+          currentIndex >=
+          results.length - 1
+            ? 0
+            : currentIndex + 1
       );
 
       return;
@@ -647,10 +752,11 @@ const GlobalSearch = ({
         return;
       }
 
-      setActiveIndex((currentIndex) =>
-        currentIndex <= 0
-          ? results.length - 1
-          : currentIndex - 1
+      setActiveIndex(
+        (currentIndex) =>
+          currentIndex <= 0
+            ? results.length - 1
+            : currentIndex - 1
       );
 
       return;
@@ -662,7 +768,10 @@ const GlobalSearch = ({
       results[activeIndex]
     ) {
       event.preventDefault();
-      openResult(results[activeIndex]);
+
+      openResult(
+        results[activeIndex]
+      );
     }
   };
 
@@ -671,20 +780,29 @@ const GlobalSearch = ({
     !isSearching &&
     results.length === 0;
 
+  const isWideSearch =
+    mobile ||
+    expanded ||
+    desktopModal;
+
   return (
     <div
       ref={searchContainerRef}
-      className={`relative ${
-        mobile
-          ? "w-full"
-          : "w-full max-w-[320px]"
-      }`}
+      className={`
+        relative
+        ${
+          isWideSearch
+            ? "w-full max-w-none"
+            : "w-full max-w-[320px]"
+        }
+      `}
     >
       <form
         onSubmit={handleSubmit}
         role="search"
+        className="w-full"
       >
-        <div className="relative">
+        <div className="relative w-full">
           <input
             ref={inputRef}
             type="text"
@@ -695,11 +813,14 @@ const GlobalSearch = ({
             aria-expanded={isOpen}
             aria-controls="global-search-results"
             onChange={(event) => {
-              const value = event.target.value;
+              const value =
+                event.target.value;
 
               setQuery(value);
               setSearchError("");
-              setIsOpen(Boolean(value.trim()));
+              setIsOpen(
+                Boolean(value.trim())
+              );
             }}
             onFocus={() => {
               if (query.trim()) {
@@ -708,28 +829,55 @@ const GlobalSearch = ({
             }}
             onKeyDown={handleKeyDown}
             className={`
-              w-full rounded-md border outline-none
+              w-full border outline-none
               transition-all duration-300
               ${
                 mobile
                   ? `
-                    h-[48px] border-white/15 bg-white/10
-                    px-4 pr-20 text-sm text-white
+                    h-[48px]
+                    rounded-md
+                    border-white/15
+                    bg-white/10
+                    px-4 pr-20
+                    text-sm text-white
                     placeholder:text-white/50
                   `
-                  : isLightNavbar
+                  : desktopModal
                     ? `
-                      h-11 border-gray-300 bg-white px-4 pr-20
-                      text-[12px] text-black
-                      placeholder:text-gray-500
-                      focus:border-gray-500
+                      h-[52px]
+                      rounded-xl
+                      border-black/20
+                      bg-white
+                      px-5 pr-24
+                      text-[14px]
+                      text-black
+                      placeholder:text-black/40
+                      focus:border-black/45
+                      focus:ring-2
+                      focus:ring-black/[0.04]
                     `
-                    : `
-                      h-11 border-white/20 bg-white/10 px-4 pr-20
-                      text-[12px] text-white
-                      placeholder:text-white/60
-                      focus:border-white/40 focus:bg-white/15
-                    `
+                    : isLightNavbar
+                      ? `
+                        h-11 rounded-md
+                        border-gray-300
+                        bg-white
+                        px-4 pr-20
+                        text-[12px]
+                        text-black
+                        placeholder:text-gray-500
+                        focus:border-gray-500
+                      `
+                      : `
+                        h-11 rounded-md
+                        border-white/20
+                        bg-white/10
+                        px-4 pr-20
+                        text-[12px]
+                        text-white
+                        placeholder:text-white/60
+                        focus:border-white/40
+                        focus:bg-white/15
+                      `
               }
             `}
           />
@@ -740,13 +888,23 @@ const GlobalSearch = ({
               aria-label="Clear search"
               onClick={clearSearch}
               className={`
-                absolute right-10 top-1/2 flex h-9 w-9
-                -translate-y-1/2 items-center justify-center
+                absolute right-11 top-1/2
+                flex h-9 w-9
+                -translate-y-1/2
+                items-center justify-center
                 transition-colors
                 ${
-                  mobile || !isLightNavbar
-                    ? "text-white/60 hover:text-white"
-                    : "text-gray-400 hover:text-black"
+                  mobile ||
+                  (!isLightNavbar &&
+                    !desktopModal)
+                    ? `
+                      text-white/60
+                      hover:text-white
+                    `
+                    : `
+                      text-gray-400
+                      hover:text-black
+                    `
                 }
               `}
             >
@@ -761,13 +919,26 @@ const GlobalSearch = ({
             type="submit"
             aria-label="Search website"
             className={`
-              absolute right-0 top-1/2 flex h-11 w-11
-              -translate-y-1/2 items-center justify-center
+              absolute right-1 top-1/2
+              flex h-10 w-10
+              -translate-y-1/2
+              items-center justify-center
+              rounded-full
               transition-colors
               ${
-                mobile || !isLightNavbar
-                  ? "text-white/80 hover:text-white"
-                  : "text-black/70 hover:text-black"
+                mobile ||
+                (!isLightNavbar &&
+                  !desktopModal)
+                  ? `
+                    text-white/80
+                    hover:bg-white/10
+                    hover:text-white
+                  `
+                  : `
+                    text-black/70
+                    hover:bg-black/[0.05]
+                    hover:text-black
+                  `
               }
             `}
           >
@@ -791,18 +962,41 @@ const GlobalSearch = ({
         <div
           id="global-search-results"
           className={`
-            z-[100] overflow-hidden rounded-xl border
-            border-black/10 bg-white
-            shadow-[0_20px_60px_rgba(0,0,0,0.22)]
+            z-[300]
+            overflow-hidden
+            rounded-xl
+            border border-black/10
+            bg-white text-black
+            shadow-[0_24px_70px_rgba(0,0,0,0.22)]
             ${
               mobile
-                ? "relative mt-3 w-full"
-                : "absolute right-0 top-[54px] w-[390px]"
+                ? `
+                  relative mt-3
+                  w-full
+                `
+                : desktopModal ||
+                    expanded
+                  ? `
+                    absolute
+                    left-0 right-0
+                    top-[calc(100%+10px)]
+                    w-full max-w-none
+                  `
+                  : `
+                    absolute right-0
+                    top-[54px]
+                    w-[390px]
+                  `
             }
           `}
         >
           {searchError && (
-            <div className="border-b border-red-100 bg-red-50 px-4 py-3">
+            <div
+              className="
+                border-b border-red-100
+                bg-red-50 px-4 py-3
+              "
+            >
               <p className="text-xs text-red-600">
                 {searchError}
               </p>
@@ -810,17 +1004,42 @@ const GlobalSearch = ({
           )}
 
           {query.trim().length === 1 && (
-            <div className="border-b border-black/10 px-4 py-2.5">
-              <p className="text-[10px] tracking-[0.7px] text-black/40">
-                Type one more character to search products.
+            <div
+              className="
+                border-b border-black/10
+                px-4 py-2.5
+              "
+            >
+              <p
+                className="
+                  text-[10px]
+                  tracking-[0.7px]
+                  text-black/40
+                "
+              >
+                Type one more character to
+                search products.
               </p>
             </div>
           )}
 
           {results.length > 0 && (
             <>
-              <div className="flex items-center justify-between border-b border-black/10 px-4 py-3">
-                <p className="text-[11px] uppercase tracking-[1.5px] text-black/45">
+              <div
+                className="
+                  flex items-center
+                  justify-between
+                  border-b border-black/10
+                  px-4 py-3
+                "
+              >
+                <p
+                  className="
+                    text-[11px] uppercase
+                    tracking-[1.5px]
+                    text-black/45
+                  "
+                >
                   {results.length}{" "}
                   {results.length === 1
                     ? "result"
@@ -829,13 +1048,23 @@ const GlobalSearch = ({
                 </p>
 
                 {isSearching && (
-                  <div className="flex items-center gap-1.5 text-black/40">
+                  <div
+                    className="
+                      flex items-center gap-1.5
+                      text-black/40
+                    "
+                  >
                     <LoaderCircle
                       size={13}
                       className="animate-spin"
                     />
 
-                    <span className="text-[10px] uppercase tracking-[1px]">
+                    <span
+                      className="
+                        text-[10px] uppercase
+                        tracking-[1px]
+                      "
+                    >
                       Searching
                     </span>
                   </div>
@@ -844,120 +1073,194 @@ const GlobalSearch = ({
 
               <div
                 ref={resultsContainerRef}
-                className="max-h-[420px] overflow-y-auto p-2"
+                className="
+                  max-h-[420px]
+                  overflow-y-auto p-2
+                "
               >
-                {results.map((item, index) => {
-                  const Icon =
-                    item.icon ||
-                    getResultIcon(item.type);
+                {results.map(
+                  (item, index) => {
+                    const Icon =
+                      item.icon ||
+                      getResultIcon(
+                        item.type
+                      );
 
-                  const isActive =
-                    activeIndex === index;
+                    const isActive =
+                      activeIndex === index;
 
-                  const isExternal =
-                    item.external === true ||
-                    String(item.path).startsWith("http");
+                    const isExternal =
+                      item.external === true ||
+                      String(
+                        item.path
+                      ).startsWith("http");
 
-                  return (
-                    <button
-                      key={
-                        item.id ||
-                        `${item.type}-${item.path}`
-                      }
-                      type="button"
-                      data-search-index={index}
-                      onMouseEnter={() =>
-                        setActiveIndex(index)
-                      }
-                      onClick={() =>
-                        openResult(item)
-                      }
-                      className={`
-                        flex w-full items-center gap-3 rounded-lg
-                        px-3 py-3 text-left transition-colors
-                        ${
-                          isActive
-                            ? "bg-[#f2f2f2]"
-                            : "hover:bg-[#f7f7f7]"
+                    return (
+                      <button
+                        key={
+                          item.id ||
+                          `${item.type}-${item.path}`
                         }
-                      `}
-                    >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-black/5">
-                        {item.image ? (
-                          <img
-                            src={item.image}
-                            alt={item.label}
-                            loading="lazy"
-                            className="h-full w-full object-cover"
-                            onError={(event) => {
-                              event.currentTarget.style.display =
-                                "none";
-                            }}
-                          />
-                        ) : (
-                          <Icon
-                            size={18}
-                            className="text-black/55"
-                            aria-hidden="true"
-                          />
-                        )}
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[14px] font-medium text-black">
-                          {item.label}
-                        </p>
-
-                        <div className="mt-0.5 flex items-center gap-2">
-                          <p className="text-[11px] uppercase tracking-[1px] text-black/45">
-                            {item.type}
-                          </p>
-
-                          {item.category_name && (
-                            <>
-                              <span className="text-black/20">
-                                •
-                              </span>
-
-                              <p className="truncate text-[11px] text-black/40">
-                                {item.category_name}
-                              </p>
-                            </>
+                        type="button"
+                        data-search-index={
+                          index
+                        }
+                        onMouseEnter={() =>
+                          setActiveIndex(
+                            index
+                          )
+                        }
+                        onClick={() =>
+                          openResult(item)
+                        }
+                        className={`
+                          flex w-full
+                          items-center gap-3
+                          rounded-lg
+                          px-3 py-3
+                          text-left
+                          transition-colors
+                          ${
+                            isActive
+                              ? "bg-[#f2f2f2]"
+                              : "hover:bg-[#f7f7f7]"
+                          }
+                        `}
+                      >
+                        <div
+                          className="
+                            flex h-11 w-11
+                            shrink-0
+                            items-center
+                            justify-center
+                            overflow-hidden
+                            rounded-lg
+                            bg-black/5
+                          "
+                        >
+                          {item.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.label}
+                              loading="lazy"
+                              className="
+                                h-full w-full
+                                object-cover
+                              "
+                              onError={(
+                                event
+                              ) => {
+                                event.currentTarget.style.display =
+                                  "none";
+                              }}
+                            />
+                          ) : (
+                            <Icon
+                              size={18}
+                              className="text-black/55"
+                              aria-hidden="true"
+                            />
                           )}
                         </div>
-                      </div>
 
-                      {isExternal ? (
-                        <ExternalLink
-                          size={15}
-                          className="shrink-0 text-black/35"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <span
-                          className="shrink-0 text-black/35"
-                          aria-hidden="true"
-                        >
-                          →
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className="
+                              truncate text-[14px]
+                              font-medium
+                              text-black
+                            "
+                          >
+                            {item.label}
+                          </p>
+
+                          <div
+                            className="
+                              mt-0.5 flex
+                              items-center gap-2
+                            "
+                          >
+                            <p
+                              className="
+                                text-[11px]
+                                uppercase
+                                tracking-[1px]
+                                text-black/45
+                              "
+                            >
+                              {item.type}
+                            </p>
+
+                            {item.category_name && (
+                              <>
+                                <span className="text-black/20">
+                                  •
+                                </span>
+
+                                <p
+                                  className="
+                                    truncate
+                                    text-[11px]
+                                    text-black/40
+                                  "
+                                >
+                                  {
+                                    item.category_name
+                                  }
+                                </p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {isExternal ? (
+                          <ExternalLink
+                            size={15}
+                            className="
+                              shrink-0
+                              text-black/35
+                            "
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <span
+                            className="
+                              shrink-0
+                              text-black/35
+                            "
+                            aria-hidden="true"
+                          >
+                            →
+                          </span>
+                        )}
+                      </button>
+                    );
+                  }
+                )}
               </div>
             </>
           )}
 
           {isSearching &&
             results.length === 0 && (
-              <div className="flex items-center justify-center gap-3 px-6 py-9">
+              <div
+                className="
+                  flex items-center
+                  justify-center gap-3
+                  px-6 py-9
+                "
+              >
                 <LoaderCircle
                   size={20}
-                  className="animate-spin text-black/35"
+                  className="
+                    animate-spin
+                    text-black/35
+                  "
                 />
 
                 <p className="text-sm text-black/50">
-                  Searching products and materials...
+                  Searching products and
+                  materials...
                 </p>
               </div>
             )}
@@ -966,17 +1269,32 @@ const GlobalSearch = ({
             <div className="px-6 py-8 text-center">
               <Search
                 size={24}
-                className="mx-auto text-black/25"
+                className="
+                  mx-auto
+                  text-black/25
+                "
                 aria-hidden="true"
               />
 
-              <p className="mt-3 text-sm font-medium text-black">
+              <p
+                className="
+                  mt-3 text-sm
+                  font-medium text-black
+                "
+              >
                 No results found
               </p>
 
-              <p className="mt-1 text-xs leading-relaxed text-black/50">
-                Try searching for a page, product,
-                material, collection, or location.
+              <p
+                className="
+                  mt-1 text-xs
+                  leading-relaxed
+                  text-black/50
+                "
+              >
+                Try searching for a page,
+                product, material, collection,
+                or location.
               </p>
             </div>
           )}
@@ -996,7 +1314,8 @@ GlobalSearch.propTypes = {
       name: PropTypes.string,
       slug: PropTypes.string,
       description: PropTypes.string,
-      short_description: PropTypes.string,
+      short_description:
+        PropTypes.string,
       thumbnail_url: PropTypes.string,
       parent_id: PropTypes.oneOfType([
         PropTypes.string,
@@ -1009,6 +1328,8 @@ GlobalSearch.propTypes = {
 
   isLightNavbar: PropTypes.bool,
   mobile: PropTypes.bool,
+  expanded: PropTypes.bool,
+  desktopModal: PropTypes.bool,
   onResultClick: PropTypes.func,
 };
 
