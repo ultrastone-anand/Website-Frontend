@@ -416,27 +416,49 @@ const applicationImages = [
       console.error("Failed to generate datasheet:", error);
     }
   };
-  const handleDownloadSafetysheet = () => {
-    if (!silicaPdf) {
-      return;
-    }
+const handleDownloadSafetysheet = () => {
+  if (!silicaPdf) {
+    return;
+  }
 
-    const fileUrl = `${import.meta.env.VITE_API_URL.replace("/api", "")}${silicaPdf}`;
+  const isAbsoluteUrl =
+    /^https?:\/\//i.test(silicaPdf);
 
-    const link = document.createElement("a");
+  const apiBaseUrl =
+    import.meta.env.VITE_API_URL
+      .replace(/\/api\/?$/, "")
+      .replace(/\/+$/, "");
 
-    link.href = fileUrl;
+  const normalizedPdfPath =
+    String(silicaPdf).startsWith("/")
+      ? silicaPdf
+      : `/${silicaPdf}`;
 
-    link.target = "_blank";
+  const fileUrl = isAbsoluteUrl
+    ? silicaPdf
+    : `${apiBaseUrl}${normalizedPdfPath}`;
 
-    link.download = silicaPdf.split("/").pop();
+  const fileName =
+    decodeURIComponent(
+      fileUrl
+        .split("?")[0]
+        .split("#")[0]
+        .split("/")
+        .pop()
+    ) || "safety-datasheet.pdf";
 
-    document.body.appendChild(link);
+  const link =
+    document.createElement("a");
 
-    link.click();
+  link.href = fileUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.download = fileName;
 
-    document.body.removeChild(link);
-  };
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
   const variationPositions = {
     V1: "7.5%",
