@@ -28,6 +28,7 @@ const ProductDetails = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [openFaq, setOpenFaq] = useState(1);
   const [expanded, setExpanded] = useState(false);
+  const [inspirationImages, setInspirationImages] = useState([]);
 
   const [zoomStyle, setZoomStyle] = useState({
     backgroundImage: "",
@@ -93,7 +94,7 @@ const ProductDetails = () => {
     return () => controller.abort();
   }, [productSlug]);
 
-  useEffect(() => {
+useEffect(() => {
   const controller = new AbortController();
 
   const loadInspirationImages = async () => {
@@ -105,14 +106,29 @@ const ProductDetails = () => {
         },
       );
 
-      console.log(
-        "Inspiration gallery response:",
-        response.data,
+      const galleryImages =
+        response.data?.data?.images || [];
+
+      const formattedImages = galleryImages.map(
+        (image) => ({
+          id: `inspiration-${image.id}`,
+          media_url: image.image_url,
+          media_type: "APPLICATION_IMAGE",
+          media_alt:
+            image.image_alt ||
+            image.title ||
+            productSlug,
+          title: image.title,
+          category:
+            image.inspiration_gallery_categories,
+        }),
       );
 
+      setInspirationImages(formattedImages);
+
       console.log(
-        "Inspiration gallery images:",
-        response.data?.data?.images || [],
+        "Formatted inspiration images:",
+        formattedImages,
       );
     } catch (error) {
       if (
@@ -123,9 +139,13 @@ const ProductDetails = () => {
           "Failed to load inspiration gallery images:",
           error,
         );
+
+        setInspirationImages([]);
       }
     }
   };
+
+  setInspirationImages([]);
 
   if (productSlug) {
     loadInspirationImages();
@@ -218,9 +238,17 @@ const ProductDetails = () => {
   const slabImages =
     product.media?.filter((item) => item.media_type === "SLAB_IMAGE") || [];
 
-  const applicationImages =
-    product.media?.filter((item) => item.media_type === "APPLICATION_IMAGE") ||
-    [];
+const productApplicationImages =
+  product.media?.filter(
+    (item) =>
+      item.media_type ===
+      "APPLICATION_IMAGE",
+  ) || [];
+
+const applicationImages = [
+  ...productApplicationImages,
+  ...inspirationImages,
+];MIn
 
   const bookmatchslipmatch =
     product.media?.filter(
