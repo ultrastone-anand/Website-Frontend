@@ -124,7 +124,7 @@ const Navbar = () => {
   }, []);
 
   /*
-   * Close menus after route changes
+   * Close navigation after route changes
    */
   useEffect(() => {
     setMobileMenu(false);
@@ -134,7 +134,7 @@ const Navbar = () => {
   }, [location.pathname]);
 
   /*
-   * Prevent body scrolling while overlays are open
+   * Lock body while overlays are open
    */
   useEffect(() => {
     if (!mobileMenu && !desktopSearchOpen) {
@@ -184,7 +184,7 @@ const Navbar = () => {
   }, []);
 
   /*
-   * Clear dropdown timeout
+   * Clear dropdown timer
    */
   useEffect(() => {
     return () => {
@@ -298,233 +298,343 @@ const Navbar = () => {
       >
         <div
           className="
-            relative mx-auto h-[150px]
+            relative mx-auto
+            h-[140px] w-full
             max-w-[1920px]
             px-5 sm:px-7
-            xl:px-8 2xl:px-12
+            xl:px-7 2xl:px-12
           "
         >
-          {/* Logo remains fixed at the same position */}
+          {/* Logo */}
 
-<button
-  type="button"
-  aria-label="Go to Ultra Stones home page"
-  className={`
-    pointer-events-auto
-    absolute left-5 top-[22px]
-    z-[110] shrink-0
-    transition-all duration-500
-    sm:left-7
-    xl:left-8
-    2xl:left-12
-    ${
-      scrolled
-        ? `
-          pointer-events-none
-          -translate-y-3
-          opacity-0
-          invisible
-        `
-        : `
-          translate-y-0
-          opacity-100
-          visible
-        `
-    }
-  `}
-  onClick={() => {
-    if (location.pathname === "/") {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
+          <button
+            type="button"
+            aria-label="Go to Ultra Stones home page"
+            className={`
+              pointer-events-auto
+              absolute left-5 top-[22px]
+              z-[110] shrink-0
+              transition-all duration-500
+              sm:left-7
+              xl:left-7
+              2xl:left-12
+              ${
+                scrolled
+                  ? `
+                    pointer-events-none
+                    invisible
+                    -translate-y-3
+                    opacity-0
+                  `
+                  : `
+                    visible
+                    translate-y-0
+                    opacity-100
+                  `
+              }
+            `}
+            onClick={() => {
+              if (location.pathname === "/") {
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
 
-      return;
-    }
+                return;
+              }
 
-    handleNavigate("/");
-  }}
->
-  <div
-    className="
-      relative h-[52px] w-[170px]
-      sm:h-[57px] sm:w-[190px]
-      2xl:h-[62px] 2xl:w-[210px]
-    "
-  >
-    <img
-      src="/logo_white.svg"
-      alt="Ultra Stones"
-      className={`
-        absolute inset-0
-        h-full w-auto object-contain
-        transition-opacity duration-500
-        ${
-          isLightNavbar
-            ? "opacity-0"
-            : "opacity-100"
-        }
-      `}
-    />
+              handleNavigate("/");
+            }}
+          >
+            <div
+              className="
+                relative
+                h-[52px] w-[170px]
+                sm:h-[57px] sm:w-[190px]
+                xl:h-[46px] xl:w-[138px]
+                min-[1360px]:h-[49px]
+                min-[1360px]:w-[150px]
+                min-[1450px]:h-[53px]
+                min-[1450px]:w-[170px]
+                2xl:h-[62px]
+                2xl:w-[210px]
+              "
+            >
+              <img
+                src="/logo_white.svg"
+                alt="Ultra Stones"
+                className={`
+                  absolute inset-0
+                  h-full w-auto object-contain
+                  transition-opacity duration-500
+                  ${
+                    isLightNavbar
+                      ? "opacity-0"
+                      : "opacity-100"
+                  }
+                `}
+              />
 
-    <img
-      src="/logo1.svg"
-      alt="Ultra Stones"
-      className={`
-        absolute inset-0
-        h-full w-auto object-contain
-        transition-opacity duration-500
-        ${
-          isLightNavbar
-            ? "opacity-100"
-            : "opacity-0"
-        }
-      `}
-    />
-  </div>
-</button>
+              <img
+                src="/logo1.svg"
+                alt="Ultra Stones"
+                className={`
+                  absolute inset-0
+                  h-full w-auto object-contain
+                  transition-opacity duration-500
+                  ${
+                    isLightNavbar
+                      ? "opacity-100"
+                      : "opacity-0"
+                  }
+                `}
+              />
+            </div>
+          </button>
 
-          {/* Desktop navigation capsule */}
+          {/* Centered liquid-glass navigation */}
 
           <nav
             className={`
               pointer-events-auto
-              absolute left-1/2
+              absolute left-1/2 top-[25px]
               hidden -translate-x-1/2
-              items-center rounded-full
-              p-[7px] backdrop-blur-xl
+              items-center overflow-visible
+              rounded-full
+              p-[5px]
               transition-all duration-500
               xl:flex
+              min-[1400px]:p-[6px]
+              min-[1536px]:p-[7px]
+
+              before:pointer-events-none
+              before:absolute
+              before:inset-[1px]
+              before:rounded-full
+              before:bg-gradient-to-b
+              before:from-white/[0.22]
+              before:via-white/[0.055]
+              before:to-white/[0.025]
+
+              after:pointer-events-none
+              after:absolute
+              after:inset-x-[12%]
+              after:top-[2px]
+              after:h-[42%]
+              after:rounded-full
+              after:bg-gradient-to-b
+              after:from-white/[0.20]
+              after:to-transparent
+              after:blur-[1px]
+
               ${
                 scrolled
                   ? `
-                    top-[27px]
-                    bg-black/75
-                    shadow-[0_20px_60px_rgba(0,0,0,0.3)]
-                    ring-1 ring-white/10
+                    bg-[linear-gradient(135deg,rgba(10,18,22,0.78),rgba(4,35,43,0.60))]
+                    shadow-[0_22px_60px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.22),inset_0_-1px_0_rgba(255,255,255,0.06)]
+                    ring-1 ring-white/[0.16]
+                    backdrop-blur-[26px]
+                    backdrop-saturate-[180%]
                   `
                   : `
-                    top-[27px]
-                    bg-[#063d4c]/95
-                    shadow-[0_18px_55px_rgba(0,0,0,0.22)]
+                    bg-[linear-gradient(135deg,rgba(4,75,91,0.58),rgba(5,37,47,0.46))]
+                    shadow-[0_20px_65px_rgba(0,18,26,0.25),0_8px_30px_rgba(30,193,210,0.08),inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(255,255,255,0.07)]
+                    ring-1 ring-white/[0.20]
+                    backdrop-blur-[28px]
+                    backdrop-saturate-[185%]
                   `
               }
             `}
           >
-            <Dropdown
-              title="Ultra Experience"
-              items={experience}
-              activeDropdown={activeDropdown}
-              dropdownKey="experience"
-              openDropdown={openDropdown}
-              closeDropdown={closeDropdown}
-              navigate={handleNavigate}
-            />
-
-            <NavLink
-              title="Online Inventory"
-              onClick={openInventory }              
-              />
-
-            <MegaMenu
-              title="Material Portfolio"
-              path="/categories"
-              materials={materials}
-              activeDropdown={activeDropdown}
-              dropdownKey="materials"
-              openDropdown={openDropdown}
-              closeDropdown={closeDropdown}
-              navigate={handleNavigate}
-              scrolled={scrolled}
-            />
-
-            <Dropdown
-              title="Resource Center"
-              items={resources}
-              activeDropdown={activeDropdown}
-              dropdownKey="resources"
-              openDropdown={openDropdown}
-              closeDropdown={closeDropdown}
-              navigate={handleNavigate}
-            />
-
-            <Dropdown
-              title="Locations"
-              items={locations}
-              activeDropdown={activeDropdown}
-              dropdownKey="locations"
-              openDropdown={openDropdown}
-              closeDropdown={closeDropdown}
-              navigate={handleNavigate}
-            />
-
-            <NavLink
-              title="Contact"
-              onClick={() =>
-                handleNavigate("/contact")
-              }
-            />
+            {/* Liquid glow */}
 
             <span
+              aria-hidden="true"
               className="
-                mx-1 h-7 w-px
-                shrink-0 bg-white/15
+                pointer-events-none
+                absolute -bottom-3 left-1/2
+                h-7 w-[72%]
+                -translate-x-1/2
+                rounded-full
+                bg-cyan-300/[0.11]
+                blur-2xl
               "
             />
 
-            {/* Search inside center capsule */}
+            {/* Glass reflection */}
 
-<button
-  type="button"
-  aria-label="Open website search"
-  aria-expanded={desktopSearchOpen}
-  onClick={() => {
-    setActiveDropdown(null);
+            <span
+              aria-hidden="true"
+              className="
+                pointer-events-none
+                absolute left-[9%] top-[4px]
+                h-[1px] w-[48%]
+                rounded-full
+                bg-gradient-to-r
+                from-transparent
+                via-white/65
+                to-transparent
+              "
+            />
 
-    setDesktopSearchOpen(
-      (current) => !current
-    );
-  }}
-  className={`
-    ml-1 flex h-10 shrink-0
-    items-center gap-2 rounded-full
-    bg-[#e8a556] px-5
-    text-[10px] font-semibold
-    uppercase tracking-[0.7px]
-    text-[#17130e]
-    transition-all duration-300
-    hover:bg-[#f0af63]
-    min-[1500px]:px-6
-    min-[1500px]:text-[11px]
-    ${
-      desktopSearchOpen
-        ? "bg-[#f0af63]"
-        : ""
-    }
-  `}
->
-  {desktopSearchOpen ? (
-    <X
-      size={17}
-      strokeWidth={1.8}
-    />
-  ) : (
-    <Search
-      size={17}
-      strokeWidth={1.8}
-    />
-  )}
+            <div
+              className="
+                relative z-10
+                flex items-center
+              "
+            >
+              <Dropdown
+                title="Ultra Experience"
+                items={experience}
+                activeDropdown={activeDropdown}
+                dropdownKey="experience"
+                openDropdown={openDropdown}
+                closeDropdown={closeDropdown}
+                navigate={handleNavigate}
+              />
 
-  <span>
-    {desktopSearchOpen
-      ? "Close"
-      : "Search"}
-  </span>
-</button>
+              <NavLink
+                title="Online Inventory"
+                onClick={openInventory}
+              />
 
-            {/* Inventory inside center capsule */}
+              <MegaMenu
+                title="Material Portfolio"
+                path="/categories"
+                materials={materials}
+                activeDropdown={activeDropdown}
+                dropdownKey="materials"
+                openDropdown={openDropdown}
+                closeDropdown={closeDropdown}
+                navigate={handleNavigate}
+              />
 
-  
+              <Dropdown
+                title="Resource Center"
+                items={resources}
+                activeDropdown={activeDropdown}
+                dropdownKey="resources"
+                openDropdown={openDropdown}
+                closeDropdown={closeDropdown}
+                navigate={handleNavigate}
+              />
+
+              <Dropdown
+                title="Locations"
+                items={locations}
+                activeDropdown={activeDropdown}
+                dropdownKey="locations"
+                openDropdown={openDropdown}
+                closeDropdown={closeDropdown}
+                navigate={handleNavigate}
+              />
+
+              <NavLink
+                title="Contact"
+                onClick={() =>
+                  handleNavigate("/contact")
+                }
+              />
+
+              <span
+                className="
+                  mx-0.5 h-6 w-px
+                  shrink-0
+                  bg-gradient-to-b
+                  from-transparent
+                  via-white/30
+                  to-transparent
+                  min-[1450px]:mx-1
+                  min-[1450px]:h-7
+                "
+              />
+
+              {/* Search button */}
+
+              <button
+                type="button"
+                aria-label={
+                  desktopSearchOpen
+                    ? "Close website search"
+                    : "Open website search"
+                }
+                aria-expanded={desktopSearchOpen}
+                onClick={() => {
+                  setActiveDropdown(null);
+
+                  setDesktopSearchOpen(
+                    (current) => !current
+                  );
+                }}
+                className={`
+                  group/search
+                  relative ml-0.5
+                  flex h-9 w-9 shrink-0
+                  items-center justify-center
+                  overflow-hidden rounded-full
+                  border border-white/20
+                  bg-[linear-gradient(145deg,rgba(255,205,137,0.98),rgba(224,145,66,0.93))]
+                  text-[#21170e]
+                  shadow-[0_6px_18px_rgba(204,122,42,0.27),inset_0_1px_0_rgba(255,255,255,0.58)]
+                  transition-all duration-300
+                  hover:-translate-y-0.5
+                  hover:shadow-[0_10px_25px_rgba(204,122,42,0.36),inset_0_1px_0_rgba(255,255,255,0.68)]
+                  min-[1400px]:h-10
+                  min-[1400px]:w-10
+                  min-[1500px]:w-auto
+                  min-[1500px]:gap-2
+                  min-[1500px]:px-5
+                  ${
+                    desktopSearchOpen
+                      ? `
+                        bg-[linear-gradient(145deg,rgba(255,215,157,1),rgba(236,157,75,0.96))]
+                      `
+                      : ""
+                  }
+                `}
+              >
+                <span
+                  aria-hidden="true"
+                  className="
+                    pointer-events-none
+                    absolute inset-x-1 top-0
+                    h-1/2 rounded-full
+                    bg-gradient-to-b
+                    from-white/40
+                    to-transparent
+                  "
+                />
+
+                <span className="relative z-10">
+                  {desktopSearchOpen ? (
+                    <X
+                      size={16}
+                      strokeWidth={1.8}
+                    />
+                  ) : (
+                    <Search
+                      size={16}
+                      strokeWidth={1.8}
+                    />
+                  )}
+                </span>
+
+                <span
+                  className="
+                    relative z-10
+                    hidden text-[10px]
+                    font-semibold uppercase
+                    tracking-[0.7px]
+                    min-[1500px]:inline
+                    min-[1536px]:text-[11px]
+                  "
+                >
+                  {desktopSearchOpen
+                    ? "Close"
+                    : "Search"}
+                </span>
+              </button>
+            </div>
           </nav>
 
           {/* Mobile menu button */}
@@ -540,24 +650,32 @@ const Navbar = () => {
             className={`
               pointer-events-auto
               absolute right-5 top-[30px]
-              z-[110] flex h-11 w-11
+              z-[110]
+              flex h-11 w-11
               shrink-0 items-center
-              justify-center rounded-full
+              justify-center overflow-hidden
+              rounded-full
+              border border-white/[0.16]
               transition-all duration-300
               sm:right-7
               xl:hidden
               ${
                 mobileMenu
-                  ? "bg-white text-black"
+                  ? `
+                    bg-white text-black
+                    shadow-xl
+                  `
                   : isLightNavbar
                     ? `
-                      bg-black text-white
+                      bg-black/80 text-white
                       shadow-lg
+                      backdrop-blur-xl
                     `
                     : `
-                      bg-black/45 text-white
-                      shadow-lg backdrop-blur-xl
-                      ring-1 ring-white/15
+                      bg-white/[0.12] text-white
+                      shadow-lg
+                      backdrop-blur-[22px]
+                      ring-1 ring-white/[0.10]
                     `
               }
             `}
@@ -591,18 +709,22 @@ const Navbar = () => {
       <div
         className={`
           fixed inset-0 z-[90]
-          hidden bg-black/65
-          backdrop-blur-md
+          hidden overflow-y-auto
+          bg-black/60
+          px-5
+          backdrop-blur-[12px]
           transition-all duration-500
           xl:block
           ${
             desktopSearchOpen
               ? `
-                visible pointer-events-auto
+                visible
+                pointer-events-auto
                 opacity-100
               `
               : `
-                invisible pointer-events-none
+                invisible
+                pointer-events-none
                 opacity-0
               `
           }
@@ -613,114 +735,142 @@ const Navbar = () => {
           }
         }}
       >
-<div
-  role="dialog"
-  aria-modal="true"
-  aria-label="Search Ultra Stones"
-  className={`
-    relative mx-auto
-    w-[min(760px,calc(100vw-48px))]
-    overflow-visible
-    rounded-[24px]
-    border border-black/[0.06]
-    bg-white
-    px-6 py-6
-    text-black
-    shadow-[0_30px_90px_rgba(0,0,0,0.28)]
-    transition-all duration-500
-    sm:px-8 sm:py-7
-    ${
-      scrolled
-        ? "mt-[145px]"
-        : "mt-[112px]"
-    }
-    ${
-      desktopSearchOpen
-        ? "translate-y-0 scale-100 opacity-100"
-        : "-translate-y-4 scale-[0.98] opacity-0"
-    }
-  `}
->
-  {/* Header */}
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Search Ultra Stones"
+          className={`
+            relative mx-auto
+            mt-[103px]
+            w-full max-w-[760px]
+            overflow-visible
+            rounded-[28px]
+            border border-white/35
+            bg-white/[0.88]
+            px-6 py-6
+            text-black
+            shadow-[0_35px_100px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.9)]
+            backdrop-blur-[30px]
+            backdrop-saturate-[170%]
+            transition-all duration-500
+            sm:px-8 sm:py-7
+            ${
+              desktopSearchOpen
+                ? `
+                  translate-y-0
+                  scale-100
+                  opacity-100
+                `
+                : `
+                  -translate-y-4
+                  scale-[0.98]
+                  opacity-0
+                `
+            }
+          `}
+        >
+          <div
+            aria-hidden="true"
+            className="
+              pointer-events-none
+              absolute inset-x-[8%] top-[1px]
+              h-[2px] rounded-full
+              bg-gradient-to-r
+              from-transparent
+              via-white
+              to-transparent
+            "
+          />
 
-  <div className="mb-5 flex items-start justify-between gap-5">
-    <div className="min-w-0">
-      <p
-        className="
-          text-[10px] font-semibold
-          uppercase tracking-[2px]
-          text-black/40
-        "
-      >
-        Search Ultra Stones
-      </p>
+          <div
+            className="
+              mb-5 flex items-start
+              justify-between gap-5
+            "
+          >
+            <div className="min-w-0">
+              <p
+                className="
+                  text-[10px] font-semibold
+                  uppercase tracking-[2px]
+                  text-black/40
+                "
+              >
+                Search Ultra Stones
+              </p>
 
-      <h2
-        className="
-          mt-2 text-[24px]
-          font-medium leading-tight
-          tracking-[-0.7px]
-          text-black
-          sm:text-[28px]
-        "
-      >
-        Find your perfect material
-      </h2>
+              <h2
+                className="
+                  mt-2 text-[24px]
+                  font-medium leading-tight
+                  tracking-[-0.7px]
+                  text-black
+                  sm:text-[28px]
+                "
+              >
+                Find your perfect material
+              </h2>
 
-      <p
-        className="
-          mt-2 max-w-[540px]
-          text-[13px] leading-relaxed
-          text-black/45
-        "
-      >
-        Search across materials, categories, and product collections.
-      </p>
-    </div>
+              <p
+                className="
+                  mt-2 max-w-[540px]
+                  text-[13px] leading-relaxed
+                  text-black/45
+                "
+              >
+                Search across materials,
+                categories, and product
+                collections.
+              </p>
+            </div>
 
-    <button
-      type="button"
-      aria-label="Close search"
-      onClick={() => setDesktopSearchOpen(false)}
-      className="
-        flex h-10 w-10 shrink-0
-        items-center justify-center
-        rounded-full
-        border border-black/[0.08]
-        bg-black/[0.04]
-        text-black
-        transition-all duration-300
-        hover:rotate-90
-        hover:border-black
-        hover:bg-black
-        hover:text-white
-      "
-    >
-      <X size={18} strokeWidth={1.7} />
-    </button>
-  </div>
+            <button
+              type="button"
+              aria-label="Close search"
+              onClick={() =>
+                setDesktopSearchOpen(false)
+              }
+              className="
+                flex h-10 w-10 shrink-0
+                items-center justify-center
+                rounded-full
+                border border-black/[0.08]
+                bg-white/60
+                text-black
+                shadow-sm
+                backdrop-blur-xl
+                transition-all duration-300
+                hover:rotate-90
+                hover:border-black
+                hover:bg-black
+                hover:text-white
+              "
+            >
+              <X
+                size={18}
+                strokeWidth={1.7}
+              />
+            </button>
+          </div>
 
-  {/* Search */}
-
-<div
-  className="
-    relative w-full max-w-none
-    [&>div]:!w-full
-    [&>div]:!max-w-none
-  "
->
-  <GlobalSearch
-    materials={materials}
-    isLightNavbar
-    expanded
-    desktopModal
-    onResultClick={() => {
-      setDesktopSearchOpen(false);
-    }}
-  />
-</div>
-
-</div>
+          <div
+            className="
+              relative w-full max-w-none
+              [&>div]:!w-full
+              [&>div]:!max-w-none
+            "
+          >
+            <GlobalSearch
+              materials={materials}
+              isLightNavbar
+              expanded
+              desktopModal
+              onResultClick={() => {
+                setDesktopSearchOpen(false);
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Mobile navigation */}
@@ -730,7 +880,8 @@ const Navbar = () => {
           fixed left-0 top-0 z-[95]
           h-[100dvh] w-full
           overflow-y-auto overscroll-contain
-          bg-[#050b18] pt-[104px]
+          bg-[radial-gradient(circle_at_top_left,rgba(12,80,94,0.30),transparent_40%),linear-gradient(145deg,#050b18,#06141b)]
+          pt-[104px]
           text-white
           transition-all duration-500
           xl:hidden
@@ -738,11 +889,13 @@ const Navbar = () => {
             mobileMenu
               ? `
                 pointer-events-auto
-                translate-x-0 opacity-100
+                translate-x-0
+                opacity-100
               `
               : `
                 pointer-events-none
-                translate-x-full opacity-0
+                translate-x-full
+                opacity-0
               `
           }
         `}
@@ -774,9 +927,6 @@ const Navbar = () => {
             }
             items={experience}
             navigate={handleNavigate}
-            closeMobileMenu={
-              closeMobileMenu
-            }
           />
 
           <MobileNavButton
@@ -907,9 +1057,6 @@ const Navbar = () => {
             }
             items={resources}
             navigate={handleNavigate}
-            closeMobileMenu={
-              closeMobileMenu
-            }
           />
 
           <MobileDropdown
@@ -921,9 +1068,6 @@ const Navbar = () => {
             }
             items={locations}
             navigate={handleNavigate}
-            closeMobileMenu={
-              closeMobileMenu
-            }
           />
 
           <MobileNavButton
@@ -954,13 +1098,20 @@ const NavLink = ({
       className="
         relative shrink-0
         whitespace-nowrap rounded-full
-        px-3 py-3
-        text-[10px] font-medium
-        uppercase tracking-[0.65px]
+        px-2 py-2.5
+        text-[8px] font-medium
+        uppercase tracking-[0.38px]
         text-white/90
         transition-all duration-300
-        hover:bg-white/10
+        hover:bg-white/[0.12]
         hover:text-white
+        hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]
+        min-[1320px]:px-2.5
+        min-[1320px]:text-[9px]
+        min-[1400px]:px-3
+        min-[1400px]:py-3
+        min-[1400px]:text-[10px]
+        min-[1400px]:tracking-[0.6px]
         min-[1500px]:px-4
         min-[1500px]:text-[11px]
         min-[1500px]:tracking-[0.8px]
@@ -972,7 +1123,7 @@ const NavLink = ({
 };
 
 /*
- * Mobile navigation link
+ * Mobile navigation button
  */
 const MobileNavButton = ({
   title,
@@ -1001,7 +1152,7 @@ const MobileNavButton = ({
 };
 
 /*
- * Mobile expandable dropdown
+ * Mobile dropdown
  */
 const MobileDropdown = ({
   title,
@@ -1010,7 +1161,6 @@ const MobileDropdown = ({
   setActiveDropdown,
   items,
   navigate,
-  closeMobileMenu,
 }) => {
   const isOpen =
     activeDropdown === dropdownKey;
@@ -1077,10 +1227,9 @@ const MobileDropdown = ({
               <button
                 type="button"
                 key={item.path}
-                onClick={() => {
-                  navigate(item.path);
-                  closeMobileMenu();
-                }}
+                onClick={() =>
+                  navigate(item.path)
+                }
                 className="
                   block w-full text-left
                   text-[clamp(14px,3.4vw,16px)]
@@ -1127,21 +1276,33 @@ const Dropdown = ({
         type="button"
         aria-expanded={isActive}
         className={`
-          flex items-center gap-1
+          flex items-center gap-0.5
           whitespace-nowrap rounded-full
-          px-3 py-3
-          text-[10px] font-medium
-          uppercase tracking-[0.65px]
+          px-2 py-2.5
+          text-[8px] font-medium
+          uppercase tracking-[0.38px]
           text-white/90
           transition-all duration-300
-          hover:bg-white/10
+          hover:bg-white/[0.12]
           hover:text-white
+          hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]
+          min-[1320px]:px-2.5
+          min-[1320px]:text-[9px]
+          min-[1400px]:gap-1
+          min-[1400px]:px-3
+          min-[1400px]:py-3
+          min-[1400px]:text-[10px]
+          min-[1400px]:tracking-[0.6px]
           min-[1500px]:px-4
           min-[1500px]:text-[11px]
           min-[1500px]:tracking-[0.8px]
           ${
             isActive
-              ? "bg-white/10 text-white"
+              ? `
+                bg-white/[0.14]
+                text-white
+                shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]
+              `
               : ""
           }
         `}
@@ -1149,10 +1310,12 @@ const Dropdown = ({
         {title}
 
         <ChevronDown
-          size={13}
+          size={11}
           strokeWidth={1.8}
           className={`
             transition-transform duration-300
+            min-[1400px]:h-[13px]
+            min-[1400px]:w-[13px]
             ${isActive ? "rotate-180" : ""}
           `}
         />
@@ -1160,28 +1323,50 @@ const Dropdown = ({
 
       <div
         className={`
-          absolute left-1/2 top-[56px]
-          z-[120] w-[290px]
+          absolute left-1/2 top-[51px]
+          z-[120]
+          w-[270px]
           -translate-x-1/2
+          overflow-hidden
           rounded-[22px]
-          border border-black/[0.06]
-          bg-white p-4
-          shadow-[0_26px_75px_rgba(0,0,0,0.18)]
+          border border-white/60
+          bg-white/[0.88]
+          p-3
+          text-black
+          shadow-[0_30px_90px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.95)]
+          backdrop-blur-[30px]
+          backdrop-saturate-[180%]
           transition-all duration-300
+          min-[1400px]:top-[56px]
+          min-[1400px]:w-[290px]
+          min-[1400px]:p-4
           ${
             isActive
               ? `
-                visible translate-y-0
+                visible
+                translate-y-0
                 opacity-100
               `
               : `
-                invisible translate-y-3
+                invisible
+                translate-y-3
                 opacity-0
               `
           }
         `}
       >
-        <div className="space-y-1">
+        <span
+          aria-hidden="true"
+          className="
+            pointer-events-none
+            absolute inset-x-[12%] top-0
+            h-[1px]
+            bg-gradient-to-r
+            from-transparent via-white to-transparent
+          "
+        />
+
+        <div className="relative z-10 space-y-1">
           {items.map((item) => (
             <button
               type="button"
@@ -1192,17 +1377,20 @@ const Dropdown = ({
               className="
                 group flex w-full
                 items-center justify-between
-                rounded-xl px-4 py-3.5
+                rounded-xl px-4 py-3
                 text-left
-                transition-colors duration-300
-                hover:bg-[#f3f4f2]
+                transition-all duration-300
+                hover:bg-white/80
+                hover:shadow-[0_5px_20px_rgba(0,0,0,0.06)]
+                min-[1400px]:py-3.5
               "
             >
               <span
                 className="
-                  text-[14px] text-[#5d5d5d]
+                  text-[13px] text-[#5d5d5d]
                   transition-colors duration-300
                   group-hover:text-black
+                  min-[1400px]:text-[14px]
                 "
               >
                 {item.label}
@@ -1228,7 +1416,7 @@ const Dropdown = ({
 };
 
 /*
- * Desktop Material Portfolio mega menu
+ * Material Portfolio mega menu
  */
 const MegaMenu = ({
   title,
@@ -1239,7 +1427,6 @@ const MegaMenu = ({
   openDropdown,
   closeDropdown,
   navigate,
-  scrolled,
 }) => {
   const isActive =
     activeDropdown === dropdownKey;
@@ -1314,21 +1501,33 @@ const MegaMenu = ({
           }
         }}
         className={`
-          flex items-center gap-1
+          flex items-center gap-0.5
           whitespace-nowrap rounded-full
-          px-3 py-3
-          text-[10px] font-medium
-          uppercase tracking-[0.65px]
+          px-2 py-2.5
+          text-[8px] font-medium
+          uppercase tracking-[0.38px]
           text-white/90
           transition-all duration-300
-          hover:bg-white/10
+          hover:bg-white/[0.12]
           hover:text-white
+          hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]
+          min-[1320px]:px-2.5
+          min-[1320px]:text-[9px]
+          min-[1400px]:gap-1
+          min-[1400px]:px-3
+          min-[1400px]:py-3
+          min-[1400px]:text-[10px]
+          min-[1400px]:tracking-[0.6px]
           min-[1500px]:px-4
           min-[1500px]:text-[11px]
           min-[1500px]:tracking-[0.8px]
           ${
             isActive
-              ? "bg-white/10 text-white"
+              ? `
+                bg-white/[0.14]
+                text-white
+                shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]
+              `
               : ""
           }
         `}
@@ -1336,10 +1535,12 @@ const MegaMenu = ({
         {title}
 
         <ChevronDown
-          size={13}
+          size={11}
           strokeWidth={1.8}
           className={`
             transition-transform duration-300
+            min-[1400px]:h-[13px]
+            min-[1400px]:w-[13px]
             ${isActive ? "rotate-180" : ""}
           `}
         />
@@ -1347,55 +1548,91 @@ const MegaMenu = ({
 
       <div
         className={`
-          fixed left-1/2 z-[120]
-          w-[min(980px,calc(100vw-48px))]
+          fixed left-1/2 top-[65px]
+          z-[120]
+          w-[calc(100vw-32px)]
+          max-w-[1060px]
           -translate-x-1/2
-          rounded-[26px]
-          border border-black/[0.06]
-          bg-white p-6
-          shadow-[0_32px_100px_rgba(0,0,0,0.23)]
+          overflow-hidden
+          rounded-[28px]
+          border border-white/60
+          bg-white/[0.88]
+          p-4
+          text-black
+          shadow-[0_35px_110px_rgba(0,0,0,0.27),inset_0_1px_0_rgba(255,255,255,0.96)]
+          backdrop-blur-[34px]
+          backdrop-saturate-[180%]
           transition-all duration-300
-          ${
-            scrolled
-              ? "top-[66px]"
-              : "top-[66px]"
-          }
+          min-[1400px]:w-[calc(100vw-64px)]
+          min-[1400px]:p-5
+          min-[1500px]:max-w-[1120px]
+          min-[1500px]:p-6
           ${
             isActive
               ? `
-                visible translate-y-0
+                visible
+                translate-y-0
                 opacity-100
               `
               : `
-                invisible translate-y-4
+                invisible
+                translate-y-4
                 opacity-0
               `
           }
         `}
       >
+        <span
+          aria-hidden="true"
+          className="
+            pointer-events-none
+            absolute inset-x-[9%] top-0
+            h-[2px]
+            bg-gradient-to-r
+            from-transparent via-white to-transparent
+          "
+        />
+
         <div
           className="
-            grid h-[520px]
-            grid-cols-[280px_minmax(0,1fr)]
-            gap-6
+            relative z-10
+            grid
+            h-[min(500px,calc(100vh-95px))]
+            min-h-[400px]
+            grid-cols-[220px_minmax(0,1fr)]
+            gap-4
+            min-[1400px]:grid-cols-[250px_minmax(0,1fr)]
+            min-[1400px]:gap-5
+            min-[1500px]:h-[520px]
+            min-[1500px]:grid-cols-[280px_minmax(0,1fr)]
+            min-[1500px]:gap-6
           "
         >
-          {/* Parent categories */}
+          {/* Categories */}
 
           <div
             className="
-              scrollbar-thin h-full
-              overflow-y-auto
+              scrollbar-thin
+              h-full overflow-y-auto
               border-r border-black/10
-              pr-4
+              pr-3
+              min-[1400px]:pr-4
             "
           >
-            <div className="mb-4 px-2">
+            <div
+              className="
+                mb-3 px-1
+                min-[1400px]:mb-4
+                min-[1400px]:px-2
+              "
+            >
               <p
                 className="
-                  text-[10px] font-semibold
-                  uppercase tracking-[1.8px]
+                  text-[9px] font-semibold
+                  uppercase tracking-[1.5px]
                   text-black/35
+                  min-[1400px]:text-[10px]
+                  min-[1400px]:tracking-[1.8px]
                 "
               >
                 Explore Materials
@@ -1403,10 +1640,13 @@ const MegaMenu = ({
 
               <h2
                 className="
-                  mt-2 text-[23px]
+                  mt-1.5 text-[19px]
                   font-medium
-                  tracking-[-0.7px]
+                  tracking-[-0.5px]
                   text-black
+                  min-[1400px]:mt-2
+                  min-[1400px]:text-[22px]
+                  min-[1500px]:text-[23px]
                 "
               >
                 Material Portfolio
@@ -1430,16 +1670,16 @@ const MegaMenu = ({
                     <button
                       type="button"
                       key={parent.id}
-                      onMouseEnter={() => {
+                      onMouseEnter={() =>
                         setHoveredParent(
                           parent.id
-                        );
-                      }}
-                      onFocus={() => {
+                        )
+                      }
+                      onFocus={() =>
                         setHoveredParent(
                           parent.id
-                        );
-                      }}
+                        )
+                      }
                       onClick={() =>
                         navigate(
                           `/product-category/${parent.slug}`
@@ -1447,27 +1687,34 @@ const MegaMenu = ({
                       }
                       className={`
                         flex w-full items-center
-                        gap-3 rounded-xl
-                        px-2.5 py-2.5
+                        gap-2 rounded-xl
+                        px-2 py-2
                         text-left
                         transition-all duration-300
+                        min-[1400px]:gap-3
+                        min-[1400px]:px-2.5
+                        min-[1400px]:py-2.5
                         ${
                           isSelected
                             ? `
-                              bg-[#f1f3f1]
-                              shadow-sm
+                              bg-white/85
+                              shadow-[0_6px_18px_rgba(0,0,0,0.07)]
+                              ring-1 ring-black/[0.035]
                             `
                             : `
-                              hover:bg-[#f7f7f6]
+                              hover:bg-white/65
                             `
                         }
                       `}
                     >
                       <div
                         className="
-                          h-11 w-20 min-w-[80px]
+                          h-10 w-16 min-w-[64px]
                           shrink-0 overflow-hidden
                           rounded-lg bg-black/5
+                          min-[1400px]:h-11
+                          min-[1400px]:w-20
+                          min-[1400px]:min-w-[80px]
                         "
                       >
                         <img
@@ -1498,7 +1745,9 @@ const MegaMenu = ({
 
                       <span
                         className={`
-                          text-[13px]
+                          min-w-0 truncate
+                          text-[12px]
+                          min-[1400px]:text-[13px]
                           ${
                             isSelected
                               ? `
@@ -1518,11 +1767,16 @@ const MegaMenu = ({
             </div>
           </div>
 
-          {/* Active category */}
+          {/* Active material */}
 
           <div className="min-w-0">
-            {activeParent && (
-              <>
+            {activeParent ? (
+              <div
+                className="
+                  flex h-full min-h-0
+                  flex-col
+                "
+              >
                 <button
                   type="button"
                   onClick={() =>
@@ -1532,10 +1786,11 @@ const MegaMenu = ({
                   }
                   className="
                     group relative block
-                    h-[385px] w-full
+                    min-h-0 flex-1
                     overflow-hidden
-                    rounded-[20px]
+                    rounded-[22px]
                     bg-black/5 text-left
+                    shadow-[0_12px_35px_rgba(0,0,0,0.12)]
                   "
                 >
                   <img
@@ -1562,7 +1817,7 @@ const MegaMenu = ({
                         75
                       )} 1200w
                     `}
-                    sizes="650px"
+                    sizes="(max-width: 1400px) 720px, 800px"
                     alt={activeParent.name}
                     loading="eager"
                     decoding="async"
@@ -1580,7 +1835,7 @@ const MegaMenu = ({
                     className="
                       absolute inset-0
                       bg-gradient-to-t
-                      from-black/75
+                      from-black/80
                       via-black/5
                       to-transparent
                     "
@@ -1588,15 +1843,19 @@ const MegaMenu = ({
 
                   <div
                     className="
-                      absolute inset-x-0
-                      bottom-0 p-6
+                      absolute inset-x-0 bottom-0
+                      p-4
+                      min-[1400px]:p-5
+                      min-[1500px]:p-6
                     "
                   >
                     <p
                       className="
-                        text-[10px] font-semibold
-                        uppercase tracking-[1.8px]
+                        text-[9px] font-semibold
+                        uppercase tracking-[1.5px]
                         text-white/60
+                        min-[1400px]:text-[10px]
+                        min-[1400px]:tracking-[1.8px]
                       "
                     >
                       Featured Material
@@ -1604,10 +1863,14 @@ const MegaMenu = ({
 
                     <h3
                       className="
-                        mt-2 text-[34px]
+                        mt-1.5 text-[27px]
                         font-medium
-                        tracking-[-1.2px]
+                        tracking-[-0.9px]
                         text-white
+                        min-[1400px]:mt-2
+                        min-[1400px]:text-[31px]
+                        min-[1500px]:text-[34px]
+                        min-[1500px]:tracking-[-1.2px]
                       "
                     >
                       {activeParent.name}
@@ -1617,17 +1880,22 @@ const MegaMenu = ({
 
                 <div
                   className="
-                    mt-4 flex items-start
-                    justify-between gap-6
+                    mt-3 flex shrink-0
+                    items-start justify-between
+                    gap-4
+                    min-[1400px]:mt-4
+                    min-[1400px]:gap-6
                   "
                 >
                   <p
                     className="
-                      line-clamp-3
+                      line-clamp-2
                       max-w-[540px]
-                      text-[13px]
+                      text-[12px]
                       leading-relaxed
                       text-black/55
+                      min-[1400px]:line-clamp-3
+                      min-[1400px]:text-[13px]
                     "
                   >
                     {activeParent.description ||
@@ -1642,17 +1910,30 @@ const MegaMenu = ({
                       )
                     }
                     className="
-                      shrink-0 text-[11px]
-                      font-semibold uppercase
-                      tracking-[1px]
+                      shrink-0 whitespace-nowrap
+                      text-[10px] font-semibold
+                      uppercase tracking-[0.8px]
                       text-black
                       hover:underline
+                      min-[1400px]:text-[11px]
+                      min-[1400px]:tracking-[1px]
                     "
                   >
                     View all →
                   </button>
                 </div>
-              </>
+              </div>
+            ) : (
+              <div
+                className="
+                  flex h-full items-center
+                  justify-center rounded-[22px]
+                  bg-white/40
+                  text-[14px] text-black/45
+                "
+              >
+                No material categories available.
+              </div>
             )}
           </div>
         </div>
