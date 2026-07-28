@@ -454,7 +454,7 @@ const Navbar = () => {
                     ring-1 ring-white/10
                   `
                   : `
-                    bg-[#063d4c]/95
+                    bg-black/80
                     shadow-[0_16px_50px_rgba(0,0,0,0.24)]
                     ring-1 ring-white/[0.08]
                   `
