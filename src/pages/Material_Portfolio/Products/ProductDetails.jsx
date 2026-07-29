@@ -57,99 +57,141 @@ const ProductDetails = () => {
 
   const shouldTruncate = description.length > 300;
 
-  useEffect(() => {
-    const controller = new AbortController();
+  const ProductDetailsSkeleton = () => {
+  return (
+    <main
+      className="bg-white min-h-screen"
+      aria-busy="true"
+      aria-label="Loading product details"
+    >
+      {/* Heading skeleton */}
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 pt-[120px]">
+          <div className="h-[38px] w-[240px] bg-[#ededed] animate-pulse" />
 
-    const loadProduct = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/stones/productdetail/${productSlug}`,
-          {
-            signal: controller.signal,
-          },
-        );
+          <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
 
-        if (response.data.success) {
-          setProduct(response.data.product);
-        }
-      } catch (error) {
-        if (
-          error.code !== "ERR_CANCELED" &&
-          error.name !== "CanceledError"
-        ) {
-          console.error("Failed to load product:", error);
-        }
-      }
-    };
+          <div className="h-[14px] w-[420px] max-w-full bg-[#ededed] animate-pulse" />
+        </div>
+      </section>
 
-    setProduct(null);
-    setActiveImage(0);
-    setOpenPreview(false);
-    setExpanded(false);
-    setRelatedProducts([]);
-    setShouldLoadModel(false);
+      {/* Hero skeleton */}
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 pt-[30px] pb-20">
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_0.95fr] gap-8 items-start">
+            <div className="h-[520px] xl:h-[640px] bg-[#ededed] animate-pulse" />
 
-    loadProduct();
+            <div className="pt-2">
+              <div className="h-[42px] w-[70%] bg-[#ededed] animate-pulse mb-8" />
 
-    return () => controller.abort();
-  }, [productSlug]);
+              <div className="space-y-3 mb-10">
+                <div className="h-[18px] w-full bg-[#ededed] animate-pulse" />
+                <div className="h-[18px] w-full bg-[#ededed] animate-pulse" />
+                <div className="h-[18px] w-[75%] bg-[#ededed] animate-pulse" />
+              </div>
+
+              <div className="h-[42px] w-[160px] bg-[#ededed] animate-pulse mb-5" />
+
+              <div className="h-[300px] bg-[#ededed] animate-pulse mb-8" />
+
+              <div className="flex gap-3">
+                <div className="h-[34px] w-[120px] bg-[#ededed] animate-pulse" />
+                <div className="h-[34px] w-[180px] bg-[#ededed] animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Specifications skeleton */}
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-5">
+          <div className="h-[46px] w-[330px] max-w-full bg-[#ededed] animate-pulse mb-12" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-10 gap-y-10">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div key={index}>
+                <div className="h-[12px] w-[120px] bg-[#ededed] animate-pulse mb-3" />
+                <div className="w-full h-px bg-black/10 mb-4" />
+                <div className="h-[18px] w-[80%] bg-[#ededed] animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3D section placeholder */}
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
+          <div className="h-[270px] bg-[#ededed] animate-pulse" />
+        </div>
+      </section>
+    </main>
+  );
+};
 
 useEffect(() => {
   const controller = new AbortController();
 
-  const loadInspirationImages = async () => {
+  const loadPageData = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/inspiration-gallery/images/product/${productSlug}`,
-        {
-          signal: controller.signal,
-        },
-      );
+      const [productResponse, inspirationResponse] =
+        await Promise.allSettled([
+          axios.get(
+            `${import.meta.env.VITE_API_URL}/stones/productdetail/${productSlug}`,
+            { signal: controller.signal },
+          ),
+          axios.get(
+            `${import.meta.env.VITE_API_URL}/inspiration-gallery/images/product/${productSlug}`,
+            { signal: controller.signal },
+          ),
+        ]);
 
-      const galleryImages =
-        response.data?.data?.images || [];
+      if (
+        productResponse.status === "fulfilled" &&
+        productResponse.value.data.success
+      ) {
+        setProduct(productResponse.value.data.product);
+      }
 
-      const formattedImages = galleryImages.map(
-        (image) => ({
-          id: `inspiration-${image.id}`,
-          media_url: image.image_url,
-          media_type: "APPLICATION_IMAGE",
-          media_alt:
-            image.image_alt ||
-            image.title ||
-            productSlug,
-          title: image.title,
-          category:
-            image.inspiration_gallery_categories,
-        }),
-      );
+      if (inspirationResponse.status === "fulfilled") {
+        const galleryImages =
+          inspirationResponse.value.data?.data?.images || [];
 
-      setInspirationImages(formattedImages);
-
-      console.log(
-        "Formatted inspiration images:",
-        formattedImages,
-      );
+        setInspirationImages(
+          galleryImages.map((image) => ({
+            id: `inspiration-${image.id}`,
+            media_url: image.image_url,
+            media_type: "APPLICATION_IMAGE",
+            media_alt:
+              image.image_alt ||
+              image.title ||
+              productSlug,
+            title: image.title,
+            category:
+              image.inspiration_gallery_categories,
+          })),
+        );
+      }
     } catch (error) {
       if (
         error.code !== "ERR_CANCELED" &&
         error.name !== "CanceledError"
       ) {
-        console.error(
-          "Failed to load inspiration gallery images:",
-          error,
-        );
-
-        setInspirationImages([]);
+        console.error("Failed to load product page:", error);
       }
     }
   };
 
+  setProduct(null);
   setInspirationImages([]);
+  setActiveImage(0);
+  setOpenPreview(false);
+  setExpanded(false);
+  setRelatedProducts([]);
+  setShouldLoadModel(false);
 
-  if (productSlug) {
-    loadInspirationImages();
-  }
+  loadPageData();
 
   return () => controller.abort();
 }, [productSlug]);
@@ -224,11 +266,11 @@ useEffect(() => {
     };
   }, [openPreview]);
 
-  if (!product) {
-    return (
-      <Loading />
-    );
-  }
+ if (!product) {
+
+  return <ProductDetailsSkeleton />;
+
+}
 
 
   // All product-derived variables go here.
@@ -1082,9 +1124,16 @@ const handleDownloadSafetysheet = () => {
                 {/* TAGS */}
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  <Suspense fallback={null}>
-                    <Social />
-                  </Suspense>
+<Suspense
+  fallback={
+    <div
+      className="w-[120px] h-[34px] shrink-0"
+      aria-hidden="true"
+    />
+  }
+>
+  <Social />
+</Suspense>
                   <div
                     className="
             border
@@ -1205,35 +1254,37 @@ const handleDownloadSafetysheet = () => {
         </section>
 
         {/* 3D Stone */}
-        <section ref={setModelSectionElement}>
-          <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
-            <div className="relative min-h-[270px] bg-[#f7f7f7]">
-              <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-xs md:text-sm px-3 py-1.5 rounded-full backdrop-blur-sm">
-                Click to interact with the 3D model
-              </div>
+<section ref={setModelSectionElement}>
+  <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
+    <div className="relative h-[270px] overflow-hidden bg-[#f7f7f7]">
+      <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-xs md:text-sm px-3 py-1.5 rounded-full backdrop-blur-sm">
+        Click to interact with the 3D model
+      </div>
 
-              {shouldLoadModel ? (
-                <Suspense
-                  fallback={
-                    <Loading />
-                  }
-                >
-                  <ModelViewer
-                    height={270}
-                    poster={images[0]?.media_url}
-                    finishes={product?.finishes_available}
-                  />
-                </Suspense>
-              ) : (
-                <div className="h-[270px] flex items-center justify-center">
-                  <span className="text-sm text-[#777]">
-                    3D model loading…
-                  </span>
-                </div>
-              )}
+      {shouldLoadModel ? (
+        <Suspense
+          fallback={
+            <div className="h-[270px] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full border-2 border-black/20 border-t-black animate-spin" />
             </div>
-          </div>
-        </section>
+          }
+        >
+          <ModelViewer
+            height={270}
+            poster={images[0]?.media_url}
+            finishes={product?.finishes_available}
+          />
+        </Suspense>
+      ) : (
+        <div className="h-[270px] flex items-center justify-center">
+          <span className="text-sm text-[#777]">
+            3D model loading…
+          </span>
+        </div>
+      )}
+    </div>
+  </div>
+</section>
 
         {/* APPLICATIONS */}
         <section className="py-10 bg-white">
