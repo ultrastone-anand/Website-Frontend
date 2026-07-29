@@ -651,7 +651,7 @@ const handleDownloadSafetysheet = () => {
                         sizes="(min-width: 1280px) 50vw, 100vw"
                         alt={product.name}
                         loading="eager"
-                        fetchPriority={activeImage === 0 ? "high" : "auto"}
+                        fetchPriority="high"
                         decoding="async"
                         width="1200"
                         height="800"
