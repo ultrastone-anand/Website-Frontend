@@ -30,18 +30,7 @@ const ProductDetails = () => {
   const [expanded, setExpanded] = useState(false);
   const [inspirationImages, setInspirationImages] = useState([]);
 
-  const [zoomStyle, setZoomStyle] = useState({
-    backgroundImage: "",
-    backgroundPosition: "50% 50%",
-    backgroundSize: "1000%",
-    opacity: 0,
-  });
-
-  const [lensPosition, setLensPosition] = useState({
-    x: 0,
-    y: 0,
-    visible: false,
-  });
+const lensRef = useRef(null);
 
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [openPreview, setOpenPreview] = useState(false);
@@ -57,77 +46,44 @@ const ProductDetails = () => {
 
   const shouldTruncate = description.length > 300;
 
-  const ProductDetailsSkeleton = () => {
-  return (
-    <main
-      className="bg-white min-h-screen"
-      aria-busy="true"
-      aria-label="Loading product details"
-    >
-      {/* Heading skeleton */}
-      <section>
-        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 pt-[120px]">
-          <div className="h-[38px] w-[240px] bg-[#ededed] animate-pulse" />
 
-          <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
 
-          <div className="h-[14px] w-[420px] max-w-full bg-[#ededed] animate-pulse" />
-        </div>
-      </section>
+const handleZoomMove = (event) => {
+  const lens = lensRef.current;
 
-      {/* Hero skeleton */}
-      <section>
-        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 pt-[30px] pb-20">
-          <div className="grid grid-cols-1 xl:grid-cols-[1fr_0.95fr] gap-8 items-start">
-            <div className="h-[520px] xl:h-[640px] bg-[#ededed] animate-pulse" />
+  if (!lens) {
+    return;
+  }
 
-            <div className="pt-2">
-              <div className="h-[42px] w-[70%] bg-[#ededed] animate-pulse mb-8" />
+  const rect =
+    event.currentTarget.getBoundingClientRect();
 
-              <div className="space-y-3 mb-10">
-                <div className="h-[18px] w-full bg-[#ededed] animate-pulse" />
-                <div className="h-[18px] w-full bg-[#ededed] animate-pulse" />
-                <div className="h-[18px] w-[75%] bg-[#ededed] animate-pulse" />
-              </div>
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
 
-              <div className="h-[42px] w-[160px] bg-[#ededed] animate-pulse mb-5" />
+  const xPercent =
+    Math.max(0, Math.min(100, (x / rect.width) * 100));
 
-              <div className="h-[300px] bg-[#ededed] animate-pulse mb-8" />
+  const yPercent =
+    Math.max(0, Math.min(100, (y / rect.height) * 100));
 
-              <div className="flex gap-3">
-                <div className="h-[34px] w-[120px] bg-[#ededed] animate-pulse" />
-                <div className="h-[34px] w-[180px] bg-[#ededed] animate-pulse" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+  lens.style.opacity = "1";
+  lens.style.transform =
+    `translate3d(${x - 75}px, ${y - 75}px, 0)`;
 
-      {/* Specifications skeleton */}
-      <section>
-        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-5">
-          <div className="h-[46px] w-[330px] max-w-full bg-[#ededed] animate-pulse mb-12" />
+  lens.style.backgroundImage =
+    `url("${zoomImageUrl}")`;
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-10 gap-y-10">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index}>
-                <div className="h-[12px] w-[120px] bg-[#ededed] animate-pulse mb-3" />
-                <div className="w-full h-px bg-black/10 mb-4" />
-                <div className="h-[18px] w-[80%] bg-[#ededed] animate-pulse" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+  lens.style.backgroundPosition =
+    `${xPercent}% ${yPercent}%`;
 
-      {/* 3D section placeholder */}
-      <section>
-        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
-          <div className="h-[270px] bg-[#ededed] animate-pulse" />
-        </div>
-      </section>
-    </main>
-  );
+  lens.style.backgroundSize = "1000%";
+};
+
+const handleZoomLeave = () => {
+  if (lensRef.current) {
+    lensRef.current.style.opacity = "0";
+  }
 };
 
 useEffect(() => {
@@ -1026,49 +982,18 @@ const handleDownloadSafetysheet = () => {
                 </button>
 
                 <div
-                  className="
-  relative
-  overflow-hidden
-  bg-[#f7f7f7]
-  mb-8
-  group
-  cursor-crosshair
+  className="
+    relative
+    h-[300px]
+    overflow-hidden
+    bg-[#f7f7f7]
+    mb-8
+    group
+    cursor-crosshair
   "
-                  onMouseMove={(e) => {
-                    const { left, top, width, height } =
-                      e.currentTarget.getBoundingClientRect();
-
-                    const x = e.clientX - left;
-                    const y = e.clientY - top;
-
-                    const xPercent = (x / width) * 100;
-                    const yPercent = (y / height) * 100;
-
-                    setLensPosition({
-                      x,
-                      y,
-                      visible: true,
-                    });
-
-                    setZoomStyle({
-                      backgroundImage: `url("${zoomImageUrl}")`,
-                      backgroundPosition: `${xPercent}% ${yPercent}%`,
-                      backgroundSize: "1000%",
-                      opacity: 1,
-                    });
-                  }}
-                  onMouseLeave={() => {
-                    setLensPosition((prev) => ({
-                      ...prev,
-                      visible: false,
-                    }));
-
-                    setZoomStyle((prev) => ({
-                      ...prev,
-                      opacity: 0,
-                    }));
-                  }}
-                >
+  onMouseMove={handleZoomMove}
+  onMouseLeave={handleZoomLeave}
+>
                   {/* IMAGE */}
 
                   <img
@@ -1095,30 +1020,28 @@ const handleDownloadSafetysheet = () => {
 
                   {/* MAGNIFIER LENS */}
 
-                  {lensPosition.visible && (
-                    <div
-                      className="
-      absolute
-      w-[150px]
-      h-[150px]
-      rounded-full
-      border-[5px]
-      border-white
-      shadow-xl
-      pointer-events-none
-      overflow-hidden
-      "
-                      style={{
-                        left: lensPosition.x,
-                        top: lensPosition.y,
-                        transform: "translate(-50%, -50%)",
-                        backgroundImage: zoomStyle.backgroundImage,
-                        backgroundRepeat: "no-repeat",
-                        backgroundSize: zoomStyle.backgroundSize,
-                        backgroundPosition: zoomStyle.backgroundPosition,
-                      }}
-                    />
-                  )}
+                  <div
+  ref={lensRef}
+  aria-hidden="true"
+  className="
+    absolute
+    left-0
+    top-0
+    w-[150px]
+    h-[150px]
+    rounded-full
+    border-[5px]
+    border-white
+    shadow-xl
+    pointer-events-none
+    overflow-hidden
+    opacity-0
+    will-change-transform
+  "
+  style={{
+    backgroundRepeat: "no-repeat",
+  }}
+/>
                 </div>
 
                 {/* TAGS */}
@@ -2172,5 +2095,78 @@ const RelatedProductCard = ({ item, navigate }) => {
         {item.name}
       </p>
     </div>
+  );
+};
+
+  const ProductDetailsSkeleton = () => {
+  return (
+    <main
+      className="bg-white min-h-screen"
+      aria-busy="true"
+      aria-label="Loading product details"
+    >
+      {/* Heading skeleton */}
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 pt-[120px]">
+          <div className="h-[38px] w-[240px] bg-[#ededed] animate-pulse" />
+
+          <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
+
+          <div className="h-[14px] w-[420px] max-w-full bg-[#ededed] animate-pulse" />
+        </div>
+      </section>
+
+      {/* Hero skeleton */}
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 pt-[30px] pb-20">
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_0.95fr] gap-8 items-start">
+            <div className="h-[520px] xl:h-[640px] bg-[#ededed] animate-pulse" />
+
+            <div className="pt-2">
+              <div className="h-[42px] w-[70%] bg-[#ededed] animate-pulse mb-8" />
+
+              <div className="space-y-3 mb-10">
+                <div className="h-[18px] w-full bg-[#ededed] animate-pulse" />
+                <div className="h-[18px] w-full bg-[#ededed] animate-pulse" />
+                <div className="h-[18px] w-[75%] bg-[#ededed] animate-pulse" />
+              </div>
+
+              <div className="h-[42px] w-[160px] bg-[#ededed] animate-pulse mb-5" />
+
+              <div className="h-[300px] bg-[#ededed] animate-pulse mb-8" />
+
+              <div className="flex gap-3">
+                <div className="h-[34px] w-[120px] bg-[#ededed] animate-pulse" />
+                <div className="h-[34px] w-[180px] bg-[#ededed] animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Specifications skeleton */}
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-5">
+          <div className="h-[46px] w-[330px] max-w-full bg-[#ededed] animate-pulse mb-12" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-10 gap-y-10">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div key={index}>
+                <div className="h-[12px] w-[120px] bg-[#ededed] animate-pulse mb-3" />
+                <div className="w-full h-px bg-black/10 mb-4" />
+                <div className="h-[18px] w-[80%] bg-[#ededed] animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3D section placeholder */}
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
+          <div className="h-[270px] bg-[#ededed] animate-pulse" />
+        </div>
+      </section>
+    </main>
   );
 };
