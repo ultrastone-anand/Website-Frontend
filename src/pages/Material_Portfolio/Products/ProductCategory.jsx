@@ -104,11 +104,8 @@ const ProductCategory = () => {
     );
 
 if (!category) {
-  return (
-      <Loading />
-  );
+  return <ProductCategorySkeleton />;
 }
-
 
   return (
     <>
@@ -656,23 +653,47 @@ if (!category) {
                     "
                     >
 
-                    <img
-                      src={
-                        item.closeup_image
-                          ? getOptimizedImageUrl(item.closeup_image, 700, 85)
-                          : "https://placehold.co/700x700"
-                      }
-                      alt={item.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="
-                        w-full
-                        h-full
-                        object-cover
-                        duration-700
-                        group-hover:scale-[1.02]
-                      "
-                    />
+<img
+  src={
+    item.closeup_image
+      ? getOptimizedImageUrl(
+          item.closeup_image,
+          400,
+          72,
+        )
+      : "https://placehold.co/400x400"
+  }
+  srcSet={
+    item.closeup_image
+      ? `
+        ${getOptimizedImageUrl(item.closeup_image, 240, 68)} 240w,
+        ${getOptimizedImageUrl(item.closeup_image, 320, 70)} 320w,
+        ${getOptimizedImageUrl(item.closeup_image, 400, 72)} 400w,
+        ${getOptimizedImageUrl(item.closeup_image, 520, 74)} 520w,
+        ${getOptimizedImageUrl(item.closeup_image, 700, 76)} 700w
+      `
+      : undefined
+  }
+  sizes="
+    (min-width: 1280px) calc((100vw - 128px) / 4),
+    (min-width: 768px) calc((100vw - 96px) / 3),
+    calc((100vw - 72px) / 2)
+  "
+  alt={item.name}
+  loading="lazy"
+  decoding="async"
+  fetchPriority="low"
+  width="700"
+  height="700"
+  className="
+    block
+    w-full
+    h-full
+    object-cover
+    duration-700
+    group-hover:scale-[1.02]
+  "
+/>
 
                     </div>
 
@@ -733,3 +754,54 @@ if (!category) {
 };
 
 export default ProductCategory;
+
+const ProductCategorySkeleton = () => {
+  return (
+    <main
+      className="min-h-screen pt-[110px]"
+      aria-busy="true"
+      aria-label="Loading products"
+    >
+      <section>
+        <div className="max-w-[1650px] mx-auto px-6 xl:px-10">
+          <div className="h-[42px] w-[260px] bg-[#ececec]" />
+
+          <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
+
+          <div className="h-[14px] w-[320px] max-w-full bg-[#ececec]" />
+
+          <div className="h-[14px] w-[130px] bg-[#ececec] mt-3" />
+        </div>
+      </section>
+
+      <section className="max-w-[1650px] mx-auto px-6 xl:px-10 mt-12">
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="h-[50px] w-[230px] bg-[#ececec]"
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="max-w-[1650px] mx-auto px-6 xl:px-10 pt-10 pb-24">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <article key={index}>
+              <div className="aspect-square bg-[#ececec]" />
+
+              <div className="mt-4 h-[20px] w-[65%] bg-[#ececec]" />
+
+              <div className="mt-3 space-y-2">
+                <div className="h-[11px] w-full bg-[#ececec]" />
+                <div className="h-[11px] w-full bg-[#ececec]" />
+                <div className="h-[11px] w-[75%] bg-[#ececec]" />
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+};
