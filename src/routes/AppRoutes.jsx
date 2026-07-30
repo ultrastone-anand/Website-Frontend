@@ -80,24 +80,16 @@ const SafetyFirst = lazy(() =>
   import("../pages/Resource_Center/Silica_safety/silicaSafety")
 );
 
-
-
-const AppRoutes = () => {
+function AppRoutes() {
   return (
     <>
       <ScrollToTop />
 
       <Routes>
         <Route element={<WebsiteLayout />}>
-          <Route
-            path="/"
-            element={<Home />}
-          />
+          <Route path="/" element={<Home />} />
 
-          <Route
-            path="/categories"
-            element={<Category />}
-          />
+          <Route path="/categories" element={<Category />} />
 
           <Route
             path="/product-category/:slug"
@@ -109,83 +101,54 @@ const AppRoutes = () => {
             element={<ProductDetails />}
           />
 
-          <Route
-            path="/contact"
-            element={<Contact />}
-          />
+          <Route path="/contact" element={<Contact />} />
 
-          <Route
-            path="/thankyou"
-            element={<Thankyoupage />}
-          />
+          <Route path="/thankyou" element={<Thankyoupage />} />
 
-          <Route
-            path="/locations/:slug"
-            element={<Location />}
-          />
+          <Route path="/locations/:slug" element={<Location />} />
 
-          <Route
-            path="/aboutus"
-            element={<Aboutus />}
-          />
+          <Route path="/aboutus" element={<Aboutus />} />
 
-          <Route
-            path="/ourprocess"
-            element={<OurProcess />}
-          />
+          <Route path="/ourprocess" element={<OurProcess />} />
 
-          <Route
-            path="/blogs"
-            element={<Ourblogs />}
-          />
+          <Route path="/blogs" element={<Ourblogs />} />
 
           <Route
             path="/blog/:blogId"
             element={<BlogDetailedView />}
           />
 
-          <Route
-            path="/ceu"
-            element={<Ceu />}
-          />
+          <Route path="/ceu" element={<Ceu />} />
 
           <Route
             path="/privacy-policy"
             element={<PrivacyPolicy />}
           />
 
-          <Route
-            path="/career"
-            element={<Career />}
-          />
+          <Route path="/career" element={<Career />} />
 
           <Route
             path="/careers/:slug"
             element={<CareerDetails />}
           />
 
-          <Route
-            path="/gallery"
-            element={<Gallery />}
-          />
+          <Route path="/gallery" element={<Gallery />} />
 
           <Route
             path="/merchandising-displays"
             element={<Merchandise />}
           />
+
           <Route
             path="/safety-first"
             element={<SafetyFirst />}
           />
 
-          <Route
-            path="*"
-            element={<NotFound />}
-          />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </>
   );
-};
+}
 
 export default AppRoutes;
