@@ -351,14 +351,10 @@ const ProductDetails = () => {
                     categoryProducts
                       .filter(
                         (item) =>
-                          Number(
-                            item.id,
-                          ) !==
-                            Number(
-                              currentProduct.id,
-                            ) &&
-                          item.slug !==
-                            currentProduct.slug,
+                          Number(item.id,) !== Number(currentProduct.id, ) &&
+                          item.slug !==currentProduct.slug &&
+                          item.is_active === true &&
+                          item.is_published === true
                       )
                       .slice(
                         0,
