@@ -24,7 +24,7 @@ const EXPLORE_LINKS = [
   },
   {
     label: "Inspiration Gallery",
-    path: "/inspiration",
+    path: "/gallery",
   },
 ];
 
@@ -195,7 +195,7 @@ const Footer = () => {
       />
 
       {/* Background overlays */}
-      <div className="absolute inset-0 -z-20 bg-black/60" />
+      <div className="absolute inset-0 -z-20 bg-black/70" />
 
       <div className="absolute inset-0 -z-20 bg-gradient-to-r from-black/25 via-transparent to-black/20" />
 
@@ -239,7 +239,7 @@ const Footer = () => {
           {/* Company intro */}
           <div className="lg:border-r lg:border-white/15 lg:px-6 xl:px-8">
             <p className="mb-3 text-center text-[14px] font-medium leading-[1.5] text-white/90 xl:text-[16px]">
-              500+ Premium Surfaces
+              650+ Premium Surfaces
             </p>
 
             <p className="mb-6 mx-auto max-w-[170px] text-center text-[12px] leading-[1.55] text-white/75 xl:text-[14px]">

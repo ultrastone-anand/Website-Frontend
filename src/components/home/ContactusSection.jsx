@@ -82,7 +82,7 @@ const ContactusSection = () => {
                 className="mt-10 text-[14px] leading-[1.35] text-white/45"
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
-                Established 2013 • 500+ Stones
+                Established 2013 • 650+ Stones
                 <br />
                 Trusted by Designers, Fabricators & Builders
               </p>

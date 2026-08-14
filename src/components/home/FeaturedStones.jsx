@@ -448,104 +448,98 @@ const FeaturedStones = () => {
             className="overflow-x-auto overflow-y-hidden"
           >
             <div className="flex gap-5 pb-3 md:gap-6">
-              {loadingProducts ? (
-                Array.from({
-                  length: 6,
-                }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="w-[230px] shrink-0 animate-pulse sm:w-[260px] lg:w-[300px] xl:w-[360px]"
-                  >
-                    <div className="h-[300px] bg-gray-200 sm:h-[340px] lg:h-[400px] xl:h-[460px]" />
+{loadingProducts ? (
+  Array.from({
+    length: 6,
+  }).map((_, index) => (
+    <div
+      key={index}
+      className="w-[230px] shrink-0 animate-pulse sm:w-[260px] lg:w-[300px] xl:w-[360px]"
+    >
+      <div className="h-[300px] bg-gray-200 sm:h-[340px] lg:h-[400px] xl:h-[460px]" />
 
-                    <div className="mx-auto mt-5 h-5 w-32 bg-gray-200" />
+      <div className="mx-auto mt-5 h-5 w-32 bg-gray-200" />
 
-                    <div className="mx-auto mt-3 h-4 w-24 bg-gray-100" />
-                  </div>
-                ))
-              ) : products.length > 0 ? (
-                products.map((item) => {
-                  /*
-                   * Browse API provides:
-                   * item.category.slug
-                   * item.category.name
-                   *
-                   * Normal category API uses:
-                   * item._categorySlug
-                   * item._categoryName
-                   */
+      <div className="mx-auto mt-3 h-4 w-24 bg-gray-100" />
+    </div>
+  ))
+) : products.length > 0 ? (
+  [...products]
+    .sort((a, b) =>
+      (a.name || "").localeCompare(
+        b.name || "",
+        undefined,
+        {
+          sensitivity: "base",
+          numeric: true,
+        }
+      )
+    )
+    .map((item) => {
+      const isBrowseProduct =
+        selectedCategory === "browse";
 
-                  const isBrowseProduct =
-                    selectedCategory === "browse";
+      const productCategorySlug =
+        item.category?.slug ||
+        item._categorySlug ||
+        selectedCategory;
 
-                  const productCategorySlug =
-                    item.category?.slug ||
-                    item._categorySlug ||
-                    selectedCategory;
+      const productCategoryName =
+        item.category?.name ||
+        item._categoryName ||
+        selectedCategoryName;
 
-                  const productCategoryName =
-                    item.category?.name ||
-                    item._categoryName ||
-                    selectedCategoryName;
+      const productImage =
+        item.closeup_image ||
+        item.media?.[0]?.media_url;
 
-                  const productImage =
-                    item.closeup_image ||
-                    item.media?.[0]?.media_url;
+      return (
+        <Link
+          key={`${productCategorySlug}-${item.id || item.slug}`}
+          to={`/product/${productCategorySlug}/${item.slug}`}
+          className="group w-[230px] shrink-0 text-center sm:w-[260px] lg:w-[300px] xl:w-[360px]"
+        >
+          <div className="h-[300px] overflow-hidden bg-[#f1f1f1] sm:h-[340px] lg:h-[400px] xl:h-[460px]">
+            <img
+              src={getOptimizedImageUrl(productImage)}
+              alt={item.name}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+            />
+          </div>
 
-                  return (
-                    <Link
-                      key={`${productCategorySlug}-${
-                        item.id || item.slug
-                      }`}
-                      to={`/product/${productCategorySlug}/${item.slug}`}
-                      className="group w-[230px] shrink-0 text-center sm:w-[260px] lg:w-[300px] xl:w-[360px]"
-                    >
-                      <div className="h-[300px] overflow-hidden bg-[#f1f1f1] sm:h-[340px] lg:h-[400px] xl:h-[460px]">
-                        <img
-                          src={getOptimizedImageUrl(
-                            productImage
-                          )}
-                          alt={item.name}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                        />
-                      </div>
+          <h3
+            className="mt-4 text-[16px] font-bold uppercase leading-tight text-[#111] md:mt-5 md:text-[18px]"
+            style={{
+              fontFamily: "Montserrat, sans-serif",
+            }}
+          >
+            {item.name}
+          </h3>
 
-                      <h3
-                        className="mt-4 text-[16px] font-bold uppercase leading-tight text-[#111] md:mt-5 md:text-[18px]"
-                        style={{
-                          fontFamily:
-                            "Montserrat, sans-serif",
-                        }}
-                      >
-                        {item.name}
-                      </h3>
+          <p
+            className="mt-2 text-[12px] text-[#5f5f5f] md:text-[13px]"
+            style={{
+              fontFamily: "Inter, sans-serif",
+            }}
+          >
+            {isBrowseProduct
+              ? productCategoryName
+              : item.stone_group || productCategoryName}
 
-                      <p
-                        className="mt-2 text-[12px] text-[#5f5f5f] md:text-[13px]"
-                        style={{
-                          fontFamily:
-                            "Inter, sans-serif",
-                        }}
-                      >
-                        {isBrowseProduct
-                          ? productCategoryName
-                          : item.stone_group ||
-                            productCategoryName}
-
-                        {item.pattern
-                          ? ` • ${item.pattern}`
-                          : ""}
-                      </p>
-                    </Link>
-                  );
-                })
-              ) : (
-                <div className="flex h-[300px] min-w-full items-center justify-center text-[16px] text-[#FF8000]">
-                  No stones found
-                </div>
-              )}
+            {item.pattern
+              ? ` • ${item.pattern}`
+              : ""}
+          </p>
+        </Link>
+      );
+    })
+) : (
+  <div className="flex h-[300px] min-w-full items-center justify-center text-[16px] text-[#FF8000]">
+    No stones found
+  </div>
+)}
             </div>
           </div>
         </div>
