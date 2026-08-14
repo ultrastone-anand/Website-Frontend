@@ -8,21 +8,28 @@ import React, {
 } from "react";
 
 import {
-  Columns2,
-  Grid2X2,
+  ChevronLeft,
+  ChevronRight,
   ImageIcon,
   Maximize2,
   Play,
   RefreshCw,
-  Square,
   X,
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
 
-import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
+import {
+  getOptimizedImageUrl,
+} from "../../../utils/Mediahelper";
 
-const API_URL = import.meta.env.VITE_API_URL;
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const API_URL =
+  import.meta.env.VITE_API_URL;
+
 const IMAGES_PER_PAGE = 24;
 
 const VIDEO_EXTENSIONS = [
@@ -34,6 +41,10 @@ const VIDEO_EXTENSIONS = [
   "ogv",
 ];
 
+/* =========================================================
+   MEDIA HELPERS
+========================================================= */
+
 const getMediaUrl = (media) =>
   media?.image_url ||
   media?.video_url ||
@@ -42,18 +53,26 @@ const getMediaUrl = (media) =>
   media?.image ||
   "";
 
-const getFileExtension = (url = "") => {
+/* =========================================================
+   FILE EXTENSION
+========================================================= */
+
+const getFileExtension = (
+  url = "",
+) => {
   try {
-    const pathname = new URL(
-      url,
-      window.location.origin
-    ).pathname;
+    const pathname =
+      new URL(
+        url,
+        window.location.origin,
+      ).pathname;
 
     return (
       pathname
         .split(".")
         .pop()
-        ?.toLowerCase() || ""
+        ?.toLowerCase() ||
+      ""
     );
   } catch {
     return (
@@ -62,36 +81,57 @@ const getFileExtension = (url = "") => {
         .split("#")[0]
         .split(".")
         .pop()
-        ?.toLowerCase() || ""
+        ?.toLowerCase() ||
+      ""
     );
   }
 };
 
-const isVideoMedia = (media) => {
-  const mediaType = String(
-    media?.media_type ||
-      media?.type ||
-      media?.mime_type ||
-      ""
-  ).toLowerCase();
+/* =========================================================
+   VIDEO CHECK
+========================================================= */
+
+const isVideoMedia = (
+  media,
+) => {
+  const mediaType =
+    String(
+      media?.media_type ||
+        media?.type ||
+        media?.mime_type ||
+        "",
+    ).toLowerCase();
 
   if (
-    mediaType === "video" ||
-    mediaType.startsWith("video/")
+    mediaType ===
+      "video" ||
+    mediaType.startsWith(
+      "video/",
+    )
   ) {
     return true;
   }
 
-  const mediaUrl = getMediaUrl(media);
+  const mediaUrl =
+    getMediaUrl(media);
+
   const extension =
-    getFileExtension(mediaUrl);
+    getFileExtension(
+      mediaUrl,
+    );
 
   return VIDEO_EXTENSIONS.includes(
-    extension
+    extension,
   );
 };
 
-const getMediaAlt = (media) =>
+/* =========================================================
+   MEDIA ALT
+========================================================= */
+
+const getMediaAlt = (
+  media,
+) =>
   media?.image_alt ||
   media?.video_alt ||
   media?.title ||
@@ -100,16 +140,30 @@ const getMediaAlt = (media) =>
     ? "Inspiration gallery video"
     : "Inspiration gallery image");
 
-const getCategoryName = (media) =>
+/* =========================================================
+   CATEGORY NAME
+========================================================= */
+
+const getCategoryName = (
+  media,
+) =>
   media?.category_name ||
   media
     ?.inspiration_gallery_categories
     ?.name ||
   "";
 
-const getDisplayTitle = (media) => {
+/* =========================================================
+   DISPLAY TITLE
+========================================================= */
+
+const getDisplayTitle = (
+  media,
+) => {
   const title =
-    media?.title || media?.name || "";
+    media?.title ||
+    media?.name ||
+    "";
 
   if (!title) {
     return "";
@@ -117,39 +171,365 @@ const getDisplayTitle = (media) => {
 
   return title.replace(
     /\.(mp4|webm|mov|m4v|ogg|ogv|jpg|jpeg|png|webp|avif)$/i,
-    ""
+    "",
   );
 };
 
-const GallerySkeleton = ({ layout }) => {
-  if (layout === "one") {
-    return (
-      <div className="space-y-5">
-        {Array.from({ length: 3 }).map(
-          (_, index) => (
-            <div
-              key={index}
-              className="
-                gallery-skeleton
-                aspect-[16/8]
-                w-full
-                overflow-hidden
-                bg-[#eeeeee]
-              "
-            />
-          )
-        )}
-      </div>
-    );
+/* =========================================================
+   NUMBER HELPER
+========================================================= */
+
+const getValidNumber = (
+  ...values
+) => {
+  for (const value of values) {
+    const number =
+      Number(value);
+
+    if (
+      Number.isFinite(
+        number,
+      ) &&
+      number >= 0
+    ) {
+      return number;
+    }
   }
 
-  if (layout === "two") {
+  return null;
+};
+
+/* =========================================================
+   NORMALIZE API RESPONSE
+
+   Supports responses like:
+
+   data: {
+     images: [],
+     total: 100,
+     page: 1,
+     totalPages: 5
+   }
+
+   data: {
+     images: [],
+     pagination: {
+       total: 100,
+       page: 1,
+       totalPages: 5
+     }
+   }
+
+   data: {
+     rows: [],
+     pagination: {
+       total_count: 100,
+       current_page: 1,
+       total_pages: 5
+     }
+   }
+
+   Also works even when pagination metadata is missing.
+========================================================= */
+
+const normalizeGalleryResponse = (
+  result,
+  requestedPage,
+) => {
+  const responseData =
+    result?.data;
+
+  /* ===============================================
+     RAW ARRAY RESPONSE
+  =============================================== */
+
+  if (
+    Array.isArray(
+      responseData,
+    )
+  ) {
+    const images =
+      responseData;
+
+    const hasPossibleNextPage =
+      images.length ===
+      IMAGES_PER_PAGE;
+
+    return {
+      images,
+
+      total: null,
+
+      page:
+        requestedPage,
+
+      totalPages:
+        hasPossibleNextPage
+          ? requestedPage +
+            1
+          : requestedPage,
+
+      hasNextPage:
+        hasPossibleNextPage,
+
+      hasPreviousPage:
+        requestedPage >
+        1,
+
+      totalKnown:
+        false,
+    };
+  }
+
+  /* ===============================================
+     FIND IMAGE ARRAY
+  =============================================== */
+
+  const images =
+    responseData?.images ||
+    responseData?.media ||
+    responseData?.rows ||
+    responseData?.items ||
+    responseData?.results ||
+    responseData?.data ||
+    [];
+
+  const normalizedImages =
+    Array.isArray(images)
+      ? images
+      : [];
+
+  /* ===============================================
+     PAGINATION OBJECTS
+  =============================================== */
+
+  const pagination =
+    responseData?.pagination ||
+    responseData?.meta ||
+    responseData?.paging ||
+    result?.pagination ||
+    result?.meta ||
+    {};
+
+  /* ===============================================
+     TOTAL ITEMS
+  =============================================== */
+
+  const total =
+    getValidNumber(
+      responseData?.total,
+      responseData?.count,
+      responseData?.totalCount,
+      responseData?.total_count,
+
+      pagination?.total,
+      pagination?.count,
+      pagination?.totalCount,
+      pagination?.total_count,
+      pagination?.totalItems,
+      pagination?.total_items,
+
+      result?.total,
+      result?.count,
+    );
+
+  /* ===============================================
+     CURRENT PAGE
+  =============================================== */
+
+  const page =
+    getValidNumber(
+      responseData?.page,
+      responseData?.currentPage,
+      responseData?.current_page,
+
+      pagination?.page,
+      pagination?.currentPage,
+      pagination?.current_page,
+
+      result?.page,
+
+      requestedPage,
+    ) ||
+    requestedPage;
+
+  /* ===============================================
+     BACKEND TOTAL PAGES
+  =============================================== */
+
+  const backendTotalPages =
+    getValidNumber(
+      responseData?.totalPages,
+      responseData?.total_pages,
+      responseData?.pages,
+      responseData?.pageCount,
+      responseData?.page_count,
+
+      pagination?.totalPages,
+      pagination?.total_pages,
+      pagination?.pages,
+      pagination?.pageCount,
+      pagination?.page_count,
+      pagination?.lastPage,
+      pagination?.last_page,
+
+      result?.totalPages,
+      result?.total_pages,
+    );
+
+  /* ===============================================
+     LIMIT / PAGE SIZE
+  =============================================== */
+
+  const pageSize =
+    getValidNumber(
+      responseData?.limit,
+      responseData?.pageSize,
+      responseData?.page_size,
+      responseData?.perPage,
+      responseData?.per_page,
+
+      pagination?.limit,
+      pagination?.pageSize,
+      pagination?.page_size,
+      pagination?.perPage,
+      pagination?.per_page,
+
+      IMAGES_PER_PAGE,
+    ) ||
+    IMAGES_PER_PAGE;
+
+  /* ===============================================
+     CALCULATE TOTAL PAGES
+  =============================================== */
+
+  let totalPages =
+    1;
+
+  let totalKnown =
+    false;
+
+  if (
+    backendTotalPages !==
+      null &&
+    backendTotalPages > 0
+  ) {
+    totalPages =
+      backendTotalPages;
+
+    totalKnown =
+      true;
+  } else if (
+    total !== null &&
+    total >= 0
+  ) {
+    totalPages =
+      Math.max(
+        1,
+        Math.ceil(
+          total /
+            pageSize,
+        ),
+      );
+
+    totalKnown =
+      true;
+  } else {
+    /*
+     * IMPORTANT:
+     *
+     * If backend gives us exactly
+     * 24 items but gives no total,
+     * assume that another page might
+     * exist.
+     */
+    totalPages =
+      normalizedImages.length ===
+      IMAGES_PER_PAGE
+        ? page + 1
+        : page;
+
+    totalKnown =
+      false;
+  }
+
+  /* ===============================================
+     NEXT PAGE INFO
+  =============================================== */
+
+  const backendHasNext =
+    pagination?.hasNextPage ??
+    pagination?.has_next_page ??
+    pagination?.hasNext ??
+    pagination?.has_next ??
+    responseData?.hasNextPage ??
+    responseData?.has_next_page ??
+    responseData?.hasNext ??
+    null;
+
+  const hasNextPage =
+    backendHasNext !== null
+      ? Boolean(
+          backendHasNext,
+        )
+      : totalKnown
+        ? page <
+          totalPages
+        : normalizedImages.length ===
+          IMAGES_PER_PAGE;
+
+  return {
+    images:
+      normalizedImages,
+
+    total,
+
+    page,
+
+    totalPages:
+      Math.max(
+        page,
+        totalPages,
+      ),
+
+    hasNextPage,
+
+    hasPreviousPage:
+      page > 1,
+
+    totalKnown,
+  };
+};
+
+/* =========================================================
+   GALLERY SKELETON
+========================================================= */
+
+const GallerySkeleton =
+  () => {
     return (
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {Array.from({ length: 8 }).map(
-          (_, index) => (
+      <div
+        className="
+          grid
+          grid-cols-1
+          gap-4
+          sm:grid-cols-2
+          lg:grid-cols-3
+          xl:grid-cols-4
+        "
+      >
+        {Array.from({
+          length:
+            IMAGES_PER_PAGE,
+        }).map(
+          (
+            _,
+            index,
+          ) => (
             <div
-              key={index}
+              key={
+                index
+              }
               className="
                 gallery-skeleton
                 aspect-[4/3]
@@ -158,128 +538,135 @@ const GallerySkeleton = ({ layout }) => {
                 bg-[#eeeeee]
               "
             />
-          )
+          ),
         )}
       </div>
     );
-  }
+  };
 
-  return (
-    <div
-      className="
-        grid
-        grid-cols-1
-        gap-4
-        sm:grid-cols-2
-        lg:grid-cols-3
-        xl:grid-cols-4
-      "
-    >
-      {Array.from({ length: 12 }).map(
-        (_, index) => (
-          <div
-            key={index}
-            className="
-              gallery-skeleton
-              aspect-[4/3]
-              w-full
-              overflow-hidden
-              bg-[#eeeeee]
-            "
-          />
-        )
-      )}
-    </div>
-  );
-};
+/* =========================================================
+   GALLERY CARD
+========================================================= */
 
 const GalleryCard = memo(
-  ({ media, layout, index, onClick }) => {
-    const videoRef = useRef(null);
+  ({
+    media,
+    index,
+    onClick,
+  }) => {
+    const videoRef =
+      useRef(null);
 
-    const mediaUrl = getMediaUrl(media);
-    const mediaAlt = getMediaAlt(media);
+    const mediaUrl =
+      getMediaUrl(
+        media,
+      );
+
+    const mediaAlt =
+      getMediaAlt(
+        media,
+      );
+
     const categoryName =
-      getCategoryName(media);
+      getCategoryName(
+        media,
+      );
+
     const displayTitle =
-      getDisplayTitle(media);
-    const isVideo = isVideoMedia(media);
+      getDisplayTitle(
+        media,
+      );
+
+    const isVideo =
+      isVideoMedia(
+        media,
+      );
 
     if (!mediaUrl) {
       return null;
     }
 
-    const isSingleLayout =
-      layout === "one";
+    /* ===============================================
+       VIDEO HOVER
+    =============================================== */
 
-    const isTwoLayout =
-      layout === "two";
+    const handleMouseEnter =
+      () => {
+        if (
+          !isVideo ||
+          !videoRef.current
+        ) {
+          return;
+        }
 
-    const imageWidth = isSingleLayout
-      ? 1800
-      : isTwoLayout
-        ? 1100
-        : 700;
+        videoRef.current
+          .play()
+          .catch(
+            () => {},
+          );
+      };
 
-    const imageQuality = isSingleLayout
-      ? 82
-      : isTwoLayout
-        ? 78
-        : 74;
+    const handleMouseLeave =
+      () => {
+        if (
+          !isVideo ||
+          !videoRef.current
+        ) {
+          return;
+        }
 
-    const imageSizes = isSingleLayout
-      ? "(max-width: 768px) 100vw, 1600px"
-      : isTwoLayout
-        ? "(max-width: 768px) 100vw, 50vw"
-        : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw";
+        videoRef.current.pause();
 
-    const handleMouseEnter = () => {
-      if (!isVideo || !videoRef.current) {
-        return;
-      }
-
-      videoRef.current
-        .play()
-        .catch(() => {});
-    };
-
-    const handleMouseLeave = () => {
-      if (!isVideo || !videoRef.current) {
-        return;
-      }
-
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    };
+        try {
+          videoRef.current.currentTime =
+            0;
+        } catch {
+          // Ignore
+        }
+      };
 
     return (
       <button
         type="button"
-        onClick={() => onClick(media)}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onClick={() =>
+          onClick(
+            media,
+          )
+        }
+        onMouseEnter={
+          handleMouseEnter
+        }
+        onMouseLeave={
+          handleMouseLeave
+        }
         aria-label={`Open ${mediaAlt}`}
-        className={`
+        className="
           group
           relative
           block
+          aspect-[4/3]
           w-full
           cursor-pointer
           overflow-hidden
           bg-[#eeeeee]
           text-left
-          ${
-            isSingleLayout
-              ? "aspect-[16/8]"
-              : "aspect-[4/3]"
-          }
-        `}
+        "
       >
+        {/* ===========================================
+            MEDIA
+        =========================================== */}
+
         {isVideo ? (
           <video
-            ref={videoRef}
-            src={mediaUrl}
-            aria-label={mediaAlt}
+            ref={
+              videoRef
+            }
+            src={
+              mediaUrl
+            }
+            aria-label={
+              mediaAlt
+            }
             muted
             loop
             playsInline
@@ -304,28 +691,45 @@ const GalleryCard = memo(
           <img
             src={getOptimizedImageUrl(
               mediaUrl,
-              imageWidth,
-              imageQuality
+              900,
+              82,
             )}
             srcSet={`
-              ${getOptimizedImageUrl(mediaUrl, 480, 72)} 480w,
-              ${getOptimizedImageUrl(mediaUrl, 700, 74)} 700w,
-              ${getOptimizedImageUrl(mediaUrl, 1000, 77)} 1000w,
-              ${getOptimizedImageUrl(mediaUrl, 1400, 80)} 1400w,
-              ${getOptimizedImageUrl(mediaUrl, 1800, 82)} 1800w
+              ${getOptimizedImageUrl(
+                mediaUrl,
+                480,
+                76,
+              )} 480w,
+
+              ${getOptimizedImageUrl(
+                mediaUrl,
+                700,
+                79,
+              )} 700w,
+
+              ${getOptimizedImageUrl(
+                mediaUrl,
+                900,
+                82,
+              )} 900w,
+
+              ${getOptimizedImageUrl(
+                mediaUrl,
+                1200,
+                84,
+              )} 1200w
             `}
-            sizes={imageSizes}
-            alt={mediaAlt}
-            width={
-              isSingleLayout
-                ? 1600
-                : 800
+            sizes="
+              (max-width: 639px) 100vw,
+              (max-width: 1023px) 50vw,
+              (max-width: 1279px) 33vw,
+              25vw
+            "
+            alt={
+              mediaAlt
             }
-            height={
-              isSingleLayout
-                ? 800
-                : 600
-            }
+            width="900"
+            height="675"
             loading={
               index < 4
                 ? "eager"
@@ -337,7 +741,9 @@ const GalleryCard = memo(
                 ? "high"
                 : "low"
             }
-            draggable="false"
+            draggable={
+              false
+            }
             className="
               h-full
               w-full
@@ -350,14 +756,18 @@ const GalleryCard = memo(
           />
         )}
 
+        {/* ===========================================
+            DARK HOVER
+        =========================================== */}
+
         <span
           aria-hidden="true"
           className="
             absolute
             inset-0
             bg-gradient-to-t
-            from-black/45
-            via-transparent
+            from-black/55
+            via-black/5
             to-transparent
             opacity-0
             transition-opacity
@@ -365,6 +775,10 @@ const GalleryCard = memo(
             group-hover:opacity-100
           "
         />
+
+        {/* ===========================================
+            VIDEO PLAY ICON
+        =========================================== */}
 
         {isVideo && (
           <span
@@ -393,13 +807,19 @@ const GalleryCard = memo(
             "
           >
             <Play
-              size={22}
+              size={
+                22
+              }
               fill="currentColor"
               aria-hidden="true"
               className="ml-0.5"
             />
           </span>
         )}
+
+        {/* ===========================================
+            EXPAND ICON
+        =========================================== */}
 
         <span
           className="
@@ -424,10 +844,16 @@ const GalleryCard = memo(
           "
         >
           <Maximize2
-            size={17}
+            size={
+              17
+            }
             aria-hidden="true"
           />
         </span>
+
+        {/* ===========================================
+            TITLE
+        =========================================== */}
 
         {(displayTitle ||
           categoryName) && (
@@ -448,7 +874,9 @@ const GalleryCard = memo(
           >
             {displayTitle && (
               <span className="block text-[15px] font-medium text-white">
-                {displayTitle}
+                {
+                  displayTitle
+                }
               </span>
             )}
 
@@ -463,1068 +891,1873 @@ const GalleryCard = memo(
                   text-white/75
                 "
               >
-                {categoryName}
+                {
+                  categoryName
+                }
               </span>
             )}
           </span>
         )}
       </button>
     );
-  }
+  },
 );
 
-GalleryCard.displayName = "GalleryCard";
+GalleryCard.displayName =
+  "GalleryCard";
 
-const LayoutButton = ({
-  active,
-  label,
-  onClick,
-  children,
-}) => (
-  <button
-    type="button"
-    aria-label={label}
-    aria-pressed={active}
-    onClick={onClick}
-    className={`
-      flex
-      h-10
-      w-10
-      items-center
-      justify-center
-      border
-      transition-all
-      duration-300
-      ${
-        active
-          ? "border-[#161412] bg-[#161412] text-white"
-          : "border-[#dddddd] bg-white text-[#666] hover:border-[#161412] hover:text-[#161412]"
-      }
-    `}
-  >
-    {children}
-  </button>
-);
+/* =========================================================
+   PAGE BUTTON GENERATOR
 
-const normalizeGalleryResponse = (
-  result,
-  requestedPage
-) => {
-  const responseData = result?.data;
+   Avoid showing 50/100 page buttons.
+========================================================= */
 
-  if (Array.isArray(responseData)) {
-    return {
-      images: responseData,
-      total: responseData.length,
-      page: requestedPage,
-      totalPages:
-        responseData.length ===
-        IMAGES_PER_PAGE
-          ? requestedPage + 1
-          : requestedPage,
-    };
+const getPageNumbers = ({
+  currentPage,
+  totalPages,
+}) => {
+  if (
+    totalPages <= 7
+  ) {
+    return Array.from(
+      {
+        length:
+          totalPages,
+      },
+      (
+        _,
+        index,
+      ) =>
+        index + 1,
+    );
   }
 
-  const images =
-    responseData?.images ||
-    responseData?.media ||
-    responseData?.rows ||
-    responseData?.items ||
-    responseData?.results ||
-    [];
+  const pages =
+    new Set([
+      1,
+      totalPages,
+      currentPage,
+      currentPage - 1,
+      currentPage + 1,
+    ]);
 
-  const total = Number(
-    responseData?.total ??
-      responseData?.count ??
-      result?.total ??
-      images.length
-  );
-
-  const page = Number(
-    responseData?.page ??
-      responseData?.currentPage ??
-      result?.page ??
-      requestedPage
-  );
-
-  const totalPages = Number(
-    responseData?.totalPages ??
-      responseData?.pages ??
-      result?.totalPages ??
-      Math.max(
-        1,
-        Math.ceil(
-          total / IMAGES_PER_PAGE
-        )
-      )
-  );
-
-  return {
-    images: Array.isArray(images)
-      ? images
-      : [],
-    total,
-    page,
-    totalPages,
-  };
+  return Array.from(
+    pages,
+  )
+    .filter(
+      (page) =>
+        page >= 1 &&
+        page <=
+          totalPages,
+    )
+    .sort(
+      (a, b) =>
+        a - b,
+    );
 };
 
-export const Gallery = () => {
-  const sectionRef = useRef(null);
-  const imageCacheRef = useRef(
-    new Map()
-  );
+/* =========================================================
+   GALLERY
+========================================================= */
 
-  const [categories, setCategories] =
-    useState([]);
+export const Gallery =
+  () => {
+    const sectionRef =
+      useRef(null);
 
-  const [galleryImages, setGalleryImages] =
-    useState([]);
+    const imageCacheRef =
+      useRef(
+        new Map(),
+      );
 
-  const [
-    activeCategoryId,
-    setActiveCategoryId,
-  ] = useState("all");
+    /* =====================================================
+       STATE
+    ===================================================== */
 
-  const [layout, setLayout] =
-    useState("grid");
+    const [
+      categories,
+      setCategories,
+    ] = useState([]);
 
-  const [currentPage, setCurrentPage] =
-    useState(1);
+    const [
+      galleryImages,
+      setGalleryImages,
+    ] = useState([]);
 
-  const [totalPages, setTotalPages] =
-    useState(1);
+    const [
+      activeCategoryId,
+      setActiveCategoryId,
+    ] = useState(
+      "all",
+    );
 
-  const [totalImages, setTotalImages] =
-    useState(0);
+    const [
+      currentPage,
+      setCurrentPage,
+    ] = useState(1);
 
-  const [
-    loadingCategories,
-    setLoadingCategories,
-  ] = useState(true);
+    const [
+      totalPages,
+      setTotalPages,
+    ] = useState(1);
 
-  const [loadingImages, setLoadingImages] =
-    useState(true);
+    const [
+      totalImages,
+      setTotalImages,
+    ] = useState(null);
 
-  const [galleryError, setGalleryError] =
-    useState("");
+    const [
+      hasNextPage,
+      setHasNextPage,
+    ] = useState(
+      false,
+    );
 
-  const [
-    selectedMedia,
-    setSelectedMedia,
-  ] = useState(null);
+    const [
+      totalKnown,
+      setTotalKnown,
+    ] = useState(
+      false,
+    );
 
-  const filters = useMemo(
-    () => [
-      {
-        id: "all",
-        name: "All",
-      },
-      ...categories,
-    ],
-    [categories]
-  );
+    const [
+      loadingCategories,
+      setLoadingCategories,
+    ] = useState(
+      true,
+    );
 
-  const galleryGridClass =
-    useMemo(() => {
-      if (layout === "one") {
-        return "grid grid-cols-1 gap-5";
-      }
+    const [
+      loadingImages,
+      setLoadingImages,
+    ] = useState(
+      true,
+    );
 
-      if (layout === "two") {
-        return "grid grid-cols-1 gap-5 md:grid-cols-2";
-      }
+    const [
+      galleryError,
+      setGalleryError,
+    ] = useState(
+      "",
+    );
 
-      return `
-        grid
-        grid-cols-1
-        gap-4
-        sm:grid-cols-2
-        lg:grid-cols-3
-        xl:grid-cols-4
-      `;
-    }, [layout]);
+    const [
+      selectedMedia,
+      setSelectedMedia,
+    ] = useState(
+      null,
+    );
 
-  const fetchCategories =
-    useCallback(async (signal) => {
-      try {
-        setLoadingCategories(true);
+    const [
+      previewLoading,
+      setPreviewLoading,
+    ] = useState(
+      false,
+    );
 
-        const response = await fetch(
-          `${API_URL}/inspiration-gallery/categories`,
+    /* =====================================================
+       FILTERS
+    ===================================================== */
+
+    const filters =
+      useMemo(
+        () => [
           {
-            signal,
+            id:
+              "all",
+
+            name:
+              "All",
+          },
+
+          ...categories,
+        ],
+        [
+          categories,
+        ],
+      );
+
+    /* =====================================================
+       FETCH CATEGORIES
+    ===================================================== */
+
+    const fetchCategories =
+      useCallback(
+        async (
+          signal,
+        ) => {
+          try {
+            setLoadingCategories(
+              true,
+            );
+
+            const response =
+              await fetch(
+                `${API_URL}/inspiration-gallery/categories`,
+                {
+                  signal,
+                },
+              );
+
+            if (
+              !response.ok
+            ) {
+              throw new Error(
+                `Categories request failed: ${response.status}`,
+              );
+            }
+
+            const result =
+              await response.json();
+
+            if (
+              !result.success
+            ) {
+              throw new Error(
+                result.message ||
+                  "Failed to load categories",
+              );
+            }
+
+            const data =
+              Array.isArray(
+                result.data,
+              )
+                ? result.data
+                : [];
+
+            /*
+             * Alphabetical categories
+             */
+            const sorted =
+              [...data].sort(
+                (
+                  a,
+                  b,
+                ) =>
+                  String(
+                    a?.name ||
+                      "",
+                  ).localeCompare(
+                    String(
+                      b?.name ||
+                        "",
+                    ),
+                    undefined,
+                    {
+                      sensitivity:
+                        "base",
+                    },
+                  ),
+              );
+
+            setCategories(
+              sorted,
+            );
+          } catch (error) {
+            if (
+              error.name !==
+              "AbortError"
+            ) {
+              console.error(
+                "Failed to fetch inspiration categories:",
+                error,
+              );
+            }
+          } finally {
+            if (
+              !signal.aborted
+            ) {
+              setLoadingCategories(
+                false,
+              );
+            }
           }
-        );
+        },
+        [],
+      );
 
-        if (!response.ok) {
-          throw new Error(
-            `Categories request failed: ${response.status}`
-          );
-        }
+    /* =====================================================
+       FETCH IMAGES
+    ===================================================== */
 
-        const result =
-          await response.json();
+    const fetchImages =
+      useCallback(
+        async ({
+          categoryId,
+          page,
+          signal,
+          force = false,
+        }) => {
+          const cacheKey =
+            `${categoryId}-${page}`;
 
-        if (!result.success) {
-          throw new Error(
-            result.message ||
-              "Failed to load categories"
-          );
-        }
+          /* ===============================================
+             CACHE
+          =============================================== */
 
-        setCategories(
-          Array.isArray(result.data)
-            ? result.data
-            : []
-        );
-      } catch (error) {
-        if (
-          error.name !== "AbortError"
-        ) {
-          console.error(
-            "Failed to fetch inspiration categories:",
-            error
-          );
-        }
-      } finally {
-        if (!signal.aborted) {
-          setLoadingCategories(false);
-        }
+          if (
+            !force &&
+            imageCacheRef.current.has(
+              cacheKey,
+            )
+          ) {
+            const cached =
+              imageCacheRef.current.get(
+                cacheKey,
+              );
+
+            setGalleryImages(
+              cached.images,
+            );
+
+            setTotalImages(
+              cached.total,
+            );
+
+            setTotalPages(
+              cached.totalPages,
+            );
+
+            setHasNextPage(
+              cached.hasNextPage,
+            );
+
+            setTotalKnown(
+              cached.totalKnown,
+            );
+
+            setGalleryError(
+              "",
+            );
+
+            setLoadingImages(
+              false,
+            );
+
+            return;
+          }
+
+          /* ===============================================
+             REQUEST
+          =============================================== */
+
+          try {
+            setLoadingImages(
+              true,
+            );
+
+            setGalleryError(
+              "",
+            );
+
+            const query =
+              new URLSearchParams(
+                {
+                  limit:
+                    String(
+                      IMAGES_PER_PAGE,
+                    ),
+
+                  page:
+                    String(
+                      page,
+                    ),
+                },
+              );
+
+            if (
+              categoryId !==
+              "all"
+            ) {
+              query.set(
+                "categoryId",
+                String(
+                  categoryId,
+                ),
+              );
+            }
+
+            const requestUrl =
+              `${API_URL}/inspiration-gallery/images?${query.toString()}`;
+
+            console.log(
+              "🟦 Gallery request:",
+              requestUrl,
+            );
+
+            const response =
+              await fetch(
+                requestUrl,
+                {
+                  signal,
+                },
+              );
+
+            if (
+              !response.ok
+            ) {
+              throw new Error(
+                `Images request failed: ${response.status}`,
+              );
+            }
+
+            const result =
+              await response.json();
+
+            console.log(
+              "🟩 Gallery API response:",
+              result,
+            );
+
+            if (
+              result.success ===
+              false
+            ) {
+              throw new Error(
+                result.message ||
+                  "Failed to load gallery media",
+              );
+            }
+
+            const normalized =
+              normalizeGalleryResponse(
+                result,
+                page,
+              );
+
+            console.log(
+              "🟨 Normalized pagination:",
+              normalized,
+            );
+
+            /* ===============================================
+               IMPORTANT LAST PAGE HANDLING
+            =============================================== */
+
+            let resolvedTotalPages =
+              normalized.totalPages;
+
+            /*
+             * Suppose page 1 had 24 items and no metadata,
+             * so we guessed page 2 existed.
+             *
+             * Then page 2 returns 10.
+             *
+             * We now know page 2 is final.
+             */
+            if (
+              !normalized.totalKnown &&
+              normalized.images.length <
+                IMAGES_PER_PAGE
+            ) {
+              resolvedTotalPages =
+                page;
+            }
+
+            const finalData =
+              {
+                ...normalized,
+
+                totalPages:
+                  resolvedTotalPages,
+              };
+
+            imageCacheRef.current.set(
+              cacheKey,
+              finalData,
+            );
+
+            setGalleryImages(
+              finalData.images,
+            );
+
+            setTotalImages(
+              finalData.total,
+            );
+
+            setTotalPages(
+              finalData.totalPages,
+            );
+
+            setHasNextPage(
+              finalData.hasNextPage,
+            );
+
+            setTotalKnown(
+              finalData.totalKnown,
+            );
+          } catch (error) {
+            if (
+              error.name !==
+              "AbortError"
+            ) {
+              console.error(
+                "Failed to fetch inspiration gallery media:",
+                error,
+              );
+
+              setGalleryImages(
+                [],
+              );
+
+              setGalleryError(
+                "Unable to load inspiration media.",
+              );
+            }
+          } finally {
+            if (
+              !signal.aborted
+            ) {
+              setLoadingImages(
+                false,
+              );
+            }
+          }
+        },
+        [],
+      );
+
+    /* =====================================================
+       LOAD CATEGORIES
+    ===================================================== */
+
+    useEffect(() => {
+      const controller =
+        new AbortController();
+
+      fetchCategories(
+        controller.signal,
+      );
+
+      return () => {
+        controller.abort();
+      };
+    }, [
+      fetchCategories,
+    ]);
+
+    /* =====================================================
+       LOAD PAGE
+    ===================================================== */
+
+    useEffect(() => {
+      const controller =
+        new AbortController();
+
+      fetchImages({
+        categoryId:
+          activeCategoryId,
+
+        page:
+          currentPage,
+
+        signal:
+          controller.signal,
+      });
+
+      return () => {
+        controller.abort();
+      };
+    }, [
+      activeCategoryId,
+      currentPage,
+      fetchImages,
+    ]);
+
+    /* =====================================================
+       PRELOAD NEXT PAGE LIGHTLY
+
+       This makes page 2 feel quicker.
+    ===================================================== */
+
+    useEffect(() => {
+      if (
+        loadingImages ||
+        !hasNextPage
+      ) {
+        return undefined;
       }
-    }, []);
 
-  const fetchImages = useCallback(
-    async ({
-      categoryId,
-      page,
-      signal,
-      force = false,
-    }) => {
-      const cacheKey = `${categoryId}-${page}`;
+      const nextPage =
+        currentPage + 1;
+
+      const cacheKey =
+        `${activeCategoryId}-${nextPage}`;
 
       if (
-        !force &&
         imageCacheRef.current.has(
-          cacheKey
+          cacheKey,
         )
       ) {
-        const cached =
-          imageCacheRef.current.get(
-            cacheKey
-          );
-
-        setGalleryImages(
-          cached.images
-        );
-
-        setTotalImages(cached.total);
-
-        setTotalPages(
-          cached.totalPages
-        );
-
-        setGalleryError("");
-        setLoadingImages(false);
-
-        return;
+        return undefined;
       }
 
-      try {
-        setLoadingImages(true);
-        setGalleryError("");
+      const controller =
+        new AbortController();
 
-        const query =
-          new URLSearchParams({
-            limit: String(
-              IMAGES_PER_PAGE
-            ),
-            page: String(page),
-          });
+      const timeoutId =
+        window.setTimeout(
+          async () => {
+            try {
+              const query =
+                new URLSearchParams(
+                  {
+                    limit:
+                      String(
+                        IMAGES_PER_PAGE,
+                      ),
 
-        if (categoryId !== "all") {
-          query.set(
-            "categoryId",
-            String(categoryId)
-          );
-        }
+                    page:
+                      String(
+                        nextPage,
+                      ),
+                  },
+                );
 
-        const response = await fetch(
-          `${API_URL}/inspiration-gallery/images?${query.toString()}`,
-          {
-            signal,
+              if (
+                activeCategoryId !==
+                "all"
+              ) {
+                query.set(
+                  "categoryId",
+                  String(
+                    activeCategoryId,
+                  ),
+                );
+              }
+
+              const response =
+                await fetch(
+                  `${API_URL}/inspiration-gallery/images?${query.toString()}`,
+                  {
+                    signal:
+                      controller.signal,
+                  },
+                );
+
+              if (
+                !response.ok
+              ) {
+                return;
+              }
+
+              const result =
+                await response.json();
+
+              if (
+                result.success ===
+                false
+              ) {
+                return;
+              }
+
+              const normalized =
+                normalizeGalleryResponse(
+                  result,
+                  nextPage,
+                );
+
+              imageCacheRef.current.set(
+                cacheKey,
+                normalized,
+              );
+            } catch (error) {
+              if (
+                error.name !==
+                "AbortError"
+              ) {
+                console.warn(
+                  "Next gallery page preload failed:",
+                  error,
+                );
+              }
+            }
+          },
+          500,
+        );
+
+      return () => {
+        window.clearTimeout(
+          timeoutId,
+        );
+
+        controller.abort();
+      };
+    }, [
+      activeCategoryId,
+      currentPage,
+      hasNextPage,
+      loadingImages,
+    ]);
+
+    /* =====================================================
+       MODAL
+    ===================================================== */
+
+    useEffect(() => {
+      if (
+        !selectedMedia
+      ) {
+        return undefined;
+      }
+
+      const previousBodyOverflow =
+        document.body.style
+          .overflow;
+
+      const previousHtmlOverflow =
+        document.documentElement
+          .style.overflow;
+
+      document.body.style.overflow =
+        "hidden";
+
+      document.documentElement.style.overflow =
+        "hidden";
+
+      const handleKeyDown =
+        (
+          event,
+        ) => {
+          if (
+            event.key ===
+            "Escape"
+          ) {
+            setSelectedMedia(
+              null,
+            );
+
+            setPreviewLoading(
+              false,
+            );
           }
-        );
+        };
 
-        if (!response.ok) {
-          throw new Error(
-            `Images request failed: ${response.status}`
+      window.addEventListener(
+        "keydown",
+        handleKeyDown,
+      );
+
+      return () => {
+        document.body.style.overflow =
+          previousBodyOverflow;
+
+        document.documentElement.style.overflow =
+          previousHtmlOverflow;
+
+        window.removeEventListener(
+          "keydown",
+          handleKeyDown,
+        );
+      };
+    }, [
+      selectedMedia,
+    ]);
+
+    /* =====================================================
+       SCROLL TO GALLERY
+    ===================================================== */
+
+    const scrollToSection =
+      useCallback(
+        () => {
+          window.setTimeout(
+            () => {
+              sectionRef.current?.scrollIntoView(
+                {
+                  behavior:
+                    "smooth",
+
+                  block:
+                    "start",
+                },
+              );
+            },
+            50,
           );
+        },
+        [],
+      );
+
+    /* =====================================================
+       CATEGORY CHANGE
+    ===================================================== */
+
+    const handleCategoryChange =
+      (
+        categoryId,
+      ) => {
+        if (
+          String(
+            categoryId,
+          ) ===
+          String(
+            activeCategoryId,
+          )
+        ) {
+          return;
         }
 
-        const result =
-          await response.json();
-
-        if (!result.success) {
-          throw new Error(
-            result.message ||
-              "Failed to load gallery media"
-          );
-        }
-
-        const normalized =
-          normalizeGalleryResponse(
-            result,
-            page
-          );
-
-        imageCacheRef.current.set(
-          cacheKey,
-          normalized
+        setActiveCategoryId(
+          categoryId,
         );
 
-        setGalleryImages(
-          normalized.images
+        setCurrentPage(
+          1,
+        );
+
+        setTotalPages(
+          1,
         );
 
         setTotalImages(
-          normalized.total
+          null,
         );
 
-        setTotalPages(
-          normalized.totalPages
+        setHasNextPage(
+          false,
         );
-      } catch (error) {
+
+        scrollToSection();
+      };
+
+    /* =====================================================
+       PAGE CHANGE
+    ===================================================== */
+
+    const handlePageChange =
+      (
+        page,
+      ) => {
         if (
-          error.name !== "AbortError"
+          page < 1 ||
+          page ===
+            currentPage
         ) {
-          console.error(
-            "Failed to fetch inspiration gallery media:",
-            error
-          );
-
-          setGalleryImages([]);
-
-          setGalleryError(
-            "Unable to load inspiration media."
-          );
+          return;
         }
-      } finally {
-        if (!signal.aborted) {
-          setLoadingImages(false);
+
+        /*
+         * If total is known, prevent
+         * going beyond it.
+         */
+        if (
+          totalKnown &&
+          page >
+            totalPages
+        ) {
+          return;
         }
-      }
-    },
-    []
-  );
 
-  useEffect(() => {
-    const controller =
-      new AbortController();
+        /*
+         * If total isn't known,
+         * only allow next page if
+         * previous result indicated
+         * there may be one.
+         */
+        if (
+          !totalKnown &&
+          page >
+            currentPage &&
+          !hasNextPage
+        ) {
+          return;
+        }
 
-    fetchCategories(
-      controller.signal
-    );
-
-    return () =>
-      controller.abort();
-  }, [fetchCategories]);
-
-  useEffect(() => {
-    const controller =
-      new AbortController();
-
-    fetchImages({
-      categoryId:
-        activeCategoryId,
-      page: currentPage,
-      signal: controller.signal,
-    });
-
-    return () =>
-      controller.abort();
-  }, [
-    activeCategoryId,
-    currentPage,
-    fetchImages,
-  ]);
-
-  useEffect(() => {
-    if (!selectedMedia) {
-      return undefined;
-    }
-
-    const previousOverflow =
-      document.body.style.overflow;
-
-    document.body.style.overflow =
-      "hidden";
-
-    const handleKeyDown = (
-      event
-    ) => {
-      if (event.key === "Escape") {
-        setSelectedMedia(null);
-      }
-    };
-
-    window.addEventListener(
-      "keydown",
-      handleKeyDown
-    );
-
-    return () => {
-      document.body.style.overflow =
-        previousOverflow;
-
-      window.removeEventListener(
-        "keydown",
-        handleKeyDown
-      );
-    };
-  }, [selectedMedia]);
-
-  const scrollToSection =
-    useCallback(() => {
-      window.setTimeout(() => {
-        sectionRef.current?.scrollIntoView(
-          {
-            behavior: "smooth",
-            block: "start",
-          }
+        setCurrentPage(
+          page,
         );
-      }, 50);
-    }, []);
 
-  const handleCategoryChange = (
-    categoryId
-  ) => {
-    if (
-      String(categoryId) ===
-      String(activeCategoryId)
-    ) {
-      return;
-    }
+        scrollToSection();
+      };
 
-    setActiveCategoryId(
-      categoryId
-    );
+    /* =====================================================
+       RETRY
+    ===================================================== */
 
-    setCurrentPage(1);
-    scrollToSection();
-  };
+    const handleRetry =
+      () => {
+        const cacheKey =
+          `${activeCategoryId}-${currentPage}`;
 
-  const handlePageChange = (
-    page
-  ) => {
-    if (
-      page < 1 ||
-      page > totalPages ||
-      page === currentPage
-    ) {
-      return;
-    }
+        imageCacheRef.current.delete(
+          cacheKey,
+        );
 
-    setCurrentPage(page);
-    scrollToSection();
-  };
+        const controller =
+          new AbortController();
 
-  const handleRetry = () => {
-    const cacheKey = `${activeCategoryId}-${currentPage}`;
+        fetchImages({
+          categoryId:
+            activeCategoryId,
 
-    imageCacheRef.current.delete(
-      cacheKey
-    );
+          page:
+            currentPage,
 
-    const controller =
-      new AbortController();
+          signal:
+            controller.signal,
 
-    fetchImages({
-      categoryId:
-        activeCategoryId,
-      page: currentPage,
-      signal: controller.signal,
-      force: true,
-    });
-  };
+          force:
+            true,
+        });
+      };
 
-  const selectedMediaUrl =
-    getMediaUrl(selectedMedia);
+    /* =====================================================
+       OPEN PREVIEW
+    ===================================================== */
 
-  const selectedMediaIsVideo =
-    selectedMedia
-      ? isVideoMedia(selectedMedia)
-      : false;
+    const handleOpenPreview =
+      (
+        media,
+      ) => {
+        setPreviewLoading(
+          !isVideoMedia(
+            media,
+          ),
+        );
 
-  const selectedMediaAlt =
-    selectedMedia
-      ? getMediaAlt(selectedMedia)
-      : "";
+        setSelectedMedia(
+          media,
+        );
+      };
 
-  const selectedMediaTitle =
-    selectedMedia
-      ? getDisplayTitle(selectedMedia)
-      : "";
+    /* =====================================================
+       SELECTED MEDIA
+    ===================================================== */
 
-  return (
-    <>
-      <style>
-        {`
-          @keyframes galleryShimmer {
-            0% {
-              transform: translateX(-100%);
+    const selectedMediaUrl =
+      getMediaUrl(
+        selectedMedia,
+      );
+
+    const selectedMediaIsVideo =
+      selectedMedia
+        ? isVideoMedia(
+            selectedMedia,
+          )
+        : false;
+
+    const selectedMediaAlt =
+      selectedMedia
+        ? getMediaAlt(
+            selectedMedia,
+          )
+        : "";
+
+    /* =====================================================
+       PAGE NUMBERS
+    ===================================================== */
+
+    const pageNumbers =
+      useMemo(
+        () =>
+          getPageNumbers(
+            {
+              currentPage,
+
+              totalPages:
+                Math.max(
+                  totalPages,
+                  hasNextPage
+                    ? currentPage +
+                        1
+                    : currentPage,
+                ),
+            },
+          ),
+        [
+          currentPage,
+          totalPages,
+          hasNextPage,
+        ],
+      );
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
+    return (
+      <>
+        {/* =================================================
+            CSS
+        ================================================= */}
+
+        <style>
+          {`
+            @keyframes galleryShimmer {
+              0% {
+                transform: translateX(-100%);
+              }
+
+              100% {
+                transform: translateX(100%);
+              }
             }
 
-            100% {
-              transform: translateX(100%);
+            @keyframes gallerySpinner {
+              to {
+                transform: rotate(360deg);
+              }
             }
-          }
 
-          .gallery-skeleton {
-            position: relative;
-          }
+            .gallery-skeleton {
+              position: relative;
+            }
 
-          .gallery-skeleton::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            transform: translateX(-100%);
-            background: linear-gradient(
-              90deg,
-              transparent,
-              rgba(255, 255, 255, 0.78),
-              transparent
-            );
-            animation: galleryShimmer 1.4s infinite;
-          }
-
-          @media (prefers-reduced-motion: reduce) {
             .gallery-skeleton::after {
-              animation: none;
+              content: "";
+              position: absolute;
+              inset: 0;
+              transform: translateX(-100%);
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.78),
+                transparent
+              );
+              animation: galleryShimmer 1.4s infinite;
             }
-          }
-        `}
-      </style>
 
-      <div className="min-h-screen pt-[110px]">
-        <section>
-          <div className="mx-auto max-w-[1650px] px-6 xl:px-10">
-            <h1
-              className="text-[34px] font-semibold text-[#161412] md:text-[42px]"
-              style={{
-                fontFamily:
-                  "Montserrat, sans-serif",
-              }}
-            >
-              Inspiration Gallery
-            </h1>
+            .gallery-preview-spinner {
+              animation: gallerySpinner 0.8s linear infinite;
+            }
 
-            <div className="mb-5 mt-3 h-[4px] w-[70px] bg-[#c91f26]" />
+            @media (prefers-reduced-motion: reduce) {
+              .gallery-skeleton::after {
+                animation: none;
+              }
 
-            <p className="text-[13px] text-[#777]">
-              <Link
-                to="/"
-                className="duration-300 hover:text-[#161412]"
+              .gallery-preview-spinner {
+                animation: none;
+              }
+            }
+          `}
+        </style>
+
+        {/* =================================================
+            PAGE
+        ================================================= */}
+
+        <div className="min-h-screen pt-[110px]">
+
+          {/* ===============================================
+              HEADING
+          =============================================== */}
+
+          <section>
+            <div className="mx-auto max-w-[1650px] px-6 xl:px-10">
+
+              <h1
+                className="text-[34px] font-semibold text-[#161412] md:text-[42px]"
+                style={{
+                  fontFamily:
+                    "Montserrat, sans-serif",
+                }}
               >
-                Home
-              </Link>
+                Inspiration
+                Gallery
+              </h1>
 
-              {" / "}
+              <div className="mb-5 mt-3 h-[4px] w-[70px] bg-[#c91f26]" />
 
-              <Link
-                to="/"
-                className="duration-300 hover:text-[#161412]"
-              >
-                Resource Center
-              </Link>
+              <p className="text-[13px] text-[#777]">
 
-              {" / "}
-
-              <span className="font-semibold text-[#161412]">
-                Portfolio
-              </span>
-            </p>
-          </div>
-        </section>
-
-        <section
-          className="scroll-mt-[110px] py-14"
-          ref={sectionRef}
-        >
-          <div className="mx-auto max-w-[1650px] px-6 xl:px-10">
-            <div
-              className="
-                mb-9
-                flex
-                flex-col
-                gap-6
-                border-b
-                border-[#e4e4e4]
-                pb-7
-                lg:flex-row
-                lg:items-end
-                lg:justify-between
-              "
-            >
-              <div className="min-w-0">
-                <p
-                  className="
-                    mb-4
-                    text-[12px]
-                    font-semibold
-                    uppercase
-                    tracking-[0.16em]
-                    text-[#777]
-                  "
+                <Link
+                  to="/"
+                  className="duration-300 hover:text-[#161412]"
                 >
-                  Filter by application
-                </p>
+                  Home
+                </Link>
 
-                <div className="flex max-w-full gap-2 overflow-x-auto pb-2">
-                  {filters.map(
-                    (item) => {
-                      const isActive =
-                        String(
-                          activeCategoryId
-                        ) ===
-                        String(item.id);
+                {" / "}
 
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          disabled={
-                            loadingCategories
-                          }
-                          onClick={() =>
-                            handleCategoryChange(
-                              item.id
-                            )
-                          }
-                          className={`
-                            shrink-0
-                            border
-                            px-5
-                            py-2.5
-                            text-[13px]
-                            font-medium
-                            transition-all
-                            duration-300
-                            disabled:opacity-50
-                            ${
-                              isActive
-                                ? "border-[#161412] bg-[#161412] text-white"
-                                : "border-[#dedede] bg-white text-[#555] hover:border-[#161412] hover:text-[#161412]"
-                            }
-                          `}
-                        >
-                          {item.name}
-                        </button>
-                      );
-                    }
-                  )}
+                <span>
+                  Resource
+                  Center
+                </span>
 
-                  {loadingCategories &&
-                    categories.length ===
-                      0 && (
-                      <>
-                        <div className="gallery-skeleton h-[42px] w-[105px] shrink-0 bg-[#eeeeee]" />
-                        <div className="gallery-skeleton h-[42px] w-[125px] shrink-0 bg-[#eeeeee]" />
-                        <div className="gallery-skeleton h-[42px] w-[110px] shrink-0 bg-[#eeeeee]" />
-                      </>
+                {" / "}
+
+                <span className="font-semibold text-[#161412]">
+                  Portfolio
+                </span>
+              </p>
+            </div>
+          </section>
+
+          {/* ===============================================
+              GALLERY
+          =============================================== */}
+
+          <section
+            ref={
+              sectionRef
+            }
+            className="scroll-mt-[120px] py-14"
+          >
+            <div className="mx-auto max-w-[1650px] px-6 xl:px-10">
+
+              {/* =========================================
+                  FILTER HEADER
+              ========================================= */}
+
+              <div
+                className="
+                  mb-9
+                  border-b
+                  border-[#e4e4e4]
+                  pb-7
+                "
+              >
+                <div className="flex items-end justify-between gap-6">
+
+                  <div className="min-w-0 flex-1">
+
+                    <p
+                      className="
+                        mb-4
+                        text-[12px]
+                        font-semibold
+                        uppercase
+                        tracking-[0.16em]
+                        text-[#777]
+                      "
+                    >
+                      Filter by
+                      application
+                    </p>
+
+                    <div className="flex max-w-full gap-2 overflow-x-auto pb-2">
+
+                      {filters.map(
+                        (
+                          item,
+                        ) => {
+                          const isActive =
+                            String(
+                              activeCategoryId,
+                            ) ===
+                            String(
+                              item.id,
+                            );
+
+                          return (
+                            <button
+                              key={
+                                item.id
+                              }
+                              type="button"
+                              disabled={
+                                loadingCategories
+                              }
+                              onClick={() =>
+                                handleCategoryChange(
+                                  item.id,
+                                )
+                              }
+                              className={`
+                                shrink-0
+                                border
+                                px-5
+                                py-2.5
+                                text-[13px]
+                                font-medium
+                                transition-all
+                                duration-300
+                                disabled:opacity-50
+
+                                ${
+                                  isActive
+                                    ? "border-[#161412] bg-[#161412] text-white"
+                                    : "border-[#dedede] bg-white text-[#555] hover:border-[#161412] hover:text-[#161412]"
+                                }
+                              `}
+                            >
+                              {
+                                item.name
+                              }
+                            </button>
+                          );
+                        },
+                      )}
+
+                      {loadingCategories &&
+                        categories.length ===
+                          0 && (
+                          <>
+                            <div className="gallery-skeleton h-[42px] w-[105px] shrink-0 bg-[#eeeeee]" />
+
+                            <div className="gallery-skeleton h-[42px] w-[125px] shrink-0 bg-[#eeeeee]" />
+
+                            <div className="gallery-skeleton h-[42px] w-[110px] shrink-0 bg-[#eeeeee]" />
+                          </>
+                        )}
+                    </div>
+                  </div>
+
+                  {/* =====================================
+                      TOTAL COUNT
+                  ===================================== */}
+
+                  {!loadingImages &&
+                    totalImages !==
+                      null && (
+                      <p
+                        className="
+                          hidden
+                          shrink-0
+                          pb-2
+                          text-[12px]
+                          uppercase
+                          tracking-[1px]
+                          text-[#888]
+                          md:block
+                        "
+                      >
+                        {
+                          totalImages
+                        }{" "}
+                        Items
+                      </p>
                     )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <LayoutButton
-                  active={
-                    layout === "grid"
-                  }
-                  label="Grid layout"
-                  onClick={() =>
-                    setLayout("grid")
-                  }
+              {/* =========================================
+                  LOADING
+              ========================================= */}
+
+              {loadingImages ? (
+                <GallerySkeleton />
+              ) : galleryError ? (
+                /* =======================================
+                   ERROR
+                ======================================= */
+
+                <div
+                  className="
+                    flex
+                    min-h-[500px]
+                    items-center
+                    justify-center
+                    border
+                    border-[#e5e5e5]
+                    bg-[#fafafa]
+                    px-6
+                  "
                 >
-                  <Grid2X2
-                    size={17}
-                    aria-hidden="true"
-                  />
-                </LayoutButton>
+                  <div className="max-w-[420px] text-center">
 
-                <LayoutButton
-                  active={
-                    layout === "two"
-                  }
-                  label="Two-column layout"
-                  onClick={() =>
-                    setLayout("two")
-                  }
-                >
-                  <Columns2
-                    size={17}
-                    aria-hidden="true"
-                  />
-                </LayoutButton>
-
-                <LayoutButton
-                  active={
-                    layout === "one"
-                  }
-                  label="Single-column layout"
-                  onClick={() =>
-                    setLayout("one")
-                  }
-                >
-                  <Square
-                    size={16}
-                    aria-hidden="true"
-                  />
-                </LayoutButton>
-              </div>
-            </div>
-
-            {loadingImages ? (
-              <GallerySkeleton
-                layout={layout}
-              />
-            ) : galleryError ? (
-              <div
-                className="
-                  flex
-                  min-h-[500px]
-                  items-center
-                  justify-center
-                  border
-                  border-[#e5e5e5]
-                  bg-[#fafafa]
-                  px-6
-                "
-              >
-                <div className="max-w-[420px] text-center">
-                  <div
-                    className="
-                      mx-auto
-                      flex
-                      h-14
-                      w-14
-                      items-center
-                      justify-center
-                      rounded-full
-                      bg-white
-                      text-[#777]
-                      shadow-sm
-                    "
-                  >
-                    <ImageIcon
-                      size={24}
-                      aria-hidden="true"
-                    />
-                  </div>
-
-                  <p className="mt-5 text-[18px] font-semibold text-[#222]">
-                    Gallery unavailable
-                  </p>
-
-                  <p className="mt-2 text-[14px] leading-6 text-[#666]">
-                    {galleryError}
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={
-                      handleRetry
-                    }
-                    className="
-                      mx-auto
-                      mt-6
-                      flex
-                      items-center
-                      gap-2
-                      bg-[#161412]
-                      px-6
-                      py-3
-                      text-[13px]
-                      font-medium
-                      text-white
-                      transition-colors
-                      duration-300
-                      hover:bg-[#c91f26]
-                    "
-                  >
-                    <RefreshCw
-                      size={16}
-                      aria-hidden="true"
-                    />
-
-                    Try Again
-                  </button>
-                </div>
-              </div>
-            ) : galleryImages.length >
-              0 ? (
-              <div
-                className={
-                  galleryGridClass
-                }
-              >
-                {galleryImages.map(
-                  (media, index) => (
-                    <GalleryCard
-                      key={
-                        media.id ||
-                        getMediaUrl(
-                          media
-                        ) ||
-                        `${currentPage}-${index}`
-                      }
-                      media={media}
-                      layout={layout}
-                      index={index}
-                      onClick={
-                        setSelectedMedia
-                      }
-                    />
-                  )
-                )}
-              </div>
-            ) : (
-              <div
-                className="
-                  flex
-                  min-h-[500px]
-                  items-center
-                  justify-center
-                  border
-                  border-[#e5e5e5]
-                  bg-[#fafafa]
-                  px-6
-                "
-              >
-                <div className="text-center">
-                  <ImageIcon
-                    size={34}
-                    className="mx-auto text-[#999]"
-                    aria-hidden="true"
-                  />
-
-                  <p className="mt-5 text-[18px] font-semibold text-[#222]">
-                    No inspiration
-                    media found
-                  </p>
-
-                  <p className="mt-2 text-[14px] text-[#666]">
-                    Images and videos
-                    for this category
-                    will appear here.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {!loadingImages &&
-              !galleryError &&
-              galleryImages.length > 0 &&
-              totalPages > 1 && (
-                <div className="mt-16 flex items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handlePageChange(
-                        currentPage - 1
-                      )
-                    }
-                    disabled={
-                      currentPage === 1
-                    }
-                    className="
-                      text-sm
-                      duration-300
-                      hover:text-[#c91f26]
-                      disabled:cursor-not-allowed
-                      disabled:opacity-40
-                    "
-                  >
-                    Prev
-                  </button>
-
-                  {Array.from(
-                    {
-                      length:
-                        totalPages,
-                    },
-                    (_, index) =>
-                      index + 1
-                  ).map((page) => (
-                    <button
-                      key={page}
-                      type="button"
-                      onClick={() =>
-                        handlePageChange(
-                          page
-                        )
-                      }
-                      className={`
-                        h-8
-                        w-8
-                        rounded
-                        text-sm
-                        duration-300
-                        ${
-                          currentPage ===
-                          page
-                            ? "bg-black text-white"
-                            : "hover:text-[#c91f26]"
-                        }
-                      `}
+                    <div
+                      className="
+                        mx-auto
+                        flex
+                        h-14
+                        w-14
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-white
+                        text-[#777]
+                        shadow-sm
+                      "
                     >
-                      {page}
-                    </button>
-                  ))}
+                      <ImageIcon
+                        size={
+                          24
+                        }
+                        aria-hidden="true"
+                      />
+                    </div>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handlePageChange(
-                        currentPage + 1
-                      )
-                    }
-                    disabled={
-                      currentPage ===
-                      totalPages
-                    }
-                    className="
-                      text-sm
-                      duration-300
-                      hover:text-[#c91f26]
-                      disabled:cursor-not-allowed
-                      disabled:opacity-40
-                    "
-                  >
-                    Next Page
-                  </button>
+                    <p className="mt-5 text-[18px] font-semibold text-[#222]">
+                      Gallery
+                      unavailable
+                    </p>
+
+                    <p className="mt-2 text-[14px] leading-6 text-[#666]">
+                      {
+                        galleryError
+                      }
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={
+                        handleRetry
+                      }
+                      className="
+                        mx-auto
+                        mt-6
+                        flex
+                        items-center
+                        gap-2
+                        bg-[#161412]
+                        px-6
+                        py-3
+                        text-[13px]
+                        font-medium
+                        text-white
+                        transition-colors
+                        duration-300
+                        hover:bg-[#c91f26]
+                      "
+                    >
+                      <RefreshCw
+                        size={
+                          16
+                        }
+                        aria-hidden="true"
+                      />
+
+                      Try Again
+                    </button>
+                  </div>
+                </div>
+              ) : galleryImages.length >
+                0 ? (
+                /* =======================================
+                   GALLERY GRID
+                ======================================= */
+
+                <div
+                  className="
+                    grid
+                    grid-cols-1
+                    gap-4
+                    sm:grid-cols-2
+                    lg:grid-cols-3
+                    xl:grid-cols-4
+                  "
+                >
+                  {galleryImages.map(
+                    (
+                      media,
+                      index,
+                    ) => (
+                      <GalleryCard
+                        key={
+                          media.id ||
+                          getMediaUrl(
+                            media,
+                          ) ||
+                          `${currentPage}-${index}`
+                        }
+                        media={
+                          media
+                        }
+                        index={
+                          index
+                        }
+                        onClick={
+                          handleOpenPreview
+                        }
+                      />
+                    ),
+                  )}
+                </div>
+              ) : (
+                /* =======================================
+                   EMPTY
+                ======================================= */
+
+                <div
+                  className="
+                    flex
+                    min-h-[500px]
+                    items-center
+                    justify-center
+                    border
+                    border-[#e5e5e5]
+                    bg-[#fafafa]
+                    px-6
+                  "
+                >
+                  <div className="text-center">
+
+                    <ImageIcon
+                      size={
+                        34
+                      }
+                      className="mx-auto text-[#999]"
+                      aria-hidden="true"
+                    />
+
+                    <p className="mt-5 text-[18px] font-semibold text-[#222]">
+                      No
+                      inspiration
+                      media found
+                    </p>
+
+                    <p className="mt-2 text-[14px] text-[#666]">
+                      Images and
+                      videos for
+                      this category
+                      will appear
+                      here.
+                    </p>
+                  </div>
                 </div>
               )}
-          </div>
-        </section>
-      </div>
 
-      {selectedMedia &&
-        selectedMediaUrl && (
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={
-              selectedMediaIsVideo
-                ? "Video preview"
-                : "Image preview"
-            }
-            className="
-              fixed
-              inset-0
-              z-[9999]
-              flex
-              items-center
-              justify-center
-              bg-black/85
-              p-4
-            "
-            onClick={() =>
-              setSelectedMedia(null)
-            }
-          >
-            <button
-              type="button"
-              aria-label="Close media preview"
-              onClick={() =>
-                setSelectedMedia(null)
+              {/* =========================================
+                  PAGINATION
+
+                  Shows if:
+                  - More than one known page
+                  - OR current response has 24 items,
+                    meaning another page may exist
+              ========================================= */}
+
+              {!loadingImages &&
+                !galleryError &&
+                galleryImages.length >
+                  0 &&
+                (totalPages >
+                  1 ||
+                  currentPage >
+                    1 ||
+                  hasNextPage) && (
+                  <div className="mt-16">
+
+                    <div
+                      className="
+                        flex
+                        flex-wrap
+                        items-center
+                        justify-center
+                        gap-2
+                      "
+                    >
+                      {/* =================================
+                          PREVIOUS
+                      ================================= */}
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handlePageChange(
+                            currentPage -
+                              1,
+                          )
+                        }
+                        disabled={
+                          currentPage ===
+                          1
+                        }
+                        className="
+                          mr-2
+                          flex
+                          h-10
+                          items-center
+                          gap-2
+                          border
+                          border-[#dedede]
+                          bg-white
+                          px-4
+                          text-[12px]
+                          font-medium
+                          uppercase
+                          tracking-[0.6px]
+                          text-[#333]
+                          transition-all
+                          duration-300
+                          hover:border-black
+                          hover:bg-black
+                          hover:text-white
+                          disabled:cursor-not-allowed
+                          disabled:opacity-30
+                          disabled:hover:border-[#dedede]
+                          disabled:hover:bg-white
+                          disabled:hover:text-[#333]
+                        "
+                      >
+                        <ChevronLeft
+                          size={
+                            15
+                          }
+                        />
+
+                        Prev
+                      </button>
+
+                      {/* =================================
+                          PAGE NUMBERS
+                      ================================= */}
+
+                      {pageNumbers.map(
+                        (
+                          page,
+                          index,
+                        ) => {
+                          const previousPage =
+                            pageNumbers[
+                              index -
+                                1
+                            ];
+
+                          const showEllipsis =
+                            index >
+                              0 &&
+                            previousPage &&
+                            page -
+                              previousPage >
+                              1;
+
+                          return (
+                            <React.Fragment
+                              key={
+                                page
+                              }
+                            >
+                              {showEllipsis && (
+                                <span className="px-1 text-[#999]">
+                                  …
+                                </span>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handlePageChange(
+                                    page,
+                                  )
+                                }
+                                className={`
+                                  flex
+                                  h-10
+                                  min-w-10
+                                  items-center
+                                  justify-center
+                                  border
+                                  px-3
+                                  text-[13px]
+                                  font-medium
+                                  transition-all
+                                  duration-300
+
+                                  ${
+                                    currentPage ===
+                                    page
+                                      ? "border-[#161412] bg-[#161412] text-white"
+                                      : "border-[#dedede] bg-white text-[#555] hover:border-[#161412] hover:text-[#161412]"
+                                  }
+                                `}
+                              >
+                                {
+                                  page
+                                }
+                              </button>
+                            </React.Fragment>
+                          );
+                        },
+                      )}
+
+                      {/* =================================
+                          NEXT
+                      ================================= */}
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handlePageChange(
+                            currentPage +
+                              1,
+                          )
+                        }
+                        disabled={
+                          totalKnown
+                            ? currentPage >=
+                              totalPages
+                            : !hasNextPage
+                        }
+                        className="
+                          ml-2
+                          flex
+                          h-10
+                          items-center
+                          gap-2
+                          border
+                          border-[#dedede]
+                          bg-white
+                          px-4
+                          text-[12px]
+                          font-medium
+                          uppercase
+                          tracking-[0.6px]
+                          text-[#333]
+                          transition-all
+                          duration-300
+                          hover:border-black
+                          hover:bg-black
+                          hover:text-white
+                          disabled:cursor-not-allowed
+                          disabled:opacity-30
+                          disabled:hover:border-[#dedede]
+                          disabled:hover:bg-white
+                          disabled:hover:text-[#333]
+                        "
+                      >
+                        Next
+
+                        <ChevronRight
+                          size={
+                            15
+                          }
+                        />
+                      </button>
+                    </div>
+
+                    {/* =====================================
+                        PAGE LABEL
+                    ===================================== */}
+
+                    <p
+                      className="
+                        mt-5
+                        text-center
+                        text-[11px]
+                        uppercase
+                        tracking-[1.2px]
+                        text-[#999]
+                      "
+                    >
+                      Page{" "}
+                      {
+                        currentPage
+                      }
+
+                      {totalKnown &&
+                        totalPages >
+                          1 &&
+                        ` of ${totalPages}`}
+                    </p>
+                  </div>
+                )}
+            </div>
+          </section>
+        </div>
+
+        {/* =================================================
+            FULLSCREEN PREVIEW
+        ================================================= */}
+
+        {selectedMedia &&
+          selectedMediaUrl && (
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={
+                selectedMediaIsVideo
+                  ? "Video preview"
+                  : "Image preview"
               }
               className="
-                absolute
-                right-5
-                top-5
-                z-10
+                fixed
+                inset-0
+                z-[9999]
                 flex
-                h-12
-                w-12
                 items-center
                 justify-center
-                rounded-full
-                bg-white/10
-                text-white
-                transition-colors
-                duration-300
-                hover:bg-white
-                hover:text-black
+                bg-black/90
+                p-4
               "
-            >
-              <X
-                size={25}
-                aria-hidden="true"
-              />
-            </button>
+              onClick={() => {
+                setSelectedMedia(
+                  null,
+                );
 
-            <div
-              className="
-                flex
-                max-h-[92vh]
-                max-w-[96vw]
-                flex-col
-                items-center
-              "
-              onClick={(event) =>
-                event.stopPropagation()
-              }
+                setPreviewLoading(
+                  false,
+                );
+              }}
             >
-              {selectedMediaIsVideo ? (
-                <video
-                  key={selectedMediaUrl}
-                  src={selectedMediaUrl}
-                  aria-label={
-                    selectedMediaAlt
+
+              {/* =========================================
+                  CLOSE
+              ========================================= */}
+
+              <button
+                type="button"
+                aria-label="Close media preview"
+                onClick={() => {
+                  setSelectedMedia(
+                    null,
+                  );
+
+                  setPreviewLoading(
+                    false,
+                  );
+                }}
+                className="
+                  absolute
+                  right-5
+                  top-5
+                  z-20
+                  flex
+                  h-12
+                  w-12
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-white/10
+                  text-white
+                  transition-colors
+                  duration-300
+                  hover:bg-white
+                  hover:text-black
+                "
+              >
+                <X
+                  size={
+                    25
                   }
-                  controls
-                  autoPlay
-                  playsInline
-                  preload="auto"
-                  controlsList="nodownload"
-                  className="
-                    max-h-[86vh]
-                    max-w-[96vw]
-                    bg-black
-                    object-contain
-                  "
-                >
-                  Your browser does not
-                  support video playback.
-                </video>
-              ) : (
-                <img
-                  src={getOptimizedImageUrl(
-                    selectedMediaUrl,
-                    2200,
-                    86
-                  )}
-                  alt={
-                    selectedMediaAlt
-                  }
-                  decoding="async"
-                  fetchPriority="high"
-                  className="
-                    max-h-[86vh]
-                    max-w-[96vw]
-                    object-contain
-                  "
+                  aria-hidden="true"
                 />
-              )}
+              </button>
 
+              {/* =========================================
+                  CONTENT
+              ========================================= */}
 
+              <div
+                className="
+                  relative
+                  flex
+                  max-h-[92vh]
+                  max-w-[96vw]
+                  items-center
+                  justify-center
+                "
+                onClick={(
+                  event,
+                ) =>
+                  event.stopPropagation()
+                }
+              >
+
+                {/* =======================================
+                    PREVIEW LOADING SPINNER
+                ======================================= */}
+
+                {!selectedMediaIsVideo &&
+                  previewLoading && (
+                    <div
+                      className="
+                        absolute
+                        left-1/2
+                        top-1/2
+                        z-10
+                        flex
+                        -translate-x-1/2
+                        -translate-y-1/2
+                        flex-col
+                        items-center
+                        gap-3
+                      "
+                    >
+                      <div
+                        className="
+                          gallery-preview-spinner
+                          h-9
+                          w-9
+                          rounded-full
+                          border-2
+                          border-white/25
+                          border-t-white
+                        "
+                      />
+
+                      <span className="text-[11px] uppercase tracking-[1.2px] text-white/60">
+                        Loading
+                      </span>
+                    </div>
+                  )}
+
+                {/* =======================================
+                    VIDEO
+                ======================================= */}
+
+                {selectedMediaIsVideo ? (
+                  <video
+                    key={
+                      selectedMediaUrl
+                    }
+                    src={
+                      selectedMediaUrl
+                    }
+                    aria-label={
+                      selectedMediaAlt
+                    }
+                    controls
+                    autoPlay
+                    playsInline
+                    preload="auto"
+                    controlsList="nodownload"
+                    className="
+                      max-h-[86vh]
+                      max-w-[96vw]
+                      bg-black
+                      object-contain
+                    "
+                  >
+                    Your browser
+                    does not support
+                    video playback.
+                  </video>
+                ) : (
+                  /* =====================================
+                     IMAGE
+                  ===================================== */
+
+                  <img
+                    key={
+                      selectedMediaUrl
+                    }
+                    src={getOptimizedImageUrl(
+                      selectedMediaUrl,
+                      2600,
+                      92,
+                    )}
+                    alt={
+                      selectedMediaAlt
+                    }
+                    decoding="async"
+                    fetchPriority="high"
+                    draggable={
+                      false
+                    }
+                    onLoad={() =>
+                      setPreviewLoading(
+                        false,
+                      )
+                    }
+                    onError={() =>
+                      setPreviewLoading(
+                        false,
+                      )
+                    }
+                    className={`
+                      max-h-[86vh]
+                      max-w-[96vw]
+                      object-contain
+                      transition-opacity
+                      duration-300
+
+                      ${
+                        previewLoading
+                          ? "opacity-0"
+                          : "opacity-100"
+                      }
+                    `}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-        )}
-
-    </>
-  );
-};
+          )}
+      </>
+    );
+  };
 
 export default Gallery;
