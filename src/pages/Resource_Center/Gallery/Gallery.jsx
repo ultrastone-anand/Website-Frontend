@@ -7,6 +7,8 @@ import React, {
   useState,
 } from "react";
 
+import { createPortal } from "react-dom";
+
 import {
   ChevronLeft,
   ChevronRight,
@@ -2539,223 +2541,230 @@ export const Gallery =
           </section>
         </div>
 
-        {/* =================================================
-            FULLSCREEN PREVIEW
-        ================================================= */}
+{/* =================================================
+    FULLSCREEN PREVIEW
+================================================= */}
 
-        {selectedMedia &&
-          selectedMediaUrl && (
+{selectedMedia &&
+  selectedMediaUrl &&
+  createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={
+        selectedMediaIsVideo
+          ? "Video preview"
+          : "Image preview"
+      }
+      className="
+        fixed
+        inset-0
+        z-[999999]
+        flex
+        h-[100dvh]
+        w-screen
+        items-center
+        justify-center
+        overflow-hidden
+        bg-black/90
+        p-4
+        sm:p-6
+        md:p-8
+      "
+      onClick={() => {
+        setSelectedMedia(null);
+        setPreviewLoading(false);
+      }}
+    >
+      {/* =========================================
+          CLOSE BUTTON
+      ========================================= */}
+
+      <button
+        type="button"
+        aria-label="Close media preview"
+        onClick={(event) => {
+          event.stopPropagation();
+
+          setSelectedMedia(null);
+          setPreviewLoading(false);
+        }}
+        className="
+          absolute
+          right-4
+          top-4
+          z-[60]
+          flex
+          h-11
+          w-11
+          items-center
+          justify-center
+          rounded-full
+          border
+          border-white/15
+          bg-black/35
+          text-white
+          shadow-lg
+          backdrop-blur-md
+          transition-all
+          duration-300
+          hover:rotate-90
+          hover:bg-white
+          hover:text-black
+          sm:right-6
+          sm:top-6
+          sm:h-12
+          sm:w-12
+        "
+      >
+        <X
+          size={24}
+          strokeWidth={1.7}
+          aria-hidden="true"
+        />
+      </button>
+
+      {/* =========================================
+          MEDIA WRAPPER
+      ========================================= */}
+
+      <div
+        className="
+          relative
+          flex
+          h-full
+          w-full
+          items-center
+          justify-center
+        "
+        onClick={(event) =>
+          event.stopPropagation()
+        }
+      >
+        {/* =======================================
+            IMAGE LOADING SPINNER
+        ======================================= */}
+
+        {!selectedMediaIsVideo &&
+          previewLoading && (
             <div
-              role="dialog"
-              aria-modal="true"
-              aria-label={
-                selectedMediaIsVideo
-                  ? "Video preview"
-                  : "Image preview"
-              }
               className="
-                fixed
-                inset-0
-                z-[9999]
+                absolute
+                left-1/2
+                top-1/2
+                z-20
                 flex
+                -translate-x-1/2
+                -translate-y-1/2
+                flex-col
                 items-center
                 justify-center
-                bg-black/90
-                p-4
+                gap-3
               "
-              onClick={() => {
-                setSelectedMedia(
-                  null,
-                );
-
-                setPreviewLoading(
-                  false,
-                );
-              }}
             >
-
-              {/* =========================================
-                  CLOSE
-              ========================================= */}
-
-              <button
-                type="button"
-                aria-label="Close media preview"
-                onClick={() => {
-                  setSelectedMedia(
-                    null,
-                  );
-
-                  setPreviewLoading(
-                    false,
-                  );
-                }}
-                className="
-                  absolute
-                  right-5
-                  top-5
-                  z-20
-                  flex
-                  h-12
-                  w-12
-                  items-center
-                  justify-center
-                  rounded-full
-                  bg-white/10
-                  text-white
-                  transition-colors
-                  duration-300
-                  hover:bg-white
-                  hover:text-black
-                "
-              >
-                <X
-                  size={
-                    25
-                  }
-                  aria-hidden="true"
-                />
-              </button>
-
-              {/* =========================================
-                  CONTENT
-              ========================================= */}
-
               <div
                 className="
-                  relative
-                  flex
-                  max-h-[92vh]
-                  max-w-[96vw]
-                  items-center
-                  justify-center
+                  gallery-preview-spinner
+                  h-10
+                  w-10
+                  rounded-full
+                  border-2
+                  border-white/25
+                  border-t-white
                 "
-                onClick={(
-                  event,
-                ) =>
-                  event.stopPropagation()
-                }
+              />
+
+              <span
+                className="
+                  text-[10px]
+                  font-medium
+                  uppercase
+                  tracking-[1.5px]
+                  text-white/65
+                "
               >
-
-                {/* =======================================
-                    PREVIEW LOADING SPINNER
-                ======================================= */}
-
-                {!selectedMediaIsVideo &&
-                  previewLoading && (
-                    <div
-                      className="
-                        absolute
-                        left-1/2
-                        top-1/2
-                        z-10
-                        flex
-                        -translate-x-1/2
-                        -translate-y-1/2
-                        flex-col
-                        items-center
-                        gap-3
-                      "
-                    >
-                      <div
-                        className="
-                          gallery-preview-spinner
-                          h-9
-                          w-9
-                          rounded-full
-                          border-2
-                          border-white/25
-                          border-t-white
-                        "
-                      />
-
-                      <span className="text-[11px] uppercase tracking-[1.2px] text-white/60">
-                        Loading
-                      </span>
-                    </div>
-                  )}
-
-                {/* =======================================
-                    VIDEO
-                ======================================= */}
-
-                {selectedMediaIsVideo ? (
-                  <video
-                    key={
-                      selectedMediaUrl
-                    }
-                    src={
-                      selectedMediaUrl
-                    }
-                    aria-label={
-                      selectedMediaAlt
-                    }
-                    controls
-                    autoPlay
-                    playsInline
-                    preload="auto"
-                    controlsList="nodownload"
-                    className="
-                      max-h-[86vh]
-                      max-w-[96vw]
-                      bg-black
-                      object-contain
-                    "
-                  >
-                    Your browser
-                    does not support
-                    video playback.
-                  </video>
-                ) : (
-                  /* =====================================
-                     IMAGE
-                  ===================================== */
-
-                  <img
-                    key={
-                      selectedMediaUrl
-                    }
-                    src={getOptimizedImageUrl(
-                      selectedMediaUrl,
-                      2600,
-                      92,
-                    )}
-                    alt={
-                      selectedMediaAlt
-                    }
-                    decoding="async"
-                    fetchPriority="high"
-                    draggable={
-                      false
-                    }
-                    onLoad={() =>
-                      setPreviewLoading(
-                        false,
-                      )
-                    }
-                    onError={() =>
-                      setPreviewLoading(
-                        false,
-                      )
-                    }
-                    className={`
-                      max-h-[86vh]
-                      max-w-[96vw]
-                      object-contain
-                      transition-opacity
-                      duration-300
-
-                      ${
-                        previewLoading
-                          ? "opacity-0"
-                          : "opacity-100"
-                      }
-                    `}
-                  />
-                )}
-              </div>
+                Loading
+              </span>
             </div>
           )}
+
+        {/* =======================================
+            VIDEO
+        ======================================= */}
+
+        {selectedMediaIsVideo ? (
+          <video
+            key={selectedMediaUrl}
+            src={selectedMediaUrl}
+            aria-label={selectedMediaAlt}
+            controls
+            autoPlay
+            playsInline
+            preload="auto"
+            controlsList="nodownload"
+            className="
+              block
+              max-h-[calc(100dvh-64px)]
+              max-w-[calc(100vw-32px)]
+              object-contain
+              sm:max-h-[calc(100dvh-80px)]
+              sm:max-w-[calc(100vw-48px)]
+              md:max-h-[calc(100dvh-96px)]
+              md:max-w-[calc(100vw-64px)]
+            "
+          >
+            Your browser does not support
+            video playback.
+          </video>
+        ) : (
+          /* =====================================
+             IMAGE
+          ===================================== */
+
+          <img
+            key={selectedMediaUrl}
+            src={getOptimizedImageUrl(
+              selectedMediaUrl,
+              2600,
+              92,
+            )}
+            alt={selectedMediaAlt}
+            decoding="async"
+            fetchPriority="high"
+            draggable={false}
+            onLoad={() =>
+              setPreviewLoading(false)
+            }
+            onError={() =>
+              setPreviewLoading(false)
+            }
+            className={`
+              block
+              max-h-[calc(100dvh-64px)]
+              max-w-[calc(100vw-32px)]
+              object-contain
+              transition-opacity
+              duration-300
+
+              sm:max-h-[calc(100dvh-80px)]
+              sm:max-w-[calc(100vw-48px)]
+
+              md:max-h-[calc(100dvh-96px)]
+              md:max-w-[calc(100vw-64px)]
+
+              ${
+                previewLoading
+                  ? "opacity-0"
+                  : "opacity-100"
+              }
+            `}
+          />
+        )}
+      </div>
+    </div>,
+
+    document.body,
+  )}
       </>
     );
   };
