@@ -76,29 +76,54 @@ export default function Category() {
           if (
             result.success
           ) {
-            const activeCategories =
-              result.data
-                .filter(
-                  (item) =>
-                    item.is_active ===
-                      true &&
-                    item.parent_id ===
-                      null,
-                )
-                .sort(
-                  (
-                    a,
-                    b,
-                  ) =>
-                    a.name.localeCompare(
-                      b.name,
-                      undefined,
-                      {
-                        sensitivity:
-                          "base",
-                      },
-                    ),
-                );
+const activeCategories =
+  result.data
+    .filter(
+      (item) =>
+        item.is_active === true &&
+        item.parent_id === null,
+    )
+    .sort((a, b) => {
+      // Ultra Quartz always first
+      if (
+        a.slug ===
+        "ultra-quartz"
+      )
+        return -1;
+
+      if (
+        b.slug ===
+        "ultra-quartz"
+      )
+        return 1;
+
+      // Atlas Plan always last
+      if (
+        a.slug ===
+        "atlas-plan"
+      )
+        return 1;
+
+      if (
+        b.slug ===
+        "atlas-plan"
+      )
+        return -1;
+
+      // All other categories alphabetical
+      return a.name.localeCompare(
+        b.name,
+        undefined,
+        {
+          sensitivity:
+            "base",
+        },
+      );
+    });
+
+setMaterials(
+  activeCategories,
+);
 
             setMaterials(
               activeCategories,

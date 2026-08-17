@@ -715,37 +715,38 @@ const handleCardClick = (
                       "
                     >
                       <div className="overflow-hidden bg-gray-100">
-                        <img
-                          src={getOptimizedImageUrl(
-                            item.thumbnail_url,
-                            600,
-                            72
-                          )}
-                          srcSet={`
-                            ${getOptimizedImageUrl(item.thumbnail_url, 360, 68)} 360w,
-                            ${getOptimizedImageUrl(item.thumbnail_url, 480, 70)} 480w,
-                            ${getOptimizedImageUrl(item.thumbnail_url, 600, 72)} 600w,
-                            ${getOptimizedImageUrl(item.thumbnail_url, 800, 74)} 800w
-                          `}
-                          sizes="(max-width: 639px) 300px, (max-width: 1023px) 340px, 390px"
-                          width="600"
-                          height="750"
-                          alt={item.name}
-                          loading="lazy"
-                          decoding="async"
-                          fetchPriority="low"
-                          draggable="false"
-                          className="
-                            pointer-events-none
-                            aspect-[4/5]
-                            w-full
-                            select-none
-                            object-cover
-                            transition
-                            duration-700
-                            group-hover:scale-105
-                          "
-                        />
+<img
+  src={getOptimizedImageUrl(
+    item.thumbnail_url,
+    1400,
+    95
+  )}
+  srcSet={`
+    ${getOptimizedImageUrl(item.thumbnail_url, 800, 92)} 800w,
+    ${getOptimizedImageUrl(item.thumbnail_url, 1200, 94)} 1200w,
+    ${getOptimizedImageUrl(item.thumbnail_url, 1600, 95)} 1600w,
+    ${getOptimizedImageUrl(item.thumbnail_url, 2000, 96)} 2000w
+  `}
+  sizes="
+    (max-width: 639px) 300px,
+    (max-width: 1023px) 340px,
+    390px
+  "
+  alt={item.name}
+  loading="lazy"
+  decoding="async"
+  draggable="false"
+  className="
+    pointer-events-none
+    aspect-[4/5]
+    w-full
+    select-none
+    object-cover
+    transition-transform
+    duration-700
+    group-hover:scale-105
+  "
+/>
                       </div>
 
                       <h3
