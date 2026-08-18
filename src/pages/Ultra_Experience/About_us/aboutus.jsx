@@ -11,6 +11,7 @@ import Loading from "../../../components/common/Loading";
 const Eyebrow = ({
   children,
   light = false,
+  centered = false,
 }) => {
   return (
     <div
@@ -19,7 +20,12 @@ const Eyebrow = ({
         items-center
         gap-3
 
-        text-[10px]
+        ${centered ? "justify-center" : ""}
+
+        text-[11px]
+        sm:text-[12px]
+        lg:text-[13px]
+
         font-semibold
         uppercase
         tracking-[0.08em]
@@ -31,8 +37,7 @@ const Eyebrow = ({
         }
       `}
       style={{
-        fontFamily:
-          "Montserrat, sans-serif",
+        fontFamily: "Montserrat, sans-serif",
       }}
     >
       <span>{children}</span>
@@ -40,7 +45,7 @@ const Eyebrow = ({
       <span
         className="
           text-[#c91f26]
-          text-[14px]
+          text-[16px]
           leading-none
         "
       >
@@ -66,14 +71,21 @@ const OutlineButton = ({
         inline-flex
         items-center
         justify-between
-        gap-8
 
-        h-[38px]
+        gap-7
+
+        min-w-[160px]
+        h-[42px]
+
         px-5
+        sm:px-6
 
         border
 
         text-[9px]
+        sm:text-[10px]
+        lg:text-[11px]
+
         font-semibold
         uppercase
         tracking-[0.05em]
@@ -101,8 +113,7 @@ const OutlineButton = ({
         }
       `}
       style={{
-        fontFamily:
-          "Montserrat, sans-serif",
+        fontFamily: "Montserrat, sans-serif",
       }}
     >
       <span>{children}</span>
@@ -119,8 +130,7 @@ const OutlineButton = ({
 ========================================================= */
 
 const Aboutus = () => {
-  const [page, setPage] =
-    useState(null);
+  const [page, setPage] = useState(null);
 
   const [loading, setLoading] =
     useState(true);
@@ -130,34 +140,31 @@ const Aboutus = () => {
   ======================================================= */
 
   useEffect(() => {
-    const fetchPage =
-      async () => {
-        try {
-          const response =
-            await axios.get(
-              `${
-                import.meta.env
-                  .VITE_API_URL
-              }/pages/about-us`
-            );
-
-          const result =
-            response.data;
-
-          if (result.success) {
-            setPage(
-              result.data
-            );
-          }
-        } catch (error) {
-          console.error(
-            "Error fetching About Us page:",
-            error
+    const fetchPage = async () => {
+      try {
+        const response =
+          await axios.get(
+            `${
+              import.meta.env
+                .VITE_API_URL
+            }/pages/about-us`
           );
-        } finally {
-          setLoading(false);
+
+        const result =
+          response.data;
+
+        if (result.success) {
+          setPage(result.data);
         }
-      };
+      } catch (error) {
+        console.error(
+          "Error fetching About Us page:",
+          error
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchPage();
   }, []);
@@ -179,11 +186,15 @@ const Aboutus = () => {
       <div
         className="
           min-h-screen
-          pt-[110px]
+          pt-[90px]
+          sm:pt-[110px]
 
           flex
           items-center
           justify-center
+
+          px-6
+          text-center
         "
       >
         Page not found
@@ -226,7 +237,13 @@ const Aboutus = () => {
     visitUs.locations || [];
 
   return (
-    <div className="min-h-screen pt-[110px]">
+    <div
+      className="
+        min-h-screen
+        pt-[90px]
+        sm:pt-[110px]
+      "
+    >
 
       {/* =================================================
           HERO
@@ -237,7 +254,8 @@ const Aboutus = () => {
           className="
             relative
 
-            h-[560px]
+            h-[540px]
+            sm:h-[590px]
             md:h-[650px]
             xl:h-[720px]
 
@@ -261,25 +279,28 @@ const Aboutus = () => {
                 h-full
 
                 object-cover
+
+                object-center
               "
             />
           )}
 
-          {/* DARK LEFT OVERLAY */}
+          {/* OVERLAY */}
 
           <div
             className="
               absolute
               inset-0
 
-              bg-gradient-to-r
-              from-black/90
-              via-black/45
-              to-transparent
+              bg-black/50
+
+              sm:bg-gradient-to-r
+              sm:from-black/60
+              sm:via-black/15
             "
           />
 
-          {/* HERO CONTENT */}
+          {/* CONTENT */}
 
           <div
             className="
@@ -289,7 +310,7 @@ const Aboutus = () => {
               flex
               items-center
 
-              px-7
+              px-6
               sm:px-10
               md:px-14
               lg:px-16
@@ -297,7 +318,9 @@ const Aboutus = () => {
           >
             <div
               className="
-                max-w-[600px]
+                w-full
+                max-w-[620px]
+
                 text-white
               "
             >
@@ -308,14 +331,15 @@ const Aboutus = () => {
 
               <h1
                 className="
-                  mt-8
+                  mt-6
+                  sm:mt-8
 
-                  text-[40px]
-                  sm:text-[48px]
-                  md:text-[57px]
+                  text-[38px]
+                  sm:text-[46px]
+                  md:text-[56px]
                   xl:text-[64px]
 
-                  leading-[1]
+                  leading-[1.02]
 
                   tracking-[-0.035em]
 
@@ -331,18 +355,14 @@ const Aboutus = () => {
                 {hero.headingLine2 && (
                   <>
                     <br />
-                    {
-                      hero.headingLine2
-                    }
+                    {hero.headingLine2}
                   </>
                 )}
 
                 {hero.headingLine3 && (
                   <>
                     <br />
-                    {
-                      hero.headingLine3
-                    }
+                    {hero.headingLine3}
                   </>
                 )}
               </h1>
@@ -350,38 +370,40 @@ const Aboutus = () => {
               {hero.description && (
                 <p
                   className="
-                    mt-8
+                    mt-6
+                    sm:mt-8
 
-                    max-w-[430px]
+                    max-w-[470px]
 
-                    text-[11px]
-                    sm:text-[12px]
+                    text-[12px]
+                    sm:text-[13px]
 
-                    leading-[1.8]
+                    leading-[1.75]
 
-                    text-white/75
+                    text-white/80
                   "
                   style={{
                     fontFamily:
                       "Montserrat, sans-serif",
                   }}
                 >
-                  {
-                    hero.description
-                  }
+                  {hero.description}
                 </p>
               )}
 
               {hero.meta && (
                 <p
                   className="
-                    mt-10
+                    mt-7
+                    sm:mt-10
 
-                    text-[9px]
+                    text-[10px]
+                    sm:text-[11px]
+                    lg:text-[12px]
 
                     font-medium
 
-                    tracking-[0.1em]
+                    tracking-[0.12em]
 
                     text-white
                   "
@@ -402,13 +424,20 @@ const Aboutus = () => {
           WHO WE ARE
       ================================================= */}
 
-      <section className="py-14 lg:py-16">
+      <section
+        className="
+          py-10
+          sm:py-12
+          lg:py-16
+        "
+      >
         <div
           className="
             max-w-[1750px]
             mx-auto
 
-            px-6
+            px-4
+            sm:px-6
             xl:px-10
           "
         >
@@ -423,8 +452,8 @@ const Aboutus = () => {
 
             <div
               className="
-                p-6
-                sm:p-8
+                p-0
+                sm:p-6
                 lg:p-10
               "
             >
@@ -441,8 +470,8 @@ const Aboutus = () => {
                   className="
                     w-full
 
-                    h-[380px]
-                    sm:h-[480px]
+                    h-[320px]
+                    sm:h-[430px]
                     lg:h-[560px]
 
                     object-cover
@@ -453,8 +482,8 @@ const Aboutus = () => {
                   className="
                     w-full
 
-                    h-[380px]
-                    sm:h-[480px]
+                    h-[320px]
+                    sm:h-[430px]
                     lg:h-[560px]
 
                     bg-[#efedea]
@@ -470,16 +499,24 @@ const Aboutus = () => {
                 flex
                 items-center
 
-                px-7
-                sm:px-10
+                px-2
+                sm:px-8
                 lg:px-14
                 xl:px-16
 
-                py-12
+                pt-10
+                pb-4
+
+                sm:py-12
                 lg:py-16
               "
             >
-              <div className="max-w-[550px]">
+              <div
+                className="
+                  w-full
+                  max-w-[580px]
+                "
+              >
                 <Eyebrow>
                   {whoWeAre.eyebrow ||
                     "Who We Are"}
@@ -487,11 +524,12 @@ const Aboutus = () => {
 
                 <h2
                   className="
-                    mt-7
+                    mt-6
+                    sm:mt-7
 
                     text-[34px]
-                    sm:text-[40px]
-                    lg:text-[47px]
+                    sm:text-[42px]
+                    lg:text-[49px]
 
                     leading-[1.06]
 
@@ -520,12 +558,14 @@ const Aboutus = () => {
 
                 <div
                   className="
-                    mt-7
+                    mt-6
+                    sm:mt-7
 
-                    space-y-5
+                    space-y-4
+                    sm:space-y-5
 
                     text-[12px]
-                    sm:text-[13px]
+                    sm:text-[14px]
 
                     leading-[1.8]
 
@@ -557,7 +597,7 @@ const Aboutus = () => {
                 </div>
 
                 {whoWeAre.buttonLabel && (
-                  <div className="mt-8">
+                  <div className="mt-7">
                     <OutlineButton
                       to={
                         whoWeAre.buttonLink ||
@@ -587,7 +627,8 @@ const Aboutus = () => {
               max-w-[1750px]
               mx-auto
 
-              px-6
+              px-4
+              sm:px-6
               xl:px-10
             "
           >
@@ -610,12 +651,19 @@ const Aboutus = () => {
                       `${item.label}-${index}`
                     }
                     className={`
+                      flex
+                      flex-col
+                      items-center
+                      justify-center
+
                       text-center
 
-                      py-10
-                      md:py-12
+                      min-h-[135px]
+                      sm:min-h-[160px]
+                      lg:min-h-[175px]
 
-                      px-4
+                      px-3
+                      sm:px-4
 
                       ${
                         index % 2 ===
@@ -640,8 +688,11 @@ const Aboutus = () => {
                     <div
                       className="
                         text-[28px]
-                        sm:text-[34px]
-                        lg:text-[38px]
+                        sm:text-[36px]
+                        lg:text-[40px]
+                        xl:text-[44px]
+
+                        leading-none
 
                         text-[#171513]
                       "
@@ -659,14 +710,15 @@ const Aboutus = () => {
                       className="
                         mt-3
 
-                        text-[7px]
-                        sm:text-[8px]
+                        text-[8px]
+                        sm:text-[9px]
+                        lg:text-[10px]
 
                         font-semibold
 
                         uppercase
 
-                        tracking-[0.1em]
+                        tracking-[0.09em]
 
                         text-[#69645f]
                       "
@@ -691,13 +743,20 @@ const Aboutus = () => {
           OUR JOURNEY
       ================================================= */}
 
-      <section className="py-16 lg:py-20">
+      <section
+        className="
+          py-14
+          sm:py-16
+          lg:py-20
+        "
+      >
         <div
           className="
             max-w-[1750px]
             mx-auto
 
-            px-6
+            px-5
+            sm:px-6
             xl:px-10
           "
         >
@@ -708,26 +767,28 @@ const Aboutus = () => {
 
           <div
             className="
-              mt-10
+              mt-8
+              sm:mt-10
 
               grid
               grid-cols-1
               xl:grid-cols-[0.8fr_2.2fr]
 
-              gap-12
+              gap-10
               xl:gap-20
             "
           >
-            {/* LEFT */}
+            {/* TITLE */}
 
             <div>
               <h2
                 className="
-                  text-[32px]
-                  sm:text-[38px]
-                  lg:text-[41px]
+                  text-[36px]
+                  sm:text-[44px]
+                  lg:text-[50px]
+                  xl:text-[54px]
 
-                  leading-[1.08]
+                  leading-[1.05]
 
                   tracking-[-0.03em]
 
@@ -761,18 +822,23 @@ const Aboutus = () => {
 
                 grid
                 grid-cols-1
-                md:grid-cols-4
+                sm:grid-cols-2
+                lg:grid-cols-4
 
-                gap-9
-                md:gap-0
+                gap-8
+                sm:gap-x-8
+                sm:gap-y-10
+                lg:gap-0
               "
             >
+              {/* DESKTOP LINE */}
+
               {journeyItems.length >
                 0 && (
                 <div
                   className="
                     hidden
-                    md:block
+                    lg:block
 
                     absolute
 
@@ -798,18 +864,35 @@ const Aboutus = () => {
                     }
                     className="
                       relative
-                      md:pr-8
+
+                      pl-5
+                      lg:pl-0
+
+                      lg:pr-8
+
+                      border-l
+                      border-[#d8d4cf]
+
+                      lg:border-l-0
                     "
                   >
                     <div
                       className="
-                        relative
+                        absolute
+
+                        left-[-4px]
+                        top-[2px]
+
+                        lg:relative
+                        lg:left-auto
+                        lg:top-auto
+
                         z-10
 
-                        w-[7px]
-                        h-[7px]
+                        w-[8px]
+                        h-[8px]
 
-                        mb-5
+                        lg:mb-6
 
                         rounded-full
 
@@ -819,7 +902,8 @@ const Aboutus = () => {
 
                     <div
                       className="
-                        text-[7px]
+                        text-[9px]
+                        sm:text-[10px]
 
                         font-bold
 
@@ -842,8 +926,10 @@ const Aboutus = () => {
                     <h3
                       className="
                         mt-2
+                        sm:mt-3
 
-                        text-[13px]
+                        text-[15px]
+                        lg:text-[16px]
 
                         font-medium
 
@@ -863,12 +949,13 @@ const Aboutus = () => {
                       className="
                         mt-3
 
-                        max-w-[180px]
+                        max-w-[260px]
 
-                        text-[9px]
-                        sm:text-[10px]
+                        text-[11px]
+                        sm:text-[12px]
+                        lg:text-[13px]
 
-                        leading-[1.6]
+                        leading-[1.65]
 
                         text-[#8b8681]
                       "
@@ -899,7 +986,8 @@ const Aboutus = () => {
             max-w-[1750px]
             mx-auto
 
-            px-6
+            px-0
+            sm:px-6
             xl:px-10
           "
         >
@@ -907,46 +995,83 @@ const Aboutus = () => {
             className="
               bg-[#151515]
 
-              px-7
-              sm:px-10
-              lg:px-14
+              px-5
+              sm:px-8
+              lg:px-12
               xl:px-16
 
-              py-14
+              py-12
+              sm:py-14
               lg:py-16
             "
           >
-            <Eyebrow light>
-              {processSection.eyebrow ||
-                "From Source To Space"}
-            </Eyebrow>
+            {/* =================================================
+                PROCESS LAYOUT
+            ================================================= */}
 
             <div
               className="
-                mt-10
-
                 grid
                 grid-cols-1
-                lg:grid-cols-[0.7fr_2.3fr]
+
+                lg:grid-cols-[0.8fr_2.2fr]
 
                 gap-12
-                lg:gap-14
+                lg:gap-12
+                xl:gap-14
               "
             >
-              {/* LEFT */}
+              {/* =================================================
+                  LEFT SIDE
 
-              <div>
+                  Mobile:
+                  centered horizontally.
+
+                  Desktop:
+                  vertically centered against cards.
+              ================================================= */}
+
+              <div
+                className="
+                  flex
+                  flex-col
+                  items-center
+                  justify-center
+
+                  text-center
+
+                  lg:items-start
+                  lg:text-left
+                "
+              >
+                <Eyebrow
+                  light
+                  centered
+                >
+                  {processSection.eyebrow ||
+                    "From Source To Space"}
+                </Eyebrow>
+
                 <h2
                   className="
-                    text-[34px]
-                    sm:text-[40px]
-                    lg:text-[44px]
+                    mt-6
+                    sm:mt-7
 
-                    leading-[1.05]
+                    max-w-[500px]
+
+                    text-[38px]
+                    sm:text-[46px]
+                    lg:text-[48px]
+                    xl:text-[54px]
+
+                    leading-[1.03]
 
                     tracking-[-0.03em]
 
                     text-white
+
+                    text-center
+                    lg:text-left
                   "
                   style={{
                     fontFamily:
@@ -972,14 +1097,17 @@ const Aboutus = () => {
                     className="
                       mt-6
 
-                      max-w-[280px]
+                      max-w-[380px]
 
-                      text-[10px]
-                      sm:text-[11px]
+                      text-[12px]
+                      sm:text-[13px]
 
-                      leading-[1.7]
+                      leading-[1.75]
 
-                      text-white/55
+                      text-white/60
+
+                      text-center
+                      lg:text-left
                     "
                     style={{
                       fontFamily:
@@ -993,7 +1121,17 @@ const Aboutus = () => {
                 )}
 
                 {processSection.buttonLabel && (
-                  <div className="mt-7">
+                  <div
+                    className="
+                      mt-7
+                      sm:mt-8
+
+                      flex
+                      justify-center
+
+                      lg:justify-start
+                    "
+                  >
                     <OutlineButton
                       light
                       to={
@@ -1009,15 +1147,22 @@ const Aboutus = () => {
                 )}
               </div>
 
-              {/* CARDS */}
+              {/* =================================================
+                  PROCESS CARDS
+              ================================================= */}
 
               <div
                 className="
                   grid
                   grid-cols-1
-                  md:grid-cols-3
 
-                  gap-4
+                  sm:grid-cols-2
+
+                  xl:grid-cols-3
+
+                  gap-8
+                  sm:gap-5
+                  xl:gap-4
                 "
               >
                 {processItems.map(
@@ -1029,13 +1174,28 @@ const Aboutus = () => {
                       key={
                         `${item.title}-${index}`
                       }
+                      className="
+                        w-full
+
+                        max-w-[520px]
+
+                        mx-auto
+
+                        sm:max-w-none
+                      "
                     >
+                      {/* IMAGE */}
+
                       <div
                         className="
                           relative
 
-                          h-[350px]
-                          md:h-[390px]
+                          h-[390px]
+
+                          sm:h-[360px]
+
+                          lg:h-[400px]
+
                           xl:h-[430px]
 
                           overflow-hidden
@@ -1081,7 +1241,7 @@ const Aboutus = () => {
 
                               text-white/20
 
-                              text-[10px]
+                              text-[11px]
 
                               uppercase
 
@@ -1098,7 +1258,7 @@ const Aboutus = () => {
                           </div>
                         )}
 
-                        {/* IMAGE OVERLAY */}
+                        {/* OVERLAY */}
 
                         <div
                           className="
@@ -1107,7 +1267,7 @@ const Aboutus = () => {
 
                             bg-gradient-to-t
 
-                            from-black/50
+                            from-black/45
                             via-transparent
                             to-black/10
                           "
@@ -1122,9 +1282,9 @@ const Aboutus = () => {
                             top-4
                             left-4
 
-                            text-[8px]
+                            text-[10px]
 
-                            text-white/70
+                            text-white/80
                           "
                           style={{
                             fontFamily:
@@ -1141,18 +1301,23 @@ const Aboutus = () => {
                         </span>
                       </div>
 
-                      {/* CARD TEXT */}
+                      {/* TEXT */}
 
                       <div
                         className="
-                          pt-4
+                          pt-5
+
+                          flex
+                          flex-col
+                          items-center
 
                           text-center
                         "
                       >
                         <h3
                           className="
-                            text-[10px]
+                            text-[12px]
+                            sm:text-[13px]
 
                             font-semibold
 
@@ -1174,18 +1339,19 @@ const Aboutus = () => {
 
                         <p
                           className="
-                            mt-2
+                            mt-3
 
                             mx-auto
 
-                            max-w-[200px]
+                            max-w-[300px]
 
-                            text-[8px]
-                            sm:text-[9px]
+                            text-[11px]
+                            sm:text-[11px]
+                            lg:text-[12px]
 
-                            leading-[1.55]
+                            leading-[1.6]
 
-                            text-white/45
+                            text-white/55
                           "
                           style={{
                             fontFamily:
@@ -1210,24 +1376,31 @@ const Aboutus = () => {
           VISIT US
       ================================================= */}
 
-      <section className="py-16">
+      <section
+        className="
+          py-12
+          sm:py-16
+        "
+      >
         <div
           className="
             max-w-[1750px]
             mx-auto
 
-            px-6
+            px-5
+            sm:px-6
             xl:px-10
           "
         >
           <div
             className="
-              px-7
-              sm:px-10
+              px-0
+              sm:px-6
               lg:px-14
               xl:px-16
 
-              py-14
+              py-8
+              sm:py-12
               lg:py-16
             "
           >
@@ -1238,11 +1411,13 @@ const Aboutus = () => {
 
             <h2
               className="
-                mt-7
+                mt-6
+                sm:mt-7
 
-                text-[35px]
-                sm:text-[41px]
-                lg:text-[46px]
+                text-[38px]
+                sm:text-[48px]
+                lg:text-[54px]
+                xl:text-[58px]
 
                 leading-[1.05]
 
@@ -1271,13 +1446,15 @@ const Aboutus = () => {
 
             <div
               className="
-                mt-14
+                mt-12
+                sm:mt-14
 
                 grid
                 grid-cols-1
                 md:grid-cols-2
 
                 gap-16
+                md:gap-10
                 lg:gap-24
               "
             >
@@ -1294,17 +1471,19 @@ const Aboutus = () => {
                       flex
                       flex-col
                       items-center
+                      justify-center
 
                       text-center
                     "
                   >
-                    {/* LOCATION IMAGE */}
+                    {/* IMAGE */}
 
                     <div
                       className="
                         w-full
 
-                        h-[230px]
+                        h-[190px]
+                        sm:h-[230px]
                         lg:h-[270px]
 
                         flex
@@ -1337,9 +1516,7 @@ const Aboutus = () => {
                         <div
                           className="
                             w-full
-
                             max-w-[520px]
-
                             h-full
 
                             flex
@@ -1348,7 +1525,7 @@ const Aboutus = () => {
 
                             bg-[#efedea]
 
-                            text-[10px]
+                            text-[11px]
 
                             uppercase
 
@@ -1368,13 +1545,15 @@ const Aboutus = () => {
                       )}
                     </div>
 
-                    {/* LOCATION NAME */}
+                    {/* LOCATION */}
 
                     <h3
                       className="
                         mt-6
+                        sm:mt-7
 
-                        text-[12px]
+                        text-[13px]
+                        sm:text-[15px]
 
                         font-bold
 
@@ -1383,6 +1562,8 @@ const Aboutus = () => {
                         tracking-[0.07em]
 
                         text-[#161412]
+
+                        text-center
                       "
                       style={{
                         fontFamily:
@@ -1394,15 +1575,16 @@ const Aboutus = () => {
                       }
                     </h3>
 
-                    {/* CITY */}
-
                     <p
                       className="
-                        mt-1
+                        mt-2
 
                         text-[12px]
+                        sm:text-[14px]
 
                         text-[#393531]
+
+                        text-center
                       "
                       style={{
                         fontFamily:
@@ -1414,10 +1596,8 @@ const Aboutus = () => {
                       }
                     </p>
 
-                    {/* BUTTON */}
-
                     {location.buttonLabel && (
-                      <div className="mt-5">
+                      <div className="mt-5 sm:mt-6">
                         <OutlineButton
                           to={
                             location.buttonLink ||

@@ -774,6 +774,7 @@ const Navbar = () => {
               left-4
               top-[22px]
               z-[110]
+              cursor-pointer
 
               transition-all
               duration-700
@@ -1032,6 +1033,7 @@ const Navbar = () => {
                   shrink-0
                   items-center
                   justify-center
+                  cursor-pointer
 
                   min-[1360px]:h-11
                   min-[1360px]:w-11
