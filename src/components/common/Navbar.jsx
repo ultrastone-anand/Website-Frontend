@@ -656,6 +656,13 @@ const Navbar = () => {
       path:
         "/safety-first",
     },
+    {
+      label:
+        "CEU",
+
+      path:
+        "/ceu",
+    },
 
     {
       label:

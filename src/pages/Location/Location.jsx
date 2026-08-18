@@ -191,7 +191,7 @@ const Location = () => {
               {" / "}
 
               <Link
-                to="/locations"
+                to="/ "
                 className="transition-colors duration-300 hover:text-[#161412]"
               >
                 Locations
