@@ -1762,14 +1762,24 @@ const SafetyFirst = () => {
                       }
                       className="border border-white/15 bg-white/[0.055] p-6 min-h-[190px]"
                     >
-                      <div className="w-11 h-11 rounded-full bg-white text-[#171513] flex items-center justify-center font-bold text-[10px] px-1 text-center">
-                        {item.shortName ||
-                          (
-                            <ShieldCheck
-                              size={21}
-                            />
-                          )}
-                      </div>
+<div className="w-11 h-11 rounded-full bg-white flex items-center justify-center overflow-hidden p-1.5">
+  {item.logo ? (
+    <img
+      src={item.logo}
+      alt={
+        item.logoAlt ||
+        item.title ||
+        "Certification logo"
+      }
+      className="w-full h-full object-contain"
+    />
+  ) : (
+    <ShieldCheck
+      size={21}
+      className="text-[#171513]"
+    />
+  )}
+</div>
 
                       <h3
                         className="mt-6 text-[25px]"

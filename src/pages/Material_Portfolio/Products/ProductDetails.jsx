@@ -1400,61 +1400,50 @@ const ProductDetails = () => {
                         />
                       </video>
                     ) : (
-                      <img
-                        key={
-                          activeMedia
-                            ?.media_url
-                        }
-                        src={getOptimizedImageUrl(
-                          activeMedia
-                            ?.media_url,
-                          1200,
-                          82,
-                        )}
-                        srcSet={`
-                          ${getOptimizedImageUrl(
-                            activeMedia?.media_url,
-                            640,
-                            76,
-                          )} 640w,
+<img
+  key={activeMedia?.media_url}
+  src={getOptimizedImageUrl(
+    activeMedia?.media_url,
+    1600,
+    92,
+  )}
+  srcSet={`
+    ${getOptimizedImageUrl(
+      activeMedia?.media_url,
+      768,
+      88,
+    )} 768w,
 
-                          ${getOptimizedImageUrl(
-                            activeMedia?.media_url,
-                            960,
-                            80,
-                          )} 960w,
+    ${getOptimizedImageUrl(
+      activeMedia?.media_url,
+      1200,
+      90,
+    )} 1200w,
 
-                          ${getOptimizedImageUrl(
-                            activeMedia?.media_url,
-                            1200,
-                            82,
-                          )} 1200w,
+    ${getOptimizedImageUrl(
+      activeMedia?.media_url,
+      1600,
+      92,
+    )} 1600w,
 
-                          ${getOptimizedImageUrl(
-                            activeMedia?.media_url,
-                            1600,
-                            84,
-                          )} 1600w
-                        `}
-                        sizes="(min-width: 1280px) 50vw, 100vw"
-                        alt={
-                          product.name
-                        }
-                        loading="eager"
-                        fetchPriority="high"
-                        decoding="async"
-                        width="1200"
-                        height="800"
-                        className="
-                          w-full
-                          h-[520px]
-                          xl:h-[640px]
-                          object-cover
-                          transition-transform
-                          duration-700
-                          group-hover:scale-[1.015]
-                        "
-                      />
+    ${getOptimizedImageUrl(
+      activeMedia?.media_url,
+      2000,
+      92,
+    )} 2000w
+  `}
+  sizes="(min-width: 1280px) 50vw, 100vw"
+  alt={product.name}
+  loading="eager"
+  fetchPriority="high"
+  decoding="async"
+  className="
+    w-full
+    h-[520px]
+    xl:h-[640px]
+    object-cover
+  "
+/>
                     )}
                   </div>
 
@@ -1754,43 +1743,52 @@ const ProductDetails = () => {
                     handleZoomLeave
                   }
                 >
-                  <img
-                    src={getOptimizedImageUrl(
-                      images[0]
-                        ?.media_url,
-                      900,
-                      80,
-                    )}
-                    srcSet={`
-                      ${getOptimizedImageUrl(
-                        images[0]?.media_url,
-                        480,
-                        74,
-                      )} 480w,
+                 <img
+  src={getOptimizedImageUrl(
+    images[0]?.media_url,
+    1200,
+    82,
+  )}
+  srcSet={`
+    ${getOptimizedImageUrl(
+      images[0]?.media_url,
+      480,
+      76,
+    )} 480w,
 
-                      ${getOptimizedImageUrl(
-                        images[0]?.media_url,
-                        700,
-                        78,
-                      )} 700w,
+    ${getOptimizedImageUrl(
+      images[0]?.media_url,
+      768,
+      78,
+    )} 768w,
 
-                      ${getOptimizedImageUrl(
-                        images[0]?.media_url,
-                        900,
-                        80,
-                      )} 900w
-                    `}
-                    sizes="(min-width: 1280px) 48vw, 100vw"
-                    alt={`${product.name} close-up`}
-                    loading="lazy"
-                    decoding="async"
-                    width="900"
-                    height="500"
-                    className="w-full h-[300px] object-cover select-none"
-                    draggable={
-                      false
-                    }
-                  />
+    ${getOptimizedImageUrl(
+      images[0]?.media_url,
+      1000,
+      80,
+    )} 1000w,
+
+    ${getOptimizedImageUrl(
+      images[0]?.media_url,
+      1200,
+      82,
+    )} 1200w,
+
+    ${getOptimizedImageUrl(
+      images[0]?.media_url,
+      1600,
+      84,
+    )} 1600w
+  `}
+  sizes="(min-width: 1280px) 48vw, (min-width: 768px) 50vw, 100vw"
+  alt={`${product.name} close-up`}
+  loading="lazy"
+  decoding="async"
+  width="1200"
+  height="675"
+  className="w-full h-[300px] object-cover select-none"
+  draggable={false}
+/>
 
                   <div
                     ref={
