@@ -285,48 +285,108 @@ if (!category) {
 
             {/* COLOR BUTTON */}
 
-            <button
-              className={`
-    h-[50px]
-    w-[230px]
-    border
-    px-5
-    uppercase
-    tracking-[2px]
-    text-[11px]
-    flex
-    items-center
-    justify-between
-    duration-300
+           <div className="relative group">
+  <button
+    type="button"
+    className={`
+      h-[50px]
+      w-[230px]
+      border
+      px-5
+      uppercase
+      tracking-[2px]
+      text-[11px]
+      flex
+      items-center
+      justify-between
+      duration-300
 
-    ${selectedColor
-                  ? `
-          bg-black
-          text-white
-          border-black
+      ${
+        selectedColor
+          ? `
+            bg-black
+            text-white
+            border-black
           `
-                  : `
-          bg-white
-          text-[#777]
-          border-[#d9d9d9]
+          : `
+            bg-white
+            text-[#777]
+            border-[#d9d9d9]
           `
-                }
+      }
     `}
-              style={{
-                fontFamily:
-                  "Montserrat, sans-serif",
-              }}
-            >
+    style={{
+      fontFamily: "Montserrat, sans-serif",
+    }}
+  >
+    <span>
+      Filter By Color (0)
+    </span>
 
-              <span>
-                Filter By Color (0)
-              </span>
+    <span className="text-[9px] mt-[1px]">
+      ▼
+    </span>
+  </button>
 
-              <span className="text-[9px] mt-[1px]">
-                ▼
-              </span>
+  {/* COMING SOON TOOLTIP */}
 
-            </button>
+  <div
+    className="
+      pointer-events-none
+
+      absolute
+      left-1/2
+      top-[calc(100%+8px)]
+      z-50
+
+      -translate-x-1/2
+      translate-y-1
+
+      whitespace-nowrap
+
+      bg-[#161412]
+      px-4
+      py-2
+
+      text-[9px]
+      font-semibold
+      uppercase
+      tracking-[1.5px]
+      text-white
+
+      opacity-0
+      invisible
+
+      transition-all
+      duration-200
+
+      group-hover:opacity-100
+      group-hover:visible
+      group-hover:translate-y-0
+    "
+    style={{
+      fontFamily: "Montserrat, sans-serif",
+    }}
+  >
+    Coming Soon
+
+    {/* ARROW */}
+
+    <span
+      className="
+        absolute
+        left-1/2
+        bottom-full
+
+        -translate-x-1/2
+
+        border-[5px]
+        border-transparent
+        border-b-[#161412]
+      "
+    />
+  </div>
+</div>
 
             {/* SORT / PATTERN */}
 
