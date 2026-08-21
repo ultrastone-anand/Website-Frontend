@@ -188,6 +188,34 @@ const ProductDetails = () => {
     setModelSectionElement,
   ] = useState(null);
 
+  const [
+  openSampleDialog,
+  setOpenSampleDialog,
+] = useState(false);
+
+const [
+  sampleForm,
+  setSampleForm,
+] = useState({
+  firstName: "",
+  lastName: "",
+  companyName: "",
+  streetAddress: "",
+  city: "",
+  county: "",
+  state: "",
+  zipCode: "",
+  email: "",
+  phone: "",
+  remarks: "",
+  quantity: 1,
+});
+
+const [
+  isSubmittingSample,
+  setIsSubmittingSample,
+] = useState(false);
+
   /* =======================================================
      REFS
   ======================================================= */
@@ -1268,9 +1296,203 @@ const ProductDetails = () => {
       );
     };
 
-  /* =========================================================
-     RENDER
-  ========================================================= */
+/* =========================================================
+   ORDER SAMPLE
+========================================================= */
+
+const handleSampleChange = (
+  event,
+) => {
+  const {
+    name,
+    value,
+  } = event.target;
+
+  setSampleForm(
+    (previous) => ({
+      ...previous,
+
+      [name]:
+        name === "quantity"
+          ? Math.max(
+              1,
+              Number(value),
+            )
+          : value,
+    }),
+  );
+};
+
+const handleSampleSubmit =
+  async (event) => {
+    event.preventDefault();
+
+    if (
+      !sampleForm.firstName.trim() ||
+      !sampleForm.lastName.trim() ||
+      !sampleForm.streetAddress.trim() ||
+      !sampleForm.city.trim() ||
+      !sampleForm.state.trim() ||
+      !sampleForm.zipCode.trim() ||
+      !sampleForm.email.trim() ||
+      !sampleForm.phone.trim()
+    ) {
+      alert(
+        "Please fill all required fields.",
+      );
+
+      return;
+    }
+
+    try {
+      setIsSubmittingSample(
+        true,
+      );
+
+      const API_URL =
+        import.meta.env
+          .VITE_API_URL;
+
+      const payload = {
+        product_id:
+          product.id,
+
+        product_name:
+          product.name,
+
+        category_name:
+          product
+            ?.stone_categories
+            ?.name || "",
+
+        first_name:
+          sampleForm.firstName.trim(),
+
+        last_name:
+          sampleForm.lastName.trim(),
+
+        company_name:
+          sampleForm.companyName.trim(),
+
+        street_address:
+          sampleForm.streetAddress.trim(),
+
+        city:
+          sampleForm.city.trim(),
+
+        county:
+          sampleForm.county.trim(),
+
+        state:
+          sampleForm.state.trim(),
+
+        zip_code:
+          sampleForm.zipCode.trim(),
+
+        email:
+          sampleForm.email.trim(),
+
+        phone:
+          sampleForm.phone.trim(),
+
+        quantity:
+          sampleForm.quantity,
+
+        remarks:
+          sampleForm.remarks.trim(),
+      };
+
+      console.log(
+        "📦 SAMPLE REQUEST PAYLOAD:",
+        payload,
+      );
+
+      console.log(
+        "📡 SAMPLE REQUEST URL:",
+        `${API_URL}/sample-requests`,
+      );
+
+      const response =
+        await axios.post(
+          `${API_URL}/sample-requests`,
+          payload,
+          {
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+          },
+        );
+
+      console.log(
+        "✅ SAMPLE REQUEST RESPONSE:",
+        response.data,
+      );
+
+      if (
+        !response.data?.success
+      ) {
+        throw new Error(
+          response.data?.message ||
+            "Failed to submit sample request.",
+        );
+      }
+
+      alert(
+        "Sample request submitted successfully.",
+      );
+
+      setOpenSampleDialog(
+        false,
+      );
+
+      setSampleForm({
+        firstName: "",
+        lastName: "",
+        companyName: "",
+        streetAddress: "",
+        city: "",
+        county: "",
+        state: "",
+        zipCode: "",
+        email: "",
+        phone: "",
+        remarks: "",
+        quantity: 1,
+      });
+    } catch (error) {
+      console.error(
+        "❌ SAMPLE REQUEST FAILED:",
+        error,
+      );
+
+      console.error(
+        "STATUS:",
+        error.response?.status,
+      );
+
+      console.error(
+        "BACKEND RESPONSE:",
+        error.response?.data,
+      );
+
+      console.error(
+        "REQUEST URL:",
+        error.config?.url,
+      );
+
+      alert(
+        error.response?.data
+          ?.message ||
+          error.message ||
+          "Unable to submit sample request. Please try again.",
+      );
+    } finally {
+      setIsSubmittingSample(
+        false,
+      );
+    }
+  };
 
   return (
     <>
@@ -1696,33 +1918,37 @@ const ProductDetails = () => {
                 </p>
 
                 <button
-                  type="button"
-                  className="
-                    inline-flex
-                    items-center
-                    gap-2
-                    px-4
-                    py-2
-                    border
-                    border-black
-                    uppercase
-                    tracking-[1px]
-                    text-[13px]
-                    transition-all
-                    duration-300
-                    mb-5
-                    hover:bg-gray-100
-                    cursor-pointer
-                  "
-                >
-                  Order Samples
+  type="button"
+  onClick={() =>
+    setOpenSampleDialog(
+      true,
+    )
+  }
+  className="
+    inline-flex
+    items-center
+    gap-2
+    px-4
+    py-2
+    border
+    border-black
+    uppercase
+    tracking-[1px]
+    text-[13px]
+    transition-all
+    duration-300
+    mb-5
+    hover:bg-black
+    hover:text-white
+    cursor-pointer
+  "
+>
+  Order Samples
 
-                  <ShoppingCart
-                    size={
-                      16
-                    }
-                  />
-                </button>
+  <ShoppingCart
+    size={16}
+  />
+</button>
 
                 {/* CLOSEUP ZOOM */}
 
@@ -2708,6 +2934,663 @@ const ProductDetails = () => {
 
           document.body,
         )}
+
+        {/* =====================================================
+    ORDER SAMPLE DIALOG
+===================================================== */}
+
+{openSampleDialog &&
+  createPortal(
+    <div
+      className="
+        fixed
+        inset-0
+        z-[99999]
+        bg-black/60
+        backdrop-blur-[3px]
+        flex
+        items-center
+        justify-center
+        px-4
+        py-6
+      "
+      onClick={() =>
+        setOpenSampleDialog(
+          false,
+        )
+      }
+    >
+      <div
+        onClick={(event) =>
+          event.stopPropagation()
+        }
+        className="
+          relative
+          bg-white
+          w-full
+          max-w-[760px]
+          max-h-[92vh]
+          overflow-y-auto
+          shadow-2xl
+        "
+      >
+        {/* =========================
+            HEADER
+        ========================= */}
+
+        <div
+          className="
+            flex
+            items-start
+            justify-between
+            gap-5
+            px-6
+            sm:px-8
+            pt-7
+            pb-5
+            border-b
+            border-black/10
+          "
+        >
+          <div>
+            <p
+              className="
+                text-[10px]
+                sm:text-[11px]
+                uppercase
+                tracking-[2px]
+                text-[#888]
+                mb-2
+              "
+              style={{
+                fontFamily:
+                  "Montserrat, sans-serif",
+              }}
+            >
+              Ultra Stones
+            </p>
+
+            <h2
+              className="
+                text-[24px]
+                sm:text-[30px]
+                font-semibold
+                text-[#161412]
+                leading-tight
+              "
+              style={{
+                fontFamily:
+                  "Montserrat, sans-serif",
+              }}
+            >
+              Order a Sample
+            </h2>
+
+            <p
+              className="
+                text-[13px]
+                text-[#666]
+                mt-2
+              "
+              style={{
+                fontFamily:
+                  "Montserrat, sans-serif",
+              }}
+            >
+              {product.name}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            aria-label="Close sample dialog"
+            onClick={() =>
+              setOpenSampleDialog(
+                false,
+              )
+            }
+            className="
+              w-10
+              h-10
+              shrink-0
+              flex
+              items-center
+              justify-center
+              border
+              border-black/10
+              hover:bg-black
+              hover:text-white
+              transition-all
+              duration-300
+            "
+          >
+            <X size={19} />
+          </button>
+        </div>
+
+        {/* =========================
+            FORM
+        ========================= */}
+
+        <form
+          onSubmit={
+            handleSampleSubmit
+          }
+          className="
+            px-6
+            sm:px-8
+            py-7
+          "
+        >
+          <div
+            className="
+              grid
+              grid-cols-1
+              sm:grid-cols-2
+              gap-x-5
+              gap-y-5
+            "
+          >
+            {/* FIRST NAME */}
+
+            <SampleField
+              label="First Name"
+              required
+            >
+              <input
+                type="text"
+                name="firstName"
+                value={
+                  sampleForm.firstName
+                }
+                onChange={
+                  handleSampleChange
+                }
+                placeholder="First name"
+                autoComplete="given-name"
+                required
+                className={
+                  sampleInputClass
+                }
+              />
+            </SampleField>
+
+            {/* LAST NAME */}
+
+            <SampleField
+              label="Last Name"
+              required
+            >
+              <input
+                type="text"
+                name="lastName"
+                value={
+                  sampleForm.lastName
+                }
+                onChange={
+                  handleSampleChange
+                }
+                placeholder="Last name"
+                autoComplete="family-name"
+                required
+                className={
+                  sampleInputClass
+                }
+              />
+            </SampleField>
+
+            {/* COMPANY NAME */}
+
+            <div className="sm:col-span-2">
+              <SampleField
+                label="Company Name"
+              >
+                <input
+                  type="text"
+                  name="companyName"
+                  value={
+                    sampleForm.companyName
+                  }
+                  onChange={
+                    handleSampleChange
+                  }
+                  placeholder="Company name"
+                  autoComplete="organization"
+                  className={
+                    sampleInputClass
+                  }
+                />
+              </SampleField>
+            </div>
+
+            {/* STREET ADDRESS */}
+
+            <div className="sm:col-span-2">
+              <SampleField
+                label="Street Address"
+                required
+              >
+                <input
+                  type="text"
+                  name="streetAddress"
+                  value={
+                    sampleForm.streetAddress
+                  }
+                  onChange={
+                    handleSampleChange
+                  }
+                  placeholder="Street address"
+                  autoComplete="street-address"
+                  required
+                  className={
+                    sampleInputClass
+                  }
+                />
+              </SampleField>
+            </div>
+
+            {/* CITY */}
+
+            <SampleField
+              label="City"
+              required
+            >
+              <input
+                type="text"
+                name="city"
+                value={
+                  sampleForm.city
+                }
+                onChange={
+                  handleSampleChange
+                }
+                placeholder="City"
+                autoComplete="address-level2"
+                required
+                className={
+                  sampleInputClass
+                }
+              />
+            </SampleField>
+
+            {/* COUNTY */}
+
+            <SampleField
+              label="County (Optional)"
+            >
+              <input
+                type="text"
+                name="county"
+                value={
+                  sampleForm.county
+                }
+                onChange={
+                  handleSampleChange
+                }
+                placeholder="County"
+                className={
+                  sampleInputClass
+                }
+              />
+            </SampleField>
+
+            {/* STATE */}
+
+            <SampleField
+              label="State"
+              required
+            >
+              <input
+                type="text"
+                name="state"
+                value={
+                  sampleForm.state
+                }
+                onChange={
+                  handleSampleChange
+                }
+                placeholder="State"
+                autoComplete="address-level1"
+                required
+                className={
+                  sampleInputClass
+                }
+              />
+            </SampleField>
+
+            {/* ZIP CODE */}
+
+            <SampleField
+              label="ZIP Code"
+              required
+            >
+              <input
+                type="text"
+                name="zipCode"
+                value={
+                  sampleForm.zipCode
+                }
+                onChange={
+                  handleSampleChange
+                }
+                placeholder="ZIP code"
+                autoComplete="postal-code"
+                inputMode="numeric"
+                required
+                className={
+                  sampleInputClass
+                }
+              />
+            </SampleField>
+
+            {/* EMAIL */}
+
+            <SampleField
+              label="Email"
+              required
+            >
+              <input
+                type="email"
+                name="email"
+                value={
+                  sampleForm.email
+                }
+                onChange={
+                  handleSampleChange
+                }
+                placeholder="Email address"
+                autoComplete="email"
+                required
+                className={
+                  sampleInputClass
+                }
+              />
+            </SampleField>
+
+            {/* PHONE */}
+
+            <SampleField
+              label="Phone Number"
+              required
+            >
+              <input
+                type="tel"
+                name="phone"
+                value={
+                  sampleForm.phone
+                }
+                onChange={
+                  handleSampleChange
+                }
+                placeholder="Phone number"
+                autoComplete="tel"
+                required
+                className={
+                  sampleInputClass
+                }
+              />
+            </SampleField>
+
+            {/* QUANTITY */}
+
+            <SampleField
+              label="Number of Samples"
+              required
+            >
+              <div
+                className="
+                  flex
+                  items-center
+                  border
+                  border-[#d8d8d8]
+                  h-[48px]
+                  focus-within:border-black
+                  transition-colors
+                "
+              >
+                <button
+                  type="button"
+                  aria-label="Decrease sample quantity"
+                  onClick={() =>
+                    setSampleForm(
+                      (
+                        previous,
+                      ) => ({
+                        ...previous,
+
+                        quantity:
+                          Math.max(
+                            1,
+                            previous.quantity -
+                              1,
+                          ),
+                      }),
+                    )
+                  }
+                  className="
+                    w-12
+                    h-full
+                    shrink-0
+                    text-[20px]
+                    hover:bg-[#f3f3f3]
+                    transition-colors
+                  "
+                >
+                  −
+                </button>
+
+                <input
+                  type="number"
+                  name="quantity"
+                  min="1"
+                  value={
+                    sampleForm.quantity
+                  }
+                  onChange={
+                    handleSampleChange
+                  }
+                  required
+                  className="
+                    flex-1
+                    min-w-0
+                    h-full
+                    text-center
+                    outline-none
+                    text-[14px]
+                    appearance-none
+                  "
+                />
+
+                <button
+                  type="button"
+                  aria-label="Increase sample quantity"
+                  onClick={() =>
+                    setSampleForm(
+                      (
+                        previous,
+                      ) => ({
+                        ...previous,
+
+                        quantity:
+                          previous.quantity +
+                          1,
+                      }),
+                    )
+                  }
+                  className="
+                    w-12
+                    h-full
+                    shrink-0
+                    text-[20px]
+                    hover:bg-[#f3f3f3]
+                    transition-colors
+                  "
+                >
+                  +
+                </button>
+              </div>
+            </SampleField>
+
+            {/* MATERIAL */}
+
+            <SampleField
+              label="Material"
+            >
+              <div
+                className="
+                  min-h-[48px]
+                  px-4
+                  py-3
+                  bg-[#f5f5f5]
+                  border
+                  border-[#e4e4e4]
+                  text-[13px]
+                  text-[#555]
+                  flex
+                  items-center
+                "
+              >
+                {product.name}
+              </div>
+            </SampleField>
+
+            {/* REMARKS */}
+
+            <div className="sm:col-span-2">
+              <SampleField
+                label="Remarks (Optional)"
+              >
+                <textarea
+                  name="remarks"
+                  value={
+                    sampleForm.remarks
+                  }
+                  onChange={
+                    handleSampleChange
+                  }
+                  placeholder="Add any special instructions or additional details..."
+                  rows={3}
+                  className="
+                    w-full
+                    border
+                    border-[#d8d8d8]
+                    px-4
+                    py-3
+                    text-[14px]
+                    text-[#161412]
+                    placeholder:text-[#aaa]
+                    outline-none
+                    resize-none
+                    focus:border-black
+                    transition-colors
+                  "
+                />
+              </SampleField>
+            </div>
+          </div>
+
+          {/* =========================
+              NOTE
+          ========================= */}
+
+          <p
+            className="
+              text-[11px]
+              sm:text-[12px]
+              leading-[1.6]
+              text-[#888]
+              mt-5
+            "
+            style={{
+              fontFamily:
+                "Montserrat, sans-serif",
+            }}
+          >
+            Our team will review
+            your request and contact
+            you regarding sample
+            availability and shipping.
+          </p>
+
+          {/* =========================
+              ACTIONS
+          ========================= */}
+
+          <div
+            className="
+              flex
+              flex-col-reverse
+              sm:flex-row
+              sm:items-center
+              sm:justify-end
+              gap-3
+              mt-7
+              pt-6
+              border-t
+              border-black/10
+            "
+          >
+            <button
+              type="button"
+              onClick={() =>
+                setOpenSampleDialog(
+                  false,
+                )
+              }
+              className="
+                w-full
+                sm:w-auto
+                px-6
+                py-3
+                border
+                border-black/20
+                text-[12px]
+                uppercase
+                tracking-[1px]
+                text-[#161412]
+                hover:border-black
+                hover:bg-[#f5f5f5]
+                transition-all
+              "
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={
+                isSubmittingSample
+              }
+              className={`
+                w-full
+                sm:w-auto
+                px-7
+                py-3
+                bg-[#161412]
+                text-white
+                text-[12px]
+                uppercase
+                tracking-[1px]
+                transition-all
+
+                ${
+                  isSubmittingSample
+                    ? "opacity-60 cursor-wait"
+                    : "hover:bg-[#c91f26] cursor-pointer"
+                }
+              `}
+            >
+              {isSubmittingSample
+                ? "Submitting..."
+                : "Submit Sample Request"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>,
+
+    document.body,
+  )}
     </>
   );
 };
@@ -3143,8 +4026,7 @@ const RelatedProductCard = ({
    SKELETON
 ========================================================= */
 
-const ProductDetailsSkeleton =
-  () => {
+const ProductDetailsSkeleton = () => {
     return (
       <main
         className="bg-white min-h-screen"
@@ -3239,3 +4121,60 @@ const ProductDetailsSkeleton =
       </main>
     );
   };
+
+
+  /* =========================================================
+   SAMPLE FORM FIELD
+========================================================= */
+
+const sampleInputClass = `
+  w-full
+  h-[48px]
+  border
+  border-[#d8d8d8]
+  bg-white
+  px-4
+  text-[14px]
+  text-[#161412]
+  placeholder:text-[#aaa]
+  outline-none
+  focus:border-black
+  transition-colors
+`;
+
+const SampleField = ({
+  label,
+  required = false,
+  children,
+}) => {
+  return (
+    <div>
+      <label
+        className="
+          block
+          text-[10px]
+          sm:text-[11px]
+          uppercase
+          tracking-[1px]
+          font-semibold
+          text-[#161412]
+          mb-2
+        "
+        style={{
+          fontFamily:
+            "Montserrat, sans-serif",
+        }}
+      >
+        {label}
+
+        {required && (
+          <span className="text-[#c91f26] ml-1">
+            *
+          </span>
+        )}
+      </label>
+
+      {children}
+    </div>
+  );
+};
