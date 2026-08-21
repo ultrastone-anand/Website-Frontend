@@ -2055,14 +2055,28 @@ const handleSampleSubmit =
                     <Social />
                   </Suspense>
 
-                  <div className="border border-[#d9d9d9] px-4 py-2 text-[10px] uppercase tracking-[1.5px] text-black">
-                    Category :{" "}
-                    {product
-                      .stone_categories
-                      ?.name ||
-                      "ULTRA QUARTZ"}
-                  </div>
+<Link
+  to={`/product-category/${product?.stone_categories?.slug}`}
+  className="
+    border
+    border-[#d9d9d9]
+    px-4
+    py-2
+    text-[10px]
+    uppercase
+    tracking-[1.5px]
+    text-black
+    transition-all
+    duration-300
 
+    hover:border-black
+    hover:bg-black
+    hover:text-white
+  "
+>
+  Category :{" "}
+  {product?.stone_categories?.name || "N/A"}
+</Link>
                   <div className="border border-[#d9d9d9] px-4 py-2 text-[10px] uppercase tracking-[1.5px] text-black">
                     Pantone :{" "}
                     {product

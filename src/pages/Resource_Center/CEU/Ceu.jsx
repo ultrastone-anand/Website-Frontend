@@ -297,13 +297,12 @@ const RequestCourseModal = ({
           true,
         );
 
-        const payload =
-          {
-            course:
-              course.title,
+        const payload = {
+          course:
+            course.title,
 
-            ...form,
-          };
+          ...form,
+        };
 
         console.log(
           "CEU REQUEST:",
@@ -1197,11 +1196,6 @@ const Ceu = () => {
                     course,
                     index,
                   ) => {
-                    const reverse =
-                      index %
-                        2 ===
-                      1;
-
                     const objectives =
                       Array.isArray(
                         course.objectives,
@@ -1228,18 +1222,10 @@ const Ceu = () => {
                         "
                       >
                         {/* =================================
-                            IMAGE
+                            IMAGE — ALWAYS LEFT
                         ================================= */}
 
-                        <div
-                          className={`
-                            ${
-                              reverse
-                                ? "lg:order-2"
-                                : ""
-                            }
-                          `}
-                        >
+                        <div>
                           <div
                             className="
                               relative
@@ -1336,18 +1322,10 @@ const Ceu = () => {
                         </div>
 
                         {/* =================================
-                            CONTENT
+                            CONTENT — ALWAYS RIGHT
                         ================================= */}
 
-                        <div
-                          className={`
-                            ${
-                              reverse
-                                ? "lg:order-1"
-                                : ""
-                            }
-                          `}
-                        >
+                        <div>
                           {course.eyebrow && (
                             <Eyebrow>
                               {
