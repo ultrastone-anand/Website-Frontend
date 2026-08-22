@@ -377,9 +377,9 @@ function BlogCard({ blog }) {
 
   return (
     <Link
-      to={`/blog/${blog.id}`}
-      className="group block"
-    >
+  to={`/blog/${blog.slug || blog.id}`}
+  className="group block"
+>
       <div className="overflow-hidden rounded-sm bg-[#f2f2f2]">
         {blog.image ? (
           <img

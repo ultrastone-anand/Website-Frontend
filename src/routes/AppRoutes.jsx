@@ -114,7 +114,7 @@ function AppRoutes() {
           <Route path="/blogs" element={<Ourblogs />} />
 
           <Route
-            path="/blog/:blogId"
+            path="/blog/:identifier"
             element={<BlogDetailedView />}
           />
 

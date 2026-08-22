@@ -30,11 +30,11 @@ const getHeaders = () => {
 
 // ----------------------------------------------------------------------
 
-const getBlogById = async (
-  blogId
+const getBlog = async (
+  identifier
 ) => {
   const response = await fetch(
-    `${API_URL}/blog/${blogId}`,
+    `${API_URL}/blog/${encodeURIComponent(identifier)}`,
     {
       method: "GET",
       headers: getHeaders(),
@@ -159,7 +159,7 @@ const formatBlogDate = (
 // ----------------------------------------------------------------------
 
 export default function BlogDetailedView() {
-  const { blogId } = useParams();
+  const { identifier } = useParams();
 
   const [blog, setBlog] =
     useState(null);
@@ -174,22 +174,22 @@ export default function BlogDetailedView() {
 
   const loadBlog =
     useCallback(async () => {
-      if (!blogId) {
-        setErrorMessage(
-          "Blog ID is missing."
-        );
+     if (!identifier) {
+  setErrorMessage(
+    "Blog identifier is missing."
+  );
 
-        setLoading(false);
+  setLoading(false);
 
-        return;
-      }
+  return;
+}
 
       try {
         setLoading(true);
         setErrorMessage("");
 
         const response =
-          await getBlogById(blogId);
+  await getBlog(identifier);
 
         setBlog(
           normalizeBlog(response.data)
@@ -209,7 +209,7 @@ export default function BlogDetailedView() {
       } finally {
         setLoading(false);
       }
-    }, [blogId]);
+    }, [identifier]);
 
   useEffect(() => {
     loadBlog();
@@ -220,7 +220,7 @@ export default function BlogDetailedView() {
       top: 0,
       behavior: "smooth",
     });
-  }, [blogId]);
+  }, [identifier]);
 
   useEffect(() => {
     if (!blog) {
