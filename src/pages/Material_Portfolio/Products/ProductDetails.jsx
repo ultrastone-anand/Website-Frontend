@@ -652,6 +652,54 @@ const [
     };
   }, [openPreview]);
 
+
+  /* =========================================================
+   ORDER SAMPLE DIALOG - ESC + BODY SCROLL
+========================================================= */
+
+useEffect(() => {
+  if (!openSampleDialog) {
+    return undefined;
+  }
+
+  const previousBodyOverflow =
+    document.body.style.overflow;
+
+  const previousHtmlOverflow =
+    document.documentElement.style.overflow;
+
+  document.body.style.overflow =
+    "hidden";
+
+  document.documentElement.style.overflow =
+    "hidden";
+
+  const handleEsc = (event) => {
+    if (event.key === "Escape") {
+      setOpenSampleDialog(false);
+    }
+  };
+
+  window.addEventListener(
+    "keydown",
+    handleEsc,
+  );
+
+  return () => {
+    document.body.style.overflow =
+      previousBodyOverflow;
+
+    document.documentElement.style.overflow =
+      previousHtmlOverflow;
+
+    window.removeEventListener(
+      "keydown",
+      handleEsc,
+    );
+  };
+}, [openSampleDialog]);
+
+
   /* =========================================================
      PRELOAD DATASHEET
   ========================================================= */

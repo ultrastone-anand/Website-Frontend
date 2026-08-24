@@ -253,6 +253,16 @@ const GlobalSearch = ({
   const inputRef = useRef(null);
   const resultsContainerRef = useRef(null);
 
+  useEffect(() => {
+  const timer = window.setTimeout(() => {
+    inputRef.current?.focus();
+  }, 50);
+
+  return () => {
+    window.clearTimeout(timer);
+  };
+}, []);
+
   const [query, setQuery] = useState("");
   const [apiResults, setApiResults] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
