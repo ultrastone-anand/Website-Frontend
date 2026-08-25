@@ -17,6 +17,7 @@ import {
 } from "react-router-dom";
 
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ShoppingCart,
@@ -201,12 +202,14 @@ const [
   lastName: "",
   companyName: "",
   streetAddress: "",
+  suiteNumber: "",
   city: "",
   county: "",
   state: "",
   zipCode: "",
   email: "",
   phone: "",
+  finish: "",
   remarks: "",
   quantity: 1,
 });
@@ -698,6 +701,23 @@ useEffect(() => {
     );
   };
 }, [openSampleDialog]);
+
+const availableFinishes =
+  Array.isArray(
+    product?.finishes_available,
+  )
+    ? product.finishes_available.filter(
+        Boolean,
+      )
+    : typeof product?.finishes_available ===
+        "string"
+      ? product.finishes_available
+          .split(",")
+          .map((item) =>
+            item.trim(),
+          )
+          .filter(Boolean)
+      : [];
 
 
   /* =========================================================
@@ -1375,22 +1395,27 @@ const handleSampleSubmit =
   async (event) => {
     event.preventDefault();
 
-    if (
-      !sampleForm.firstName.trim() ||
-      !sampleForm.lastName.trim() ||
-      !sampleForm.streetAddress.trim() ||
-      !sampleForm.city.trim() ||
-      !sampleForm.state.trim() ||
-      !sampleForm.zipCode.trim() ||
-      !sampleForm.email.trim() ||
-      !sampleForm.phone.trim()
-    ) {
-      alert(
-        "Please fill all required fields.",
-      );
+if (
+  !sampleForm.firstName.trim() ||
+  !sampleForm.lastName.trim() ||
+  !sampleForm.streetAddress.trim() ||
+  !sampleForm.city.trim() ||
+  !sampleForm.state.trim() ||
+  !sampleForm.zipCode.trim() ||
+  !sampleForm.email.trim() ||
+  !sampleForm.phone.trim() ||
+  (
+    availableFinishes.length >
+      0 &&
+    !sampleForm.finish.trim()
+  )
+) {
+  alert(
+    "Please fill all required fields.",
+  );
 
-      return;
-    }
+  return;
+}
 
     try {
       setIsSubmittingSample(
@@ -1401,54 +1426,60 @@ const handleSampleSubmit =
         import.meta.env
           .VITE_API_URL;
 
-      const payload = {
-        product_id:
-          product.id,
+const payload = {
+  product_id:
+    product.id,
 
-        product_name:
-          product.name,
+  product_name:
+    product.name,
 
-        category_name:
-          product
-            ?.stone_categories
-            ?.name || "",
+  category_name:
+    product
+      ?.stone_categories
+      ?.name || "",
 
-        first_name:
-          sampleForm.firstName.trim(),
+  first_name:
+    sampleForm.firstName.trim(),
 
-        last_name:
-          sampleForm.lastName.trim(),
+  last_name:
+    sampleForm.lastName.trim(),
 
-        company_name:
-          sampleForm.companyName.trim(),
+  company_name:
+    sampleForm.companyName.trim(),
 
-        street_address:
-          sampleForm.streetAddress.trim(),
+  street_address:
+    sampleForm.streetAddress.trim(),
 
-        city:
-          sampleForm.city.trim(),
+  suite_number:
+    sampleForm.suiteNumber.trim(),
 
-        county:
-          sampleForm.county.trim(),
+  city:
+    sampleForm.city.trim(),
 
-        state:
-          sampleForm.state.trim(),
+  county:
+    sampleForm.county.trim(),
 
-        zip_code:
-          sampleForm.zipCode.trim(),
+  state:
+    sampleForm.state.trim(),
 
-        email:
-          sampleForm.email.trim(),
+  zip_code:
+    sampleForm.zipCode.trim(),
 
-        phone:
-          sampleForm.phone.trim(),
+  email:
+    sampleForm.email.trim(),
 
-        quantity:
-          sampleForm.quantity,
+  phone:
+    sampleForm.phone.trim(),
 
-        remarks:
-          sampleForm.remarks.trim(),
-      };
+  finish:
+    sampleForm.finish.trim(),
+
+  quantity:
+    sampleForm.quantity,
+
+  remarks:
+    sampleForm.remarks.trim(),
+};
 
       console.log(
         "📦 SAMPLE REQUEST PAYLOAD:",
@@ -1494,20 +1525,22 @@ const handleSampleSubmit =
         false,
       );
 
-      setSampleForm({
-        firstName: "",
-        lastName: "",
-        companyName: "",
-        streetAddress: "",
-        city: "",
-        county: "",
-        state: "",
-        zipCode: "",
-        email: "",
-        phone: "",
-        remarks: "",
-        quantity: 1,
-      });
+setSampleForm({
+  firstName: "",
+  lastName: "",
+  companyName: "",
+  streetAddress: "",
+  suiteNumber: "",
+  city: "",
+  county: "",
+  state: "",
+  zipCode: "",
+  email: "",
+  phone: "",
+  finish: "",
+  remarks: "",
+  quantity: 1,
+});
     } catch (error) {
       console.error(
         "❌ SAMPLE REQUEST FAILED:",
@@ -3227,29 +3260,55 @@ const handleSampleSubmit =
 
             {/* STREET ADDRESS */}
 
-            <div className="sm:col-span-2">
-              <SampleField
-                label="Street Address"
-                required
-              >
-                <input
-                  type="text"
-                  name="streetAddress"
-                  value={
-                    sampleForm.streetAddress
-                  }
-                  onChange={
-                    handleSampleChange
-                  }
-                  placeholder="Street address"
-                  autoComplete="street-address"
-                  required
-                  className={
-                    sampleInputClass
-                  }
-                />
-              </SampleField>
-            </div>
+{/* STREET ADDRESS */}
+
+<div className="sm:col-span-1">
+  <SampleField
+    label="Street Address"
+    required
+  >
+    <input
+      type="text"
+      name="streetAddress"
+      value={
+        sampleForm.streetAddress
+      }
+      onChange={
+        handleSampleChange
+      }
+      placeholder="Street address"
+      autoComplete="address-line1"
+      required
+      className={
+        sampleInputClass
+      }
+    />
+  </SampleField>
+</div>
+
+{/* SUITE NUMBER */}
+
+<div className="sm:col-span-1">
+  <SampleField
+    label="Suite Number (Optional)"
+  >
+    <input
+      type="text"
+      name="suiteNumber"
+      value={
+        sampleForm.suiteNumber
+      }
+      onChange={
+        handleSampleChange
+      }
+      placeholder="Suite, unit, apt, etc."
+      autoComplete="address-line2"
+      className={
+        sampleInputClass
+      }
+    />
+  </SampleField>
+</div>
 
             {/* CITY */}
 
@@ -3492,6 +3551,98 @@ const handleSampleSubmit =
                 </button>
               </div>
             </SampleField>
+
+            {/* FINISH */}
+
+<SampleField
+  label="Finish"
+  required={
+    availableFinishes.length >
+    0
+  }
+>
+  {availableFinishes.length >
+  0 ? (
+    <div className="relative">
+      <select
+        name="finish"
+        value={
+          sampleForm.finish
+        }
+        onChange={
+          handleSampleChange
+        }
+        required
+        className="
+          w-full
+          h-[48px]
+          border
+          border-[#d8d8d8]
+          bg-white
+          pl-4
+          pr-10
+          text-[14px]
+          text-[#161412]
+          outline-none
+          appearance-none
+          cursor-pointer
+          focus:border-black
+          transition-colors
+        "
+      >
+        <option value="">
+          Select finish
+        </option>
+
+        {availableFinishes.map(
+          (finish) => (
+            <option
+              key={
+                finish
+              }
+              value={
+                finish
+              }
+            >
+              {finish}
+            </option>
+          ),
+        )}
+      </select>
+
+      <ChevronDown
+        size={17}
+        strokeWidth={1.8}
+        className="
+          absolute
+          right-4
+          top-1/2
+          -translate-y-1/2
+          pointer-events-none
+          text-[#161412]
+        "
+      />
+    </div>
+  ) : (
+    <div
+      className="
+        min-h-[48px]
+        px-4
+        py-3
+        bg-[#f5f5f5]
+        border
+        border-[#e4e4e4]
+        text-[13px]
+        text-[#999]
+        flex
+        items-center
+      "
+    >
+      No finish specified
+    </div>
+  )}
+</SampleField>
+
 
             {/* MATERIAL */}
 

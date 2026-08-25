@@ -129,96 +129,225 @@ export default function Contact() {
     }));
   };
 
-  const handleSubmit = async (event) => {
+ const handleSubmit =
+  async (event) => {
     event.preventDefault();
 
-    if (loading) return;
+    if (loading) {
+      return;
+    }
 
     const emailRegex =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const cleanedPhone =
-      formData.phone.replace(/\D/g, "");
+      formData.phone.replace(
+        /\D/g,
+        "",
+      );
 
-    if (!formData.name.trim()) {
-      alert("Name is required");
-      return;
-    }
+    /* ============================
+       VALIDATION
+    ============================ */
 
-    if (!formData.subject.trim()) {
-      alert("Subject is required");
-      return;
-    }
+    if (
+      !formData.name.trim()
+    ) {
+      alert(
+        "Name is required",
+      );
 
-    if (!formData.email.trim()) {
-      alert("Email is required");
-      return;
-    }
-
-    if (!emailRegex.test(formData.email.trim())) {
-      alert("Please enter a valid email address");
-      return;
-    }
-
-    if (!formData.phone.trim()) {
-      alert("Phone number is required");
       return;
     }
 
     if (
-      cleanedPhone.length < 10 ||
-      cleanedPhone.length > 15
+      !formData.subject.trim()
     ) {
-      alert("Please enter a valid phone number");
+      alert(
+        "Subject is required",
+      );
+
+      return;
+    }
+
+    if (
+      !formData.email.trim()
+    ) {
+      alert(
+        "Email is required",
+      );
+
+      return;
+    }
+
+    if (
+      !emailRegex.test(
+        formData.email.trim(),
+      )
+    ) {
+      alert(
+        "Please enter a valid email address",
+      );
+
+      return;
+    }
+
+    if (
+      !formData.phone.trim()
+    ) {
+      alert(
+        "Phone number is required",
+      );
+
+      return;
+    }
+
+    if (
+      cleanedPhone.length <
+        10 ||
+      cleanedPhone.length >
+        15
+    ) {
+      alert(
+        "Please enter a valid phone number",
+      );
+
       return;
     }
 
     try {
-      setLoading(true);
-
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/contact`,
-        {
-          name: formData.name.trim(),
-          subject: formData.subject.trim(),
-          email: formData.email.trim(),
-          phone: formData.phone.trim(),
-          message: formData.message.trim(),
-        }
+      setLoading(
+        true,
       );
 
-      if (response.data?.success) {
-        setFormData({
-          name: "",
-          subject: "",
-          email: "",
-          phone: "",
-          message: "",
-        });
+      const API_URL =
+        import.meta.env
+          .VITE_API_URL;
 
-        navigate("/thankyou", {
-          replace: true,
-        });
+      /* ============================
+         PAYLOAD
+      ============================ */
 
-        return;
+      const payload = {
+        name:
+          formData.name.trim(),
+
+        subject:
+          formData.subject.trim(),
+
+        email:
+          formData.email
+            .trim()
+            .toLowerCase(),
+
+        phone:
+          formData.phone.trim(),
+
+        message:
+          formData.message.trim(),
+      };
+
+      console.log(
+        "📩 CONTACT REQUEST PAYLOAD:",
+        payload,
+      );
+
+      console.log(
+        "📡 CONTACT REQUEST URL:",
+        `${API_URL}/contact-request`,
+      );
+
+      /* ============================
+         API REQUEST
+      ============================ */
+
+      const response =
+        await axios.post(
+          `${API_URL}/contact-request`,
+          payload,
+          {
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+          },
+        );
+
+      console.log(
+        "✅ CONTACT REQUEST RESPONSE:",
+        response.data,
+      );
+
+      console.log(
+        "✅ CONTACT REQUEST STATUS:",
+        response.status,
+      );
+
+      if (
+        response.data
+          ?.success ===
+        false
+      ) {
+        throw new Error(
+          response.data
+            ?.message ||
+            "Unable to submit enquiry.",
+        );
       }
 
-      alert(
-        response.data?.message ||
-          "Unable to submit enquiry"
+      /* ============================
+         SUCCESS
+      ============================ */
+
+      setFormData({
+        name: "",
+        subject: "",
+        email: "",
+        phone: "",
+        message: "",
+      });
+
+      navigate(
+        "/thankyou",
+        {
+          replace: true,
+        },
       );
     } catch (error) {
       console.error(
-        "Failed to submit contact form:",
-        error
+        "❌ CONTACT REQUEST FAILED:",
+        error,
+      );
+
+      console.error(
+        "STATUS:",
+        error.response
+          ?.status,
+      );
+
+      console.error(
+        "BACKEND RESPONSE:",
+        error.response
+          ?.data,
+      );
+
+      console.error(
+        "REQUEST URL:",
+        error.config
+          ?.url,
       );
 
       alert(
-        error.response?.data?.message ||
-          "Something went wrong while submitting the enquiry"
+        error.response
+          ?.data
+          ?.message ||
+          error.message ||
+          "Something went wrong while submitting the enquiry.",
       );
     } finally {
-      setLoading(false);
+      setLoading(
+        false,
+      );
     }
   };
 

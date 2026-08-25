@@ -30,10 +30,9 @@ const Eyebrow = ({
         items-center
         gap-3
 
-        ${
-          centered
-            ? "justify-center"
-            : ""
+        ${centered
+          ? "justify-center"
+          : ""
         }
 
         text-[11px]
@@ -44,10 +43,9 @@ const Eyebrow = ({
         uppercase
         tracking-[0.08em]
 
-        ${
-          light
-            ? "text-white/90"
-            : "text-[#262320]"
+        ${light
+          ? "text-white/90"
+          : "text-[#262320]"
         }
       `}
       style={{
@@ -112,16 +110,15 @@ const OutlineButton = ({
         transition-all
         duration-300
 
-        ${
-          light
-            ? `
+        ${light
+          ? `
               border-white/35
               text-white
 
               hover:bg-white
               hover:text-[#161412]
             `
-            : `
+          : `
               border-[#aaa6a1]
               text-[#161412]
 
@@ -286,54 +283,168 @@ const RequestCourseModal = ({
      SUBMIT
   ======================================================= */
 
-  const handleSubmit =
-    async (
-      event,
-    ) => {
-      event.preventDefault();
+const handleSubmit =
+  async (
+    event,
+  ) => {
+    event.preventDefault();
 
-      try {
-        setSubmitting(
-          true,
-        );
+    if (submitting) {
+      return;
+    }
 
-        const payload = {
-          course:
-            course.title,
+    if (
+      !form.name.trim() ||
+      !form.email.trim() ||
+      !form.phone.trim() ||
+      !form.company.trim()
+    ) {
+      alert(
+        "Please fill all required fields.",
+      );
 
-          ...form,
-        };
+      return;
+    }
 
-        console.log(
-          "CEU REQUEST:",
+    try {
+      setSubmitting(
+        true,
+      );
+
+      const API_URL =
+        import.meta.env
+          .VITE_API_URL;
+
+      const payload = {
+        course:
+          String(
+            course?.title ||
+              "",
+          ).trim(),
+
+        name:
+          form.name.trim(),
+
+        email:
+          form.email
+            .trim()
+            .toLowerCase(),
+
+        phone:
+          form.phone.trim(),
+
+        company:
+          form.company.trim(),
+
+        role:
+          form.role.trim(),
+
+        preferredDate:
+          form.preferredDate ||
+          "",
+
+        message:
+          form.message.trim(),
+      };
+
+      console.log(
+        "📚 CEU REQUEST PAYLOAD:",
+        payload,
+      );
+
+      console.log(
+        "📡 CEU REQUEST URL:",
+        `${API_URL}/ceu-request`,
+      );
+
+      const response =
+        await axios.post(
+          `${API_URL}/ceu-request`,
           payload,
+          {
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+          },
         );
 
-        /*
-          WHEN BACKEND ROUTE IS READY:
+      console.log(
+        "✅ CEU REQUEST RESPONSE:",
+        response.data,
+      );
 
-          await axios.post(
-            `${
-              import.meta.env
-                .VITE_API_URL
-            }/ceu/request`,
-            payload
-          );
-        */
+      console.log(
+        "✅ CEU REQUEST STATUS:",
+        response.status,
+      );
 
-        onClose();
-      } catch (error) {
-        console.error(
-          "Error submitting CEU request:",
-          error,
-        );
-      } finally {
-        setSubmitting(
-          false,
+      if (
+        response.data
+          ?.success ===
+        false
+      ) {
+        throw new Error(
+          response.data
+            ?.message ||
+            "Failed to submit CEU request.",
         );
       }
-    };
 
+      alert(
+        response.data
+          ?.message ||
+          "CEU course request submitted successfully.",
+      );
+
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        company: "",
+        role: "",
+        preferredDate: "",
+        message: "",
+      });
+
+      onClose();
+    } catch (error) {
+      console.error(
+        "❌ CEU REQUEST FAILED:",
+        error,
+      );
+
+      console.error(
+        "STATUS:",
+        error.response
+          ?.status,
+      );
+
+      console.error(
+        "BACKEND RESPONSE:",
+        error.response
+          ?.data,
+      );
+
+      console.error(
+        "REQUEST URL:",
+        error.config
+          ?.url,
+      );
+
+      alert(
+        error.response
+          ?.data
+          ?.message ||
+          error.message ||
+          "Unable to submit CEU request. Please try again.",
+      );
+    } finally {
+      setSubmitting(
+        false,
+      );
+    }
+  };
   /* =======================================================
      PORTAL
   ======================================================= */
@@ -595,13 +706,10 @@ const RequestCourseModal = ({
                   required
                   type="text"
                   name="name"
-                  value={
-                    form.name
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.name}
+                  onChange={handleChange}
                   placeholder="Your name"
+                  autoComplete="name"
                   className="ceu-input"
                 />
               </FormField>
@@ -614,13 +722,10 @@ const RequestCourseModal = ({
                   required
                   type="email"
                   name="email"
-                  value={
-                    form.email
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.email}
+                  onChange={handleChange}
                   placeholder="name@company.com"
+                  autoComplete="email"
                   className="ceu-input"
                 />
               </FormField>
@@ -633,28 +738,26 @@ const RequestCourseModal = ({
                   required
                   type="tel"
                   name="phone"
-                  value={
-                    form.phone
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.phone}
+                  onChange={handleChange}
                   placeholder="Phone number"
+                  autoComplete="tel"
                   className="ceu-input"
                 />
               </FormField>
 
-              <FormField label="Company / Firm">
+              <FormField
+                label="Company / Firm"
+                required
+              >
                 <input
+                  required
                   type="text"
                   name="company"
-                  value={
-                    form.company
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.company}
+                  onChange={handleChange}
                   placeholder="Company or firm"
+                  autoComplete="organization"
                   className="ceu-input"
                 />
               </FormField>
@@ -887,9 +990,8 @@ const Ceu = () => {
         try {
           const response =
             await axios.get(
-              `${
-                import.meta.env
-                  .VITE_API_URL
+              `${import.meta.env
+                .VITE_API_URL
               }/pages/ceu`,
             );
 
@@ -1083,8 +1185,8 @@ const Ceu = () => {
                   hero.headingLine1 ||
                   hero.headingLine2
                 ) && (
-                  <h1
-                    className="
+                    <h1
+                      className="
                       mt-6
                       sm:mt-8
 
@@ -1099,26 +1201,26 @@ const Ceu = () => {
 
                       font-normal
                     "
-                    style={{
-                      fontFamily:
-                        "Georgia, 'Times New Roman', serif",
-                    }}
-                  >
-                    {
-                      hero.headingLine1
-                    }
+                      style={{
+                        fontFamily:
+                          "Georgia, 'Times New Roman', serif",
+                      }}
+                    >
+                      {
+                        hero.headingLine1
+                      }
 
-                    {hero.headingLine2 && (
-                      <>
-                        <br />
+                      {hero.headingLine2 && (
+                        <>
+                          <br />
 
-                        {
-                          hero.headingLine2
-                        }
-                      </>
-                    )}
-                  </h1>
-                )}
+                          {
+                            hero.headingLine2
+                          }
+                        </>
+                      )}
+                    </h1>
+                  )}
 
                 {hero.description && (
                   <p
@@ -1311,7 +1413,7 @@ const Ceu = () => {
                               >
                                 {String(
                                   index +
-                                    1,
+                                  1,
                                 ).padStart(
                                   2,
                                   "0",
@@ -1394,8 +1496,8 @@ const Ceu = () => {
 
                           {objectives.length >
                             0 && (
-                            <div
-                              className="
+                              <div
+                                className="
                                 mt-8
 
                                 pt-7
@@ -1403,9 +1505,9 @@ const Ceu = () => {
                                 border-t
                                 border-[#d8d4cf]
                               "
-                            >
-                              <h3
-                                className="
+                              >
+                                <h3
+                                  className="
                                   text-[10px]
                                   sm:text-[11px]
 
@@ -1416,40 +1518,40 @@ const Ceu = () => {
 
                                   text-[#262320]
                                 "
-                                style={{
-                                  fontFamily:
-                                    "Montserrat, sans-serif",
-                                }}
-                              >
-                                Learning
-                                Objectives
-                              </h3>
+                                  style={{
+                                    fontFamily:
+                                      "Montserrat, sans-serif",
+                                  }}
+                                >
+                                  Learning
+                                  Objectives
+                                </h3>
 
-                              <div
-                                className="
+                                <div
+                                  className="
                                   mt-5
 
                                   space-y-3
                                 "
-                              >
-                                {objectives.map(
-                                  (
-                                    objective,
-                                    objectiveIndex,
-                                  ) => (
-                                    <div
-                                      key={
-                                        `${objective}-${objectiveIndex}`
-                                      }
-                                      className="
+                                >
+                                  {objectives.map(
+                                    (
+                                      objective,
+                                      objectiveIndex,
+                                    ) => (
+                                      <div
+                                        key={
+                                          `${objective}-${objectiveIndex}`
+                                        }
+                                        className="
                                         flex
                                         items-start
 
                                         gap-4
                                       "
-                                    >
-                                      <span
-                                        className="
+                                      >
+                                        <span
+                                          className="
                                           mt-[2px]
 
                                           w-[20px]
@@ -1470,22 +1572,22 @@ const Ceu = () => {
 
                                           text-[#c91f26]
                                         "
-                                        style={{
-                                          fontFamily:
-                                            "Montserrat, sans-serif",
-                                        }}
-                                      >
-                                        {String(
-                                          objectiveIndex +
+                                          style={{
+                                            fontFamily:
+                                              "Montserrat, sans-serif",
+                                          }}
+                                        >
+                                          {String(
+                                            objectiveIndex +
                                             1,
-                                        ).padStart(
-                                          2,
-                                          "0",
-                                        )}
-                                      </span>
+                                          ).padStart(
+                                            2,
+                                            "0",
+                                          )}
+                                        </span>
 
-                                      <p
-                                        className="
+                                        <p
+                                          className="
                                           text-[11px]
                                           sm:text-[13px]
 
@@ -1493,21 +1595,21 @@ const Ceu = () => {
 
                                           text-[#69645f]
                                         "
-                                        style={{
-                                          fontFamily:
-                                            "Montserrat, sans-serif",
-                                        }}
-                                      >
-                                        {
-                                          objective
-                                        }
-                                      </p>
-                                    </div>
-                                  ),
-                                )}
+                                          style={{
+                                            fontFamily:
+                                              "Montserrat, sans-serif",
+                                          }}
+                                        >
+                                          {
+                                            objective
+                                          }
+                                        </p>
+                                      </div>
+                                    ),
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
                           {/* ===============================
                               REQUEST BUTTON
