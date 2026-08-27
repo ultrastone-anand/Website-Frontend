@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+
 import {
   memo,
   useCallback,
@@ -12,6 +13,10 @@ import {
   getOptimizedVideoUrl,
   getOriginalSafeUrl,
 } from "../../utils/Mediahelper";
+
+/* =========================================================
+   API
+========================================================= */
 
 const RAW_API_URL =
   import.meta.env.VITE_API_URL;
@@ -51,10 +56,24 @@ const API_URL =
 const HOME_HERO_URL =
   `${API_URL}/home-hero/active`;
 
+/* =========================================================
+   CONSTANTS
+========================================================= */
+
+const MOBILE_BREAKPOINT =
+  768;
+
 const smoothEase = [
   0.16,
   1,
   0.3,
+  1,
+];
+
+const introEase = [
+  0.19,
+  1,
+  0.22,
   1,
 ];
 
@@ -134,6 +153,20 @@ const getAnimationTarget = (
   };
 };
 
+const getNumber = (
+  value,
+  fallback = 0
+) => {
+  const parsed =
+    Number(value);
+
+  return Number.isFinite(
+    parsed
+  )
+    ? parsed
+    : fallback;
+};
+
 /* =========================================================
    HERO
 ========================================================= */
@@ -153,6 +186,12 @@ const HeroSection = () => {
     setLoading,
   ] =
     useState(true);
+
+  const [
+    isMobile,
+    setIsMobile,
+  ] =
+    useState(false);
 
   const [
     loadVideo,
@@ -179,13 +218,55 @@ const HeroSection = () => {
     useState(false);
 
   /* =======================================================
+     MOBILE DETECTION
+  ======================================================= */
+
+  useEffect(() => {
+    const mediaQuery =
+      window.matchMedia(
+        `(max-width: ${
+          MOBILE_BREAKPOINT -
+          1
+        }px)`
+      );
+
+    const updateDevice =
+      () => {
+        setIsMobile(
+          mediaQuery.matches
+        );
+      };
+
+    updateDevice();
+
+    mediaQuery.addEventListener(
+      "change",
+      updateDevice
+    );
+
+    return () => {
+      mediaQuery.removeEventListener(
+        "change",
+        updateDevice
+      );
+    };
+  }, []);
+
+  /* =======================================================
      FETCH ACTIVE HERO
   ======================================================= */
 
   useEffect(() => {
+    const controller =
+      new AbortController();
+
     const fetchHero =
       async () => {
         try {
+          setLoading(
+            true
+          );
+
           const response =
             await fetch(
               HOME_HERO_URL,
@@ -195,8 +276,31 @@ const HeroSection = () => {
 
                 cache:
                   "no-store",
+
+                headers: {
+                  Accept:
+                    "application/json",
+                },
+
+                signal:
+                  controller.signal,
               }
             );
+
+          const contentType =
+            response.headers.get(
+              "content-type"
+            ) || "";
+
+          if (
+            !contentType.includes(
+              "application/json"
+            )
+          ) {
+            throw new Error(
+              "Home Hero API returned a non-JSON response."
+            );
+          }
 
           const data =
             await response.json();
@@ -214,54 +318,122 @@ const HeroSection = () => {
             data?.data ||
               null
           );
-        } catch (
-          error
-        ) {
+        } catch (error) {
+          if (
+            error?.name ===
+            "AbortError"
+          ) {
+            return;
+          }
+
           console.error(
             "Failed to load active home hero:",
             error
           );
         } finally {
-          setLoading(
-            false
-          );
+          if (
+            !controller
+              .signal
+              .aborted
+          ) {
+            setLoading(
+              false
+            );
+          }
         }
       };
 
     fetchHero();
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   /* =======================================================
-     MEDIA
+     RESOLVED MEDIA
   ======================================================= */
+
+  const mediaType =
+    hero?.media_type ||
+    "IMAGE";
 
   const desktopMediaUrl =
     hero?.media_url ||
+    "";
+
+  const mobileMediaUrl =
+    hero?.mobile_media_url ||
     "";
 
   const desktopPosterUrl =
     hero?.poster_url ||
     "";
 
-  const mediaType =
-    hero?.media_type ||
-    "IMAGE";
+  const mobilePosterUrl =
+    hero?.mobile_poster_url ||
+    "";
+
+  const resolvedMediaUrl =
+    isMobile &&
+    mobileMediaUrl
+      ? mobileMediaUrl
+      : desktopMediaUrl;
+
+  const resolvedPosterUrl =
+    isMobile &&
+    mobilePosterUrl
+      ? mobilePosterUrl
+      : desktopPosterUrl;
+
+  /* =======================================================
+     RESET VIDEO STATE WHEN HERO / MEDIA CHANGES
+  ======================================================= */
+
+  useEffect(() => {
+    setLoadVideo(
+      false
+    );
+
+    setHasVideoStarted(
+      false
+    );
+
+    setUseOriginalVideo(
+      false
+    );
+
+    setVideoFailed(
+      false
+    );
+  }, [
+    hero?.id,
+    hero?.source_type,
+    hero?.phase,
+    resolvedMediaUrl,
+  ]);
+
+  /* =======================================================
+     VIDEO URLS
+  ======================================================= */
 
   const optimizedVideoUrl =
     useMemo(() => {
       if (
         mediaType !==
           "VIDEO" ||
-        !desktopMediaUrl
+        !resolvedMediaUrl
       ) {
         return "";
       }
 
       return getOptimizedVideoUrl(
-        desktopMediaUrl,
+        resolvedMediaUrl,
         {
           width:
-            1920,
+            isMobile
+              ? 1080
+              : 1920,
 
           fit:
             "scale-down",
@@ -271,8 +443,9 @@ const HeroSection = () => {
         }
       );
     }, [
-      desktopMediaUrl,
       mediaType,
+      resolvedMediaUrl,
+      isMobile,
     ]);
 
   const originalVideoUrl =
@@ -280,17 +453,17 @@ const HeroSection = () => {
       if (
         mediaType !==
           "VIDEO" ||
-        !desktopMediaUrl
+        !resolvedMediaUrl
       ) {
         return "";
       }
 
       return getOriginalSafeUrl(
-        desktopMediaUrl
+        resolvedMediaUrl
       );
     }, [
-      desktopMediaUrl,
       mediaType,
+      resolvedMediaUrl,
     ]);
 
   const activeVideoUrl =
@@ -306,15 +479,20 @@ const HeroSection = () => {
     if (
       !hero ||
       mediaType !==
-        "VIDEO"
+        "VIDEO" ||
+      !resolvedMediaUrl
     ) {
       return undefined;
     }
 
     const delay =
-      Number(
-        hero.video_load_delay
-      ) || 0;
+      Math.max(
+        getNumber(
+          hero.video_load_delay,
+          0
+        ),
+        0
+      );
 
     const timer =
       window.setTimeout(
@@ -326,13 +504,15 @@ const HeroSection = () => {
         delay
       );
 
-    return () =>
+    return () => {
       window.clearTimeout(
         timer
       );
+    };
   }, [
     hero,
     mediaType,
+    resolvedMediaUrl,
   ]);
 
   /* =======================================================
@@ -368,9 +548,7 @@ const HeroSection = () => {
               true
             );
           }
-        } catch (
-          error
-        ) {
+        } catch (error) {
           if (
             !cancelled
           ) {
@@ -407,7 +585,8 @@ const HeroSection = () => {
   const handleVideoError =
     useCallback(() => {
       if (
-        !useOriginalVideo
+        !useOriginalVideo &&
+        originalVideoUrl
       ) {
         console.warn(
           "Optimized video failed. Falling back to original video."
@@ -425,7 +604,7 @@ const HeroSection = () => {
       }
 
       console.error(
-        "Original hero video also failed."
+        "Hero video failed."
       );
 
       setVideoFailed(
@@ -437,6 +616,7 @@ const HeroSection = () => {
       );
     }, [
       useOriginalVideo,
+      originalVideoUrl,
     ]);
 
   /* =======================================================
@@ -453,50 +633,56 @@ const HeroSection = () => {
   }
 
   /* =======================================================
-     TIMING
+     TIMINGS
   ======================================================= */
 
   const textStartDelay =
-    (
-      Number(
+    Math.max(
+      getNumber(
         hero.text_start_delay
-      ) || 0
+      ),
+      0
     ) / 1000;
 
   const animationDuration =
-    (
-      Number(
+    Math.max(
+      getNumber(
         hero.text_animation_duration
-      ) || 0
+      ),
+      0
     ) / 1000;
 
   const descriptionDelay =
-    (
-      Number(
+    Math.max(
+      getNumber(
         hero.description_delay
-      ) || 0
+      ),
+      0
     ) / 1000;
 
   const visibleDuration =
-    (
-      Number(
+    Math.max(
+      getNumber(
         hero.text_visible_duration
-      ) || 0
+      ),
+      0
     ) / 1000;
 
   const fadeDuration =
-    (
-      Number(
+    Math.max(
+      getNumber(
         hero.text_fade_duration
-      ) || 0
+      ),
+      0
     ) / 1000;
 
   const overlayOpacity =
     Math.min(
       Math.max(
-        Number(
-          hero.overlay_opacity
-        ) || 0,
+        getNumber(
+          hero.overlay_opacity,
+          0
+        ),
         0
       ),
       100
@@ -505,6 +691,11 @@ const HeroSection = () => {
   const textAnimation =
     hero.text_animation ||
     "SLIDE_UP";
+
+  const keepTextVisible =
+    Boolean(
+      hero.keep_text_visible
+    );
 
   const textExitDelay =
     textStartDelay +
@@ -518,7 +709,7 @@ const HeroSection = () => {
   return (
     <section className="relative h-[90vh] min-h-[680px] overflow-hidden bg-black">
       {/* =================================================
-          MEDIA
+          VIDEO
       ================================================= */}
 
       {mediaType ===
@@ -540,7 +731,7 @@ const HeroSection = () => {
                 : "none"
             }
             poster={
-              desktopPosterUrl ||
+              resolvedPosterUrl ||
               undefined
             }
             disablePictureInPicture
@@ -567,12 +758,16 @@ const HeroSection = () => {
           </video>
         )}
 
+      {/* =================================================
+          IMAGE
+      ================================================= */}
+
       {mediaType ===
         "IMAGE" &&
-        desktopMediaUrl && (
+        resolvedMediaUrl && (
           <img
             src={
-              desktopMediaUrl
+              resolvedMediaUrl
             }
             alt={
               hero.alt_text ||
@@ -587,12 +782,12 @@ const HeroSection = () => {
         )}
 
       {/* =================================================
-          VIDEO POSTER BEFORE PLAYBACK
+          VIDEO POSTER
       ================================================= */}
 
       {mediaType ===
         "VIDEO" &&
-        desktopPosterUrl && (
+        resolvedPosterUrl && (
           <motion.div
             initial={
               false
@@ -616,7 +811,7 @@ const HeroSection = () => {
           >
             <img
               src={
-                desktopPosterUrl
+                resolvedPosterUrl
               }
               alt=""
               aria-hidden="true"
@@ -630,7 +825,7 @@ const HeroSection = () => {
         )}
 
       {/* =================================================
-          OVERLAY
+          MAIN OVERLAY
       ================================================= */}
 
       <div
@@ -641,10 +836,16 @@ const HeroSection = () => {
         }}
       />
 
-      {/* Permanent navbar gradient */}
+      {/* =================================================
+          NAVBAR GRADIENT
+      ================================================= */}
+
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-44 bg-gradient-to-b from-black/60 via-black/35 to-transparent" />
 
-      {/* Bottom gradient */}
+      {/* =================================================
+          BOTTOM GRADIENT
+      ================================================= */}
+
       <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
       {/* =================================================
@@ -652,26 +853,32 @@ const HeroSection = () => {
       ================================================= */}
 
       <motion.div
+        key={`${hero.source_type}-${hero.id}-${hero.phase}`}
         initial={{
           opacity: 1,
         }}
         animate={{
-          opacity: 0,
+          opacity:
+            keepTextVisible
+              ? 1
+              : 0,
         }}
-        transition={{
-          delay:
-            textExitDelay,
+        transition={
+          keepTextVisible
+            ? {
+                duration: 0,
+              }
+            : {
+                delay:
+                  textExitDelay,
 
-          duration:
-            fadeDuration,
+                duration:
+                  fadeDuration,
 
-          ease: [
-            0.19,
-            1,
-            0.22,
-            1,
-          ],
-        }}
+                ease:
+                  introEase,
+              }
+        }
         className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6 text-center"
       >
         <motion.div
@@ -692,20 +899,18 @@ const HeroSection = () => {
             duration:
               animationDuration,
 
-            ease: [
-              0.19,
-              1,
-              0.22,
-              1,
-            ],
+            ease:
+              introEase,
           }}
           className="max-w-[1100px]"
         >
-          <h1 className="font-['Cormorant_Garamond'] text-[42px] font-medium leading-[1.05] tracking-[-0.02em] text-white md:text-[58px] lg:text-[72px]">
-            {
-              hero.heading
-            }
-          </h1>
+          {hero.heading && (
+            <h1 className="font-['Cormorant_Garamond'] text-[42px] font-medium leading-[1.05] tracking-[-0.02em] text-white md:text-[58px] lg:text-[72px]">
+              {
+                hero.heading
+              }
+            </h1>
+          )}
 
           {hero.description && (
             <motion.p
