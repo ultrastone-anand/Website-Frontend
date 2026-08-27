@@ -16,12 +16,37 @@ import {
 const RAW_API_URL =
   import.meta.env.VITE_API_URL;
 
+const normalizeApiUrl = (
+  value = ""
+) => {
+  const trimmed =
+    String(value)
+      .trim()
+      .replace(/\/+$/, "");
+
+  if (!trimmed) {
+    console.error(
+      "VITE_API_URL is not configured."
+    );
+
+    return "";
+  }
+
+  if (
+    trimmed.endsWith(
+      "/api"
+    )
+  ) {
+    return trimmed;
+  }
+
+  return `${trimmed}/api`;
+};
+
 const API_URL =
-  String(
-    RAW_API_URL || ""
-  )
-    .trim()
-    .replace(/\/+$/, "");
+  normalizeApiUrl(
+    RAW_API_URL
+  );
 
 const HOME_HERO_URL =
   `${API_URL}/home-hero/active`;
