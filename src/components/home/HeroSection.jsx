@@ -13,213 +13,707 @@ import {
   getOriginalSafeUrl,
 } from "../../utils/Mediahelper";
 
-const ORIGINAL_VIDEO_URL =
-  "https://cdn.ultrastone.in/lv_0_20240514200655.mp4";
+const RAW_API_URL =
+  import.meta.env.VITE_API_URL;
 
-const FIRST_FRAME_URL =
-  "https://cdn.ultrastone.in/cdn-cgi/image/width=1920,quality=78,format=auto/frame0.png";
+const API_URL =
+  String(
+    RAW_API_URL || ""
+  )
+    .trim()
+    .replace(/\/+$/, "");
 
-const smoothEase = [0.16, 1, 0.3, 1];
+const HOME_HERO_URL =
+  `${API_URL}/home-hero/active`;
+
+const smoothEase = [
+  0.16,
+  1,
+  0.3,
+  1,
+];
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const getAnimationInitial = (
+  animation
+) => {
+  switch (animation) {
+    case "FADE":
+      return {
+        opacity: 0,
+      };
+
+    case "SLIDE_DOWN":
+      return {
+        opacity: 0,
+        y: -90,
+      };
+
+    case "SLIDE_LEFT":
+      return {
+        opacity: 0,
+        x: 90,
+      };
+
+    case "SLIDE_RIGHT":
+      return {
+        opacity: 0,
+        x: -90,
+      };
+
+    case "ZOOM_IN":
+      return {
+        opacity: 0,
+        scale: 0.85,
+      };
+
+    case "ZOOM_OUT":
+      return {
+        opacity: 0,
+        scale: 1.15,
+      };
+
+    case "NONE":
+      return {
+        opacity: 1,
+      };
+
+    case "SLIDE_UP":
+    default:
+      return {
+        opacity: 0,
+        y: 90,
+      };
+  }
+};
+
+const getAnimationTarget = (
+  animation
+) => {
+  if (
+    animation === "NONE"
+  ) {
+    return {
+      opacity: 1,
+    };
+  }
+
+  return {
+    opacity: 1,
+    x: 0,
+    y: 0,
+    scale: 1,
+  };
+};
+
+/* =========================================================
+   HERO
+========================================================= */
 
 const HeroSection = () => {
-  const videoRef = useRef(null);
+  const videoRef =
+    useRef(null);
 
-  const [loadVideo, setLoadVideo] = useState(false);
-  const [hasVideoStarted, setHasVideoStarted] = useState(false);
-  const [useOriginalVideo, setUseOriginalVideo] = useState(false);
-  const [videoFailed, setVideoFailed] = useState(false);
+  const [
+    hero,
+    setHero,
+  ] =
+    useState(null);
 
-  const optimizedVideoUrl = useMemo(
-    () =>
-      getOptimizedVideoUrl(ORIGINAL_VIDEO_URL, {
-        width: 1920,
-        fit: "scale-down",
-        quality: "medium",
-      }),
-    []
-  );
+  const [
+    loading,
+    setLoading,
+  ] =
+    useState(true);
 
-  const originalVideoUrl = useMemo(
-    () => getOriginalSafeUrl(ORIGINAL_VIDEO_URL),
-    []
-  );
+  const [
+    loadVideo,
+    setLoadVideo,
+  ] =
+    useState(false);
 
-  const activeVideoUrl = useOriginalVideo
-    ? originalVideoUrl
-    : optimizedVideoUrl;
+  const [
+    hasVideoStarted,
+    setHasVideoStarted,
+  ] =
+    useState(false);
 
-  // Start loading shortly before the intro text finishes.
+  const [
+    useOriginalVideo,
+    setUseOriginalVideo,
+  ] =
+    useState(false);
+
+  const [
+    videoFailed,
+    setVideoFailed,
+  ] =
+    useState(false);
+
+  /* =======================================================
+     FETCH ACTIVE HERO
+  ======================================================= */
+
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setLoadVideo(true);
-    }, 1800);
+    const fetchHero =
+      async () => {
+        try {
+          const response =
+            await fetch(
+              HOME_HERO_URL,
+              {
+                method:
+                  "GET",
 
-    return () => window.clearTimeout(timer);
+                cache:
+                  "no-store",
+              }
+            );
+
+          const data =
+            await response.json();
+
+          if (
+            !response.ok
+          ) {
+            throw new Error(
+              data?.message ||
+                "Failed to fetch active home hero"
+            );
+          }
+
+          setHero(
+            data?.data ||
+              null
+          );
+        } catch (
+          error
+        ) {
+          console.error(
+            "Failed to load active home hero:",
+            error
+          );
+        } finally {
+          setLoading(
+            false
+          );
+        }
+      };
+
+    fetchHero();
   }, []);
 
-  // Load and start the active source.
-  useEffect(() => {
-    const video = videoRef.current;
+  /* =======================================================
+     MEDIA
+  ======================================================= */
 
-    if (!loadVideo || !video || !activeVideoUrl) {
-      return;
+  const desktopMediaUrl =
+    hero?.media_url ||
+    "";
+
+  const desktopPosterUrl =
+    hero?.poster_url ||
+    "";
+
+  const mediaType =
+    hero?.media_type ||
+    "IMAGE";
+
+  const optimizedVideoUrl =
+    useMemo(() => {
+      if (
+        mediaType !==
+          "VIDEO" ||
+        !desktopMediaUrl
+      ) {
+        return "";
+      }
+
+      return getOptimizedVideoUrl(
+        desktopMediaUrl,
+        {
+          width:
+            1920,
+
+          fit:
+            "scale-down",
+
+          quality:
+            "medium",
+        }
+      );
+    }, [
+      desktopMediaUrl,
+      mediaType,
+    ]);
+
+  const originalVideoUrl =
+    useMemo(() => {
+      if (
+        mediaType !==
+          "VIDEO" ||
+        !desktopMediaUrl
+      ) {
+        return "";
+      }
+
+      return getOriginalSafeUrl(
+        desktopMediaUrl
+      );
+    }, [
+      desktopMediaUrl,
+      mediaType,
+    ]);
+
+  const activeVideoUrl =
+    useOriginalVideo
+      ? originalVideoUrl
+      : optimizedVideoUrl;
+
+  /* =======================================================
+     VIDEO LOAD DELAY
+  ======================================================= */
+
+  useEffect(() => {
+    if (
+      !hero ||
+      mediaType !==
+        "VIDEO"
+    ) {
+      return undefined;
     }
 
-    let cancelled = false;
+    const delay =
+      Number(
+        hero.video_load_delay
+      ) || 0;
 
-    const startVideo = async () => {
-      try {
-        video.load();
+    const timer =
+      window.setTimeout(
+        () => {
+          setLoadVideo(
+            true
+          );
+        },
+        delay
+      );
 
-        await video.play();
+    return () =>
+      window.clearTimeout(
+        timer
+      );
+  }, [
+    hero,
+    mediaType,
+  ]);
 
-        if (!cancelled) {
-          setHasVideoStarted(true);
+  /* =======================================================
+     VIDEO START
+  ======================================================= */
+
+  useEffect(() => {
+    const video =
+      videoRef.current;
+
+    if (
+      !loadVideo ||
+      !video ||
+      !activeVideoUrl
+    ) {
+      return undefined;
+    }
+
+    let cancelled =
+      false;
+
+    const startVideo =
+      async () => {
+        try {
+          video.load();
+
+          await video.play();
+
+          if (
+            !cancelled
+          ) {
+            setHasVideoStarted(
+              true
+            );
+          }
+        } catch (
+          error
+        ) {
+          if (
+            !cancelled
+          ) {
+            console.warn(
+              "Hero video autoplay failed:",
+              error
+            );
+          }
         }
-      } catch (error) {
-        if (!cancelled) {
-          console.warn("Hero video autoplay failed:", error);
-        }
-      }
-    };
+      };
 
     startVideo();
 
     return () => {
-      cancelled = true;
+      cancelled =
+        true;
     };
-  }, [loadVideo, activeVideoUrl]);
+  }, [
+    loadVideo,
+    activeVideoUrl,
+  ]);
 
-  const handleVideoPlaying = useCallback(() => {
-    // Once playback succeeds, never show the first-frame overlay again
-    // during temporary waiting, stalling, seeking, or looping.
-    setHasVideoStarted(true);
-  }, []);
+  /* =======================================================
+     VIDEO HANDLERS
+  ======================================================= */
 
-  const handleVideoError = useCallback(() => {
-    if (!useOriginalVideo) {
-      console.warn(
-        "Optimized video failed. Falling back to original video."
+  const handleVideoPlaying =
+    useCallback(() => {
+      setHasVideoStarted(
+        true
+      );
+    }, []);
+
+  const handleVideoError =
+    useCallback(() => {
+      if (
+        !useOriginalVideo
+      ) {
+        console.warn(
+          "Optimized video failed. Falling back to original video."
+        );
+
+        setHasVideoStarted(
+          false
+        );
+
+        setUseOriginalVideo(
+          true
+        );
+
+        return;
+      }
+
+      console.error(
+        "Original hero video also failed."
       );
 
-      setHasVideoStarted(false);
-      setUseOriginalVideo(true);
-      return;
-    }
+      setVideoFailed(
+        true
+      );
 
-    console.error("Original hero video also failed.");
+      setHasVideoStarted(
+        false
+      );
+    }, [
+      useOriginalVideo,
+    ]);
 
-    setVideoFailed(true);
-    setHasVideoStarted(false);
-  }, [useOriginalVideo]);
+  /* =======================================================
+     LOADING
+  ======================================================= */
+
+  if (
+    loading ||
+    !hero
+  ) {
+    return (
+      <section className="relative h-[90vh] min-h-[680px] bg-black" />
+    );
+  }
+
+  /* =======================================================
+     TIMING
+  ======================================================= */
+
+  const textStartDelay =
+    (
+      Number(
+        hero.text_start_delay
+      ) || 0
+    ) / 1000;
+
+  const animationDuration =
+    (
+      Number(
+        hero.text_animation_duration
+      ) || 0
+    ) / 1000;
+
+  const descriptionDelay =
+    (
+      Number(
+        hero.description_delay
+      ) || 0
+    ) / 1000;
+
+  const visibleDuration =
+    (
+      Number(
+        hero.text_visible_duration
+      ) || 0
+    ) / 1000;
+
+  const fadeDuration =
+    (
+      Number(
+        hero.text_fade_duration
+      ) || 0
+    ) / 1000;
+
+  const overlayOpacity =
+    Math.min(
+      Math.max(
+        Number(
+          hero.overlay_opacity
+        ) || 0,
+        0
+      ),
+      100
+    ) / 100;
+
+  const textAnimation =
+    hero.text_animation ||
+    "SLIDE_UP";
+
+  const textExitDelay =
+    textStartDelay +
+    animationDuration +
+    visibleDuration;
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
 
   return (
     <section className="relative h-[90vh] min-h-[680px] overflow-hidden bg-black">
-      {!videoFailed && (
-        <video
-          ref={videoRef}
-          muted
-          loop
-          playsInline
-          autoPlay={loadVideo}
-          preload={loadVideo ? "auto" : "none"}
-          poster={FIRST_FRAME_URL}
-          disablePictureInPicture
-          onPlaying={handleVideoPlaying}
-          onError={handleVideoError}
-          className="absolute inset-0 h-full w-full object-cover"
-        >
-          {loadVideo && (
-            <source
-              key={activeVideoUrl}
-              src={activeVideoUrl}
-              type="video/mp4"
+      {/* =================================================
+          MEDIA
+      ================================================= */}
+
+      {mediaType ===
+        "VIDEO" &&
+        !videoFailed && (
+          <video
+            ref={
+              videoRef
+            }
+            muted
+            loop
+            playsInline
+            autoPlay={
+              loadVideo
+            }
+            preload={
+              loadVideo
+                ? "auto"
+                : "none"
+            }
+            poster={
+              desktopPosterUrl ||
+              undefined
+            }
+            disablePictureInPicture
+            onPlaying={
+              handleVideoPlaying
+            }
+            onError={
+              handleVideoError
+            }
+            className="absolute inset-0 h-full w-full object-cover"
+          >
+            {loadVideo &&
+              activeVideoUrl && (
+                <source
+                  key={
+                    activeVideoUrl
+                  }
+                  src={
+                    activeVideoUrl
+                  }
+                  type="video/mp4"
+                />
+              )}
+          </video>
+        )}
+
+      {mediaType ===
+        "IMAGE" &&
+        desktopMediaUrl && (
+          <img
+            src={
+              desktopMediaUrl
+            }
+            alt={
+              hero.alt_text ||
+              ""
+            }
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            draggable="false"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
+
+      {/* =================================================
+          VIDEO POSTER BEFORE PLAYBACK
+      ================================================= */}
+
+      {mediaType ===
+        "VIDEO" &&
+        desktopPosterUrl && (
+          <motion.div
+            initial={
+              false
+            }
+            animate={{
+              opacity:
+                hasVideoStarted
+                  ? 0
+                  : 1,
+            }}
+            transition={{
+              duration:
+                hasVideoStarted
+                  ? 0.8
+                  : 0.2,
+
+              ease:
+                smoothEase,
+            }}
+            className="pointer-events-none absolute inset-0 z-10"
+          >
+            <img
+              src={
+                desktopPosterUrl
+              }
+              alt=""
+              aria-hidden="true"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              draggable="false"
+              className="h-full w-full object-cover"
             />
-          )}
-        </video>
-      )}
+          </motion.div>
+        )}
+
+      {/* =================================================
+          OVERLAY
+      ================================================= */}
+
+      <div
+        className="pointer-events-none absolute inset-0 z-10 bg-black"
+        style={{
+          opacity:
+            overlayOpacity,
+        }}
+      />
 
       {/* Permanent navbar gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-44 bg-gradient-to-b from-black/60 via-black/35 to-transparent" />
 
-      {/* Only visible before the video successfully starts for the first time */}
+      {/* Bottom gradient */}
+      <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
+      {/* =================================================
+          CONTENT
+      ================================================= */}
+
       <motion.div
-        initial={false}
+        initial={{
+          opacity: 1,
+        }}
         animate={{
-          opacity: hasVideoStarted ? 0 : 1,
+          opacity: 0,
         }}
         transition={{
-          duration: hasVideoStarted ? 0.8 : 0.2,
-          ease: smoothEase,
-        }}
-        className="pointer-events-none absolute inset-0 z-10"
-      >
-        <img
-          src={FIRST_FRAME_URL}
-          alt=""
-          aria-hidden="true"
-          width="1920"
-          height="1080"
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          draggable="false"
-          className="h-full w-full object-cover"
-        />
+          delay:
+            textExitDelay,
 
-        <div className="absolute inset-0 bg-black/35" />
+          duration:
+            fadeDuration,
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
-      </motion.div>
-
-      {/* Intro text */}
-      <motion.div
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 0 }}
-        transition={{
-          delay: 3.1,
-          duration: 0.7,
-          ease: [0.19, 1, 0.22, 1],
+          ease: [
+            0.19,
+            1,
+            0.22,
+            1,
+          ],
         }}
         className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6 text-center"
       >
         <motion.div
-          initial={{ y: 90 }}
-          animate={{ y: 0 }}
+          initial={
+            getAnimationInitial(
+              textAnimation
+            )
+          }
+          animate={
+            getAnimationTarget(
+              textAnimation
+            )
+          }
           transition={{
-            delay: 0.15,
-            duration: 1.4,
-            ease: [0.19, 1, 0.22, 1],
+            delay:
+              textStartDelay,
+
+            duration:
+              animationDuration,
+
+            ease: [
+              0.19,
+              1,
+              0.22,
+              1,
+            ],
           }}
           className="max-w-[1100px]"
         >
           <h1 className="font-['Cormorant_Garamond'] text-[42px] font-medium leading-[1.05] tracking-[-0.02em] text-white md:text-[58px] lg:text-[72px]">
-            Premium Surfaces for Every Space
+            {
+              hero.heading
+            }
           </h1>
 
-          <motion.p
-            initial={{
-              opacity: 0,
-              y: 25,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            transition={{
-              delay: 0.45,
-              duration: 1,
-              ease: smoothEase,
-            }}
-            className="mx-auto mt-5 max-w-[720px] font-['Inter'] text-[17px] font-normal leading-[1.35] text-white/85 md:text-[21px]"
-          >
-            From natural stone to engineered quartz, explore materials selected
-            for homes, commercial projects, and timeless interiors.
-          </motion.p>
+          {hero.description && (
+            <motion.p
+              initial={{
+                opacity: 0,
+                y: 25,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                delay:
+                  descriptionDelay,
+
+                duration: 1,
+
+                ease:
+                  smoothEase,
+              }}
+              className="mx-auto mt-5 max-w-[720px] font-['Inter'] text-[17px] font-normal leading-[1.35] text-white/85 md:text-[21px]"
+            >
+              {
+                hero.description
+              }
+            </motion.p>
+          )}
         </motion.div>
       </motion.div>
     </section>
   );
 };
 
-export default memo(HeroSection);
+export default memo(
+  HeroSection
+);
