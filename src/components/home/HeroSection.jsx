@@ -194,12 +194,6 @@ const HeroSection = () => {
     useState(false);
 
   const [
-    loadVideo,
-    setLoadVideo,
-  ] =
-    useState(false);
-
-  const [
     hasVideoStarted,
     setHasVideoStarted,
   ] =
@@ -387,14 +381,10 @@ const HeroSection = () => {
       : desktopPosterUrl;
 
   /* =======================================================
-     RESET VIDEO STATE WHEN HERO / MEDIA CHANGES
+     RESET VIDEO STATE
   ======================================================= */
 
   useEffect(() => {
-    setLoadVideo(
-      false
-    );
-
     setHasVideoStarted(
       false
     );
@@ -472,50 +462,6 @@ const HeroSection = () => {
       : optimizedVideoUrl;
 
   /* =======================================================
-     VIDEO LOAD DELAY
-  ======================================================= */
-
-  useEffect(() => {
-    if (
-      !hero ||
-      mediaType !==
-        "VIDEO" ||
-      !resolvedMediaUrl
-    ) {
-      return undefined;
-    }
-
-    const delay =
-      Math.max(
-        getNumber(
-          hero.video_load_delay,
-          0
-        ),
-        0
-      );
-
-    const timer =
-      window.setTimeout(
-        () => {
-          setLoadVideo(
-            true
-          );
-        },
-        delay
-      );
-
-    return () => {
-      window.clearTimeout(
-        timer
-      );
-    };
-  }, [
-    hero,
-    mediaType,
-    resolvedMediaUrl,
-  ]);
-
-  /* =======================================================
      VIDEO START
   ======================================================= */
 
@@ -524,7 +470,8 @@ const HeroSection = () => {
       videoRef.current;
 
     if (
-      !loadVideo ||
+      mediaType !==
+        "VIDEO" ||
       !video ||
       !activeVideoUrl
     ) {
@@ -537,8 +484,6 @@ const HeroSection = () => {
     const startVideo =
       async () => {
         try {
-          video.load();
-
           await video.play();
 
           if (
@@ -567,7 +512,7 @@ const HeroSection = () => {
         true;
     };
   }, [
-    loadVideo,
+    mediaType,
     activeVideoUrl,
   ]);
 
@@ -703,6 +648,22 @@ const HeroSection = () => {
     visibleDuration;
 
   /* =======================================================
+     DEFAULT HERO OVERLAY BEHAVIOR
+  ======================================================= */
+
+  const isDefaultHero =
+    hero.source_type ===
+    "DEFAULT";
+
+  const fadeDefaultOverlay =
+    isDefaultHero &&
+    !keepTextVisible;
+
+  const overlayExitDelay =
+    textExitDelay +
+    fadeDuration;
+
+  /* =======================================================
      RENDER
   ======================================================= */
 
@@ -714,7 +675,8 @@ const HeroSection = () => {
 
       {mediaType ===
         "VIDEO" &&
-        !videoFailed && (
+        !videoFailed &&
+        activeVideoUrl && (
           <video
             ref={
               videoRef
@@ -722,14 +684,8 @@ const HeroSection = () => {
             muted
             loop
             playsInline
-            autoPlay={
-              loadVideo
-            }
-            preload={
-              loadVideo
-                ? "auto"
-                : "none"
-            }
+            autoPlay
+            preload="auto"
             poster={
               resolvedPosterUrl ||
               undefined
@@ -743,18 +699,15 @@ const HeroSection = () => {
             }
             className="absolute inset-0 h-full w-full object-cover"
           >
-            {loadVideo &&
-              activeVideoUrl && (
-                <source
-                  key={
-                    activeVideoUrl
-                  }
-                  src={
-                    activeVideoUrl
-                  }
-                  type="video/mp4"
-                />
-              )}
+            <source
+              key={
+                activeVideoUrl
+              }
+              src={
+                activeVideoUrl
+              }
+              type="video/mp4"
+            />
           </video>
         )}
 
@@ -783,6 +736,9 @@ const HeroSection = () => {
 
       {/* =================================================
           VIDEO POSTER
+
+          Poster remains visible until the real video
+          is actually playing. This prevents black flash.
       ================================================= */}
 
       {mediaType ===
@@ -801,8 +757,8 @@ const HeroSection = () => {
             transition={{
               duration:
                 hasVideoStarted
-                  ? 0.8
-                  : 0.2,
+                  ? 0.65
+                  : 0,
 
               ease:
                 smoothEase,
@@ -825,28 +781,92 @@ const HeroSection = () => {
         )}
 
       {/* =================================================
-          MAIN OVERLAY
+          MAIN DARK OVERLAY
+
+          DEFAULT HERO:
+          fades after text finishes.
+
+          CAMPAIGN / HOLIDAY:
+          remains.
       ================================================= */}
 
-      <div
-        className="pointer-events-none absolute inset-0 z-10 bg-black"
-        style={{
+      <motion.div
+        initial={{
           opacity:
             overlayOpacity,
         }}
+        animate={{
+          opacity:
+            fadeDefaultOverlay
+              ? 0
+              : overlayOpacity,
+        }}
+        transition={
+          fadeDefaultOverlay
+            ? {
+                delay:
+                  overlayExitDelay,
+
+                duration:
+                  0.8,
+
+                ease:
+                  smoothEase,
+              }
+            : {
+                duration:
+                  0,
+              }
+        }
+        className="pointer-events-none absolute inset-0 z-10 bg-black"
       />
 
       {/* =================================================
           NAVBAR GRADIENT
+          ALWAYS REMAINS
       ================================================= */}
 
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-44 bg-gradient-to-b from-black/60 via-black/35 to-transparent" />
 
       {/* =================================================
           BOTTOM GRADIENT
+
+          DEFAULT HERO:
+          fades after text finishes.
+
+          CAMPAIGN / HOLIDAY:
+          remains.
       ================================================= */}
 
-      <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+      <motion.div
+        initial={{
+          opacity: 1,
+        }}
+        animate={{
+          opacity:
+            fadeDefaultOverlay
+              ? 0
+              : 1,
+        }}
+        transition={
+          fadeDefaultOverlay
+            ? {
+                delay:
+                  overlayExitDelay,
+
+                duration:
+                  0.8,
+
+                ease:
+                  smoothEase,
+              }
+            : {
+                duration:
+                  0,
+              }
+        }
+        className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/70 via-transparent to-transparent"
+      />
 
       {/* =================================================
           CONTENT
@@ -866,7 +886,8 @@ const HeroSection = () => {
         transition={
           keepTextVisible
             ? {
-                duration: 0,
+                duration:
+                  0,
               }
             : {
                 delay:
@@ -926,7 +947,8 @@ const HeroSection = () => {
                 delay:
                   descriptionDelay,
 
-                duration: 1,
+                duration:
+                  1,
 
                 ease:
                   smoothEase,
