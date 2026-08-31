@@ -1,3 +1,4 @@
+import "svg2pdf.js";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 
@@ -296,6 +297,63 @@ const loadLocalImageAsDataUrl =
       throw error;
     }
   };
+
+
+  /* =========================================================
+   LOCAL SVG LOADER
+
+   Loads SVG as raw markup so it can be rendered
+   directly into jsPDF as vector artwork.
+========================================================= */
+
+const loadLocalSvg = async (
+  source,
+) => {
+  if (!source) {
+    return null;
+  }
+
+  if (
+    localImageCache.has(
+      `svg:${source}`,
+    )
+  ) {
+    return localImageCache.get(
+      `svg:${source}`,
+    );
+  }
+
+  const promise =
+    (async () => {
+      const response =
+        await fetch(
+          source,
+        );
+
+      if (!response.ok) {
+        throw new Error(
+          `Unable to load SVG. Status: ${response.status}`,
+        );
+      }
+
+      return response.text();
+    })();
+
+  localImageCache.set(
+    `svg:${source}`,
+    promise,
+  );
+
+  try {
+    return await promise;
+  } catch (error) {
+    localImageCache.delete(
+      `svg:${source}`,
+    );
+
+    throw error;
+  }
+};
 
 /* =========================================================
    HERO IMAGE
@@ -667,9 +725,9 @@ const staticPdfAssetsPromise =
   Promise.all([
     /* LOGO */
 
-    loadLocalImageAsDataUrl(
-      uslogo,
-    ),
+loadLocalSvg(
+  uslogo,
+),
 
     /* INFO */
 
@@ -861,6 +919,46 @@ const addPdfImage = (
   );
 };
 
+
+
+/* =========================================================
+   PDF SVG
+========================================================= */
+
+const addPdfSvg = async (
+  pdf,
+  svgMarkup,
+  x,
+  y,
+  width,
+  height,
+) => {
+  if (!svgMarkup) {
+    return;
+  }
+
+  const parser =
+    new DOMParser();
+
+  const svgDocument =
+    parser.parseFromString(
+      svgMarkup,
+      "image/svg+xml",
+    );
+
+  const svgElement =
+    svgDocument.documentElement;
+
+  await pdf.svg(
+    svgElement,
+    {
+      x,
+      y,
+      width,
+      height,
+    },
+  );
+};
 /* =========================================================
    GENERATE DATASHEET
 ========================================================= */
@@ -978,19 +1076,16 @@ export const generateDatasheet =
        HEADER
     ===================================================== */
 
-    addPdfImage(
-      pdf,
-      logoImage,
-      "PNG",
+await addPdfSvg(
+  pdf,
+  logoImage,
 
-      10,
-      7,
+  10,
+  7,
 
-      60,
-      22,
-
-      "us-logo",
-    );
+  60,
+  22,
+);
 
     pdf.setFillColor(
       90,
