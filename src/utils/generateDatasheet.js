@@ -29,7 +29,7 @@ import spray from "../assets/maintaniance/spray.png";
 import cleanser from "../assets/maintaniance/cleanser.png";
 import caution from "../assets/maintaniance/caution.png";
 
-import uslogo from "../assets/uslogo.png";
+import uslogo from "../assets/uslogo.svg";
 
 const API_URL =
   import.meta.env.VITE_API_URL;
