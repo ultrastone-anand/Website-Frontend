@@ -2,7 +2,7 @@ import axios from "axios";
 
 import { useEffect, useMemo, useState } from "react";
 
-import { Link, useParams, useNavigate, } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import Loading from "../../../components/common/Loading";
 import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
@@ -10,7 +10,6 @@ import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
 const ProductCategory = () => {
 
   const { slug } = useParams();
-  const navigate = useNavigate();
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -687,119 +686,126 @@ if (!category) {
             {filteredProducts.map(
               (item) => (
 
-                <div
-                  key={item.id}
-                  onClick={() =>
-                    navigate(
-                      `/product/${category.slug}/${item.slug}`
-                    )
-                  }
-                  className="
-                  group
-                  cursor-pointer
-                  "
-                >
-
-                  {/* IMAGE */}
-
-                  <Link
-                    to={`/product/${category.slug}/${item.slug}`}
-                    className="group block">
-                    <div
-                      className="
-                    overflow-hidden
-                    bg-[#eaeaea]
-                    aspect-square
-                    "
-                    >
-
-<img
-  src={
-    item.closeup_image
-      ? getOptimizedImageUrl(
-          item.closeup_image,
-          400,
-          72,
-        )
-      : "https://placehold.co/400x400"
-  }
-  srcSet={
-    item.closeup_image
-      ? `
-        ${getOptimizedImageUrl(item.closeup_image, 240, 68)} 240w,
-        ${getOptimizedImageUrl(item.closeup_image, 320, 70)} 320w,
-        ${getOptimizedImageUrl(item.closeup_image, 400, 72)} 400w,
-        ${getOptimizedImageUrl(item.closeup_image, 520, 74)} 520w,
-        ${getOptimizedImageUrl(item.closeup_image, 700, 76)} 700w
-      `
-      : undefined
-  }
-  sizes="
-    (min-width: 1280px) calc((100vw - 128px) / 4),
-    (min-width: 768px) calc((100vw - 96px) / 3),
-    calc((100vw - 72px) / 2)
-  "
-  alt={item.name}
-  loading="lazy"
-  decoding="async"
-  fetchPriority="low"
-  width="700"
-  height="700"
+<Link
+  key={item.id}
+  to={`/product/${category.slug}/${item.slug}`}
   className="
+    group
+    cursor-pointer
     block
-    w-full
-    h-full
-    object-cover
-    duration-700
-    group-hover:scale-[1.02]
   "
-/>
+>
+  {/* IMAGE */}
 
-                    </div>
+  <div
+    className="
+      overflow-hidden
+      bg-[#eaeaea]
+      aspect-square
+    "
+  >
+    <img
+      src={
+        item.closeup_image
+          ? getOptimizedImageUrl(
+              item.closeup_image,
+              400,
+              72,
+            )
+          : "https://placehold.co/400x400"
+      }
+      srcSet={
+        item.closeup_image
+          ? `
+            ${getOptimizedImageUrl(
+              item.closeup_image,
+              240,
+              68,
+            )} 240w,
+            ${getOptimizedImageUrl(
+              item.closeup_image,
+              320,
+              70,
+            )} 320w,
+            ${getOptimizedImageUrl(
+              item.closeup_image,
+              400,
+              72,
+            )} 400w,
+            ${getOptimizedImageUrl(
+              item.closeup_image,
+              520,
+              74,
+            )} 520w,
+            ${getOptimizedImageUrl(
+              item.closeup_image,
+              700,
+              76,
+            )} 700w
+          `
+          : undefined
+      }
+      sizes="
+        (min-width: 1280px) calc((100vw - 128px) / 4),
+        (min-width: 768px) calc((100vw - 96px) / 3),
+        calc((100vw - 72px) / 2)
+      "
+      alt={item.name}
+      loading="lazy"
+      decoding="async"
+      fetchPriority="low"
+      width="700"
+      height="700"
+      className="
+        block
+        w-full
+        h-full
+        object-cover
+        duration-700
+        group-hover:scale-[1.02]
+      "
+    />
+  </div>
 
-                    {/* TITLE */}
+  {/* TITLE */}
 
-                    <h2
-                      className="
-                    mt-4
-                    text-[15px]
-                    font-semibold
-                    text-[#161412]
-                    border-b
-                    border-[#1f1f1f]
-                    pb-1
-                    inline-block
-                    "
-                      style={{
-                        fontFamily:
-                          "Montserrat, sans-serif",
-                      }}
-                    >
-                      {item.name}
-                    </h2>
+  <h2
+    className="
+      mt-4
+      text-[15px]
+      font-semibold
+      text-[#161412]
+      border-b
+      border-[#1f1f1f]
+      pb-1
+      inline-block
+    "
+    style={{
+      fontFamily:
+        "Montserrat, sans-serif",
+    }}
+  >
+    {item.name}
+  </h2>
 
-                    {/* DESCRIPTION */}
+  {/* DESCRIPTION */}
 
-                    <p
-                      className="
-                    mt-3
-                    text-[11px]
-                    leading-[1.65]
-                    text-[#8a8a8a]
-                    line-clamp-4
-                    "
-                      style={{
-                        fontFamily:
-                          "Montserrat, sans-serif",
-                      }}
-                    >
-                      {item.small_description}
-                    </p>
-
-                  </Link>
-
-                </div>
-
+  <p
+    className="
+      mt-3
+      text-[11px]
+      leading-[1.65]
+      text-[#8a8a8a]
+      line-clamp-4
+    "
+    style={{
+      fontFamily:
+        "Montserrat, sans-serif",
+    }}
+  >
+    {item.small_description}
+  </p>
+</Link>
               )
             )}
 
