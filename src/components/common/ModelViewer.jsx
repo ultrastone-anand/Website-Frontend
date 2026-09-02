@@ -1,9 +1,32 @@
 import * as THREE from "three";
+
 import { createPortal } from "react-dom";
-import { Suspense, useEffect, useState } from "react";
-import { Canvas, useLoader, useThree, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, Center, Html } from "@react-three/drei";
+
+import {
+    Suspense,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
+
+import {
+    Canvas,
+    useThree,
+} from "@react-three/fiber";
+
+import {
+    OrbitControls,
+    Center,
+    Html,
+    ContactShadows,
+} from "@react-three/drei";
+
 import Loading from "./Loading";
+
+
+/* ============================================================
+   LOADER
+============================================================ */
 
 function Loader() {
 
@@ -12,7 +35,7 @@ function Loader() {
 
             <div
                 style={{
-                    color: "#fff"
+                    color: "#fff",
                 }}
             >
                 <Loading />
@@ -23,277 +46,603 @@ function Loader() {
 
 }
 
-function CameraDebugger() {
 
-    const { camera } = useThree();
-
-
-    const [position, setPosition] = useState({
-
-        x: 0,
-        y: 0,
-        z: 0
-
-    });
-
-
-
-    useFrame(() => {
-
-
-        setPosition({
-
-            x: camera.position.x.toFixed(2),
-
-            y: camera.position.y.toFixed(2),
-
-            z: camera.position.z.toFixed(2)
-
-        });
-
-
-    });
-
-
-
-    return (
-
-        <Html
-            fullscreen
-            style={{
-
-                pointerEvents: "none"
-
-            }}
-        >
-
-
-            <div
-
-                style={{
-
-                    position: "absolute",
-
-                    top: 100,
-
-                    right: 30,
-
-                    background: "rgba(0,0,0,.75)",
-
-                    color: "#fff",
-
-                    padding: "15px",
-
-                    borderRadius: "10px",
-
-                    fontSize: "14px",
-
-                    lineHeight: "22px"
-
-                }}
-
-            >
-
-
-                <b>Camera Position</b>
-
-                <br />
-
-                X : {position.x}
-
-                <br />
-
-                Y : {position.y}
-
-                <br />
-
-                Z : {position.z}
-
-
-            </div>
-
-
-
-        </Html>
-
-    );
-
-}
+/* ============================================================
+   STONE SLAB
+============================================================ */
 
 function StoneSlab({
     textureUrl,
-    finish
+    finish,
 }) {
 
+    const [
+        texture,
+        setTexture,
+    ] = useState(null);
 
-    const [texture, setTexture] = useState(null);
 
     useEffect(() => {
-        console.log("========== TEXTURE TEST ==========");
-        console.log("Texture URL:", textureUrl);
 
-        const manager = new THREE.LoadingManager();
+        console.log(
+            "========== TEXTURE TEST =========="
+        );
 
-        manager.setURLModifier((url) => {
-            console.log("Loading:", url);
-            return `${url}?t=${Date.now()}`;
-        });
+        console.log(
+            "Texture URL:",
+            textureUrl
+        );
 
-        const loader = new THREE.TextureLoader(manager);
 
-        loader.crossOrigin = "anonymous";
+        const manager =
+            new THREE.LoadingManager();
 
-        loader.setCrossOrigin("anonymous");
 
-        loader.load(
-            textureUrl,
-            (tex) => {
-                console.log("✅ Texture loaded");
-                console.log(tex);
+        manager.setURLModifier(
+            (url) => {
 
-                console.log("Image:", tex.image);
-                console.log("Width:", tex.image.width);
-                console.log("Height:", tex.image.height);
+                console.log(
+                    "Loading:",
+                    url
+                );
 
-                setTexture(tex);
-            },
-            (event) => {
-                console.log("Progress:", event);
-            },
-            (err) => {
-                console.error("❌ Texture failed");
-                console.error(err);
+
+                const separator =
+                    url.includes("?")
+                        ? "&"
+                        : "?";
+
+
+                return `${url}${separator}t=${Date.now()}`;
             }
         );
 
+
+        const loader =
+            new THREE.TextureLoader(
+                manager
+            );
+
+
+        loader.crossOrigin =
+            "anonymous";
+
+
+        loader.setCrossOrigin(
+            "anonymous"
+        );
+
+
+        loader.load(
+
+            textureUrl,
+
+            (tex) => {
+
+                console.log(
+                    "✅ Texture loaded"
+                );
+
+                console.log(tex);
+
+                console.log(
+                    "Image:",
+                    tex.image
+                );
+
+                console.log(
+                    "Width:",
+                    tex.image.width
+                );
+
+                console.log(
+                    "Height:",
+                    tex.image.height
+                );
+
+
+                tex.colorSpace =
+                    THREE.SRGBColorSpace;
+
+
+                tex.anisotropy =
+                    16;
+
+
+                tex.generateMipmaps =
+                    true;
+
+
+                tex.minFilter =
+                    THREE.LinearMipmapLinearFilter;
+
+
+                tex.magFilter =
+                    THREE.LinearFilter;
+
+
+                tex.needsUpdate =
+                    true;
+
+
+                setTexture(tex);
+            },
+
+            undefined,
+
+            (err) => {
+
+                console.error(
+                    "❌ Texture failed"
+                );
+
+                console.error(err);
+
+            }
+        );
+
+
         return () => {
-            console.log("StoneSlab cleanup");
+
+            console.log(
+                "StoneSlab cleanup"
+            );
+
         };
-    }, [textureUrl]);
+
+    }, [
+        textureUrl,
+    ]);
+
+
+    useEffect(() => {
+
+        return () => {
+
+            texture?.dispose();
+
+        };
+
+    }, [
+        texture,
+    ]);
+
 
     if (!texture) {
+
         return null;
+
     }
-
-    texture.colorSpace =
-        THREE.SRGBColorSpace;
-
-
-    texture.anisotropy = 16;
-
-
-    texture.generateMipmaps = true;
-
-
-    texture.minFilter =
-        THREE.LinearMipmapLinearFilter;
-
-
-
 
 
     const finishSettings = {
 
-
         POLISHED: {
             roughness: 0.08,
-            envMapIntensity: 2
+            metalness: 0,
         },
-
 
         BRUSHED: {
             roughness: 0.75,
-            envMapIntensity: 0.4
+            metalness: 0,
         },
-
 
         HONED: {
             roughness: 0.55,
-            envMapIntensity: 0.6
+            metalness: 0,
         },
-
 
         LEATHER: {
             roughness: 0.8,
-            envMapIntensity: 0.3
+            metalness: 0,
         },
-
 
         FLAMMED: {
             roughness: 1,
-            envMapIntensity: 0.2
+            metalness: 0,
         },
 
+        FLAMED: {
+            roughness: 1,
+            metalness: 0,
+        },
 
         MATT: {
             roughness: 0.95,
-            envMapIntensity: 0.2
-        }
+            metalness: 0,
+        },
 
+        MATTE: {
+            roughness: 0.95,
+            metalness: 0,
+        },
 
     };
 
 
-
     const material =
         finishSettings[
-        finish?.toUpperCase()
+            finish?.toUpperCase()
         ]
         ||
         finishSettings.POLISHED;
-
-
-
 
 
     return (
 
         <Center>
 
-
             <mesh
-
                 castShadow
-
                 receiveShadow
-
                 rotation={[
                     -0.08,
                     -0.25,
-                    0
+                    0,
                 ]}
-
-
             >
 
                 <boxGeometry
-
                     args={[
                         4,
                         2.4,
-                        0.05
+                        0.05,
                     ]}
-
                 />
 
-
                 <meshStandardMaterial
-
                     map={texture}
-
                     {...material}
-
                 />
 
             </mesh>
 
-
         </Center>
-
 
     );
 
 }
+
+
+/* ============================================================
+   CAMERA PRESET CONTROLLER
+   FULLSCREEN ONLY
+============================================================ */
+
+function CameraController({
+    controlsRef,
+    cameraPreset,
+}) {
+
+    const {
+        camera,
+    } = useThree();
+
+
+    useEffect(() => {
+
+        if (!cameraPreset) {
+
+            return;
+
+        }
+
+
+        const presets = {
+
+            front: [
+                0,
+                0,
+                12,
+            ],
+
+            back: [
+                0,
+                0,
+                -12,
+            ],
+
+            left: [
+                -12,
+                0,
+                0,
+            ],
+
+            right: [
+                12,
+                0,
+                0,
+            ],
+
+            top: [
+                0,
+                12,
+                0.01,
+            ],
+
+            perspective: [
+                5,
+                3,
+                12,
+            ],
+
+        };
+
+
+        const position =
+            presets[
+                cameraPreset
+            ];
+
+
+        if (!position) {
+
+            return;
+
+        }
+
+
+        camera.position.set(
+            ...position
+        );
+
+
+        camera.lookAt(
+            0,
+            0,
+            0
+        );
+
+
+        camera.updateProjectionMatrix();
+
+
+        if (
+            controlsRef.current
+        ) {
+
+            controlsRef.current.target.set(
+                0,
+                0,
+                0
+            );
+
+
+            controlsRef.current.update();
+
+        }
+
+    }, [
+        cameraPreset,
+        camera,
+        controlsRef,
+    ]);
+
+
+    return null;
+
+}
+
+
+/* ============================================================
+   FULLSCREEN ADVANCED CANVAS
+============================================================ */
+
+function AdvancedViewerCanvas({
+    poster,
+    finish,
+    autoRotate,
+    autoRotateSpeed,
+    cameraPreset,
+    controlsRef,
+}) {
+
+    return (
+
+        <Canvas
+            shadows
+
+            dpr={[
+                1,
+                2,
+            ]}
+
+            camera={{
+                position: [
+                    5,
+                    3,
+                    12,
+                ],
+
+                fov: 32,
+
+                near: 0.1,
+
+                far: 1000,
+            }}
+
+            gl={{
+                antialias: true,
+
+                alpha: true,
+
+                preserveDrawingBuffer:
+                    true,
+
+                powerPreference:
+                    "high-performance",
+            }}
+
+            onCreated={({
+                gl,
+            }) => {
+
+                gl.outputColorSpace =
+                    THREE.SRGBColorSpace;
+
+
+                gl.toneMapping =
+                    THREE.ACESFilmicToneMapping;
+
+
+                gl.toneMappingExposure =
+                    1;
+
+
+                gl.domElement.addEventListener(
+
+                    "webglcontextlost",
+
+                    (e) => {
+
+                        console.error(
+                            "🔥 WEBGL CONTEXT LOST"
+                        );
+
+                        console.error(e);
+
+                    }
+
+                );
+
+
+                gl.domElement.addEventListener(
+
+                    "webglcontextrestored",
+
+                    () => {
+
+                        console.log(
+                            "✅ WEBGL CONTEXT RESTORED"
+                        );
+
+                    }
+
+                );
+
+            }}
+        >
+
+            <color
+                attach="background"
+                args={[
+                    "#111111",
+                ]}
+            />
+
+
+            <ambientLight
+                intensity={1.2}
+            />
+
+
+            <directionalLight
+                position={[
+                    6,
+                    8,
+                    10,
+                ]}
+                intensity={1.2}
+                castShadow
+            />
+
+
+            <directionalLight
+                position={[
+                    -8,
+                    5,
+                    8,
+                ]}
+                intensity={0.65}
+            />
+
+
+            <directionalLight
+                position={[
+                    5,
+                    -3,
+                    -8,
+                ]}
+                intensity={0.35}
+            />
+
+
+            <Suspense
+                fallback={
+                    <Loader />
+                }
+            >
+
+                <StoneSlab
+                    textureUrl={poster}
+                    finish={finish}
+                />
+
+
+                <ContactShadows
+                    position={[
+                        0,
+                        -1.35,
+                        0,
+                    ]}
+                    opacity={0.35}
+                    scale={8}
+                    blur={2.5}
+                    far={5}
+                />
+
+            </Suspense>
+
+
+            <CameraController
+                controlsRef={controlsRef}
+                cameraPreset={cameraPreset}
+            />
+
+
+            <OrbitControls
+                ref={controlsRef}
+
+                makeDefault
+
+                enableZoom
+
+                enablePan
+
+                enableRotate
+
+                enableDamping
+
+                dampingFactor={0.08}
+
+                minDistance={4}
+
+                maxDistance={30}
+
+                autoRotate={autoRotate}
+
+                autoRotateSpeed={
+                    autoRotateSpeed
+                }
+
+                rotateSpeed={0.65}
+
+                zoomSpeed={0.8}
+
+                panSpeed={0.7}
+            />
+
+        </Canvas>
+
+    );
+
+}
+
+
+/* ============================================================
+   STATIC PREVIEW
+   UNCHANGED
+============================================================ */
 
 function ViewerCanvas({
 
@@ -301,74 +650,142 @@ function ViewerCanvas({
 
     finish,
 
-    preview = false
+    preview = false,
 
 }) {
-
-
 
     return (
 
         <Canvas
 
             shadows
-            dpr={[1, 1.5]}
-            camera={{ position: preview ? [0.50, -10.05, -1.95] : [3.50, -5.86, -27.58], fov: preview ? 5 : 10 }}
-            onCreated={({ gl }) => {
 
-                console.log("WebGL created");
+            dpr={[
+                1,
+                1.5,
+            ]}
+
+            camera={{
+                position:
+                    preview
+                        ? [
+                            0.50,
+                            -10.05,
+                            -1.95,
+                        ]
+                        : [
+                            3.50,
+                            -5.86,
+                            -27.58,
+                        ],
+
+                fov:
+                    preview
+                        ? 5
+                        : 10,
+            }}
+
+            onCreated={({
+                gl,
+            }) => {
+
+                console.log(
+                    "WebGL created"
+                );
+
 
                 gl.domElement.addEventListener(
+
                     "webglcontextlost",
+
                     (e) => {
-                        console.error("🔥 WEBGL CONTEXT LOST");
+
+                        console.error(
+                            "🔥 WEBGL CONTEXT LOST"
+                        );
+
                         console.error(e);
+
                     }
+
                 );
 
+
                 gl.domElement.addEventListener(
+
                     "webglcontextrestored",
+
                     () => {
-                        console.log("✅ WEBGL CONTEXT RESTORED");
+
+                        console.log(
+                            "✅ WEBGL CONTEXT RESTORED"
+                        );
+
                     }
+
                 );
+
             }}
         >
 
-            <ambientLight intensity={2} />
+            <ambientLight
+                intensity={2}
+            />
+
 
             <directionalLight
-                position={[10, 10, 10]}
+                position={[
+                    10,
+                    10,
+                    10,
+                ]}
                 intensity={0.5}
             />
 
+
             <directionalLight
-                position={[-10, 10, 10]}
+                position={[
+                    -10,
+                    10,
+                    10,
+                ]}
                 intensity={0.5}
             />
 
+
             <directionalLight
-                position={[10, 10, -10]}
+                position={[
+                    10,
+                    10,
+                    -10,
+                ]}
                 intensity={0.5}
             />
 
+
             <directionalLight
-                position={[-10, 10, -10]}
+                position={[
+                    -10,
+                    10,
+                    -10,
+                ]}
                 intensity={0.5}
             />
 
-            <Suspense fallback={<Loader />}>
+
+            <Suspense
+                fallback={
+                    <Loader />
+                }
+            >
 
                 <StoneSlab
                     textureUrl={poster}
                     finish={finish}
                 />
 
-                {
-                    !preview &&
-                    <CameraDebugger />
-                }
             </Suspense>
+
 
             <OrbitControls
                 enableZoom={!preview}
@@ -379,69 +796,445 @@ function ViewerCanvas({
             />
 
         </Canvas>
-    )
-}
 
-export default function ModelViewer({ poster, height = 270, finishes = [] }) {
-
-    console.log("========== MODEL VIEWER ==========");
-    console.log("Poster:", poster);
-    console.log("Finishes:", finishes);
-
-    const [open, setOpen] = useState(false);
-
-    const [selectedFinish, setSelectedFinish] = useState(finishes?.[0] || "Polished");
-
-useEffect(() => {
-    const close = (e) => {
-        if (e.key === "Escape") {
-            setOpen(false);
-        }
-    };
-
-    window.addEventListener(
-        "keydown",
-        close
     );
 
-    return () => {
-        window.removeEventListener(
-            "keydown",
-            close
+}
+
+
+/* ============================================================
+   CONTROL BUTTON STYLE
+============================================================ */
+
+const controlButtonStyle = {
+
+    minWidth: 42,
+
+    height: 42,
+
+    padding:
+        "0 13px",
+
+    display:
+        "flex",
+
+    alignItems:
+        "center",
+
+    justifyContent:
+        "center",
+
+    border:
+        "1px solid rgba(255,255,255,.16)",
+
+    borderRadius: 8,
+
+    background:
+        "rgba(20,20,20,.85)",
+
+    color:
+        "#fff",
+
+    cursor:
+        "pointer",
+
+    fontSize: 14,
+
+    backdropFilter:
+        "blur(12px)",
+
+};
+
+
+/* ============================================================
+   MODEL VIEWER
+============================================================ */
+
+export default function ModelViewer({
+
+    poster,
+
+    height = 270,
+
+    finishes = [],
+
+}) {
+
+    console.log(
+        "========== MODEL VIEWER =========="
+    );
+
+    console.log(
+        "Poster:",
+        poster
+    );
+
+    console.log(
+        "Finishes:",
+        finishes
+    );
+
+
+    const [
+        open,
+        setOpen,
+    ] = useState(false);
+
+
+    const [
+        selectedFinish,
+        setSelectedFinish,
+    ] = useState(
+        finishes?.[0]
+        ||
+        "Polished"
+    );
+
+
+    const [
+        autoRotate,
+        setAutoRotate,
+    ] = useState(true);
+
+
+    const autoRotateSpeed =
+        1.5;
+
+
+    const [
+        cameraPreset,
+        setCameraPreset,
+    ] = useState(
+        "perspective"
+    );
+
+
+    const controlsRef =
+        useRef(null);
+
+
+    /* ========================================================
+       RESET VIEW
+    ======================================================== */
+
+    const resetViewer = () => {
+
+        setCameraPreset(
+            ""
         );
+
+
+        requestAnimationFrame(
+            () => {
+
+                setCameraPreset(
+                    "perspective"
+                );
+
+            }
+        );
+
+
+        setAutoRotate(
+            true
+        );
+
+
+        if (
+            controlsRef.current
+        ) {
+
+            controlsRef.current.target.set(
+                0,
+                0,
+                0
+            );
+
+
+            controlsRef.current.update();
+
+        }
+
     };
-}, []);
 
-useEffect(() => {
-    if (!open) {
-        return;
-    }
 
-    const previousOverflow =
-        document.body.style.overflow;
+    /* ========================================================
+       KEYBOARD CONTROLS
+    ======================================================== */
 
-    document.body.style.overflow =
-        "hidden";
+    useEffect(() => {
 
-    return () => {
-        document.body.style.overflow =
-            previousOverflow;
+        const handleKeyDown = (
+            e
+        ) => {
+
+            if (
+                e.key ===
+                "Escape"
+            ) {
+
+                setOpen(
+                    false
+                );
+
+            }
+
+
+            if (
+                !open
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                e.code ===
+                "Space"
+            ) {
+
+                e.preventDefault();
+
+
+                setAutoRotate(
+                    (
+                        previous
+                    ) =>
+                        !previous
+                );
+
+            }
+
+
+            if (
+                e.key.toLowerCase() ===
+                "r"
+            ) {
+
+                resetViewer();
+
+            }
+
+        };
+
+
+        window.addEventListener(
+            "keydown",
+            handleKeyDown
+        );
+
+
+        return () => {
+
+            window.removeEventListener(
+                "keydown",
+                handleKeyDown
+            );
+
+        };
+
+    }, [
+        open,
+    ]);
+
+
+    /* ========================================================
+       BODY SCROLL LOCK
+    ======================================================== */
+
+    useEffect(() => {
+
+        if (!open) {
+
+            return undefined;
+
+        }
+
+
+        const previousOverflow =
+            document.body.style
+                .overflow;
+
+
+        document.body.style
+            .overflow =
+            "hidden";
+
+
+        return () => {
+
+            document.body.style
+                .overflow =
+                previousOverflow;
+
+        };
+
+    }, [
+        open,
+    ]);
+
+
+    /* ========================================================
+       ZOOM IN
+    ======================================================== */
+
+    const zoomIn = () => {
+
+        if (
+            !controlsRef.current
+        ) {
+
+            return;
+
+        }
+
+
+        const controls =
+            controlsRef.current;
+
+
+        const camera =
+            controls.object;
+
+
+        const direction =
+            new THREE.Vector3()
+                .subVectors(
+                    camera.position,
+                    controls.target
+                )
+                .multiplyScalar(
+                    0.85
+                );
+
+
+        camera.position.copy(
+            controls.target
+        );
+
+
+        camera.position.add(
+            direction
+        );
+
+
+        controls.update();
+
     };
-}, [open]);
+
+
+    /* ========================================================
+       ZOOM OUT
+    ======================================================== */
+
+    const zoomOut = () => {
+
+        if (
+            !controlsRef.current
+        ) {
+
+            return;
+
+        }
+
+
+        const controls =
+            controlsRef.current;
+
+
+        const camera =
+            controls.object;
+
+
+        const direction =
+            new THREE.Vector3()
+                .subVectors(
+                    camera.position,
+                    controls.target
+                )
+                .multiplyScalar(
+                    1.15
+                );
+
+
+        camera.position.copy(
+            controls.target
+        );
+
+
+        camera.position.add(
+            direction
+        );
+
+
+        controls.update();
+
+    };
+
+
+    /* ========================================================
+       CAMERA PRESET CHANGE
+    ======================================================== */
+
+    const changeCameraPreset = (
+        preset
+    ) => {
+
+        setCameraPreset(
+            ""
+        );
+
+
+        requestAnimationFrame(
+            () => {
+
+                setCameraPreset(
+                    preset
+                );
+
+            }
+        );
+
+    };
+
 
     return (
 
         <>
-            {/* STATIC VIEW */}
+
+            {/* =================================================
+                STATIC VIEW
+                UNCHANGED
+            ================================================= */}
+
             <div
-                onClick={() => setOpen(true)}
+
+                onClick={() =>
+                    setOpen(
+                        true
+                    )
+                }
+
                 style={{
-                    width: "100%",
+
+                    width:
+                        "100%",
+
                     height,
-                    cursor: "pointer",
-                    overflow: "hidden",
-                    borderRadius: 8,
-                    position: "relative"
+
+                    cursor:
+                        "pointer",
+
+                    overflow:
+                        "hidden",
+
+                    borderRadius:
+                        8,
+
+                    position:
+                        "relative",
+
                 }}
             >
 
@@ -453,96 +1246,514 @@ useEffect(() => {
 
             </div>
 
-            {/* FULL SCREEN */}
 
+            {/* =================================================
+                FULLSCREEN VIEWER
+            ================================================= */}
 
-{/* FULL SCREEN */}
+            {open &&
+                createPortal(
 
-{open &&
-    createPortal(
-        <div
-            style={{
-                position: "fixed",
-                inset: 0,
-                width: "100vw",
-                height: "100dvh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "rgba(0,0,0,.92)",
-                zIndex: 99999,
-                overflow: "hidden"
-            }}
-        >
-            <button
-                onClick={() => setOpen(false)}
-                style={{
-                    position: "absolute",
-                    right: 30,
-                    top: 20,
-                    zIndex: 100000,
-                    fontSize: 40,
-                    color: "#fff",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer"
-                }}
-            >
-                ×
-            </button>
+                    <div
+                        style={{
+                            position:
+                                "fixed",
 
-            <div
-                style={{
-                    position: "absolute",
-                    top: 30,
-                    left: 30,
-                    zIndex: 100000
-                }}
-            >
-                <select
-                    value={selectedFinish}
-                    onChange={(e) =>
-                        setSelectedFinish(
-                            e.target.value
-                        )
-                    }
-                    style={{
-                        padding: "12px 20px",
-                        background: "#111",
-                        color: "#fff",
-                        borderRadius: 10,
-                        fontSize: 16
-                    }}
-                >
-                    {finishes.map(item => (
-                        <option
-                            key={item}
-                            value={item}
+                            inset: 0,
+
+                            width:
+                                "100vw",
+
+                            height:
+                                "100dvh",
+
+                            background:
+                                "#111111",
+
+                            zIndex:
+                                99999,
+
+                            overflow:
+                                "hidden",
+                        }}
+                    >
+
+                        {/* =====================================
+                            CANVAS
+                        ====================================== */}
+
+                        <div
+                            style={{
+                                width:
+                                    "100%",
+
+                                height:
+                                    "100%",
+                            }}
                         >
-                            {item}
-                        </option>
-                    ))}
-                </select>
-            </div>
 
-            <div
-                style={{
-                    width: "100vw",
-                    height: "100dvh",
-                    position: "relative"
-                }}
-            >
-                <ViewerCanvas
-                    poster={poster}
-                    finish={selectedFinish}
-                    preview={false}
-                />
-            </div>
-        </div>,
-        document.body
-    )
-}
+                            <AdvancedViewerCanvas
+                                poster={poster}
+                                finish={selectedFinish}
+                                autoRotate={autoRotate}
+                                autoRotateSpeed={autoRotateSpeed}
+                                cameraPreset={cameraPreset}
+                                controlsRef={controlsRef}
+                            />
+
+                        </div>
+
+
+                        {/* =====================================
+                            TOP LEFT CONTROLS
+                        ====================================== */}
+
+                        <div
+                            style={{
+                                position:
+                                    "absolute",
+
+                                top: 24,
+
+                                left: 24,
+
+                                display:
+                                    "flex",
+
+                                alignItems:
+                                    "center",
+
+                                gap: 10,
+
+                                zIndex:
+                                    100000,
+                            }}
+                        >
+
+                            {finishes?.length >
+                                0 && (
+
+                                <select
+
+                                    value={
+                                        selectedFinish
+                                    }
+
+                                    onChange={(
+                                        e
+                                    ) =>
+                                        setSelectedFinish(
+                                            e.target.value
+                                        )
+                                    }
+
+                                    style={{
+                                        height:
+                                            42,
+
+                                        padding:
+                                            "0 16px",
+
+                                        background:
+                                            "rgba(20,20,20,.88)",
+
+                                        color:
+                                            "#fff",
+
+                                        border:
+                                            "1px solid rgba(255,255,255,.16)",
+
+                                        borderRadius:
+                                            8,
+
+                                        fontSize:
+                                            14,
+
+                                        outline:
+                                            "none",
+
+                                        cursor:
+                                            "pointer",
+
+                                        backdropFilter:
+                                            "blur(12px)",
+                                    }}
+                                >
+
+                                    {finishes.map(
+                                        (
+                                            item
+                                        ) => (
+
+                                            <option
+                                                key={
+                                                    item
+                                                }
+                                                value={
+                                                    item
+                                                }
+                                            >
+                                                {item}
+                                            </option>
+
+                                        )
+                                    )}
+
+                                </select>
+
+                            )}
+
+
+                            <button
+
+                                type="button"
+
+                                onClick={() =>
+                                    setAutoRotate(
+                                        (
+                                            previous
+                                        ) =>
+                                            !previous
+                                    )
+                                }
+
+                                style={
+                                    controlButtonStyle
+                                }
+
+                                title={
+                                    autoRotate
+                                        ? "Pause rotation"
+                                        : "Start rotation"
+                                }
+                            >
+
+                                {autoRotate
+                                    ? "Pause"
+                                    : "Rotate"}
+
+                            </button>
+
+
+                            <button
+
+                                type="button"
+
+                                onClick={
+                                    resetViewer
+                                }
+
+                                style={
+                                    controlButtonStyle
+                                }
+
+                                title="Reset view"
+                            >
+                                Reset
+                            </button>
+
+                        </div>
+
+
+                        {/* =====================================
+                            CLOSE BUTTON
+                        ====================================== */}
+
+                        <button
+
+                            type="button"
+
+                            onClick={() =>
+                                setOpen(
+                                    false
+                                )
+                            }
+
+                            style={{
+                                position:
+                                    "absolute",
+
+                                right: 24,
+
+                                top: 20,
+
+                                zIndex:
+                                    100002,
+
+                                width: 46,
+
+                                height: 46,
+
+                                display:
+                                    "flex",
+
+                                alignItems:
+                                    "center",
+
+                                justifyContent:
+                                    "center",
+
+                                fontSize:
+                                    32,
+
+                                lineHeight:
+                                    1,
+
+                                color:
+                                    "#fff",
+
+                                background:
+                                    "rgba(20,20,20,.8)",
+
+                                border:
+                                    "1px solid rgba(255,255,255,.15)",
+
+                                borderRadius:
+                                    "50%",
+
+                                cursor:
+                                    "pointer",
+
+                                backdropFilter:
+                                    "blur(12px)",
+                            }}
+                        >
+                            ×
+                        </button>
+
+
+                        {/* =====================================
+                            BOTTOM CAMERA CONTROLS
+                        ====================================== */}
+
+                        <div
+                            style={{
+                                position:
+                                    "absolute",
+
+                                bottom: 26,
+
+                                left:
+                                    "50%",
+
+                                transform:
+                                    "translateX(-50%)",
+
+                                display:
+                                    "flex",
+
+                                alignItems:
+                                    "center",
+
+                                gap: 7,
+
+                                zIndex:
+                                    100001,
+
+                                padding: 8,
+
+                                borderRadius:
+                                    12,
+
+                                background:
+                                    "rgba(0,0,0,.45)",
+
+                                backdropFilter:
+                                    "blur(12px)",
+                            }}
+                        >
+
+                            {[
+                                [
+                                    "perspective",
+                                    "3D",
+                                ],
+
+                                [
+                                    "front",
+                                    "Front",
+                                ],
+
+                                [
+                                    "back",
+                                    "Back",
+                                ],
+
+                                [
+                                    "left",
+                                    "Left",
+                                ],
+
+                                [
+                                    "right",
+                                    "Right",
+                                ],
+
+                                [
+                                    "top",
+                                    "Top",
+                                ],
+
+                            ].map(
+                                ([
+                                    value,
+                                    label,
+                                ]) => (
+
+                                    <button
+
+                                        type="button"
+
+                                        key={
+                                            value
+                                        }
+
+                                        onClick={() =>
+                                            changeCameraPreset(
+                                                value
+                                            )
+                                        }
+
+                                        style={{
+                                            ...controlButtonStyle,
+
+                                            minWidth:
+                                                "auto",
+
+                                            background:
+                                                cameraPreset ===
+                                                value
+                                                    ? "rgba(255,255,255,.20)"
+                                                    : controlButtonStyle.background,
+                                        }}
+                                    >
+                                        {label}
+                                    </button>
+
+                                )
+                            )}
+
+
+                            <div
+                                style={{
+                                    width: 1,
+
+                                    height: 32,
+
+                                    background:
+                                        "rgba(255,255,255,.15)",
+
+                                    margin:
+                                        "0 3px",
+                                }}
+                            />
+
+
+                            <button
+
+                                type="button"
+
+                                onClick={
+                                    zoomOut
+                                }
+
+                                style={
+                                    controlButtonStyle
+                                }
+
+                                title="Zoom out"
+                            >
+                                −
+                            </button>
+
+
+                            <button
+
+                                type="button"
+
+                                onClick={
+                                    zoomIn
+                                }
+
+                                style={
+                                    controlButtonStyle
+                                }
+
+                                title="Zoom in"
+                            >
+                                +
+                            </button>
+
+                        </div>
+
+
+                        {/* =====================================
+                            HELP
+                        ====================================== */}
+
+                        <div
+                            style={{
+                                position:
+                                    "absolute",
+
+                                left: 24,
+
+                                bottom: 24,
+
+                                zIndex:
+                                    100000,
+
+                                padding:
+                                    "9px 12px",
+
+                                color:
+                                    "rgba(255,255,255,.6)",
+
+                                fontSize:
+                                    11,
+
+                                borderRadius:
+                                    7,
+
+                                background:
+                                    "rgba(0,0,0,.35)",
+
+                                pointerEvents:
+                                    "none",
+
+                                backdropFilter:
+                                    "blur(8px)",
+                            }}
+                        >
+
+                            Drag to rotate
+
+                            &nbsp;•&nbsp;
+
+                            Scroll to zoom
+
+                            &nbsp;•&nbsp;
+
+                            Shift + drag to pan
+
+                            &nbsp;•&nbsp;
+
+                            Space to pause
+
+                            &nbsp;•&nbsp;
+
+                            R to reset
+
+                        </div>
+
+                    </div>,
+
+                    document.body
+
+                )}
 
         </>
-    )
+
+    );
+
 }
