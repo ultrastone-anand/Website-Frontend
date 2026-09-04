@@ -1611,6 +1611,56 @@ const Ceu = () => {
                               </div>
                             )}
 
+                            {/* ===============================
+    BOTTOM DESCRIPTIONS
+=============================== */}
+
+{/* ===============================
+    BOTTOM DESCRIPTIONS
+=============================== */}
+
+{Array.isArray(
+  course.bottomDescriptions,
+) &&
+  course.bottomDescriptions.length >
+    0 && (
+    <div
+      className="
+        mt-7
+        space-y-3
+      "
+    >
+      {course.bottomDescriptions.map(
+        (
+          description,
+          descriptionIndex,
+        ) => (
+          <p
+            key={
+              `${description}-${descriptionIndex}`
+            }
+            className="
+              max-w-[620px]
+
+              text-[12px]
+              sm:text-[14px]
+
+              leading-[1.8]
+
+              text-[#5e5955]
+            "
+            style={{
+              fontFamily:
+                "Montserrat, sans-serif",
+            }}
+          >
+            {description}
+          </p>
+        ),
+      )}
+    </div>
+  )}
+
                           {/* ===============================
                               REQUEST BUTTON
                           =============================== */}

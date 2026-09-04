@@ -105,11 +105,6 @@ const getCloudflareImageUrl = (
         originalUrl,
       );
 
-    /*
-     * Avoid transforming a URL
-     * that has already gone through
-     * Cloudflare image resizing.
-     */
     if (
       parsedUrl.pathname.includes(
         "/cdn-cgi/image/",
@@ -211,12 +206,6 @@ const loadRemoteImageAsBase64 =
 
 /* =========================================================
    LOCAL IMAGE LOADER
-
-   IMPORTANT:
-   No resizing.
-
-   The original PNG resolution is preserved
-   so icons remain sharp when the PDF is zoomed.
 ========================================================= */
 
 const loadLocalImageAsDataUrl =
@@ -298,12 +287,8 @@ const loadLocalImageAsDataUrl =
     }
   };
 
-
-  /* =========================================================
+/* =========================================================
    LOCAL SVG LOADER
-
-   Loads SVG as raw markup so it can be rendered
-   directly into jsPDF as vector artwork.
 ========================================================= */
 
 const loadLocalSvg = async (
@@ -483,19 +468,6 @@ const normalizeArrayValues = (
 
 /* =========================================================
    SIZE FORMATTER
-
-   Handles:
-
-   [
-     "112 X 75 115 X 78"
-   ]
-
-   and converts it to:
-
-   [
-     "112 X 75",
-     "115 X 78"
-   ]
 ========================================================= */
 
 const formatStoneSizes = (
@@ -555,12 +527,6 @@ const formatStoneSizes = (
 
 /* =========================================================
    FIT TEXT TO WIDTH
-
-   Keeps values such as:
-
-   DUAL HONED/LEATHER
-
-   on a single line without cutting them off.
 ========================================================= */
 
 const getFittedFontSize = (
@@ -717,17 +683,15 @@ const getQrCode =
 
 /* =========================================================
    STATIC PDF ASSETS
-
-   ORIGINAL RESOLUTION IS PRESERVED.
 ========================================================= */
 
 const staticPdfAssetsPromise =
   Promise.all([
     /* LOGO */
 
-loadLocalSvg(
-  uslogo,
-),
+    loadLocalSvg(
+      uslogo,
+    ),
 
     /* INFO */
 
@@ -908,18 +872,9 @@ const addPdfImage = (
     width,
     height,
     alias,
-
-    /*
-     * Preserve image quality.
-     *
-     * Especially important for
-     * small line-art PNG icons.
-     */
     "NONE",
   );
 };
-
-
 
 /* =========================================================
    PDF SVG
@@ -959,6 +914,7 @@ const addPdfSvg = async (
     },
   );
 };
+
 /* =========================================================
    GENERATE DATASHEET
 ========================================================= */
@@ -1024,16 +980,20 @@ export const generateDatasheet =
         orientation:
           "portrait",
 
-        unit: "mm",
+        unit:
+          "mm",
 
-        format: "a4",
+        format:
+          "a4",
 
-        compress: true,
+        compress:
+          true,
 
         putOnlyUsedFonts:
           true,
 
-        precision: 2,
+        precision:
+          2,
       });
 
     const pageWidth =
@@ -1076,16 +1036,14 @@ export const generateDatasheet =
        HEADER
     ===================================================== */
 
-await addPdfSvg(
-  pdf,
-  logoImage,
-
-  10,
-  7,
-
-  60,
-  22,
-);
+    await addPdfSvg(
+      pdf,
+      logoImage,
+      10,
+      7,
+      60,
+      22,
+    );
 
     pdf.setFillColor(
       90,
@@ -1096,12 +1054,9 @@ await addPdfSvg(
     pdf.rect(
       pageWidth -
         34,
-
       3,
-
       26,
       26,
-
       "F",
     );
 
@@ -1114,12 +1069,9 @@ await addPdfSvg(
     pdf.rect(
       pageWidth -
         32.5,
-
       4.5,
-
       23,
       23,
-
       "F",
     );
 
@@ -1127,15 +1079,11 @@ await addPdfSvg(
       pdf,
       qrBase64,
       "PNG",
-
       pageWidth -
         31.5,
-
       5.5,
-
       21,
       21,
-
       "product-qr",
     );
 
@@ -1220,15 +1168,11 @@ await addPdfSvg(
         pdf,
         heroBase64,
         "JPEG",
-
         10,
         50,
-
         pageWidth -
           20,
-
         74,
-
         "hero-image",
       );
     } else {
@@ -1241,12 +1185,9 @@ await addPdfSvg(
       pdf.rect(
         10,
         50,
-
         pageWidth -
           20,
-
         74,
-
         "F",
       );
 
@@ -1281,7 +1222,8 @@ await addPdfSvg(
        INFO STRIP
     ===================================================== */
 
-    let y = 127;
+    let y =
+      127;
 
     pdf.setFillColor(
       245,
@@ -1292,17 +1234,25 @@ await addPdfSvg(
     pdf.rect(
       10,
       y,
-
       pageWidth -
         20,
-
       16,
-
       "F",
     );
 
+    /*
+     * Ultra Quartz intentionally does not show Origin.
+     * The remaining four fields automatically expand
+     * evenly across the full info strip.
+     */
+    const isUltraQuartz =
+      product
+        ?.stone_categories
+        ?.slug ===
+      "ultra-quartz";
+
     const info = [
-      {
+      !isUltraQuartz && {
         label:
           "Origin",
 
@@ -1381,7 +1331,9 @@ await addPdfSvg(
         alias:
           "info-size",
       },
-    ];
+    ].filter(
+      Boolean,
+    );
 
     const stripWidth =
       pageWidth -
@@ -1399,23 +1351,36 @@ await addPdfSvg(
         item,
         index,
       ) => {
-        const startX =
-          10 +
-          itemWidth *
-            index;
+       const startX =
+  10 +
+  itemWidth *
+    index;
 
-        const centerX =
-          startX +
-          itemWidth /
-            2;
+const centerX =
+  startX +
+  itemWidth /
+    2;
 
-        const iconX =
-          centerX -
-          18;
+/*
+ * Center the complete icon + text group
+ * inside each info column.
+ */
+const contentWidth =
+  Math.min(
+    itemWidth - 8,
+    34,
+  );
 
-        const textX =
-          centerX -
-          8;
+const contentStartX =
+  centerX -
+  contentWidth / 2;
+
+const iconX =
+  contentStartX;
+
+const textX =
+  contentStartX +
+  11.5;
 
         /* ===============================================
            ICON
@@ -1425,14 +1390,11 @@ await addPdfSvg(
           pdf,
           item.icon,
           "PNG",
-
           iconX,
-
-          y + 4.2,
-
+          y +
+            4.2,
           iconSize,
           iconSize,
-
           item.alias,
         );
 
@@ -1455,10 +1417,9 @@ await addPdfSvg(
 
         pdf.text(
           item.label,
-
           textX,
-
-          y + 5.2,
+          y +
+            5.2,
         );
 
         /* ===============================================
@@ -1470,10 +1431,6 @@ await addPdfSvg(
             ? item.values
             : ["-"];
 
-        /*
-         * Existing info bar comfortably
-         * supports up to 3 values.
-         */
         const visibleValues =
           values.slice(
             0,
@@ -1509,7 +1466,8 @@ await addPdfSvg(
         }
 
         const valueStartY =
-          y + 9.6;
+          y +
+          9.6;
 
         const maxTextWidth =
           itemWidth -
@@ -1593,12 +1551,9 @@ await addPdfSvg(
     pdf.rect(
       10,
       sectionY,
-
       pageWidth -
         20,
-
       applicationsHeight,
-
       "FD",
     );
 
@@ -1617,9 +1572,7 @@ await addPdfSvg(
 
     pdf.text(
       "APPLICATIONS",
-
       15,
-
       sectionY +
         10,
     );
@@ -1754,7 +1707,6 @@ await addPdfSvg(
           icon,
           alias,
         ],
-
         index,
       ) => {
         const row =
@@ -1776,7 +1728,8 @@ await addPdfSvg(
 
         const itemY =
           applicationStartY +
-          row * 18;
+          row *
+            18;
 
         addPdfImage(
           pdf,
@@ -1791,40 +1744,48 @@ await addPdfSvg(
 
           iconSize,
           iconSize,
-
           alias,
         );
 
+        /*
+         * Application labels are fitted onto one line
+         * instead of being split and cut off.
+         */
         pdf.setFont(
           "helvetica",
           "normal",
-        );
-
-        pdf.setFontSize(
-          5.7,
         );
 
         pdf.setTextColor(
           70,
         );
 
-        const labelLines =
-          pdf.splitTextToSize(
-            label,
+        const applicationLabelWidth =
+          applicationColumnWidth -
+          11;
 
-            applicationColumnWidth -
-              13,
+        const applicationLabelFontSize =
+          getFittedFontSize(
+            pdf,
+            label,
+            applicationLabelWidth,
+            {
+              preferredSize:
+                5.7,
+
+              minimumSize:
+                4.5,
+            },
           );
 
-        pdf.text(
-          labelLines.slice(
-            0,
-            1,
-          ),
+        pdf.setFontSize(
+          applicationLabelFontSize,
+        );
 
+        pdf.text(
+          label,
           centerX -
             2,
-
           itemY,
         );
 
@@ -1875,12 +1836,9 @@ await addPdfSvg(
     pdf.rect(
       10,
       performanceY,
-
       pageWidth -
         20,
-
       performanceHeight,
-
       "F",
     );
 
@@ -1959,7 +1917,8 @@ await addPdfSvg(
         index,
       ) => {
         if (
-          index === 0
+          index ===
+          0
         ) {
           return;
         }
@@ -2000,7 +1959,6 @@ await addPdfSvg(
           label,
           value,
         ],
-
         index,
       ) => {
         const centerX =
@@ -2025,12 +1983,9 @@ await addPdfSvg(
 
         pdf.text(
           label,
-
           centerX,
-
           performanceY +
             5.5,
-
           {
             align:
               "center",
@@ -2047,12 +2002,9 @@ await addPdfSvg(
 
         pdf.text(
           value,
-
           centerX,
-
           performanceY +
             11,
-
           {
             align:
               "center",
@@ -2087,12 +2039,9 @@ await addPdfSvg(
     pdf.rect(
       10,
       specificationY,
-
       pageWidth -
         20,
-
       specificationHeight,
-
       "FD",
     );
 
@@ -2111,9 +2060,7 @@ await addPdfSvg(
 
     pdf.text(
       "SPECIFICATION",
-
       15,
-
       specificationY +
         10,
     );
@@ -2184,7 +2131,6 @@ await addPdfSvg(
           icon,
           alias,
         ],
-
         index,
       ) => {
         const startX =
@@ -2285,7 +2231,8 @@ await addPdfSvg(
        BOTTOM
     ===================================================== */
 
-    const bottomY = y;
+    const bottomY =
+      y;
 
     const bottomGap =
       5;
@@ -2320,10 +2267,8 @@ await addPdfSvg(
     pdf.rect(
       10,
       bottomY,
-
       variationWidth,
       cardHeight,
-
       "FD",
     );
 
@@ -2342,9 +2287,7 @@ await addPdfSvg(
 
     pdf.text(
       "VARIATION",
-
       15,
-
       bottomY +
         8,
     );
@@ -2663,21 +2606,16 @@ await addPdfSvg(
 
     pdf.text(
       "Low Variation",
-
       scaleStartX,
-
       scaleY +
         5,
     );
 
     pdf.text(
       "High Variation",
-
       scaleEndX,
-
       scaleY +
         5,
-
       {
         align:
           "right",
@@ -2702,10 +2640,8 @@ await addPdfSvg(
     pdf.rect(
       maintenanceX,
       bottomY,
-
       maintenanceWidth,
       cardHeight,
-
       "F",
     );
 
@@ -2802,7 +2738,6 @@ await addPdfSvg(
 
           4,
           4,
-
           tip.alias,
         );
 
@@ -2871,15 +2806,11 @@ await addPdfSvg(
         pdf,
         cautionIcon,
         "PNG",
-
         10,
-
         warningY -
           2.8,
-
         4,
         4,
-
         "warning-caution",
       );
 
@@ -2898,9 +2829,7 @@ await addPdfSvg(
 
       pdf.text(
         "WARNING:",
-
         16,
-
         warningY,
       );
 
@@ -2928,9 +2857,7 @@ await addPdfSvg(
           0,
           2,
         ),
-
         28,
-
         warningY,
       );
     }

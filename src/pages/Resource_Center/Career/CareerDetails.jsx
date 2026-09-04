@@ -124,7 +124,7 @@ const CareerDetails = () => {
         if (!response.ok) {
           throw new Error(
             result.message ||
-              'Failed to load this position'
+            'Failed to load this position'
           );
         }
 
@@ -142,7 +142,7 @@ const CareerDetails = () => {
 
           setError(
             fetchError.message ||
-              'Unable to load this position.'
+            'Unable to load this position.'
           );
         }
       } finally {
@@ -356,7 +356,7 @@ const CareerDetails = () => {
         if (!response.ok) {
           throw new Error(
             result.message ||
-              'Failed to submit application'
+            'Failed to submit application'
           );
         }
 
@@ -689,27 +689,27 @@ const CareerDetails = () => {
 
                 {(job.office_hours ||
                   job.location) && (
-                  <div className="mb-12">
-                    <p
-                      className="
+                    <div className="mb-12">
+                      <p
+                        className="
                         text-[#555]
                         leading-[1.9]
                         whitespace-pre-line
                       "
-                    >
-                      {job.office_hours
-                        ? `Office Hours: ${job.office_hours}`
-                        : ''}
+                      >
+                        {job.office_hours
+                          ? `Office Hours: ${job.office_hours}`
+                          : ''}
 
-                      {job.office_hours &&
-                      job.location
-                        ? '\n'
-                        : ''}
+                        {job.office_hours &&
+                          job.location
+                          ? '\n'
+                          : ''}
 
-                      {job.location || ''}
-                    </p>
-                  </div>
-                )}
+                        {job.location || ''}
+                      </p>
+                    </div>
+                  )}
 
                 {job.summary && (
                   <section className="mb-10">
@@ -731,156 +731,156 @@ const CareerDetails = () => {
 
                 {job.responsibilities
                   ?.length > 0 && (
-                  <section className="mb-10">
-                    <h2 className="text-[#c91f26] font-semibold text-[20px] mb-4">
-                      Responsibilities
-                    </h2>
+                    <section className="mb-10">
+                      <h2 className="text-[#c91f26] font-semibold text-[20px] mb-4">
+                        Responsibilities
+                      </h2>
 
-                    <ul className="list-disc pl-6 space-y-2 text-[#444] leading-[1.8]">
-                      {job.responsibilities.map(
-                        (
-                          responsibility,
-                          index
-                        ) => (
-                          <li
-                            key={`${responsibility}-${index}`}
-                          >
-                            {
-                              responsibility
-                            }
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </section>
-                )}
+                      <ul className="list-disc pl-6 space-y-2 text-[#444] leading-[1.8]">
+                        {job.responsibilities.map(
+                          (
+                            responsibility,
+                            index
+                          ) => (
+                            <li
+                              key={`${responsibility}-${index}`}
+                            >
+                              {
+                                responsibility
+                              }
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </section>
+                  )}
 
                 {job.qualifications
                   ?.length > 0 && (
-                  <section className="mb-10">
-                    <h2 className="text-[#c91f26] font-semibold text-[20px] mb-4">
-                      Qualifications
-                    </h2>
+                    <section className="mb-10">
+                      <h2 className="text-[#c91f26] font-semibold text-[20px] mb-4">
+                        Qualifications
+                      </h2>
 
-                    <ul className="list-disc pl-6 space-y-2 text-[#444] leading-[1.8]">
-                      {job.qualifications.map(
-                        (
-                          qualification,
-                          index
-                        ) => (
-                          <li
-                            key={`${qualification}-${index}`}
-                          >
-                            {
-                              qualification
-                            }
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </section>
-                )}
+                      <ul className="list-disc pl-6 space-y-2 text-[#444] leading-[1.8]">
+                        {job.qualifications.map(
+                          (
+                            qualification,
+                            index
+                          ) => (
+                            <li
+                              key={`${qualification}-${index}`}
+                            >
+                              {
+                                qualification
+                              }
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </section>
+                  )}
 
                 {job.skills_required
                   ?.length > 0 && (
-                  <section className="mb-10">
-                    <h2 className="text-[#c91f26] font-semibold text-[20px] mb-4">
-                      Required Skills
-                    </h2>
+                    <section className="mb-10">
+                      <h2 className="text-[#c91f26] font-semibold text-[20px] mb-4">
+                        Required Skills
+                      </h2>
 
-                    <div className="flex flex-wrap gap-2">
-                      {job.skills_required.map(
-                        (skill, index) => (
-                          <span
-                            key={`${skill}-${index}`}
-                            className="
+                      <div className="flex flex-wrap gap-2">
+                        {job.skills_required.map(
+                          (skill, index) => (
+                            <span
+                              key={`${skill}-${index}`}
+                              className="
                               px-4
                               py-2
                               bg-[#f5f5f5]
                               text-[#444]
                               text-sm
                             "
-                          >
-                            {skill}
-                          </span>
-                        )
-                      )}
-                    </div>
-                  </section>
-                )}
+                            >
+                              {skill}
+                            </span>
+                          )
+                        )}
+                      </div>
+                    </section>
+                  )}
 
                 {job.benefits?.length >
                   0 && (
-                  <section className="mb-10">
-                    <h2 className="text-[#c91f26] font-semibold text-[20px] mb-4">
-                      Benefits
-                    </h2>
+                    <section className="mb-10">
+                      <h2 className="text-[#c91f26] font-semibold text-[20px] mb-4">
+                        Benefits
+                      </h2>
 
-                    <ul className="list-disc pl-6 space-y-2 text-[#444] leading-[1.8]">
-                      {job.benefits.map(
-                        (benefit, index) => (
-                          <li
-                            key={`${benefit}-${index}`}
-                          >
-                            {benefit}
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </section>
-                )}
+                      <ul className="list-disc pl-6 space-y-2 text-[#444] leading-[1.8]">
+                        {job.benefits.map(
+                          (benefit, index) => (
+                            <li
+                              key={`${benefit}-${index}`}
+                            >
+                              {benefit}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </section>
+                  )}
 
                 {(job.how_to_apply ||
                   job.contact_phone ||
                   job.contact_email) && (
-                  <section>
-                    <h2 className="text-[#c91f26] font-semibold text-[20px] mb-4">
-                      How To Apply
-                    </h2>
+                    <section>
+                      <h2 className="text-[#c91f26] font-semibold text-[20px] mb-4">
+                        How To Apply
+                      </h2>
 
-                    {job.how_to_apply && (
-                      <p
-                        className="
+                      {job.how_to_apply && (
+                        <p
+                          className="
                           text-[#444]
                           leading-[1.9]
                           whitespace-pre-line
                         "
-                      >
-                        {job.how_to_apply}
-                      </p>
-                    )}
-
-                    <div className="mt-5 space-y-2 text-[#444]">
-                      {job.contact_phone && (
-                        <p>
-                          Phone:{' '}
-                          <a
-                            href={`tel:${job.contact_phone}`}
-                            className="hover:text-[#c91f26]"
-                          >
-                            {
-                              job.contact_phone
-                            }
-                          </a>
+                        >
+                          {job.how_to_apply}
                         </p>
                       )}
 
-                      {job.contact_email && (
-                        <p>
-                          Email:{' '}
-                          <a
-                            href={`mailto:${job.contact_email}`}
-                            className="hover:text-[#c91f26]"
-                          >
-                            {
-                              job.contact_email
-                            }
-                          </a>
-                        </p>
-                      )}
-                    </div>
-                  </section>
-                )}
+                      <div className="mt-5 space-y-2 text-[#444]">
+                        {job.contact_phone && (
+                          <p>
+                            Phone:{' '}
+                            <a
+                              href={`tel:${job.contact_phone}`}
+                              className="hover:text-[#c91f26]"
+                            >
+                              {
+                                job.contact_phone
+                              }
+                            </a>
+                          </p>
+                        )}
+
+                        {job.contact_email && (
+                          <p>
+                            Email:{' '}
+                            <a
+                              href={`mailto:${job.contact_email}`}
+                              className="hover:text-[#c91f26]"
+                            >
+                              {
+                                job.contact_email
+                              }
+                            </a>
+                          </p>
+                        )}
+                      </div>
+                    </section>
+                  )}
               </main>
 
               <aside
@@ -923,11 +923,10 @@ const CareerDetails = () => {
                       p-3
                       text-sm
                       border
-                      ${
-                        submissionMessage.type ===
+                      ${submissionMessage.type ===
                         'success'
-                          ? 'bg-green-50 border-green-200 text-green-700'
-                          : 'bg-red-50 border-red-200 text-red-700'
+                        ? 'bg-green-50 border-green-200 text-green-700'
+                        : 'bg-red-50 border-red-200 text-red-700'
                       }
                     `}
                   >
@@ -1177,8 +1176,13 @@ const CareerDetails = () => {
 
                   <div>
                     <label
-                      htmlFor="job-resume-file"
-                      className="block text-sm font-medium mb-3"
+                      className="
+      block
+      text-sm
+      font-medium
+      mb-3
+      text-[#333]
+    "
                     >
                       Resume*
                     </label>
@@ -1192,19 +1196,118 @@ const CareerDetails = () => {
                       onChange={
                         handleInputChange
                       }
-                      className="w-full text-sm"
+                      className="hidden"
                     />
 
-                    <p className="mt-2 text-[12px] text-[#888]">
-                      Accepted formats:
-                      PDF, DOC and DOCX.
-                    </p>
+                    <label
+                      htmlFor="job-resume-file"
+                      className="
+      group
+      flex
+      flex-col
+      items-center
+      justify-center
+      w-full
+      min-h-[145px]
+      px-5
+      py-6
+      border-2
+      border-dashed
+      border-[#d4d4d4]
+      bg-[#fafafa]
+      cursor-pointer
+      text-center
+      transition-all
+      duration-300
+      hover:border-[#c91f26]
+      hover:bg-[#fffafa]
+    "
+                    >
+                      <div
+                        className="
+        flex
+        items-center
+        justify-center
+        w-11
+        h-11
+        mb-3
+        rounded-full
+        bg-white
+        border
+        border-[#e5e5e5]
+        text-[#c91f26]
+        transition-all
+        duration-300
+        group-hover:border-[#c91f26]
+      "
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          className="w-5 h-5"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4.25A1.75 1.75 0 006.75 20h10.5A1.75 1.75 0 0019 18.25V14"
+                          />
+                        </svg>
+                      </div>
+
+                      {applicationForm.resume ? (
+                        <>
+                          <span
+                            className="
+            text-[14px]
+            font-semibold
+            text-[#161412]
+            max-w-full
+            truncate
+          "
+                          >
+                            {applicationForm.resume.name}
+                          </span>
+
+                          <span className="mt-1 text-[12px] text-[#777]">
+                            Click to replace file
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span
+                            className="
+            text-[15px]
+            font-semibold
+            text-[#161412]
+          "
+                          >
+                            Upload Your Resume
+                          </span>
+
+                          <span className="mt-1 text-[12px] text-[#777]">
+                            Click here to select a file
+                          </span>
+                        </>
+                      )}
+
+                      <span className="mt-3 text-[11px] text-[#999]">
+                        PDF, DOC or DOCX
+                      </span>
+                    </label>
                   </div>
 
                   <div>
                     <label
-                      htmlFor="job-cover-letter-file"
-                      className="block text-sm font-medium mb-3"
+                      className="
+      block
+      text-sm
+      font-medium
+      mb-3
+      text-[#333]
+    "
                     >
                       Cover Letter
                     </label>
@@ -1217,8 +1320,107 @@ const CareerDetails = () => {
                       onChange={
                         handleInputChange
                       }
-                      className="w-full text-sm"
+                      className="hidden"
                     />
+
+                    <label
+                      htmlFor="job-cover-letter-file"
+                      className="
+      group
+      flex
+      flex-col
+      items-center
+      justify-center
+      w-full
+      min-h-[125px]
+      px-5
+      py-5
+      border-2
+      border-dashed
+      border-[#d4d4d4]
+      bg-[#fafafa]
+      cursor-pointer
+      text-center
+      transition-all
+      duration-300
+      hover:border-[#c91f26]
+      hover:bg-[#fffafa]
+    "
+                    >
+                      <div
+                        className="
+        flex
+        items-center
+        justify-center
+        w-10
+        h-10
+        mb-3
+        rounded-full
+        bg-white
+        border
+        border-[#e5e5e5]
+        text-[#c91f26]
+        transition-all
+        duration-300
+        group-hover:border-[#c91f26]
+      "
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          className="w-5 h-5"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4.25A1.75 1.75 0 006.75 20h10.5A1.75 1.75 0 0019 18.25V14"
+                          />
+                        </svg>
+                      </div>
+
+                      {applicationForm.coverLetter ? (
+                        <>
+                          <span
+                            className="
+            text-[14px]
+            font-semibold
+            text-[#161412]
+            max-w-full
+            truncate
+          "
+                          >
+                            {applicationForm.coverLetter.name}
+                          </span>
+
+                          <span className="mt-1 text-[12px] text-[#777]">
+                            Click to replace file
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span
+                            className="
+            text-[15px]
+            font-semibold
+            text-[#161412]
+          "
+                          >
+                            Upload Cover Letter
+                          </span>
+
+                          <span className="mt-1 text-[12px] text-[#777]">
+                            Optional document
+                          </span>
+                        </>
+                      )}
+
+                      <span className="mt-3 text-[11px] text-[#999]">
+                        PDF, DOC or DOCX
+                      </span>
+                    </label>
                   </div>
 
                   <button

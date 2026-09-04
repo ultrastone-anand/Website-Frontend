@@ -1075,37 +1075,136 @@ const Career = () => {
                     "
                   />
 
-                  <div>
-                    <label
-                      htmlFor="general-resume-file"
-                      className="
-                        block
-                        text-sm
-                        font-medium
-                        text-[#333]
-                        mb-2
-                      "
-                    >
-                      Resume*
-                    </label>
+<div>
+  <label
+    className="
+      block
+      text-sm
+      font-medium
+      text-[#333]
+      mb-2
+    "
+  >
+    Resume*
+  </label>
 
-                    <input
-                      id="general-resume-file"
-                      type="file"
-                      name="resume"
-                      required
-                      accept=".pdf,.doc,.docx"
-                      onChange={
-                        handleResumeInputChange
-                      }
-                      className="w-full text-sm"
-                    />
+  <input
+    id="general-resume-file"
+    type="file"
+    name="resume"
+    required
+    accept=".pdf,.doc,.docx"
+    onChange={
+      handleResumeInputChange
+    }
+    className="hidden"
+  />
 
-                    <p className="mt-2 text-[12px] text-[#888]">
-                      Accepted formats:
-                      PDF, DOC and DOCX.
-                    </p>
-                  </div>
+  <label
+    htmlFor="general-resume-file"
+    className="
+      group
+      flex
+      flex-col
+      items-center
+      justify-center
+      w-full
+      min-h-[145px]
+      px-5
+      py-6
+      border-2
+      border-dashed
+      border-[#d4d4d4]
+      bg-[#fafafa]
+      cursor-pointer
+      text-center
+      transition-all
+      duration-300
+      hover:border-[#c91f26]
+      hover:bg-[#fffafa]
+    "
+  >
+    <div
+      className="
+        flex
+        items-center
+        justify-center
+        w-11
+        h-11
+        mb-3
+        rounded-full
+        bg-white
+        border
+        border-[#e5e5e5]
+        text-[#c91f26]
+        transition-all
+        duration-300
+        group-hover:border-[#c91f26]
+      "
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="w-5 h-5"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4.25A1.75 1.75 0 006.75 20h10.5A1.75 1.75 0 0019 18.25V14"
+        />
+      </svg>
+    </div>
+
+    {resumeForm.resume ? (
+      <>
+        <span
+          className="
+            text-[14px]
+            font-semibold
+            text-[#161412]
+            max-w-full
+            truncate
+          "
+        >
+          {resumeForm.resume.name}
+        </span>
+
+        <span className="mt-1 text-[12px] text-[#777]">
+          Click to replace file
+        </span>
+      </>
+    ) : (
+      <>
+        <span
+          className="
+            text-[15px]
+            font-semibold
+            text-[#161412]
+          "
+        >
+          Upload Your Resume
+        </span>
+
+        <span className="mt-1 text-[12px] text-[#777]">
+          Click here to select a file
+        </span>
+      </>
+    )}
+
+    <span
+      className="
+        mt-3
+        text-[11px]
+        text-[#999]
+      "
+    >
+      PDF, DOC or DOCX
+    </span>
+  </label>
+</div>
 
                   <button
                     type="submit"
