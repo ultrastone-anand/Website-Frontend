@@ -473,7 +473,7 @@ const CareerDetails = () => {
             </p>
 
             <Link
-              to="/careers"
+              to="/career"
               className="
                 inline-block
                 mt-8
@@ -511,7 +511,7 @@ const CareerDetails = () => {
               {' / '}
 
               <Link
-                to="/careers"
+                to="/career"
                 className="hover:text-[#161412]"
               >
                 Careers

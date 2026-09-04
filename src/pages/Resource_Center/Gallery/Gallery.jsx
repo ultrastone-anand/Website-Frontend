@@ -19,7 +19,10 @@ import {
   X,
 } from "lucide-react";
 
-import { Link } from "react-router-dom";
+import {
+  Link,
+  useSearchParams,
+} from "react-router-dom";
 
 import {
   getOptimizedImageUrl,
@@ -964,6 +967,12 @@ const getPageNumbers = ({
 
 export const Gallery =
   () => {
+    const [searchParams, setSearchParams] =
+  useSearchParams();
+
+const requestedCategory =
+  searchParams.get("category");
+
     const sectionRef =
       useRef(null);
 
@@ -1178,6 +1187,62 @@ export const Gallery =
         },
         [],
       );
+
+/* =====================================================
+   APPLY CATEGORY FROM URL
+===================================================== */
+
+useEffect(() => {
+  if (
+    loadingCategories ||
+    categories.length === 0 ||
+    !requestedCategory
+  ) {
+    return;
+  }
+
+  const normalizedRequestedCategory =
+    requestedCategory
+      .trim()
+      .toLowerCase();
+
+  const matchedCategory =
+    categories.find(
+      (category) =>
+        String(category?.name || "")
+          .trim()
+          .toLowerCase() ===
+        normalizedRequestedCategory
+    );
+
+  if (!matchedCategory) {
+    return;
+  }
+
+  if (
+    String(activeCategoryId) ===
+    String(matchedCategory.id)
+  ) {
+    return;
+  }
+
+  setActiveCategoryId(
+    matchedCategory.id
+  );
+
+  setCurrentPage(1);
+
+  setTotalPages(1);
+
+  setTotalImages(null);
+
+  setHasNextPage(false);
+}, [
+  categories,
+  loadingCategories,
+  requestedCategory,
+  activeCategoryId,
+]);
 
     /* =====================================================
        FETCH IMAGES
@@ -1686,43 +1751,43 @@ export const Gallery =
        CATEGORY CHANGE
     ===================================================== */
 
-    const handleCategoryChange =
-      (
-        categoryId,
-      ) => {
-        if (
-          String(
-            categoryId,
-          ) ===
-          String(
-            activeCategoryId,
-          )
-        ) {
-          return;
-        }
+const handleCategoryChange = (
+  categoryId
+) => {
+  if (
+    String(categoryId) ===
+    String(activeCategoryId)
+  ) {
+    return;
+  }
 
-        setActiveCategoryId(
-          categoryId,
-        );
+  setActiveCategoryId(categoryId);
 
-        setCurrentPage(
-          1,
-        );
+  setCurrentPage(1);
+  setTotalPages(1);
+  setTotalImages(null);
+  setHasNextPage(false);
 
-        setTotalPages(
-          1,
-        );
+  if (categoryId === "all") {
+    setSearchParams({});
+  } else {
+    const selectedCategory =
+      categories.find(
+        (category) =>
+          String(category.id) ===
+          String(categoryId)
+      );
 
-        setTotalImages(
-          null,
-        );
+    if (selectedCategory?.name) {
+      setSearchParams({
+        category:
+          selectedCategory.name,
+      });
+    }
+  }
 
-        setHasNextPage(
-          false,
-        );
-
-        scrollToSection();
-      };
+  scrollToSection();
+};
 
     /* =====================================================
        PAGE CHANGE
@@ -1974,10 +2039,14 @@ export const Gallery =
 
                 {" / "}
 
-                <span>
+                
+                <Link
+                  to="/"
+                  className="duration-300 hover:text-[#161412]"
+                >
                   Resource
                   Center
-                </span>
+                </Link>
 
                 {" / "}
 

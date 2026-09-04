@@ -10,11 +10,13 @@ const applications = [
     title: "BATHROOM",
     desc: "Luxury Vanities",
     categoryNames: ["Bathroom", "Bathrooms"],
+    galleryCategory: "Bathroom",
   },
   {
     title: "KITCHENS",
     desc: "Statement Countertops",
     categoryNames: ["Kitchen", "Kitchens"],
+    galleryCategory: "Kitchen",
   },
   {
     title: "EXTERIORS",
@@ -25,9 +27,9 @@ const applications = [
       "Facades",
       "Exteriors",
     ],
+    galleryCategory: "Exteriors",
   },
 ];
-
 const fallbackImages = [
   "https://cdn.ultrastone.in/Home%20Page/inspiration%20galleries/bathroom/1783518137508-32b313c4-3b86-43c5-81d6-24b3d075c486-1783518137466-c234cb81-8026-4796-83a1-921ff406afea-bathroom.jpg",
   "https://cdn.ultrastone.in/Home%20Page/inspiration%20galleries/kitchen/1783529992231-043802ea-cef7-4817-996d-a3e3fa4b0240-cipollino-verde-2cm-hon.jpg",
@@ -278,7 +280,7 @@ const applicationImages = useMemo(() => {
           </p>
 
           <Link
-            to="/categories"
+            to="/gallery"
             className="
               mt-6
               inline-flex
@@ -339,21 +341,23 @@ const applicationImages = useMemo(() => {
             "
           >
             {applicationImages.map((item) => (
-              <Link
-                key={item.title}
-                to="/categories"
-                className="
-                  group
-                  w-[78vw]
-                  max-w-[300px]
-                  shrink-0
-                  snap-start
-                  text-center
-                  sm:w-auto
-                  sm:max-w-none
-                  sm:shrink
-                "
-              >
+  <Link
+    key={item.title}
+    to={`/gallery?category=${encodeURIComponent(
+      item.galleryCategory
+    )}`}
+    className="
+      group
+      w-[78vw]
+      max-w-[300px]
+      shrink-0
+      snap-start
+      text-center
+      sm:w-auto
+      sm:max-w-none
+      sm:shrink
+    "
+  >
                 <div
                   className="
                     aspect-[4/5]
