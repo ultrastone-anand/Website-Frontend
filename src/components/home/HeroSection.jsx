@@ -865,7 +865,7 @@ const HeroSection = () => {
                   0,
               }
         }
-        className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/70 via-transparent to-transparent"
+        className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/20 via-transparent to-transparent"
       />
 
       {/* =================================================
