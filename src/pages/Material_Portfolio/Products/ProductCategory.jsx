@@ -1,8 +1,18 @@
 import axios from "axios";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import { Link, useParams } from "react-router-dom";
+import {
+  Link,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 
 import Loading from "../../../components/common/Loading";
 import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
@@ -10,18 +20,21 @@ import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
 const ProductCategory = () => {
 
   const { slug } = useParams();
+  const location = useLocation();
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("");
   const [selectedPattern, setSelectedPattern] = useState("");
+  const hasRestoredScroll = useRef(false);
 
-  useEffect(() => {
+useEffect(() => {
+  hasRestoredScroll.current =
+    false;
 
-    fetchCategory();
-
-  }, [slug]);
+  fetchCategory();
+}, [slug]);
 
   const fetchCategory = async () => {
 
@@ -101,6 +114,68 @@ const ProductCategory = () => {
     .sort((a, b) =>
       a.name.localeCompare(b.name)
     );
+
+    useLayoutEffect(() => {
+  if (
+    !category ||
+    products.length === 0 ||
+    hasRestoredScroll.current
+  ) {
+    return;
+  }
+
+  const storageKey =
+    `product-category-scroll:${slug}`;
+
+  const savedPosition =
+    sessionStorage.getItem(
+      storageKey,
+    );
+
+  if (
+    savedPosition === null
+  ) {
+    hasRestoredScroll.current =
+      true;
+
+    return;
+  }
+
+  const scrollPosition =
+    Number(savedPosition);
+
+  if (
+    Number.isNaN(
+      scrollPosition,
+    )
+  ) {
+    hasRestoredScroll.current =
+      true;
+
+    return;
+  }
+
+  /*
+   * Wait until React has rendered
+   * the complete product grid.
+   */
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: scrollPosition,
+        left: 0,
+        behavior: "auto",
+      });
+
+      hasRestoredScroll.current =
+        true;
+    });
+  });
+}, [
+  category,
+  products,
+  slug,
+]);
 
 if (!category) {
   return <ProductCategorySkeleton />;
@@ -689,6 +764,14 @@ if (!category) {
 <Link
   key={item.id}
   to={`/product/${category.slug}/${item.slug}`}
+  onClick={() => {
+    sessionStorage.setItem(
+      `product-category-scroll:${category.slug}`,
+      String(
+        window.scrollY,
+      ),
+    );
+  }}
   className="
     group
     cursor-pointer

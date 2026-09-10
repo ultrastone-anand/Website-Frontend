@@ -13,6 +13,7 @@ import { createPortal } from "react-dom";
 import {
   useParams,
   useNavigate,
+  useLocation,
   Link,
 } from "react-router-dom";
 
@@ -134,6 +135,9 @@ const ProductDetails = () => {
 
   const navigate =
     useNavigate();
+
+    const location =
+  useLocation();
 
   /* =======================================================
      STATE
@@ -1575,6 +1579,30 @@ setSampleForm({
     }
   };
 
+
+const handleCategoryNavigation =
+  () => {
+    const categoryPath =
+      `/product-category/${product?.stone_categories?.slug}`;
+
+    const cameFromCategory =
+      location.state?.fromCategory ===
+        true &&
+      location.state
+        ?.categoryPath ===
+        categoryPath;
+
+    if (cameFromCategory) {
+      navigate(-1);
+
+      return;
+    }
+
+    navigate(
+      categoryPath,
+    );
+  };
+
   return (
     <>
       <SEO
@@ -1639,15 +1667,22 @@ setSampleForm({
 
               {" / "}
 
-              <Link
-                to={`/product-category/${product.stone_categories?.slug}`}
-                className="hover:text-[#161412] duration-300"
-              >
-                {product
-                  .stone_categories
-                  ?.name ||
-                  "Ultra Stones"}
-              </Link>
+<button
+  type="button"
+  onClick={
+    handleCategoryNavigation
+  }
+  className="
+    hover:text-[#161412]
+    duration-300
+    cursor-pointer
+  "
+>
+  {product
+    .stone_categories
+    ?.name ||
+    "Ultra Stones"}
+</button>
 
               {" / "}
 
@@ -2136,8 +2171,11 @@ setSampleForm({
                     <Social />
                   </Suspense>
 
-<Link
-  to={`/product-category/${product?.stone_categories?.slug}`}
+<button
+  type="button"
+  onClick={
+    handleCategoryNavigation
+  }
   className="
     border
     border-[#d9d9d9]
@@ -2153,11 +2191,14 @@ setSampleForm({
     hover:border-black
     hover:bg-black
     hover:text-white
+    cursor-pointer
   "
 >
   Category :{" "}
-  {product?.stone_categories?.name || "N/A"}
-</Link>
+  {product
+    ?.stone_categories
+    ?.name || "N/A"}
+</button>
                   <div className="border border-[#d9d9d9] px-4 py-2 text-[10px] uppercase tracking-[1.5px] text-black">
                     Pantone :{" "}
                     {product
