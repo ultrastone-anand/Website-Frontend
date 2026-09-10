@@ -1603,6 +1603,8 @@ const handleCategoryNavigation =
     );
   };
 
+
+
   return (
     <>
       <SEO
