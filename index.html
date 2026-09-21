@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -8,10 +9,26 @@
       content="width=device-width, initial-scale=1.0"
     />
 
-    <meta name="robots" content="noindex, nofollow" />
+    <!-- =========================================================
+         SEARCH ENGINE CRAWLING
+    ========================================================== -->
+
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <meta
+      name="googlebot"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <!-- =========================================================
+         PRIMARY SEO
+    ========================================================== -->
 
     <title>
-      Luxury Granite, Marble & Quartz Countertops - Ultra Stones
+      Luxury Granite, Marble & Quartz Countertops | Ultra Stones
     </title>
 
     <meta
@@ -19,11 +36,132 @@
       content="Explore premium granite, marble, quartzite, quartz and engineered surfaces from Ultra Stones for residential and commercial projects."
     />
 
+    <meta
+      name="author"
+      content="Ultra Stones"
+    />
+
+    <meta
+      name="publisher"
+      content="Ultra Stones"
+    />
+
+    <!-- Canonical URL -->
+    <link
+      rel="canonical"
+      href="https://www.ultrastones.com/"
+    />
+
+    <!-- =========================================================
+         LANGUAGE / REGION
+    ========================================================== -->
+
+    <meta
+      http-equiv="content-language"
+      content="en"
+    />
+
+    <!-- =========================================================
+         OPEN GRAPH / FACEBOOK / LINK SHARING
+    ========================================================== -->
+
+    <meta
+      property="og:type"
+      content="website"
+    />
+
+    <meta
+      property="og:locale"
+      content="en_US"
+    />
+
+    <meta
+      property="og:site_name"
+      content="Ultra Stones"
+    />
+
+    <meta
+      property="og:title"
+      content="Luxury Granite, Marble & Quartz Countertops | Ultra Stones"
+    />
+
+    <meta
+      property="og:description"
+      content="Explore premium granite, marble, quartzite, quartz and engineered surfaces from Ultra Stones for residential and commercial projects."
+    />
+
+    <meta
+      property="og:url"
+      content="https://www.ultrastones.com/"
+    />
+
+    <meta
+      property="og:image"
+      content="https://cdn.ultrastone.in/cdn-cgi/image/width=1920,quality=78,format=auto/frame0.png"
+    />
+
+    <meta
+      property="og:image:alt"
+      content="Luxury granite, marble and quartz surfaces by Ultra Stones"
+    />
+
+    <meta
+      property="og:image:width"
+      content="1920"
+    />
+
+    <meta
+      property="og:image:height"
+      content="1080"
+    />
+
+    <!-- =========================================================
+         TWITTER / X
+    ========================================================== -->
+
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+
+    <meta
+      name="twitter:title"
+      content="Luxury Granite, Marble & Quartz Countertops | Ultra Stones"
+    />
+
+    <meta
+      name="twitter:description"
+      content="Explore premium granite, marble, quartzite, quartz and engineered surfaces from Ultra Stones."
+    />
+
+    <meta
+      name="twitter:image"
+      content="https://cdn.ultrastone.in/cdn-cgi/image/width=1920,quality=78,format=auto/frame0.png"
+    />
+
+    <meta
+      name="twitter:image:alt"
+      content="Luxury stone surfaces by Ultra Stones"
+    />
+
+    <!-- =========================================================
+         FAVICON
+    ========================================================== -->
+
     <link
       rel="icon"
       type="image/svg+xml"
       href="/favicon.svg"
     />
+
+    <link
+      rel="apple-touch-icon"
+      href="/favicon.svg"
+    />
+
+    <!-- =========================================================
+         PERFORMANCE / PRECONNECT
+    ========================================================== -->
 
     <link
       rel="preconnect"
@@ -42,10 +180,45 @@
       crossorigin
     />
 
+    <!-- =========================================================
+         GOOGLE FONTS
+    ========================================================== -->
+
     <link
       href="https://fonts.googleapis.com/css2?family=BBH+Bartle&family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Montserrat:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- =========================================================
+         STRUCTURED DATA - ORGANIZATION
+    ========================================================== -->
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Ultra Stones",
+        "url": "https://www.ultrastones.com/",
+        "logo": "https://www.ultrastones.com/favicon.svg"
+      }
+    </script>
+
+    <!-- =========================================================
+         STRUCTURED DATA - WEBSITE
+    ========================================================== -->
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Ultra Stones",
+        "url": "https://www.ultrastones.com/"
+      }
+    </script>
+
+    <!-- =========================================================
+         PRELOAD HERO IMAGE
+    ========================================================== -->
 
     <link
       rel="preload"
@@ -57,6 +230,10 @@
 
   <body>
     <div id="root"></div>
+
+    <!-- =========================================================
+         REACT APPLICATION
+    ========================================================== -->
 
     <script
       type="module"

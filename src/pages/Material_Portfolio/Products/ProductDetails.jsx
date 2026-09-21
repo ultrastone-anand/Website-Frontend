@@ -4179,7 +4179,7 @@ const RelatedProductCard = ({
       }
 
       navigate(
-        `/product-category/${itemCategorySlug}/${item.slug}`,
+        `/product/${itemCategorySlug}/${item.slug}`,
       );
     };
 

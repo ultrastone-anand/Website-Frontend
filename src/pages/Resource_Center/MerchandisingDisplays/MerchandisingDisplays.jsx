@@ -121,7 +121,7 @@ const OutlineButton = ({
                 hover:text-[#161412]
               `
             : `
-                border-[#aaa6a1]
+                border-[#000]
                 text-[#161412]
 
                 hover:bg-[#161412]
