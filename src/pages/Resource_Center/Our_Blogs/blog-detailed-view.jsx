@@ -480,7 +480,7 @@ function BlogArticle({ blog }) {
         <div
           className="
             mx-auto
-            max-w-[620px]
+            max-w-[1100px]
           "
         >
           {blog.description && (
