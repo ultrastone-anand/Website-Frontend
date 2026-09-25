@@ -455,7 +455,7 @@ const [
             }
           }
 
-          /* ===============================================
+                    /* ===============================================
              INSPIRATION
           =============================================== */
 
@@ -469,10 +469,16 @@ const [
                 ?.data?.images ||
               [];
 
+            console.log(
+              "🖼️ INSPIRATION IMAGES:",
+              galleryImages,
+            );
+
             setInspirationImages(
               galleryImages.map(
                 (image) => ({
-                  id: `inspiration-${image.id}`,
+                  id:
+                    `inspiration-${image.id}`,
 
                   media_url:
                     image.image_url,
@@ -493,6 +499,51 @@ const [
                 }),
               ),
             );
+          } else {
+            /*
+             * Promise.allSettled() does not throw
+             * when only this request fails.
+             *
+             * Handle the inspiration request
+             * failure separately here.
+             */
+            const error =
+              inspirationResponse.reason;
+
+            if (
+              error?.code !==
+                "ERR_CANCELED" &&
+              error?.name !==
+                "CanceledError"
+            ) {
+              console.error(
+                "❌ INSPIRATION REQUEST FAILED",
+              );
+
+              console.error(
+                "URL:",
+                error?.config?.url,
+              );
+
+              console.error(
+                "STATUS:",
+                error?.response?.status,
+              );
+
+              console.error(
+                "RESPONSE:",
+                error?.response?.data,
+              );
+
+              console.error(
+                "ERROR:",
+                error,
+              );
+            }
+
+            setInspirationImages(
+              [],
+            );
           }
         } catch (error) {
           if (
@@ -509,7 +560,13 @@ const [
         }
       };
 
-    setProduct(null);
+    /* =====================================================
+       RESET PAGE STATE BEFORE LOADING NEW PRODUCT
+    ===================================================== */
+
+    setProduct(
+      null,
+    );
 
     setInspirationImages(
       [],
@@ -519,7 +576,9 @@ const [
       [],
     );
 
-    setActiveImage(0);
+    setActiveImage(
+      0,
+    );
 
     setOpenPreview(
       false,
@@ -537,7 +596,15 @@ const [
       false,
     );
 
+    /* =====================================================
+       LOAD PAGE DATA
+    ===================================================== */
+
     loadPageData();
+
+    /* =====================================================
+       CLEANUP
+    ===================================================== */
 
     return () => {
       controller.abort();
@@ -819,11 +886,22 @@ const availableFinishes =
         "APPLICATION_IMAGE",
     ) || [];
 
-  const applicationImages = [
-    ...productApplicationImages,
-    ...inspirationImages,
-  ];
-
+const applicationImages = [
+  ...productApplicationImages,
+  ...inspirationImages,
+].filter(
+  (
+    media,
+    index,
+    array,
+  ) =>
+    index ===
+    array.findIndex(
+      (item) =>
+        item.media_url ===
+        media.media_url,
+    ),
+);
   const bookmatchslipmatch =
     product.media?.filter(
       (item) =>
