@@ -397,7 +397,7 @@ function BlogArticle({ blog }) {
           <div
             className="
               w-full
-              max-w-[520px]
+              max-w-[760px]
               lg:ml-[8%]
             "
           >
@@ -432,7 +432,7 @@ function BlogArticle({ blog }) {
 
             <h1
               className="
-                max-w-[500px]
+                max-w-[760px]
                 text-[26px]
                 font-semibold
                 leading-[1.35]
