@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import {
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import {
@@ -168,6 +169,157 @@ const formatBlogDate = (
 };
 
 // ----------------------------------------------------------------------
+// PROCESS BLOG HTML
+//
+// This adds data-label to table cells based on the first row.
+//
+// Example:
+//
+// <th>Calacatta</th>
+//
+// becomes:
+//
+// <td data-label="Calacatta">
+// ----------------------------------------------------------------------
+
+const processBlogContent = (
+  html
+) => {
+  if (!html) {
+    return "";
+  }
+
+  // DOMParser only exists in browser.
+  if (
+    typeof window ===
+      "undefined" ||
+    typeof DOMParser ===
+      "undefined"
+  ) {
+    return html;
+  }
+
+  const parser =
+    new DOMParser();
+
+  const documentObject =
+    parser.parseFromString(
+      html,
+      "text/html"
+    );
+
+  const tables =
+    documentObject.querySelectorAll(
+      "table"
+    );
+
+  tables.forEach(
+    (table) => {
+      // Remove fixed width coming from Tiptap.
+      table.style.removeProperty(
+        "width"
+      );
+
+      table.removeAttribute(
+        "width"
+      );
+
+      table.classList.add(
+        "blog-responsive-table"
+      );
+
+      const rows =
+        Array.from(
+          table.querySelectorAll(
+            "tr"
+          )
+        );
+
+      if (
+        rows.length === 0
+      ) {
+        return;
+      }
+
+      // First row is treated as table header.
+      const headerRow =
+        rows[0];
+
+      const headerCells =
+        Array.from(
+          headerRow.children
+        );
+
+      const headers =
+        headerCells.map(
+          (cell) =>
+            cell.textContent
+              ?.replace(
+                /\s+/g,
+                " "
+              )
+              .trim() || ""
+        );
+
+      // Mark header row so we can hide it
+      // on mobile.
+      headerRow.classList.add(
+        "blog-table-header-row"
+      );
+
+      // Add labels to all following rows.
+      rows
+        .slice(1)
+        .forEach((row) => {
+          row.classList.add(
+            "blog-table-data-row"
+          );
+
+          const cells =
+            Array.from(
+              row.children
+            );
+
+          cells.forEach(
+            (
+              cell,
+              index
+            ) => {
+              if (
+                index === 0
+              ) {
+                cell.classList.add(
+                  "blog-table-row-title"
+                );
+
+                return;
+              }
+
+              const label =
+                headers[index] ||
+                `Column ${index + 1}`;
+
+              cell.setAttribute(
+                "data-label",
+                label
+              );
+
+              cell.classList.add(
+                "blog-table-value"
+              );
+            }
+          );
+        });
+    }
+  );
+
+  return (
+    documentObject.body
+      .innerHTML
+  );
+};
+
+// ----------------------------------------------------------------------
 
 export default function BlogDetailedView() {
   const { identifier } =
@@ -237,6 +389,10 @@ export default function BlogDetailedView() {
       behavior: "smooth",
     });
   }, [identifier]);
+
+  // --------------------------------------------------------------------
+  // SEO
+  // --------------------------------------------------------------------
 
   useEffect(() => {
     if (!blog) {
@@ -317,33 +473,31 @@ export default function BlogDetailedView() {
   }, [blog]);
 
   return (
-    <>
-      <main className="min-h-screen bg-white pt-[90px]">
-        {loading && (
-          <BlogDetailsLoading />
+    <main className="min-h-screen overflow-x-hidden bg-white pt-[90px]">
+      {loading && (
+        <BlogDetailsLoading />
+      )}
+
+      {!loading &&
+        errorMessage && (
+          <BlogErrorState
+            message={
+              errorMessage
+            }
+            onRetry={
+              loadBlog
+            }
+          />
         )}
 
-        {!loading &&
-          errorMessage && (
-            <BlogErrorState
-              message={
-                errorMessage
-              }
-              onRetry={
-                loadBlog
-              }
-            />
-          )}
-
-        {!loading &&
-          !errorMessage &&
-          blog && (
-            <BlogArticle
-              blog={blog}
-            />
-          )}
-      </main>
-    </>
+      {!loading &&
+        !errorMessage &&
+        blog && (
+          <BlogArticle
+            blog={blog}
+          />
+        )}
+    </main>
   );
 }
 
@@ -357,8 +511,17 @@ function BlogArticle({
       blog.publishedAt
     );
 
+  const processedContent =
+    useMemo(
+      () =>
+        processBlogContent(
+          blog.content
+        ),
+      [blog.content]
+    );
+
   return (
-    <article className="bg-white">
+    <article className="overflow-x-hidden bg-white">
       {/* =========================================================
           HERO
       ========================================================== */}
@@ -504,8 +667,10 @@ function BlogArticle({
 
       <section
         className="
-          px-6
-          py-12
+          overflow-hidden
+          px-5
+          py-10
+          sm:px-6
           md:py-16
           lg:py-20
         "
@@ -513,7 +678,9 @@ function BlogArticle({
         <div
           className="
             mx-auto
+            w-full
             max-w-[1100px]
+            min-w-0
           "
         >
           {blog.description && (
@@ -540,33 +707,36 @@ function BlogArticle({
           <div
             className="
               blog-content
+              min-w-0
+              max-w-full
 
               text-[14px]
               leading-[1.8]
               text-[#3f3d3a]
 
               [&_p]:mb-5
+              [&_p]:max-w-full
               [&_p]:text-[14px]
               [&_p]:leading-[1.8]
               [&_p]:text-[#3f3d3a]
 
               [&_h1]:mb-5
               [&_h1]:mt-10
-              [&_h1]:text-[38px]
+              [&_h1]:text-[30px]
               [&_h1]:font-bold
               [&_h1]:leading-[1.15]
               [&_h1]:text-[#202831]
 
               [&_h2]:mb-5
               [&_h2]:mt-9
-              [&_h2]:text-[30px]
+              [&_h2]:text-[25px]
               [&_h2]:font-bold
               [&_h2]:leading-[1.2]
               [&_h2]:text-[#202831]
 
               [&_h3]:mb-4
               [&_h3]:mt-8
-              [&_h3]:text-[23px]
+              [&_h3]:text-[21px]
               [&_h3]:font-bold
               [&_h3]:leading-[1.3]
               [&_h3]:text-[#202831]
@@ -575,6 +745,7 @@ function BlogArticle({
               [&_h4]:mt-7
               [&_h4]:text-[18px]
               [&_h4]:font-bold
+              [&_h4]:leading-[1.4]
               [&_h4]:text-[#202831]
 
               [&_h5]:mb-3
@@ -594,6 +765,7 @@ function BlogArticle({
 
               [&_em]:italic
 
+              [&_a]:break-words
               [&_a]:text-[#00a878]
               [&_a]:underline
               [&_a]:underline-offset-2
@@ -615,12 +787,15 @@ function BlogArticle({
               [&_blockquote]:border-l-4
               [&_blockquote]:border-[#00a878]
               [&_blockquote]:bg-[#f5f7f6]
-              [&_blockquote]:px-6
+              [&_blockquote]:px-4
               [&_blockquote]:py-5
-              [&_blockquote]:text-[18px]
+              [&_blockquote]:text-[16px]
               [&_blockquote]:italic
               [&_blockquote]:leading-[1.65]
               [&_blockquote]:text-[#4b4b4b]
+
+              md:[&_blockquote]:px-6
+              md:[&_blockquote]:text-[18px]
 
               [&_hr]:my-8
               [&_hr]:border-0
@@ -630,10 +805,11 @@ function BlogArticle({
               [&_img]:my-8
               [&_img]:h-auto
               [&_img]:max-h-[700px]
-              [&_img]:w-full
+              [&_img]:max-w-full
               [&_img]:object-contain
 
               [&_pre]:my-7
+              [&_pre]:max-w-full
               [&_pre]:overflow-x-auto
               [&_pre]:rounded-sm
               [&_pre]:bg-[#202831]
@@ -652,52 +828,217 @@ function BlogArticle({
               [&_pre_code]:p-0
               [&_pre_code]:text-white
 
-              [&_table]:my-8
-              [&_table]:w-full
-              [&_table]:max-w-full
-              [&_table]:border-collapse
-              [&_table]:table-auto
-              [&_table]:text-left
-              [&_table]:text-[14px]
-
-              [&_thead]:bg-[#f5f5f5]
-
-              [&_th]:border
-              [&_th]:border-solid
-              [&_th]:border-[#d4d4d4]
-              [&_th]:bg-[#f5f5f5]
-              [&_th]:px-4
-              [&_th]:py-3
-              [&_th]:align-top
-              [&_th]:font-semibold
-              [&_th]:leading-[1.5]
-              [&_th]:text-[#202831]
-
-              [&_td]:border
-              [&_td]:border-solid
-              [&_td]:border-[#d4d4d4]
-              [&_td]:px-4
-              [&_td]:py-3
-              [&_td]:align-top
-              [&_td]:leading-[1.6]
-              [&_td]:text-[#3f3d3a]
-
-              [&_th_p]:m-0
-              [&_td_p]:m-0
-
               md:[&_h1]:text-[42px]
               md:[&_h2]:text-[32px]
               md:[&_h3]:text-[24px]
             "
-            style={{
-              overflowX:
-                "auto",
-            }}
             dangerouslySetInnerHTML={{
               __html:
-                blog.content,
+                processedContent,
             }}
           />
+
+          {/* =====================================================
+              RESPONSIVE TABLE STYLES
+          ====================================================== */}
+
+          <style>
+            {`
+              /* ================================================
+                 DESKTOP / TABLET TABLE
+              ================================================= */
+
+              .blog-content .blog-responsive-table {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-collapse: collapse;
+                table-layout: auto;
+                margin: 32px 0;
+                font-size: 14px;
+                line-height: 1.6;
+              }
+
+              .blog-content .blog-responsive-table th,
+              .blog-content .blog-responsive-table td {
+                border: 1px solid #d4d4d4;
+                padding: 14px 16px;
+                vertical-align: top;
+                text-align: left;
+              }
+
+              .blog-content .blog-responsive-table th {
+                background: #f5f5f5;
+                color: #202831;
+                font-weight: 600;
+              }
+
+              .blog-content .blog-responsive-table th p,
+              .blog-content .blog-responsive-table td p {
+                margin: 0 !important;
+                padding: 0 !important;
+              }
+
+
+              /* ================================================
+                 MOBILE
+              ================================================= */
+
+              @media (max-width: 767px) {
+
+                /*
+                 * Turn the entire table into normal block
+                 * content so there is NO horizontal overflow.
+                 */
+
+                .blog-content .blog-responsive-table {
+                  display: block;
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  margin: 26px 0;
+                  border: 0;
+                  table-layout: auto;
+                }
+
+                /*
+                 * Tiptap inserts colgroup widths.
+                 * They are useless in card mode.
+                 */
+
+                .blog-content .blog-responsive-table colgroup {
+                  display: none !important;
+                }
+
+                .blog-content .blog-responsive-table tbody {
+                  display: block;
+                  width: 100%;
+                }
+
+                /*
+                 * Hide original desktop header.
+                 *
+                 * Labels are displayed inside every card
+                 * using data-label.
+                 */
+
+                .blog-content
+                  .blog-responsive-table
+                  .blog-table-header-row {
+                  display: none !important;
+                }
+
+                /*
+                 * Every original table row becomes one card.
+                 */
+
+                .blog-content
+                  .blog-responsive-table
+                  .blog-table-data-row {
+                  display: block;
+                  width: 100%;
+                  margin: 0 0 18px;
+                  overflow: hidden;
+                  border: 1px solid #dedede;
+                  border-radius: 4px;
+                  background: #ffffff;
+                }
+
+                /*
+                 * Every cell becomes full width.
+                 */
+
+                .blog-content
+                  .blog-responsive-table
+                  .blog-table-data-row
+                  > th,
+
+                .blog-content
+                  .blog-responsive-table
+                  .blog-table-data-row
+                  > td {
+                  display: block;
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  min-width: 0 !important;
+                  box-sizing: border-box;
+                  border: 0;
+                  border-bottom: 1px solid #e5e5e5;
+                  padding: 13px 15px;
+                  white-space: normal;
+                  overflow-wrap: anywhere;
+                  word-break: normal;
+                }
+
+                /*
+                 * First column becomes card title:
+                 *
+                 * Background color
+                 * Veining
+                 * Rarity
+                 * etc.
+                 */
+
+                .blog-content
+                  .blog-responsive-table
+                  .blog-table-row-title {
+                  background: #f5f5f5;
+                  color: #202831;
+                  font-size: 15px;
+                  font-weight: 700;
+                  line-height: 1.45;
+                }
+
+                /*
+                 * Automatically display header above
+                 * each corresponding value.
+                 */
+
+                .blog-content
+                  .blog-responsive-table
+                  .blog-table-value::before {
+                  content: attr(data-label);
+                  display: block;
+                  margin-bottom: 4px;
+                  color: #202831;
+                  font-size: 11px;
+                  font-weight: 700;
+                  line-height: 1.4;
+                  letter-spacing: 0.07em;
+                  text-transform: uppercase;
+                }
+
+                /*
+                 * Remove border from final cell.
+                 */
+
+                .blog-content
+                  .blog-responsive-table
+                  .blog-table-data-row
+                  > *:last-child {
+                  border-bottom: 0;
+                }
+
+                /*
+                 * Ensure Tiptap paragraph styles don't
+                 * create huge spacing inside table cards.
+                 */
+
+                .blog-content
+                  .blog-responsive-table
+                  td
+                  p,
+
+                .blog-content
+                  .blog-responsive-table
+                  th
+                  p {
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  font-size: 14px;
+                  line-height: 1.65;
+                }
+              }
+            `}
+          </style>
 
           {/* =====================================================
               BACK TO BLOGS
@@ -928,12 +1269,22 @@ BlogArticle.propTypes = {
       PropTypes.number,
       PropTypes.string,
     ]),
-    title: PropTypes.string,
+
+    title:
+      PropTypes.string,
+
     description:
       PropTypes.string,
-    content: PropTypes.string,
-    cover: PropTypes.string,
-    coverAlt: PropTypes.string,
+
+    content:
+      PropTypes.string,
+
+    cover:
+      PropTypes.string,
+
+    coverAlt:
+      PropTypes.string,
+
     publishedAt:
       PropTypes.oneOfType([
         PropTypes.string,
@@ -941,14 +1292,18 @@ BlogArticle.propTypes = {
           Date
         ),
       ]),
-    tags: PropTypes.arrayOf(
-      PropTypes.string
-    ),
+
+    tags:
+      PropTypes.arrayOf(
+        PropTypes.string
+      ),
   }).isRequired,
 };
 
 BlogErrorState.propTypes = {
-  message: PropTypes.string,
+  message:
+    PropTypes.string,
+
   onRetry:
     PropTypes.func.isRequired,
 };
