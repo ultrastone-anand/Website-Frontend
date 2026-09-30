@@ -9,7 +9,6 @@ import {
   useParams,
 } from "react-router-dom";
 
-
 const API_URL =
   import.meta.env.VITE_API_URL;
 
@@ -34,14 +33,17 @@ const getBlog = async (
   identifier
 ) => {
   const response = await fetch(
-    `${API_URL}/blog/${encodeURIComponent(identifier)}`,
+    `${API_URL}/blog/${encodeURIComponent(
+      identifier
+    )}`,
     {
       method: "GET",
       headers: getHeaders(),
     }
   );
 
-  const data = await response.json();
+  const data =
+    await response.json();
 
   if (!response.ok) {
     throw new Error(
@@ -68,10 +70,14 @@ const normalizeBlog = (blog) => {
     blog.coverUrl ||
     "";
 
-  const tags = Array.isArray(blog.tags)
+  const tags = Array.isArray(
+    blog.tags
+  )
     ? blog.tags
         .map((tag) => {
-          if (typeof tag === "string") {
+          if (
+            typeof tag === "string"
+          ) {
             return tag;
           }
 
@@ -140,9 +146,14 @@ const formatBlogDate = (
     return "";
   }
 
-  const date = new Date(dateValue);
+  const date =
+    new Date(dateValue);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return "";
   }
 
@@ -159,7 +170,8 @@ const formatBlogDate = (
 // ----------------------------------------------------------------------
 
 export default function BlogDetailedView() {
-  const { identifier } = useParams();
+  const { identifier } =
+    useParams();
 
   const [blog, setBlog] =
     useState(null);
@@ -174,25 +186,29 @@ export default function BlogDetailedView() {
 
   const loadBlog =
     useCallback(async () => {
-     if (!identifier) {
-  setErrorMessage(
-    "Blog identifier is missing."
-  );
+      if (!identifier) {
+        setErrorMessage(
+          "Blog identifier is missing."
+        );
 
-  setLoading(false);
+        setLoading(false);
 
-  return;
-}
+        return;
+      }
 
       try {
         setLoading(true);
         setErrorMessage("");
 
         const response =
-  await getBlog(identifier);
+          await getBlog(
+            identifier
+          );
 
         setBlog(
-          normalizeBlog(response.data)
+          normalizeBlog(
+            response.data
+          )
         );
       } catch (error) {
         console.error(
@@ -249,7 +265,9 @@ export default function BlogDetailedView() {
 
     if (!metaDescription) {
       metaDescription =
-        document.createElement("meta");
+        document.createElement(
+          "meta"
+        );
 
       metaDescription.setAttribute(
         "name",
@@ -260,7 +278,8 @@ export default function BlogDetailedView() {
         metaDescription
       );
 
-      createdMetaDescription = true;
+      createdMetaDescription =
+        true;
     }
 
     metaDescription.setAttribute(
@@ -271,7 +290,8 @@ export default function BlogDetailedView() {
     );
 
     return () => {
-      document.title = previousTitle;
+      document.title =
+        previousTitle;
 
       if (
         createdMetaDescription &&
@@ -284,11 +304,13 @@ export default function BlogDetailedView() {
 
       if (
         metaDescription &&
-        previousDescription !== null
+        previousDescription !==
+          null
       ) {
         metaDescription.setAttribute(
           "content",
-          previousDescription || ""
+          previousDescription ||
+            ""
         );
       }
     };
@@ -296,7 +318,6 @@ export default function BlogDetailedView() {
 
   return (
     <>
-
       <main className="min-h-screen bg-white pt-[90px]">
         {loading && (
           <BlogDetailsLoading />
@@ -305,42 +326,51 @@ export default function BlogDetailedView() {
         {!loading &&
           errorMessage && (
             <BlogErrorState
-              message={errorMessage}
-              onRetry={loadBlog}
+              message={
+                errorMessage
+              }
+              onRetry={
+                loadBlog
+              }
             />
           )}
 
         {!loading &&
           !errorMessage &&
           blog && (
-            <BlogArticle blog={blog} />
+            <BlogArticle
+              blog={blog}
+            />
           )}
       </main>
-
     </>
   );
 }
 
 // ----------------------------------------------------------------------
 
-function BlogArticle({ blog }) {
+function BlogArticle({
+  blog,
+}) {
   const formattedDate =
     formatBlogDate(
       blog.publishedAt
     );
 
-
   return (
     <article className="bg-white">
-      {/* Hero */}
+      {/* =========================================================
+          HERO
+      ========================================================== */}
+
       <section
         className="
           relative
           min-h-[360px]
-          md:min-h-[430px]
-          lg:min-h-[500px]
           overflow-hidden
           bg-[#161412]
+          md:min-h-[430px]
+          lg:min-h-[500px]
         "
       >
         {blog.cover ? (
@@ -401,7 +431,8 @@ function BlogArticle({ blog }) {
               lg:ml-[8%]
             "
           >
-            {blog.tags.length > 0 && (
+            {blog.tags.length >
+              0 && (
               <div
                 className="
                   mb-4
@@ -465,10 +496,12 @@ function BlogArticle({ blog }) {
             )}
           </div>
         </div>
-
       </section>
 
-      {/* Main content */}
+      {/* =========================================================
+          MAIN CONTENT
+      ========================================================== */}
+
       <section
         className="
           px-6
@@ -498,7 +531,11 @@ function BlogArticle({ blog }) {
             </p>
           )}
 
-<hr className="mb-10"/>
+          <hr className="mb-10" />
+
+          {/* =====================================================
+              BLOG HTML CONTENT
+          ====================================================== */}
 
           <div
             className="
@@ -615,14 +652,56 @@ function BlogArticle({ blog }) {
               [&_pre_code]:p-0
               [&_pre_code]:text-white
 
+              [&_table]:my-8
+              [&_table]:w-full
+              [&_table]:max-w-full
+              [&_table]:border-collapse
+              [&_table]:table-auto
+              [&_table]:text-left
+              [&_table]:text-[14px]
+
+              [&_thead]:bg-[#f5f5f5]
+
+              [&_th]:border
+              [&_th]:border-solid
+              [&_th]:border-[#d4d4d4]
+              [&_th]:bg-[#f5f5f5]
+              [&_th]:px-4
+              [&_th]:py-3
+              [&_th]:align-top
+              [&_th]:font-semibold
+              [&_th]:leading-[1.5]
+              [&_th]:text-[#202831]
+
+              [&_td]:border
+              [&_td]:border-solid
+              [&_td]:border-[#d4d4d4]
+              [&_td]:px-4
+              [&_td]:py-3
+              [&_td]:align-top
+              [&_td]:leading-[1.6]
+              [&_td]:text-[#3f3d3a]
+
+              [&_th_p]:m-0
+              [&_td_p]:m-0
+
               md:[&_h1]:text-[42px]
               md:[&_h2]:text-[32px]
               md:[&_h3]:text-[24px]
             "
+            style={{
+              overflowX:
+                "auto",
+            }}
             dangerouslySetInnerHTML={{
-              __html: blog.content,
+              __html:
+                blog.content,
             }}
           />
+
+          {/* =====================================================
+              BACK TO BLOGS
+          ====================================================== */}
 
           <div
             className="
@@ -724,18 +803,20 @@ function BlogDetailsLoading() {
 
         {Array.from({
           length: 10,
-        }).map((_, index) => (
-          <div
-            key={index}
-            className="
-              mt-4
-              h-3
-              w-full
-              rounded
-              bg-[#ececec]
-            "
-          />
-        ))}
+        }).map(
+          (_, index) => (
+            <div
+              key={index}
+              className="
+                mt-4
+                h-3
+                w-full
+                rounded
+                bg-[#ececec]
+              "
+            />
+          )
+        )}
       </div>
     </div>
   );
@@ -848,14 +929,18 @@ BlogArticle.propTypes = {
       PropTypes.string,
     ]),
     title: PropTypes.string,
-    description: PropTypes.string,
+    description:
+      PropTypes.string,
     content: PropTypes.string,
     cover: PropTypes.string,
     coverAlt: PropTypes.string,
-    publishedAt: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.instanceOf(Date),
-    ]),
+    publishedAt:
+      PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.instanceOf(
+          Date
+        ),
+      ]),
     tags: PropTypes.arrayOf(
       PropTypes.string
     ),
@@ -864,7 +949,8 @@ BlogArticle.propTypes = {
 
 BlogErrorState.propTypes = {
   message: PropTypes.string,
-  onRetry: PropTypes.func.isRequired,
+  onRetry:
+    PropTypes.func.isRequired,
 };
 
 BlogErrorState.defaultProps = {
