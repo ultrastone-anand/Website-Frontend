@@ -3114,18 +3114,17 @@ const handleCategoryNavigation =
               {activeMedia.media_type ===
               "FEATURED_VIDEO" ? (
                 <video
-                  key={
-                    activeMedia
-                      .media_url
-                  }
-                  src={
-                    activeMedia
-                      .media_url
-                  }
-                  controls
-                  autoPlay
-                  className="max-w-full max-h-[92vh] object-contain"
-                />
+  key={activeMedia.media_url}
+  src={activeMedia.media_url}
+  autoPlay
+  muted
+  loop
+  playsInline
+  controls={false}
+  disablePictureInPicture
+  disableRemotePlayback
+  className="max-w-full max-h-[92vh] object-contain"
+/>
               ) : (
                 <img
                   src={getOptimizedImageUrl(
