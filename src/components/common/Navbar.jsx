@@ -635,6 +635,13 @@ const Navbar = () => {
   const resources = [
     {
       label:
+        "Resources",
+
+      path:
+        "/resources",
+    },
+    {
+      label:
         "Merchandising Displays",
 
       path:
@@ -678,6 +685,14 @@ const Navbar = () => {
 
       path:
         "/career",
+    },
+
+    {
+      label:
+        "Product Registration",
+
+      path:
+        "/product_registration",
     },
   ];
 

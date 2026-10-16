@@ -80,6 +80,14 @@ const SafetyFirst = lazy(() =>
   import("../pages/Resource_Center/Silica_safety/silicaSafety")
 );
 
+const Resources = lazy(() =>
+  import("../pages/Resource_Center/Resources/Resources")
+);
+
+const Productregistration = lazy(() =>
+  import("../pages/Resource_Center/ProductRegistration/Productregistration")
+);
+
 function AppRoutes() {
   return (
     <>
@@ -142,6 +150,16 @@ function AppRoutes() {
           <Route
             path="/safety-first"
             element={<SafetyFirst />}
+          />
+          
+          <Route
+            path="/resources"
+            element={<Resources />}
+          />
+
+          <Route
+            path="/product_registration"
+            element={<Productregistration />}
           />
 
           <Route path="*" element={<NotFound />} />
