@@ -1,8 +1,8 @@
 import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
 } from "react";
 
 import axios from "axios";
@@ -10,15 +10,15 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
 import {
-  ArrowRight,
-  CheckCircle2,
-  ChevronDown,
-  FileText,
-  ImagePlus,
-  Loader2,
-  ShieldCheck,
-  UploadCloud,
-  X,
+    ArrowRight,
+    CheckCircle2,
+    ChevronDown,
+    FileText,
+    ImagePlus,
+    Loader2,
+    ShieldCheck,
+    UploadCloud,
+    X,
 } from "lucide-react";
 
 /* =========================================================
@@ -26,20 +26,20 @@ import {
 ========================================================= */
 
 const API_URL = (
-  import.meta.env.VITE_API_URL || ""
+    import.meta.env.VITE_API_URL || ""
 ).replace(/\/$/, "");
 
 const REGISTRATION_API =
-  `${API_URL}/product-registrations`;
+    `${API_URL}/product-registrations`;
 
 const STONES_API =
-  `${API_URL}/stones`;
+    `${API_URL}/stones`;
 
 const MAX_INVOICE_SIZE =
-  15 * 1024 * 1024;
+    15 * 1024 * 1024;
 
 const MAX_PHOTO_SIZE =
-  10 * 1024 * 1024;
+    10 * 1024 * 1024;
 
 const MAX_PHOTOS = 10;
 
@@ -48,16 +48,16 @@ const MAX_PHOTOS = 10;
 ========================================================= */
 
 const PROJECT_TYPES = [
-  "Residential",
-  "Commercial",
+    "Residential",
+    "Commercial",
 ];
 
 const INSTALLATION_TYPES = [
-  "Kitchen Countertop",
-  "Bathroom Vanity",
-  "Wall Cladding",
-  "Flooring",
-  "Other",
+    "Kitchen Countertop",
+    "Bathroom Vanity",
+    "Wall Cladding",
+    "Flooring",
+    "Other",
 ];
 
 /* =========================================================
@@ -65,30 +65,30 @@ const INSTALLATION_TYPES = [
 ========================================================= */
 
 const INITIAL_FORM = {
-  full_name: "",
-  email: "",
-  phone: "",
+    full_name: "",
+    email: "",
+    phone: "",
 
-  product_category: "",
-  product_name: "",
-  invoice_order_number: "",
-  purchase_date: "",
+    product_category: "",
+    product_name: "",
+    invoice_order_number: "",
+    purchase_date: "",
 
-  project_type: "",
-  installation_type: "",
-  installation_type_other: "",
+    project_type: "",
+    installation_type: "",
+    installation_type_other: "",
 
-  is_installed: "",
+    is_installed: "",
 
-  installation_date: "",
-  installation_address: "",
+    installation_date: "",
+    installation_address: "",
 
-  fabricator_installer_name: "",
-  fabricator_installer_contact: "",
+    fabricator_installer_name: "",
+    fabricator_installer_contact: "",
 
-  tentative_installation_date: "",
+    tentative_installation_date: "",
 
-  declaration_accepted: false,
+    declaration_accepted: false,
 };
 
 /* =========================================================
@@ -96,54 +96,54 @@ const INITIAL_FORM = {
 ========================================================= */
 
 const formatFileSize = (bytes = 0) => {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
+    if (bytes < 1024) {
+        return `${bytes} B`;
+    }
 
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
+    if (bytes < 1024 * 1024) {
+        return `${(bytes / 1024).toFixed(1)} KB`;
+    }
 
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 };
 
 const getToday = () => {
-  const date = new Date();
+    const date = new Date();
 
-  const year = date.getFullYear();
+    const year = date.getFullYear();
 
-  const month = String(
-    date.getMonth() + 1
-  ).padStart(2, "0");
+    const month = String(
+        date.getMonth() + 1
+    ).padStart(2, "0");
 
-  const day = String(
-    date.getDate()
-  ).padStart(2, "0");
+    const day = String(
+        date.getDate()
+    ).padStart(2, "0");
 
-  return `${year}-${month}-${day}`;
+    return `${year}-${month}-${day}`;
 };
 
 const isValidEmail = (email) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const getErrorMessage = (error) => {
-  if (error.response?.data?.message) {
-    return error.response.data.message;
-  }
+    if (error.response?.data?.message) {
+        return error.response.data.message;
+    }
 
-  if (error.code === "ECONNABORTED") {
-    return "The request timed out. Please check whether your registration was received before submitting again.";
-  }
+    if (error.code === "ECONNABORTED") {
+        return "The request timed out. Please check whether your registration was received before submitting again.";
+    }
 
-  if (error.code === "ERR_NETWORK") {
-    return "Unable to connect to the server. Please check your connection and try again.";
-  }
+    if (error.code === "ERR_NETWORK") {
+        return "Unable to connect to the server. Please check your connection and try again.";
+    }
 
-  if (error.message) {
-    return error.message;
-  }
+    if (error.message) {
+        return error.message;
+    }
 
-  return "Unable to submit your registration. Please try again.";
+    return "Unable to submit your registration. Please try again.";
 };
 
 /* =========================================================
@@ -151,11 +151,11 @@ const getErrorMessage = (error) => {
 ========================================================= */
 
 const FieldLabel = ({
-  children,
-  required = false,
+    children,
+    required = false,
 }) => (
-  <label
-    className="
+    <label
+        className="
       block
       mb-2.5
       text-[12px]
@@ -164,38 +164,38 @@ const FieldLabel = ({
       uppercase
       tracking-[1px]
     "
-  >
-    {children}
+    >
+        {children}
 
-    {required && (
-      <span className="text-[#c91f26] ml-1">
-        *
-      </span>
-    )}
-  </label>
+        {required && (
+            <span className="text-[#c91f26] ml-1">
+                *
+            </span>
+        )}
+    </label>
 );
 
 const FieldError = ({ message }) =>
-  message ? (
-    <p
-      role="alert"
-      className="
+    message ? (
+        <p
+            role="alert"
+            className="
         text-[12px]
         text-[#c91f26]
         mt-2
       "
-    >
-      {message}
-    </p>
-  ) : null;
+        >
+            {message}
+        </p>
+    ) : null;
 
 const SectionHeading = ({
-  number,
-  title,
-  description,
+    number,
+    title,
+    description,
 }) => (
-  <div
-    className="
+    <div
+        className="
       flex
       items-start
       gap-4
@@ -204,9 +204,9 @@ const SectionHeading = ({
       border-b
       border-[#e9e9e9]
     "
-  >
-    <div
-      className="
+    >
+        <div
+            className="
         w-[42px]
         h-[42px]
         shrink-0
@@ -218,37 +218,37 @@ const SectionHeading = ({
         text-[13px]
         font-semibold
       "
-    >
-      {number}
-    </div>
+        >
+            {number}
+        </div>
 
-    <div>
-      <h2
-        className="
+        <div>
+            <h2
+                className="
           text-[20px]
           md:text-[23px]
           font-semibold
           text-[#161412]
           leading-tight
         "
-      >
-        {title}
-      </h2>
+            >
+                {title}
+            </h2>
 
-      {description && (
-        <p
-          className="
+            {description && (
+                <p
+                    className="
             text-[13px]
             text-[#888]
             mt-2
             leading-relaxed
           "
-        >
-          {description}
-        </p>
-      )}
+                >
+                    {description}
+                </p>
+            )}
+        </div>
     </div>
-  </div>
 );
 
 /* =========================================================
@@ -256,1309 +256,1318 @@ const SectionHeading = ({
 ========================================================= */
 
 export default function Productregistration() {
-  /* =======================================================
-     FORM STATES
-  ======================================================= */
+    /* =======================================================
+       FORM STATES
+    ======================================================= */
 
-  const [form, setForm] =
-    useState(INITIAL_FORM);
+    const [form, setForm] =
+        useState(INITIAL_FORM);
 
-  const [invoiceFile, setInvoiceFile] =
-    useState(null);
+    const [invoiceFile, setInvoiceFile] =
+        useState(null);
 
-  const [
-    installationPhotos,
-    setInstallationPhotos,
-  ] = useState([]);
+    const [
+        installationPhotos,
+        setInstallationPhotos,
+    ] = useState([]);
 
-  const [
-    photoPreviews,
-    setPhotoPreviews,
-  ] = useState([]);
+    const [
+        photoPreviews,
+        setPhotoPreviews,
+    ] = useState([]);
 
-  const [errors, setErrors] =
-    useState({});
+    const [errors, setErrors] =
+        useState({});
 
-  const [submitting, setSubmitting] =
-    useState(false);
+    const [submitting, setSubmitting] =
+        useState(false);
 
-  const [submitError, setSubmitError] =
-    useState("");
+    const [submitError, setSubmitError] =
+        useState("");
 
-  const [successData, setSuccessData] =
-    useState(null);
+    const [successData, setSuccessData] =
+        useState(null);
 
-  /* =======================================================
-     CATEGORY + PRODUCT STATES
-  ======================================================= */
+    /* =======================================================
+       CATEGORY + PRODUCT STATES
+    ======================================================= */
 
-  const [categories, setCategories] =
-    useState([]);
+    const [categories, setCategories] =
+        useState([]);
 
-  const [products, setProducts] =
-    useState([]);
+    const [products, setProducts] =
+        useState([]);
 
-  const [
-    categoriesLoading,
-    setCategoriesLoading,
-  ] = useState(true);
+    const [
+        categoriesLoading,
+        setCategoriesLoading,
+    ] = useState(true);
 
-  const [
-    productsLoading,
-    setProductsLoading,
-  ] = useState(false);
+    const [
+        productsLoading,
+        setProductsLoading,
+    ] = useState(false);
 
-  const [
-    categoriesError,
-    setCategoriesError,
-  ] = useState("");
+    const [
+        categoriesError,
+        setCategoriesError,
+    ] = useState("");
 
-  const [
-    productsError,
-    setProductsError,
-  ] = useState("");
+    const [
+        productsError,
+        setProductsError,
+    ] = useState("");
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-const [redirectCountdown, setRedirectCountdown] = useState(5);
+    const [redirectCountdown, setRedirectCountdown] = useState(5);
 
-  /* =======================================================
-     REFS
-  ======================================================= */
+    /* =======================================================
+       REFS
+    ======================================================= */
 
-  const invoiceInputRef =
-    useRef(null);
+    const invoiceInputRef =
+        useRef(null);
 
-  const photosInputRef =
-    useRef(null);
+    const photosInputRef =
+        useRef(null);
 
-  const formTopRef =
-    useRef(null);
+    const formTopRef =
+        useRef(null);
 
-  const today = getToday();
+    const today = getToday();
 
-  /* =======================================================
-     SELECTED CATEGORY
-  ======================================================= */
+    /* =======================================================
+       SELECTED CATEGORY
+    ======================================================= */
 
-  const selectedCategory = useMemo(() => {
-    return categories.find(
-      (category) =>
-        category.name ===
-        form.product_category
-    );
-  }, [
-    categories,
-    form.product_category,
-  ]);
+    const selectedCategory = useMemo(() => {
+        return categories.find(
+            (category) =>
+                category.name ===
+                form.product_category
+        );
+    }, [
+        categories,
+        form.product_category,
+    ]);
 
-  /* =======================================================
-     FETCH ACTIVE PRODUCT CATEGORIES
-  ======================================================= */
+    /* =======================================================
+       FETCH ACTIVE PRODUCT CATEGORIES
+    ======================================================= */
 
-  useEffect(() => {
-    const controller =
-      new AbortController();
+    useEffect(() => {
+        const controller =
+            new AbortController();
 
-    const fetchCategories =
-      async () => {
-        try {
-          setCategoriesLoading(true);
+        const fetchCategories =
+            async () => {
+                try {
+                    setCategoriesLoading(true);
 
-          setCategoriesError("");
+                    setCategoriesError("");
 
-          const response =
-            await axios.get(
-              STONES_API,
-              {
-                signal:
-                  controller.signal,
-              }
-            );
+                    const response =
+                        await axios.get(
+                            STONES_API,
+                            {
+                                signal:
+                                    controller.signal,
+                            }
+                        );
 
-          const result =
-            response.data;
+                    const result =
+                        response.data;
 
-          if (!result.success) {
-            throw new Error(
-              "Unable to load product categories."
-            );
-          }
+                    if (!result.success) {
+                        throw new Error(
+                            "Unable to load product categories."
+                        );
+                    }
 
-          const activeCategories = (
-            Array.isArray(result.data)
-              ? result.data
-              : []
-          )
-            .filter(
-              (item) =>
-                item.is_active ===
-                  true &&
-                item.parent_id ===
-                  null
-            )
-            .sort((a, b) => {
-              if (
-                a.slug ===
-                "ultra-quartz"
-              ) {
-                return -1;
-              }
+                    const activeCategories = (
+                        Array.isArray(result.data)
+                            ? result.data
+                            : []
+                    )
+                        .filter(
+                            (item) =>
+                                item.is_active ===
+                                true &&
+                                item.parent_id ===
+                                null
+                        )
+                        .sort((a, b) => {
+                            if (
+                                a.slug ===
+                                "ultra-quartz"
+                            ) {
+                                return -1;
+                            }
 
-              if (
-                b.slug ===
-                "ultra-quartz"
-              ) {
-                return 1;
-              }
+                            if (
+                                b.slug ===
+                                "ultra-quartz"
+                            ) {
+                                return 1;
+                            }
 
-              if (
-                a.slug ===
-                "atlas-plan"
-              ) {
-                return 1;
-              }
+                            if (
+                                a.slug ===
+                                "atlas-plan"
+                            ) {
+                                return 1;
+                            }
 
-              if (
-                b.slug ===
-                "atlas-plan"
-              ) {
-                return -1;
-              }
+                            if (
+                                b.slug ===
+                                "atlas-plan"
+                            ) {
+                                return -1;
+                            }
 
-              return a.name.localeCompare(
-                b.name,
-                undefined,
-                {
-                  sensitivity:
-                    "base",
+                            return a.name.localeCompare(
+                                b.name,
+                                undefined,
+                                {
+                                    sensitivity:
+                                        "base",
+                                }
+                            );
+                        });
+
+                    if (
+                        !controller.signal.aborted
+                    ) {
+                        setCategories(
+                            activeCategories
+                        );
+                    }
+                } catch (error) {
+                    if (
+                        error.code !==
+                        "ERR_CANCELED" &&
+                        error.name !==
+                        "CanceledError"
+                    ) {
+                        console.error(
+                            "Product categories API error:",
+                            error
+                        );
+
+                        setCategoriesError(
+                            "Unable to load product categories. Please refresh the page."
+                        );
+                    }
+                } finally {
+                    if (
+                        !controller.signal.aborted
+                    ) {
+                        setCategoriesLoading(
+                            false
+                        );
+                    }
                 }
-              );
-            });
+            };
 
-          if (
-            !controller.signal.aborted
-          ) {
-            setCategories(
-              activeCategories
-            );
-          }
-        } catch (error) {
-          if (
-            error.code !==
-              "ERR_CANCELED" &&
-            error.name !==
-              "CanceledError"
-          ) {
-            console.error(
-              "Product categories API error:",
-              error
-            );
+        fetchCategories();
 
-            setCategoriesError(
-              "Unable to load product categories. Please refresh the page."
-            );
-          }
-        } finally {
-          if (
-            !controller.signal.aborted
-          ) {
-            setCategoriesLoading(
-              false
-            );
-          }
+        return () => {
+            controller.abort();
+        };
+    }, []);
+
+    /* =======================================================
+       FETCH PRODUCTS BY SELECTED CATEGORY
+    ======================================================= */
+
+    useEffect(() => {
+        if (!selectedCategory?.slug) {
+            setProducts([]);
+
+            setProductsLoading(false);
+
+            setProductsError("");
+
+            return;
         }
-      };
 
-    fetchCategories();
+        const controller =
+            new AbortController();
 
-    return () => {
-      controller.abort();
-    };
-  }, []);
+        const fetchProducts =
+            async () => {
+                try {
+                    setProductsLoading(true);
 
-  /* =======================================================
-     FETCH PRODUCTS BY SELECTED CATEGORY
-  ======================================================= */
+                    setProductsError("");
 
-  useEffect(() => {
-    if (!selectedCategory?.slug) {
-      setProducts([]);
+                    setProducts([]);
 
-      setProductsLoading(false);
+                    const response =
+                        await axios.get(
+                            `${STONES_API}/${encodeURIComponent(
+                                selectedCategory.slug
+                            )}`,
+                            {
+                                signal:
+                                    controller.signal,
+                            }
+                        );
 
-      setProductsError("");
+                    const result =
+                        response.data;
 
-      return;
-    }
+                    if (!result.success) {
+                        throw new Error(
+                            "Unable to load products."
+                        );
+                    }
 
-    const controller =
-      new AbortController();
+                    const activeProducts = (
+                        Array.isArray(
+                            result.products
+                        )
+                            ? result.products
+                            : []
+                    )
+                        .filter(
+                            (item) =>
+                                item.is_active ===
+                                true &&
+                                item.is_published ===
+                                true
+                        )
+                        .sort((a, b) =>
+                            a.name.localeCompare(
+                                b.name,
+                                undefined,
+                                {
+                                    sensitivity:
+                                        "base",
+                                }
+                            )
+                        );
 
-    const fetchProducts =
-      async () => {
-        try {
-          setProductsLoading(true);
+                    if (
+                        !controller.signal.aborted
+                    ) {
+                        setProducts(
+                            activeProducts
+                        );
+                    }
+                } catch (error) {
+                    if (
+                        error.code !==
+                        "ERR_CANCELED" &&
+                        error.name !==
+                        "CanceledError"
+                    ) {
+                        console.error(
+                            "Products API error:",
+                            error
+                        );
 
-          setProductsError("");
-
-          setProducts([]);
-
-          const response =
-            await axios.get(
-              `${STONES_API}/${encodeURIComponent(
-                selectedCategory.slug
-              )}`,
-              {
-                signal:
-                  controller.signal,
-              }
-            );
-
-          const result =
-            response.data;
-
-          if (!result.success) {
-            throw new Error(
-              "Unable to load products."
-            );
-          }
-
-          const activeProducts = (
-            Array.isArray(
-              result.products
-            )
-              ? result.products
-              : []
-          )
-            .filter(
-              (item) =>
-                item.is_active ===
-                  true &&
-                item.is_published ===
-                  true
-            )
-            .sort((a, b) =>
-              a.name.localeCompare(
-                b.name,
-                undefined,
-                {
-                  sensitivity:
-                    "base",
+                        setProductsError(
+                            "Unable to load products for this category."
+                        );
+                    }
+                } finally {
+                    if (
+                        !controller.signal.aborted
+                    ) {
+                        setProductsLoading(
+                            false
+                        );
+                    }
                 }
-              )
+            };
+
+        fetchProducts();
+
+        return () => {
+            controller.abort();
+        };
+    }, [
+        selectedCategory?.slug,
+    ]);
+
+    /* =======================================================
+       PHOTO PREVIEWS
+    ======================================================= */
+
+    useEffect(() => {
+        const previews =
+            installationPhotos.map(
+                (file) => ({
+                    name: file.name,
+
+                    url:
+                        URL.createObjectURL(
+                            file
+                        ),
+                })
             );
 
-          if (
-            !controller.signal.aborted
-          ) {
-            setProducts(
-              activeProducts
+        setPhotoPreviews(
+            previews
+        );
+
+        return () => {
+            previews.forEach(
+                (preview) => {
+                    URL.revokeObjectURL(
+                        preview.url
+                    );
+                }
             );
-          }
-        } catch (error) {
-          if (
-            error.code !==
-              "ERR_CANCELED" &&
-            error.name !==
-              "CanceledError"
-          ) {
-            console.error(
-              "Products API error:",
-              error
-            );
+        };
+    }, [
+        installationPhotos,
+    ]);
 
-            setProductsError(
-              "Unable to load products for this category."
-            );
-          }
-        } finally {
-          if (
-            !controller.signal.aborted
-          ) {
-            setProductsLoading(
-              false
-            );
-          }
-        }
-      };
+    /* =======================================================
+       FIELD CHANGE
+    ======================================================= */
 
-    fetchProducts();
+    const handleChange = (
+        event
+    ) => {
+        const {
+            name,
+            value,
+            type,
+            checked,
+        } = event.target;
 
-    return () => {
-      controller.abort();
-    };
-  }, [
-    selectedCategory?.slug,
-  ]);
+        setForm((previous) => {
+            const updated = {
+                ...previous,
 
-  /* =======================================================
-     PHOTO PREVIEWS
-  ======================================================= */
+                [name]:
+                    type === "checkbox"
+                        ? checked
+                        : value,
+            };
 
-  useEffect(() => {
-    const previews =
-      installationPhotos.map(
-        (file) => ({
-          name: file.name,
+            /* RESET PRODUCT WHEN CATEGORY CHANGES */
 
-          url:
-            URL.createObjectURL(
-              file
-            ),
-        })
-      );
+            if (
+                name ===
+                "product_category"
+            ) {
+                updated.product_name =
+                    "";
+            }
 
-    setPhotoPreviews(
-      previews
-    );
+            /* RESET INSTALLATION DATE IF PURCHASE DATE CHANGES */
 
-    return () => {
-      previews.forEach(
-        (preview) => {
-          URL.revokeObjectURL(
-            preview.url
-          );
-        }
-      );
-    };
-  }, [
-    installationPhotos,
-  ]);
+            if (
+                name ===
+                "purchase_date" &&
+                updated.installation_date &&
+                updated.installation_date <
+                value
+            ) {
+                updated.installation_date =
+                    "";
+            }
 
-  /* =======================================================
-     FIELD CHANGE
-  ======================================================= */
+            /* RESET OTHER INSTALLATION TYPE */
 
-  const handleChange = (
-    event
-  ) => {
-    const {
-      name,
-      value,
-      type,
-      checked,
-    } = event.target;
+            if (
+                name ===
+                "installation_type" &&
+                value !== "Other"
+            ) {
+                updated.installation_type_other =
+                    "";
+            }
 
-    setForm((previous) => {
-      const updated = {
-        ...previous,
+            /* RESET CONDITIONAL INSTALLATION FIELDS */
 
-        [name]:
-          type === "checkbox"
-            ? checked
-            : value,
-      };
+            if (
+                name ===
+                "is_installed"
+            ) {
+                if (
+                    value === "true"
+                ) {
+                    updated.tentative_installation_date =
+                        "";
+                } else {
+                    updated.installation_date =
+                        "";
 
-      /* RESET PRODUCT WHEN CATEGORY CHANGES */
+                    updated.installation_address =
+                        "";
 
-      if (
-        name ===
-        "product_category"
-      ) {
-        updated.product_name =
-          "";
-      }
+                    updated.fabricator_installer_name =
+                        "";
 
-      /* RESET INSTALLATION DATE IF PURCHASE DATE CHANGES */
+                    updated.fabricator_installer_contact =
+                        "";
+                }
+            }
 
-      if (
-        name ===
-          "purchase_date" &&
-        updated.installation_date &&
-        updated.installation_date <
-          value
-      ) {
-        updated.installation_date =
-          "";
-      }
+            return updated;
+        });
 
-      /* RESET OTHER INSTALLATION TYPE */
+        /* CLEAR PHOTOS WHEN NOT INSTALLED */
 
-      if (
-        name ===
-          "installation_type" &&
-        value !== "Other"
-      ) {
-        updated.installation_type_other =
-          "";
-      }
-
-      /* RESET CONDITIONAL INSTALLATION FIELDS */
-
-      if (
-        name ===
-        "is_installed"
-      ) {
         if (
-          value === "true"
+            name ===
+            "is_installed" &&
+            value === "false"
         ) {
-          updated.tentative_installation_date =
-            "";
-        } else {
-          updated.installation_date =
-            "";
+            setInstallationPhotos(
+                []
+            );
 
-          updated.installation_address =
-            "";
-
-          updated.fabricator_installer_name =
-            "";
-
-          updated.fabricator_installer_contact =
-            "";
+            if (
+                photosInputRef.current
+            ) {
+                photosInputRef.current.value =
+                    "";
+            }
         }
-      }
 
-      return updated;
-    });
+        /* CLEAR VALIDATION ERRORS */
 
-    /* CLEAR PHOTOS WHEN NOT INSTALLED */
+        setErrors((previous) => {
+            const updated = {
+                ...previous,
 
-    if (
-      name ===
-        "is_installed" &&
-      value === "false"
-    ) {
-      setInstallationPhotos(
-        []
-      );
+                [name]: "",
+            };
 
-      if (
-        photosInputRef.current
-      ) {
-        photosInputRef.current.value =
-          "";
-      }
-    }
+            if (
+                name ===
+                "product_category"
+            ) {
+                updated.product_name =
+                    "";
+            }
 
-    /* CLEAR VALIDATION ERRORS */
+            if (
+                name ===
+                "is_installed"
+            ) {
+                updated.installation_date =
+                    "";
 
-    setErrors((previous) => {
-      const updated = {
-        ...previous,
+                updated.installation_address =
+                    "";
 
-        [name]: "",
-      };
+                updated.installation_photos =
+                    "";
 
-      if (
-        name ===
-        "product_category"
-      ) {
-        updated.product_name =
-          "";
-      }
+                updated.tentative_installation_date =
+                    "";
 
-      if (
-        name ===
-        "is_installed"
-      ) {
-        updated.installation_date =
-          "";
+                 updated.fabricator_installer_name = "";
+            }
 
-        updated.installation_address =
-          "";
+            if (
+                name ===
+                "installation_type"
+            ) {
+                updated.installation_type_other =
+                    "";
+            }
 
-        updated.installation_photos =
-          "";
+            if (
+                name ===
+                "purchase_date"
+            ) {
+                updated.installation_date =
+                    "";
+            }
 
-        updated.tentative_installation_date =
-          "";
-      }
+            return updated;
+        });
 
-      if (
-        name ===
-        "installation_type"
-      ) {
-        updated.installation_type_other =
-          "";
-      }
+        setSubmitError("");
+    };
 
-      if (
-        name ===
-        "purchase_date"
-      ) {
-        updated.installation_date =
-          "";
-      }
+    /* =======================================================
+       INVOICE UPLOAD
+    ======================================================= */
 
-      return updated;
-    });
+    const handleInvoiceChange = (
+        event
+    ) => {
+        const file =
+            event.target.files?.[0];
 
-    setSubmitError("");
-  };
+        if (!file) {
+            return;
+        }
 
-  /* =======================================================
-     INVOICE UPLOAD
-  ======================================================= */
+        const allowedExtensions = [
+            ".pdf",
+            ".jpg",
+            ".jpeg",
+            ".png",
+        ];
 
-  const handleInvoiceChange = (
-    event
-  ) => {
-    const file =
-      event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    const allowedExtensions = [
-      ".pdf",
-      ".jpg",
-      ".jpeg",
-      ".png",
-    ];
-
-    const extension =
-      file.name
-        .substring(
-          file.name.lastIndexOf(
-            "."
-          )
-        )
-        .toLowerCase();
-
-    if (
-      !allowedExtensions.includes(
-        extension
-      )
-    ) {
-      setErrors(
-        (previous) => ({
-          ...previous,
-
-          purchase_invoice:
-            "Only PDF, JPG and PNG files are allowed.",
-        })
-      );
-
-      event.target.value =
-        "";
-
-      return;
-    }
-
-    if (
-      file.size >
-      MAX_INVOICE_SIZE
-    ) {
-      setErrors(
-        (previous) => ({
-          ...previous,
-
-          purchase_invoice:
-            "Invoice file must be smaller than 15 MB.",
-        })
-      );
-
-      event.target.value =
-        "";
-
-      return;
-    }
-
-    setInvoiceFile(
-      file
-    );
-
-    setErrors(
-      (previous) => ({
-        ...previous,
-
-        purchase_invoice:
-          "",
-      })
-    );
-  };
-
-  /* =======================================================
-     INSTALLATION PHOTO UPLOAD
-  ======================================================= */
-
-  const handlePhotosChange = (
-    event
-  ) => {
-    const selectedFiles =
-      Array.from(
-        event.target.files ||
-          []
-      );
-
-    if (
-      selectedFiles.length ===
-      0
-    ) {
-      return;
-    }
-
-    const allowedExtensions = [
-      ".jpg",
-      ".jpeg",
-      ".png",
-      ".webp",
-    ];
-
-    const invalidFile =
-      selectedFiles.find(
-        (file) => {
-          const extension =
+        const extension =
             file.name
-              .substring(
-                file.name.lastIndexOf(
-                  "."
+                .substring(
+                    file.name.lastIndexOf(
+                        "."
+                    )
                 )
-              )
-              .toLowerCase();
+                .toLowerCase();
 
-          return !allowedExtensions.includes(
-            extension
-          );
-        }
-      );
-
-    if (invalidFile) {
-      setErrors(
-        (previous) => ({
-          ...previous,
-
-          installation_photos:
-            "Only JPG, PNG and WebP images are allowed.",
-        })
-      );
-
-      event.target.value =
-        "";
-
-      return;
-    }
-
-    const oversizedFile =
-      selectedFiles.find(
-        (file) =>
-          file.size >
-          MAX_PHOTO_SIZE
-      );
-
-    if (
-      oversizedFile
-    ) {
-      setErrors(
-        (previous) => ({
-          ...previous,
-
-          installation_photos:
-            "Each image must be smaller than 10 MB.",
-        })
-      );
-
-      event.target.value =
-        "";
-
-      return;
-    }
-
-    const combinedFiles = [
-      ...installationPhotos,
-      ...selectedFiles,
-    ];
-
-    if (
-      combinedFiles.length >
-      MAX_PHOTOS
-    ) {
-      setErrors(
-        (previous) => ({
-          ...previous,
-
-          installation_photos:
-            `Maximum ${MAX_PHOTOS} installation photos are allowed.`,
-        })
-      );
-
-      event.target.value =
-        "";
-
-      return;
-    }
-
-    setInstallationPhotos(
-      combinedFiles
-    );
-
-    setErrors(
-      (previous) => ({
-        ...previous,
-
-        installation_photos:
-          "",
-      })
-    );
-
-    event.target.value =
-      "";
-  };
-
-  /* =======================================================
-     REMOVE INSTALLATION PHOTO
-  ======================================================= */
-
-  const removePhoto = (
-    index
-  ) => {
-    setInstallationPhotos(
-      (previous) =>
-        previous.filter(
-          (_, photoIndex) =>
-            photoIndex !==
-            index
-        )
-    );
-  };
-
-  /* =======================================================
-     VALIDATION
-  ======================================================= */
-
-  const validateForm =
-    () => {
-      const newErrors =
-        {};
-
-      /* CUSTOMER INFORMATION */
-
-      if (
-        !form.full_name.trim()
-      ) {
-        newErrors.full_name =
-          "Full name is required.";
-      }
-
-      if (
-        !form.email.trim()
-      ) {
-        newErrors.email =
-          "Email address is required.";
-      } else if (
-        !isValidEmail(
-          form.email.trim()
-        )
-      ) {
-        newErrors.email =
-          "Enter a valid email address.";
-      }
-
-      if (
-        !form.phone.trim()
-      ) {
-        newErrors.phone =
-          "Phone number is required.";
-      }
-
-      /* PRODUCT CATEGORY */
-
-      if (
-        !form.product_category
-      ) {
-        newErrors.product_category =
-          "Please select a product category.";
-      } else if (
-        !selectedCategory
-      ) {
-        newErrors.product_category =
-          "Please select a valid product category.";
-      }
-
-      /* PRODUCT NAME */
-
-      if (
-        !form.product_name
-      ) {
-        newErrors.product_name =
-          "Please select a product.";
-      } else if (
-        !products.some(
-          (product) =>
-            product.name ===
-            form.product_name
-        )
-      ) {
-        newErrors.product_name =
-          "Please select a valid product.";
-      }
-
-      if (
-        !form.invoice_order_number.trim()
-      ) {
-        newErrors.invoice_order_number =
-          "Invoice or order number is required.";
-      }
-
-      if (
-        !form.purchase_date
-      ) {
-        newErrors.purchase_date =
-          "Purchase date is required.";
-      } else if (
-        form.purchase_date >
-        today
-      ) {
-        newErrors.purchase_date =
-          "Purchase date cannot be in the future.";
-      }
-
-      /* PROJECT INFORMATION */
-
-      if (
-        !form.project_type
-      ) {
-        newErrors.project_type =
-          "Please select a project type.";
-      }
-
-      if (
-        !form.installation_type
-      ) {
-        newErrors.installation_type =
-          "Please select an installation type.";
-      }
-
-      if (
-        form.installation_type ===
-          "Other" &&
-        !form.installation_type_other.trim()
-      ) {
-        newErrors.installation_type_other =
-          "Please specify the installation type.";
-      }
-
-      /* INSTALLATION INFORMATION */
-
-      if (
-        !form.is_installed
-      ) {
-        newErrors.is_installed =
-          "Please select whether the product has been installed.";
-      }
-
-      if (
-        form.is_installed ===
-        "true"
-      ) {
         if (
-          !form.installation_date
+            !allowedExtensions.includes(
+                extension
+            )
         ) {
-          newErrors.installation_date =
-            "Installation date is required.";
-        } else if (
-          form.installation_date >
-          today
-        ) {
-          newErrors.installation_date =
-            "Installation date cannot be in the future.";
-        } else if (
-          form.purchase_date &&
-          form.installation_date <
-            form.purchase_date
-        ) {
-          newErrors.installation_date =
-            "Installation date cannot be earlier than the purchase date.";
+            setErrors(
+                (previous) => ({
+                    ...previous,
+
+                    purchase_invoice:
+                        "Only PDF, JPG and PNG files are allowed.",
+                })
+            );
+
+            event.target.value =
+                "";
+
+            return;
         }
 
         if (
-          !form.installation_address.trim()
+            file.size >
+            MAX_INVOICE_SIZE
         ) {
-          newErrors.installation_address =
-            "Installation address is required.";
+            setErrors(
+                (previous) => ({
+                    ...previous,
+
+                    purchase_invoice:
+                        "Invoice file must be smaller than 15 MB.",
+                })
+            );
+
+            event.target.value =
+                "";
+
+            return;
         }
-
-        if (
-          installationPhotos.length ===
-          0
-        ) {
-          newErrors.installation_photos =
-            "Upload at least one installation photo.";
-        }
-      }
-
-      if (
-        form.is_installed ===
-        "false"
-      ) {
-        if (
-          !form.tentative_installation_date
-        ) {
-          newErrors.tentative_installation_date =
-            "Tentative installation date is required.";
-        } else if (
-          form.tentative_installation_date <
-          today
-        ) {
-          newErrors.tentative_installation_date =
-            "Tentative installation date cannot be in the past.";
-        }
-      }
-
-      /* PURCHASE DOCUMENT */
-
-      if (
-        !invoiceFile
-      ) {
-        newErrors.purchase_invoice =
-          "Please upload your purchase invoice.";
-      }
-
-      /* DECLARATION */
-
-      if (
-        !form.declaration_accepted
-      ) {
-        newErrors.declaration_accepted =
-          "You must accept the declaration.";
-      }
-
-      setErrors(
-        newErrors
-      );
-
-      return (
-        Object.keys(
-          newErrors
-        ).length === 0
-      );
-    };
-
-  /* =======================================================
-     SUBMIT FORM
-  ======================================================= */
-
-  const handleSubmit =
-    async (event) => {
-      event.preventDefault();
-
-      if (
-        submitting
-      ) {
-        return;
-      }
-
-      setSubmitError(
-        ""
-      );
-
-      if (
-        !validateForm()
-      ) {
-        window.scrollTo({
-          top: 0,
-
-          behavior:
-            "smooth",
-        });
-
-        return;
-      }
-
-      try {
-        setSubmitting(
-          true
-        );
-
-        const formData =
-          new FormData();
-
-        /* CUSTOMER DETAILS */
-
-        formData.append(
-          "full_name",
-          form.full_name.trim()
-        );
-
-        formData.append(
-          "email",
-          form.email.trim()
-        );
-
-        formData.append(
-          "phone",
-          form.phone.trim()
-        );
-
-        /* PRODUCT DETAILS */
-
-        formData.append(
-          "product_category",
-          form.product_category
-        );
-
-        formData.append(
-          "product_name",
-          form.product_name.trim()
-        );
-
-        formData.append(
-          "invoice_order_number",
-          form.invoice_order_number.trim()
-        );
-
-        formData.append(
-          "purchase_date",
-          form.purchase_date
-        );
-
-        /* PROJECT DETAILS */
-
-        formData.append(
-          "project_type",
-          form.project_type
-        );
-
-        formData.append(
-          "installation_type",
-          form.installation_type
-        );
-
-        if (
-          form.installation_type ===
-          "Other"
-        ) {
-          formData.append(
-            "installation_type_other",
-            form.installation_type_other.trim()
-          );
-        }
-
-        /* INSTALLATION DETAILS */
-
-        formData.append(
-          "is_installed",
-          form.is_installed
-        );
-
-        if (
-          form.is_installed ===
-          "true"
-        ) {
-          formData.append(
-            "installation_date",
-            form.installation_date
-          );
-
-          formData.append(
-            "installation_address",
-            form.installation_address.trim()
-          );
-
-          formData.append(
-            "fabricator_installer_name",
-            form.fabricator_installer_name.trim()
-          );
-
-          formData.append(
-            "fabricator_installer_contact",
-            form.fabricator_installer_contact.trim()
-          );
-
-          installationPhotos.forEach(
-            (file) => {
-              formData.append(
-                "installation_photos",
-                file
-              );
-            }
-          );
-        } else {
-          formData.append(
-            "tentative_installation_date",
-            form.tentative_installation_date
-          );
-        }
-
-        /* PURCHASE INVOICE */
-
-        formData.append(
-          "purchase_invoice",
-          invoiceFile
-        );
-
-        /* DECLARATION */
-
-        formData.append(
-          "declaration_accepted",
-          String(
-            form.declaration_accepted
-          )
-        );
-
-        /* API REQUEST */
-
-        const response =
-          await axios.post(
-            REGISTRATION_API,
-            formData,
-            {
-              timeout:
-                120000,
-            }
-          );
-
-        if (
-          !response.data?.success
-        ) {
-          throw new Error(
-            response.data?.message ||
-              "Registration failed."
-          );
-        }
-
-        /* SUCCESS */
-
-        setSuccessData(
-          response.data.data
-        );
-
-        setForm({
-          ...INITIAL_FORM,
-        });
 
         setInvoiceFile(
-          null
-        );
-
-        setInstallationPhotos(
-          []
+            file
         );
 
         setErrors(
-          {}
+            (previous) => ({
+                ...previous,
+
+                purchase_invoice:
+                    "",
+            })
         );
-
-        if (
-          invoiceInputRef.current
-        ) {
-          invoiceInputRef.current.value =
-            "";
-        }
-
-        if (
-          photosInputRef.current
-        ) {
-          photosInputRef.current.value =
-            "";
-        }
-
-        window.scrollTo({
-          top: 0,
-
-          behavior:
-            "smooth",
-        });
-      } catch (error) {
-        console.error(
-          "Product registration error:",
-          error
-        );
-
-        setSubmitError(
-          getErrorMessage(
-            error
-          )
-        );
-
-        window.scrollTo({
-          top: 0,
-
-          behavior:
-            "smooth",
-        });
-      } finally {
-        setSubmitting(
-          false
-        );
-      }
     };
 
-  /* =======================================================
-     RESET FORM
-  ======================================================= */
+    /* =======================================================
+       INSTALLATION PHOTO UPLOAD
+    ======================================================= */
 
-  const handleNewRegistration =
-    () => {
-      setSuccessData(
-        null
-      );
+    const handlePhotosChange = (
+        event
+    ) => {
+        const selectedFiles =
+            Array.from(
+                event.target.files ||
+                []
+            );
 
-      setForm({
-        ...INITIAL_FORM,
-      });
+        if (
+            selectedFiles.length ===
+            0
+        ) {
+            return;
+        }
 
-      setInvoiceFile(
-        null
-      );
+        const allowedExtensions = [
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp",
+        ];
 
-      setInstallationPhotos(
-        []
-      );
+        const invalidFile =
+            selectedFiles.find(
+                (file) => {
+                    const extension =
+                        file.name
+                            .substring(
+                                file.name.lastIndexOf(
+                                    "."
+                                )
+                            )
+                            .toLowerCase();
 
-      setErrors(
-        {}
-      );
+                    return !allowedExtensions.includes(
+                        extension
+                    );
+                }
+            );
 
-      setSubmitError(
-        ""
-      );
+        if (invalidFile) {
+            setErrors(
+                (previous) => ({
+                    ...previous,
 
-      if (
-        invoiceInputRef.current
-      ) {
-        invoiceInputRef.current.value =
-          "";
-      }
+                    installation_photos:
+                        "Only JPG, PNG and WebP images are allowed.",
+                })
+            );
 
-      if (
-        photosInputRef.current
-      ) {
-        photosInputRef.current.value =
-          "";
-      }
+            event.target.value =
+                "";
 
-      window.scrollTo({
-        top: 0,
+            return;
+        }
 
-        behavior:
-          "smooth",
-      });
+        const oversizedFile =
+            selectedFiles.find(
+                (file) =>
+                    file.size >
+                    MAX_PHOTO_SIZE
+            );
+
+        if (
+            oversizedFile
+        ) {
+            setErrors(
+                (previous) => ({
+                    ...previous,
+
+                    installation_photos:
+                        "Each image must be smaller than 10 MB.",
+                })
+            );
+
+            event.target.value =
+                "";
+
+            return;
+        }
+
+        const combinedFiles = [
+            ...installationPhotos,
+            ...selectedFiles,
+        ];
+
+        if (
+            combinedFiles.length >
+            MAX_PHOTOS
+        ) {
+            setErrors(
+                (previous) => ({
+                    ...previous,
+
+                    installation_photos:
+                        `Maximum ${MAX_PHOTOS} installation photos are allowed.`,
+                })
+            );
+
+            event.target.value =
+                "";
+
+            return;
+        }
+
+        setInstallationPhotos(
+            combinedFiles
+        );
+
+        setErrors(
+            (previous) => ({
+                ...previous,
+
+                installation_photos:
+                    "",
+            })
+        );
+
+        event.target.value =
+            "";
     };
+
+    /* =======================================================
+       REMOVE INSTALLATION PHOTO
+    ======================================================= */
+
+    const removePhoto = (
+        index
+    ) => {
+        setInstallationPhotos(
+            (previous) =>
+                previous.filter(
+                    (_, photoIndex) =>
+                        photoIndex !==
+                        index
+                )
+        );
+    };
+
+    /* =======================================================
+       VALIDATION
+    ======================================================= */
+
+    const validateForm =
+        () => {
+            const newErrors =
+                {};
+
+            /* CUSTOMER INFORMATION */
+
+            if (
+                !form.full_name.trim()
+            ) {
+                newErrors.full_name =
+                    "Full name is required.";
+            }
+
+            if (
+                !form.email.trim()
+            ) {
+                newErrors.email =
+                    "Email address is required.";
+            } else if (
+                !isValidEmail(
+                    form.email.trim()
+                )
+            ) {
+                newErrors.email =
+                    "Enter a valid email address.";
+            }
+
+            if (
+                !form.phone.trim()
+            ) {
+                newErrors.phone =
+                    "Phone number is required.";
+            }
+
+            /* PRODUCT CATEGORY */
+
+            if (
+                !form.product_category
+            ) {
+                newErrors.product_category =
+                    "Please select a product category.";
+            } else if (
+                !selectedCategory
+            ) {
+                newErrors.product_category =
+                    "Please select a valid product category.";
+            }
+
+            /* PRODUCT NAME */
+
+            if (
+                !form.product_name
+            ) {
+                newErrors.product_name =
+                    "Please select a product.";
+            } else if (
+                !products.some(
+                    (product) =>
+                        product.name ===
+                        form.product_name
+                )
+            ) {
+                newErrors.product_name =
+                    "Please select a valid product.";
+            }
+
+            if (
+                !form.invoice_order_number.trim()
+            ) {
+                newErrors.invoice_order_number =
+                    "Invoice or order number is required.";
+            }
+
+            if (
+                !form.purchase_date
+            ) {
+                newErrors.purchase_date =
+                    "Purchase date is required.";
+            } else if (
+                form.purchase_date >
+                today
+            ) {
+                newErrors.purchase_date =
+                    "Purchase date cannot be in the future.";
+            }
+
+            /* PROJECT INFORMATION */
+
+            if (
+                !form.project_type
+            ) {
+                newErrors.project_type =
+                    "Please select a project type.";
+            }
+
+            if (
+                !form.installation_type
+            ) {
+                newErrors.installation_type =
+                    "Please select an installation type.";
+            }
+
+            if (
+                form.installation_type ===
+                "Other" &&
+                !form.installation_type_other.trim()
+            ) {
+                newErrors.installation_type_other =
+                    "Please specify the installation type.";
+            }
+
+            /* INSTALLATION INFORMATION */
+
+            if (
+                !form.is_installed
+            ) {
+                newErrors.is_installed =
+                    "Please select whether the product has been installed.";
+            }
+
+            if (
+                form.is_installed ===
+                "true"
+            ) {
+                if (
+                    !form.installation_date
+                ) {
+                    newErrors.installation_date =
+                        "Installation date is required.";
+                } else if (
+                    form.installation_date >
+                    today
+                ) {
+                    newErrors.installation_date =
+                        "Installation date cannot be in the future.";
+                } else if (
+                    form.purchase_date &&
+                    form.installation_date <
+                    form.purchase_date
+                ) {
+                    newErrors.installation_date =
+                        "Installation date cannot be earlier than the purchase date.";
+                }
+
+                if (
+                    !form.installation_address.trim()
+                ) {
+                    newErrors.installation_address =
+                        "Installation address is required.";
+                }
+
+                if (
+                    !form.fabricator_installer_name.trim()
+                ) {
+                    newErrors.fabricator_installer_name =
+                        "Fabricator / Installer Name is required.";
+                }
+
+                if (
+                    installationPhotos.length ===
+                    0
+                ) {
+                    newErrors.installation_photos =
+                        "Upload at least one installation photo.";
+                }
+            }
+
+            if (
+                form.is_installed ===
+                "false"
+            ) {
+                if (
+                    !form.tentative_installation_date
+                ) {
+                    newErrors.tentative_installation_date =
+                        "Tentative installation date is required.";
+                } else if (
+                    form.tentative_installation_date <
+                    today
+                ) {
+                    newErrors.tentative_installation_date =
+                        "Tentative installation date cannot be in the past.";
+                }
+            }
+
+            /* PURCHASE DOCUMENT */
+
+            if (
+                !invoiceFile
+            ) {
+                newErrors.purchase_invoice =
+                    "Please upload your purchase invoice.";
+            }
+
+            /* DECLARATION */
+
+            if (
+                !form.declaration_accepted
+            ) {
+                newErrors.declaration_accepted =
+                    "You must accept the declaration.";
+            }
+
+            setErrors(
+                newErrors
+            );
+
+            return (
+                Object.keys(
+                    newErrors
+                ).length === 0
+            );
+        };
+
+    /* =======================================================
+       SUBMIT FORM
+    ======================================================= */
+
+    const handleSubmit =
+        async (event) => {
+            event.preventDefault();
+
+            if (
+                submitting
+            ) {
+                return;
+            }
+
+            setSubmitError(
+                ""
+            );
+
+            if (
+                !validateForm()
+            ) {
+                window.scrollTo({
+                    top: 0,
+
+                    behavior:
+                        "smooth",
+                });
+
+                return;
+            }
+
+            try {
+                setSubmitting(
+                    true
+                );
+
+                const formData =
+                    new FormData();
+
+                /* CUSTOMER DETAILS */
+
+                formData.append(
+                    "full_name",
+                    form.full_name.trim()
+                );
+
+                formData.append(
+                    "email",
+                    form.email.trim()
+                );
+
+                formData.append(
+                    "phone",
+                    form.phone.trim()
+                );
+
+                /* PRODUCT DETAILS */
+
+                formData.append(
+                    "product_category",
+                    form.product_category
+                );
+
+                formData.append(
+                    "product_name",
+                    form.product_name.trim()
+                );
+
+                formData.append(
+                    "invoice_order_number",
+                    form.invoice_order_number.trim()
+                );
+
+                formData.append(
+                    "purchase_date",
+                    form.purchase_date
+                );
+
+                /* PROJECT DETAILS */
+
+                formData.append(
+                    "project_type",
+                    form.project_type
+                );
+
+                formData.append(
+                    "installation_type",
+                    form.installation_type
+                );
+
+                if (
+                    form.installation_type ===
+                    "Other"
+                ) {
+                    formData.append(
+                        "installation_type_other",
+                        form.installation_type_other.trim()
+                    );
+                }
+
+                /* INSTALLATION DETAILS */
+
+                formData.append(
+                    "is_installed",
+                    form.is_installed
+                );
+
+                if (
+                    form.is_installed ===
+                    "true"
+                ) {
+                    formData.append(
+                        "installation_date",
+                        form.installation_date
+                    );
+
+                    formData.append(
+                        "installation_address",
+                        form.installation_address.trim()
+                    );
+
+                    formData.append(
+                        "fabricator_installer_name",
+                        form.fabricator_installer_name.trim()
+                    );
+
+                    formData.append(
+                        "fabricator_installer_contact",
+                        form.fabricator_installer_contact.trim()
+                    );
+
+                    installationPhotos.forEach(
+                        (file) => {
+                            formData.append(
+                                "installation_photos",
+                                file
+                            );
+                        }
+                    );
+                } else {
+                    formData.append(
+                        "tentative_installation_date",
+                        form.tentative_installation_date
+                    );
+                }
+
+                /* PURCHASE INVOICE */
+
+                formData.append(
+                    "purchase_invoice",
+                    invoiceFile
+                );
+
+                /* DECLARATION */
+
+                formData.append(
+                    "declaration_accepted",
+                    String(
+                        form.declaration_accepted
+                    )
+                );
+
+                /* API REQUEST */
+
+                const response =
+                    await axios.post(
+                        REGISTRATION_API,
+                        formData,
+                        {
+                            timeout:
+                                120000,
+                        }
+                    );
+
+                if (
+                    !response.data?.success
+                ) {
+                    throw new Error(
+                        response.data?.message ||
+                        "Registration failed."
+                    );
+                }
+
+                /* SUCCESS */
+
+                setSuccessData(
+                    response.data.data
+                );
+
+                setForm({
+                    ...INITIAL_FORM,
+                });
+
+                setInvoiceFile(
+                    null
+                );
+
+                setInstallationPhotos(
+                    []
+                );
+
+                setErrors(
+                    {}
+                );
+
+                if (
+                    invoiceInputRef.current
+                ) {
+                    invoiceInputRef.current.value =
+                        "";
+                }
+
+                if (
+                    photosInputRef.current
+                ) {
+                    photosInputRef.current.value =
+                        "";
+                }
+
+                window.scrollTo({
+                    top: 0,
+
+                    behavior:
+                        "smooth",
+                });
+            } catch (error) {
+                console.error(
+                    "Product registration error:",
+                    error
+                );
+
+                setSubmitError(
+                    getErrorMessage(
+                        error
+                    )
+                );
+
+                window.scrollTo({
+                    top: 0,
+
+                    behavior:
+                        "smooth",
+                });
+            } finally {
+                setSubmitting(
+                    false
+                );
+            }
+        };
+
+    /* =======================================================
+       RESET FORM
+    ======================================================= */
+
+    const handleNewRegistration =
+        () => {
+            setSuccessData(
+                null
+            );
+
+            setForm({
+                ...INITIAL_FORM,
+            });
+
+            setInvoiceFile(
+                null
+            );
+
+            setInstallationPhotos(
+                []
+            );
+
+            setErrors(
+                {}
+            );
+
+            setSubmitError(
+                ""
+            );
+
+            if (
+                invoiceInputRef.current
+            ) {
+                invoiceInputRef.current.value =
+                    "";
+            }
+
+            if (
+                photosInputRef.current
+            ) {
+                photosInputRef.current.value =
+                    "";
+            }
+
+            window.scrollTo({
+                top: 0,
+
+                behavior:
+                    "smooth",
+            });
+        };
 
     /* =========================================================
    AUTO REDIRECT AFTER SUCCESSFUL REGISTRATION
 ========================================================= */
 
-useEffect(() => {
-  if (!successData) return;
+    useEffect(() => {
+        if (!successData) return;
 
-  setRedirectCountdown(5);
+        setRedirectCountdown(5);
 
-  const redirectTimer = setTimeout(() => {
-    navigate("/", { replace: true });
-  }, 5000);
+        const redirectTimer = setTimeout(() => {
+            navigate("/", { replace: true });
+        }, 5000);
 
-  const countdownTimer = setInterval(() => {
-    setRedirectCountdown((previous) =>
-      Math.max(previous - 1, 0)
-    );
-  }, 1000);
+        const countdownTimer = setInterval(() => {
+            setRedirectCountdown((previous) =>
+                Math.max(previous - 1, 0)
+            );
+        }, 1000);
 
-  return () => {
-    clearTimeout(redirectTimer);
-    clearInterval(countdownTimer);
-  };
-}, [successData, navigate]);
+        return () => {
+            clearTimeout(redirectTimer);
+            clearInterval(countdownTimer);
+        };
+    }, [successData, navigate]);
 
-  /* =======================================================
-     SHARED INPUT CLASSES
-  ======================================================= */
+    /* =======================================================
+       SHARED INPUT CLASSES
+    ======================================================= */
 
-  const inputClass = `
+    const inputClass = `
     w-full
     h-[52px]
     px-4
@@ -1576,7 +1585,7 @@ useEffect(() => {
     disabled:cursor-not-allowed
   `;
 
-  const textareaClass = `
+    const textareaClass = `
     w-full
     min-h-[125px]
     p-4
@@ -1593,128 +1602,123 @@ useEffect(() => {
     placeholder:text-[#aaa]
   `;
 
-  /* =======================================================
-     RENDER
-  ======================================================= */
+    /* =======================================================
+       RENDER
+    ======================================================= */
 
-  return (
-    <div
-      className="
+    return (
+        <div
+            className="
         min-h-screen
         pt-[110px]
         pb-20
         bg-white
       "
-      style={{
-        fontFamily:
-          "Montserrat, sans-serif",
-      }}
-    >
-      {/* ===================================================
+            style={{
+                fontFamily:
+                    "Montserrat, sans-serif",
+            }}
+        >
+            {/* ===================================================
           PAGE HEADING
       =================================================== */}
 
-      <section
-        ref={formTopRef}
-      >
-        <div
-          className="
+            <section
+                ref={formTopRef}
+            >
+                <div
+                    className="
             max-w-[1650px]
             mx-auto
             px-6
             xl:px-10
           "
-        >
-          <h1
-            className="
+                >
+                    <h1
+                        className="
               text-[34px]
               md:text-[42px]
               font-semibold
               text-[#161412]
               leading-tight
             "
-          >
-            Product Registration
-          </h1>
+                    >
+                        Product Registration
+                    </h1>
 
-          <div
-            className="
+                    <div
+                        className="
               w-[70px]
               h-[4px]
               bg-[#c91f26]
               mt-4
               mb-4
             "
-          />
+                    />
 
-          {/* BREADCRUMB */}
+                    {/* BREADCRUMB */}
 
-          <p
-            className="
+                    <p
+                        className="
               text-[13px]
               text-[#777]
             "
-          >
-            <Link
-              to="/"
-              className="
+                    >
+                        <Link
+                            to="/"
+                            className="
                 hover:text-[#161412]
                 transition-colors
               "
-            >
-              Home
-            </Link>
+                        >
+                            Home
+                        </Link>
 
-            {" / "}
+                        {" / "}
 
-            <span
-              className="
+                        <span
+                            className="
                 text-[#161412]
               "
-            >
-              <b>
-                Product Registration
-              </b>
-            </span>
-          </p>
+                        >
+                            <b>
+                                Product Registration
+                            </b>
+                        </span>
+                    </p>
 
-          {/* DESCRIPTION */}
+                    {/* DESCRIPTION */}
 
-          <p
-            className="
+                    <p
+                        className="
               text-[14px]
               text-[#777]
               mt-7
               max-w-[900px]
               leading-[1.9]
             "
-          >
-            Register your Ultra Stones product
-            by providing your purchase and
-            installation details. Please complete
-            the form below and upload the
-            required documents to submit your
-            registration.
-          </p>
-        </div>
-      </section>
+                    >
+                        Please complete this form to register your Ultra Stones product for warranty purposes. Registration is subject to the applicable product warranty terms and conditions. Submission does not guarantee warranty coverage.
+                    </p>
+                </div>
+            </section>
 
-      {/* ===================================================
+            {/* ===================================================
           SUCCESS STATE
       =================================================== */}
 
-      {successData ? (
-        <section
-          className="
+            {successData ? (
+                <section
+                    className="
             max-w-[1100px]
             mx-auto
             px-6
             xl:px-10
             pt-14
           "
-        >
-          <div
-            className="
+                >
+                    <div
+                        className="
               border
               border-[#e5e5e5]
               bg-white
@@ -1722,9 +1726,9 @@ useEffect(() => {
               md:p-14
               text-center
             "
-          >
-            <div
-              className="
+                    >
+                        <div
+                            className="
                 w-[85px]
                 h-[85px]
                 mx-auto
@@ -1734,29 +1738,29 @@ useEffect(() => {
                 justify-center
                 mb-7
               "
-            >
-              <CheckCircle2
-                size={42}
-                strokeWidth={1.5}
-                className="
+                        >
+                            <CheckCircle2
+                                size={42}
+                                strokeWidth={1.5}
+                                className="
                   text-green-600
                 "
-              />
-            </div>
+                            />
+                        </div>
 
-            <h2
-              className="
+                        <h2
+                            className="
                 text-[26px]
                 md:text-[32px]
                 font-semibold
                 text-[#161412]
               "
-            >
-              Registration Submitted Successfully
-            </h2>
+                        >
+                            Registration Submitted Successfully
+                        </h2>
 
-            <p
-              className="
+                        <p
+                            className="
                 text-[14px]
                 text-[#777]
                 leading-[1.9]
@@ -1764,18 +1768,18 @@ useEffect(() => {
                 max-w-[650px]
                 mx-auto
               "
-            >
-              Thank you for registering your product
-              with Ultra Stones. Your registration
-              has been received successfully.
-              A confirmation email will be sent
-              to your registered email address.
-            </p>
+                        >
+                            Thank you for registering your product
+                            with Ultra Stones. Your registration
+                            has been received successfully.
+                            A confirmation email will be sent
+                            to your registered email address.
+                        </p>
 
-            {/* REGISTRATION NUMBER */}
+                        {/* REGISTRATION NUMBER */}
 
-            <div
-              className="
+                        <div
+                            className="
                 bg-[#f8f8f8]
                 border
                 border-[#e9e9e9]
@@ -1784,21 +1788,21 @@ useEffect(() => {
                 mt-10
                 p-7
               "
-            >
-              <p
-                className="
+                        >
+                            <p
+                                className="
                   text-[11px]
                   text-[#888]
                   uppercase
                   tracking-[2px]
                   font-semibold
                 "
-              >
-                Your Registration Number
-              </p>
+                            >
+                                Your Registration Number
+                            </p>
 
-              <p
-                className="
+                            <p
+                                className="
                   text-[26px]
                   md:text-[30px]
                   font-semibold
@@ -1806,26 +1810,26 @@ useEffect(() => {
                   mt-3
                   break-all
                 "
-              >
-                {
-                  successData.registration_number
-                }
-              </p>
-            </div>
+                            >
+                                {
+                                    successData.registration_number
+                                }
+                            </p>
+                        </div>
 
-            <div className="mt-7 text-center">
-  <p className="text-[12px] text-[#888]">
-    Please save your registration number
-    for future reference.
-  </p>
+                        <div className="mt-7 text-center">
+                            <p className="text-[12px] text-[#888]">
+                                Please save your registration number
+                                for future reference.
+                            </p>
 
-  <p className="text-[13px] text-[#c91f26] font-semibold mt-4">
-    Redirecting to homepage in {redirectCountdown} seconds...
-  </p>
-</div>
+                            <p className="text-[13px] text-[#c91f26] font-semibold mt-4">
+                                Redirecting to homepage in {redirectCountdown} seconds...
+                            </p>
+                        </div>
 
-            <div
-              className="
+                        <div
+                            className="
                 flex
                 flex-col
                 sm:flex-row
@@ -1833,13 +1837,13 @@ useEffect(() => {
                 gap-4
                 mt-10
               "
-            >
-              <button
-                type="button"
-                onClick={
-                  handleNewRegistration
-                }
-                className="
+                        >
+                            <button
+                                type="button"
+                                onClick={
+                                    handleNewRegistration
+                                }
+                                className="
                   bg-[#161412]
                   text-white
                   px-8
@@ -1852,13 +1856,13 @@ useEffect(() => {
                   transition-colors
                   cursor-pointer
                 "
-              >
-                Register Another Product
-              </button>
+                            >
+                                Register Another Product
+                            </button>
 
-              <Link
-                to="/"
-                className="
+                            <Link
+                                to="/"
+                                className="
                   border
                   border-[#dedede]
                   text-[#161412]
@@ -1871,32 +1875,32 @@ useEffect(() => {
                   hover:border-[#161412]
                   transition-colors
                 "
-              >
-                Back to Home
-              </Link>
-            </div>
-          </div>
-        </section>
-      ) : (
-        /* =================================================
-           REGISTRATION FORM
-        ================================================= */
+                            >
+                                Back to Home
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+            ) : (
+                /* =================================================
+                   REGISTRATION FORM
+                ================================================= */
 
-        <section
-          className="
+                <section
+                    className="
             max-w-[1650px]
             mx-auto
             px-6
             xl:px-10
             pt-12
           "
-        >
-          {/* ===============================================
+                >
+                    {/* ===============================================
               FORM INTRODUCTION
           =============================================== */}
 
-          <div
-            className="
+                    <div
+                        className="
               flex
               flex-col
               sm:flex-row
@@ -1909,74 +1913,74 @@ useEffect(() => {
               p-6
               mb-10
             "
-          >
-            <div
-              className="
+                    >
+                        <div
+                            className="
                 flex
                 items-start
                 gap-4
               "
-            >
-              <ShieldCheck
-                size={27}
-                strokeWidth={1.5}
-                className="
+                        >
+                            <ShieldCheck
+                                size={27}
+                                strokeWidth={1.5}
+                                className="
                   text-[#c91f26]
                   shrink-0
                 "
-              />
+                            />
 
-              <div>
-                <h3
-                  className="
+                            <div>
+                                <h3
+                                    className="
                     text-[14px]
                     font-semibold
                     text-[#161412]
                   "
-                >
-                  Product Registration Form
-                </h3>
+                                >
+                                    Product Registration Form
+                                </h3>
 
-                <p
-                  className="
+                                <p
+                                    className="
                     text-[12px]
                     text-[#888]
                     mt-2
                     leading-relaxed
                   "
-                >
-                  Please ensure that all information
-                  provided is accurate before submission.
-                </p>
-              </div>
-            </div>
+                                >
+                                    Please ensure that all information
+                                    provided is accurate before submission.
+                                </p>
+                            </div>
+                        </div>
 
-            <p
-              className="
+                        <p
+                            className="
                 text-[11px]
                 text-[#888]
                 whitespace-nowrap
               "
-            >
-              <span
-                className="
+                        >
+                            <span
+                                className="
                   text-[#c91f26]
                 "
-              >
-                *
-              </span>{" "}
-              Required Fields
-            </p>
-          </div>
+                            >
+                                *
+                            </span>{" "}
+                            Required Fields
+                        </p>
+                    </div>
 
-          {/* ===============================================
+                    {/* ===============================================
               SUBMISSION ERROR
           =============================================== */}
 
-          {submitError && (
-            <div
-              role="alert"
-              className="
+                    {submitError && (
+                        <div
+                            role="alert"
+                            className="
                 border
                 border-red-200
                 bg-red-50
@@ -1986,260 +1990,260 @@ useEffect(() => {
                 leading-relaxed
                 mb-8
               "
-            >
-              {submitError}
-            </div>
-          )}
+                        >
+                            {submitError}
+                        </div>
+                    )}
 
-          <form
-            onSubmit={
-              handleSubmit
-            }
-            noValidate
-            className="
+                    <form
+                        onSubmit={
+                            handleSubmit
+                        }
+                        noValidate
+                        className="
               space-y-10
             "
-          >
-            {/* =============================================
+                    >
+                        {/* =============================================
                 SECTION 01 - CUSTOMER INFORMATION
             ============================================= */}
 
-            <div
-              className="
+                        <div
+                            className="
                 border
                 border-[#e8e8e8]
                 bg-white
                 p-6
                 md:p-10
               "
-            >
-              <SectionHeading
-                number="01"
-                title="Customer Information"
-                description="Enter your contact details."
-              />
+                        >
+                            <SectionHeading
+                                number="01"
+                                title="Customer Information"
+                                description="Enter your contact details."
+                            />
 
-              <div
-                className="
+                            <div
+                                className="
                   grid
                   grid-cols-1
                   md:grid-cols-2
                   gap-x-7
                   gap-y-7
                 "
-              >
-                {/* FULL NAME */}
+                            >
+                                {/* FULL NAME */}
 
-                <div
-                  className="
+                                <div
+                                    className="
                     md:col-span-2
                   "
-                >
-                  <FieldLabel required>
-                    Full Name
-                  </FieldLabel>
+                                >
+                                    <FieldLabel required>
+                                        Full Name
+                                    </FieldLabel>
 
-                  <input
-                    type="text"
-                    name="full_name"
-                    value={
-                      form.full_name
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Enter your full name"
-                    autoComplete="name"
-                    maxLength={255}
-                    className={
-                      inputClass
-                    }
-                    aria-invalid={
-                      Boolean(
-                        errors.full_name
-                      )
-                    }
-                  />
+                                    <input
+                                        type="text"
+                                        name="full_name"
+                                        value={
+                                            form.full_name
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
+                                        placeholder="Enter your full name"
+                                        autoComplete="name"
+                                        maxLength={255}
+                                        className={
+                                            inputClass
+                                        }
+                                        aria-invalid={
+                                            Boolean(
+                                                errors.full_name
+                                            )
+                                        }
+                                    />
 
-                  <FieldError
-                    message={
-                      errors.full_name
-                    }
-                  />
-                </div>
+                                    <FieldError
+                                        message={
+                                            errors.full_name
+                                        }
+                                    />
+                                </div>
 
-                {/* EMAIL */}
+                                {/* EMAIL */}
 
-                <div>
-                  <FieldLabel required>
-                    Email Address
-                  </FieldLabel>
+                                <div>
+                                    <FieldLabel required>
+                                        Email Address
+                                    </FieldLabel>
 
-                  <input
-                    type="email"
-                    name="email"
-                    value={
-                      form.email
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Enter your email address"
-                    autoComplete="email"
-                    maxLength={255}
-                    className={
-                      inputClass
-                    }
-                    aria-invalid={
-                      Boolean(
-                        errors.email
-                      )
-                    }
-                  />
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={
+                                            form.email
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
+                                        placeholder="Enter your email address"
+                                        autoComplete="email"
+                                        maxLength={255}
+                                        className={
+                                            inputClass
+                                        }
+                                        aria-invalid={
+                                            Boolean(
+                                                errors.email
+                                            )
+                                        }
+                                    />
 
-                  <FieldError
-                    message={
-                      errors.email
-                    }
-                  />
-                </div>
+                                    <FieldError
+                                        message={
+                                            errors.email
+                                        }
+                                    />
+                                </div>
 
-                {/* PHONE */}
+                                {/* PHONE */}
 
-                <div>
-                  <FieldLabel required>
-                    Phone Number
-                  </FieldLabel>
+                                <div>
+                                    <FieldLabel required>
+                                        Phone Number
+                                    </FieldLabel>
 
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={
-                      form.phone
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Enter your phone number"
-                    autoComplete="tel"
-                    maxLength={30}
-                    className={
-                      inputClass
-                    }
-                    aria-invalid={
-                      Boolean(
-                        errors.phone
-                      )
-                    }
-                  />
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        value={
+                                            form.phone
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
+                                        placeholder="Enter your phone number"
+                                        autoComplete="tel"
+                                        maxLength={30}
+                                        className={
+                                            inputClass
+                                        }
+                                        aria-invalid={
+                                            Boolean(
+                                                errors.phone
+                                            )
+                                        }
+                                    />
 
-                  <FieldError
-                    message={
-                      errors.phone
-                    }
-                  />
-                </div>
-              </div>
-            </div>
+                                    <FieldError
+                                        message={
+                                            errors.phone
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        </div>
 
-            {/* =============================================
+                        {/* =============================================
                 SECTION 02 - PRODUCT INFORMATION
             ============================================= */}
 
-            <div
-              className="
+                        <div
+                            className="
                 border
                 border-[#e8e8e8]
                 bg-white
                 p-6
                 md:p-10
               "
-            >
-              <SectionHeading
-                number="02"
-                title="Product Information"
-                description="Provide the details of your purchased product."
-              />
+                        >
+                            <SectionHeading
+                                number="02"
+                                title="Product Information"
+                                description="Provide the details of your purchased product."
+                            />
 
-              <div
-                className="
+                            <div
+                                className="
                   grid
                   grid-cols-1
                   md:grid-cols-2
                   gap-x-7
                   gap-y-7
                 "
-              >
-                {/* PRODUCT CATEGORY */}
+                            >
+                                {/* PRODUCT CATEGORY */}
 
-                <div>
-                  <FieldLabel required>
-                    Product Category
-                  </FieldLabel>
+                                <div>
+                                    <FieldLabel required>
+                                        Product Category
+                                    </FieldLabel>
 
-                  <div
-                    className="
+                                    <div
+                                        className="
                       relative
                     "
-                  >
-                    <select
-                      name="product_category"
-                      value={
-                        form.product_category
-                      }
-                      onChange={
-                        handleChange
-                      }
-                      disabled={
-                        categoriesLoading ||
-                        submitting ||
-                        Boolean(
-                          categoriesError
-                        )
-                      }
-                      className={`
+                                    >
+                                        <select
+                                            name="product_category"
+                                            value={
+                                                form.product_category
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
+                                            disabled={
+                                                categoriesLoading ||
+                                                submitting ||
+                                                Boolean(
+                                                    categoriesError
+                                                )
+                                            }
+                                            className={`
                         ${inputClass}
                         appearance-none
                         pr-12
                         cursor-pointer
                         disabled:cursor-not-allowed
                       `}
-                      aria-invalid={
-                        Boolean(
-                          errors.product_category
-                        )
-                      }
-                    >
-                      <option value="">
-                        {categoriesLoading
-                          ? "Loading Categories..."
-                          : categoriesError
-                          ? "Unable to Load Categories"
-                          : "Select Product Category"}
-                      </option>
+                                            aria-invalid={
+                                                Boolean(
+                                                    errors.product_category
+                                                )
+                                            }
+                                        >
+                                            <option value="">
+                                                {categoriesLoading
+                                                    ? "Loading Categories..."
+                                                    : categoriesError
+                                                        ? "Unable to Load Categories"
+                                                        : "Select Product Category"}
+                                            </option>
 
-                      {categories.map(
-                        (category) => (
-                          <option
-                            key={
-                              category.id
-                            }
-                            value={
-                              category.name
-                            }
-                          >
-                            {
-                              category.name
-                            }
-                          </option>
-                        )
-                      )}
-                    </select>
+                                            {categories.map(
+                                                (category) => (
+                                                    <option
+                                                        key={
+                                                            category.id
+                                                        }
+                                                        value={
+                                                            category.name
+                                                        }
+                                                    >
+                                                        {
+                                                            category.name
+                                                        }
+                                                    </option>
+                                                )
+                                            )}
+                                        </select>
 
-                    {categoriesLoading ? (
-                      <Loader2
-                        size={17}
-                        className="
+                                        {categoriesLoading ? (
+                                            <Loader2
+                                                size={17}
+                                                className="
                           absolute
                           right-4
                           top-1/2
@@ -2248,11 +2252,11 @@ useEffect(() => {
                           text-[#777]
                           pointer-events-none
                         "
-                      />
-                    ) : (
-                      <ChevronDown
-                        size={17}
-                        className="
+                                            />
+                                        ) : (
+                                            <ChevronDown
+                                                size={17}
+                                                className="
                           absolute
                           right-4
                           top-1/2
@@ -2260,95 +2264,95 @@ useEffect(() => {
                           pointer-events-none
                           text-[#777]
                         "
-                      />
-                    )}
-                  </div>
+                                            />
+                                        )}
+                                    </div>
 
-                  <FieldError
-                    message={
-                      errors.product_category ||
-                      categoriesError
-                    }
-                  />
-                </div>
+                                    <FieldError
+                                        message={
+                                            errors.product_category ||
+                                            categoriesError
+                                        }
+                                    />
+                                </div>
 
-                {/* PRODUCT NAME */}
+                                {/* PRODUCT NAME */}
 
-                <div>
-                  <FieldLabel required>
-                    Product Name
-                  </FieldLabel>
+                                <div>
+                                    <FieldLabel required>
+                                        Product Name
+                                    </FieldLabel>
 
-                  <div
-                    className="
+                                    <div
+                                        className="
                       relative
                     "
-                  >
-                    <select
-                      name="product_name"
-                      value={
-                        form.product_name
-                      }
-                      onChange={
-                        handleChange
-                      }
-                      disabled={
-                        !form.product_category ||
-                        productsLoading ||
-                        submitting ||
-                        Boolean(
-                          productsError
-                        ) ||
-                        products.length ===
-                          0
-                      }
-                      className={`
+                                    >
+                                        <select
+                                            name="product_name"
+                                            value={
+                                                form.product_name
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
+                                            disabled={
+                                                !form.product_category ||
+                                                productsLoading ||
+                                                submitting ||
+                                                Boolean(
+                                                    productsError
+                                                ) ||
+                                                products.length ===
+                                                0
+                                            }
+                                            className={`
                         ${inputClass}
                         appearance-none
                         pr-12
                         cursor-pointer
                         disabled:cursor-not-allowed
                       `}
-                      aria-invalid={
-                        Boolean(
-                          errors.product_name
-                        )
-                      }
-                    >
-                      <option value="">
-                        {!form.product_category
-                          ? "Select Product Category First"
-                          : productsLoading
-                          ? "Loading Products..."
-                          : productsError
-                          ? "Unable to Load Products"
-                          : products.length === 0
-                          ? "No Products Available"
-                          : "Select Product Name"}
-                      </option>
+                                            aria-invalid={
+                                                Boolean(
+                                                    errors.product_name
+                                                )
+                                            }
+                                        >
+                                            <option value="">
+                                                {!form.product_category
+                                                    ? "Select Product Category First"
+                                                    : productsLoading
+                                                        ? "Loading Products..."
+                                                        : productsError
+                                                            ? "Unable to Load Products"
+                                                            : products.length === 0
+                                                                ? "No Products Available"
+                                                                : "Select Product Name"}
+                                            </option>
 
-                      {products.map(
-                        (product) => (
-                          <option
-                            key={
-                              product.id
-                            }
-                            value={
-                              product.name
-                            }
-                          >
-                            {
-                              product.name
-                            }
-                          </option>
-                        )
-                      )}
-                    </select>
+                                            {products.map(
+                                                (product) => (
+                                                    <option
+                                                        key={
+                                                            product.id
+                                                        }
+                                                        value={
+                                                            product.name
+                                                        }
+                                                    >
+                                                        {
+                                                            product.name
+                                                        }
+                                                    </option>
+                                                )
+                                            )}
+                                        </select>
 
-                    {productsLoading ? (
-                      <Loader2
-                        size={17}
-                        className="
+                                        {productsLoading ? (
+                                            <Loader2
+                                                size={17}
+                                                className="
                           absolute
                           right-4
                           top-1/2
@@ -2357,11 +2361,11 @@ useEffect(() => {
                           text-[#777]
                           pointer-events-none
                         "
-                      />
-                    ) : (
-                      <ChevronDown
-                        size={17}
-                        className="
+                                            />
+                                        ) : (
+                                            <ChevronDown
+                                                size={17}
+                                                className="
                           absolute
                           right-4
                           top-1/2
@@ -2369,189 +2373,189 @@ useEffect(() => {
                           pointer-events-none
                           text-[#777]
                         "
-                      />
-                    )}
-                  </div>
+                                            />
+                                        )}
+                                    </div>
 
-                  <FieldError
-                    message={
-                      errors.product_name ||
-                      productsError
-                    }
-                  />
+                                    <FieldError
+                                        message={
+                                            errors.product_name ||
+                                            productsError
+                                        }
+                                    />
 
-                  {form.product_category &&
-                    !productsLoading &&
-                    !productsError &&
-                    products.length >
-                      0 && (
-                      <p
-                        className="
+                                    {form.product_category &&
+                                        !productsLoading &&
+                                        !productsError &&
+                                        products.length >
+                                        0 && (
+                                            <p
+                                                className="
                           text-[11px]
                           text-[#999]
                           mt-2
                         "
-                      >
-                        {
-                          products.length
-                        }{" "}
-                        {products.length ===
-                        1
-                          ? "product"
-                          : "products"}{" "}
-                        available
-                      </p>
-                    )}
-                </div>
+                                            >
+                                                {
+                                                    products.length
+                                                }{" "}
+                                                {products.length ===
+                                                    1
+                                                    ? "product"
+                                                    : "products"}{" "}
+                                                available
+                                            </p>
+                                        )}
+                                </div>
 
-                {/* INVOICE NUMBER */}
+                                {/* INVOICE NUMBER */}
 
-                <div>
-                  <FieldLabel required>
-                    Invoice / Order Number
-                  </FieldLabel>
+                                <div>
+                                    <FieldLabel required>
+                                        Invoice / Order Number
+                                    </FieldLabel>
 
-                  <input
-                    type="text"
-                    name="invoice_order_number"
-                    value={
-                      form.invoice_order_number
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Enter invoice or order number"
-                    maxLength={100}
-                    className={
-                      inputClass
-                    }
-                  />
+                                    <input
+                                        type="text"
+                                        name="invoice_order_number"
+                                        value={
+                                            form.invoice_order_number
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
+                                        placeholder="Enter invoice or order number"
+                                        maxLength={100}
+                                        className={
+                                            inputClass
+                                        }
+                                    />
 
-                  <FieldError
-                    message={
-                      errors.invoice_order_number
-                    }
-                  />
-                </div>
+                                    <FieldError
+                                        message={
+                                            errors.invoice_order_number
+                                        }
+                                    />
+                                </div>
 
-                {/* PURCHASE DATE */}
+                                {/* PURCHASE DATE */}
 
-                <div>
-                  <FieldLabel required>
-                    Purchase Date
-                  </FieldLabel>
+                                <div>
+                                    <FieldLabel required>
+                                        Purchase Date
+                                    </FieldLabel>
 
-                  <input
-                    type="date"
-                    name="purchase_date"
-                    value={
-                      form.purchase_date
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    max={
-                      today
-                    }
-                    className={
-                      inputClass
-                    }
-                    aria-invalid={
-                      Boolean(
-                        errors.purchase_date
-                      )
-                    }
-                  />
+                                    <input
+                                        type="date"
+                                        name="purchase_date"
+                                        value={
+                                            form.purchase_date
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
+                                        max={
+                                            today
+                                        }
+                                        className={
+                                            inputClass
+                                        }
+                                        aria-invalid={
+                                            Boolean(
+                                                errors.purchase_date
+                                            )
+                                        }
+                                    />
 
-                  <FieldError
-                    message={
-                      errors.purchase_date
-                    }
-                  />
-                </div>
-              </div>
-            </div>
+                                    <FieldError
+                                        message={
+                                            errors.purchase_date
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        </div>
 
-            {/* =============================================
+                        {/* =============================================
                 SECTION 03 - PROJECT INFORMATION
             ============================================= */}
 
-            <div
-              className="
+                        <div
+                            className="
                 border
                 border-[#e8e8e8]
                 bg-white
                 p-6
                 md:p-10
               "
-            >
-              <SectionHeading
-                number="03"
-                title="Project Information"
-                description="Tell us where and how the product will be used."
-              />
+                        >
+                            <SectionHeading
+                                number="03"
+                                title="Project Information"
+                                description="Tell us where and how the product will be used."
+                            />
 
-              <div
-                className="
+                            <div
+                                className="
                   grid
                   grid-cols-1
                   md:grid-cols-2
                   gap-x-7
                   gap-y-7
                 "
-              >
-                {/* PROJECT TYPE */}
+                            >
+                                {/* PROJECT TYPE */}
 
-                <div>
-                  <FieldLabel required>
-                    Project Type
-                  </FieldLabel>
+                                <div>
+                                    <FieldLabel required>
+                                        Project Type
+                                    </FieldLabel>
 
-                  <div
-                    className="
+                                    <div
+                                        className="
                       relative
                     "
-                  >
-                    <select
-                      name="project_type"
-                      value={
-                        form.project_type
-                      }
-                      onChange={
-                        handleChange
-                      }
-                      className={`
+                                    >
+                                        <select
+                                            name="project_type"
+                                            value={
+                                                form.project_type
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
+                                            className={`
                         ${inputClass}
                         appearance-none
                         pr-12
                         cursor-pointer
                       `}
-                    >
-                      <option value="">
-                        Select Project Type
-                      </option>
+                                        >
+                                            <option value="">
+                                                Select Project Type
+                                            </option>
 
-                      {PROJECT_TYPES.map(
-                        (type) => (
-                          <option
-                            key={
-                              type
-                            }
-                            value={
-                              type
-                            }
-                          >
-                            {
-                              type
-                            }
-                          </option>
-                        )
-                      )}
-                    </select>
+                                            {PROJECT_TYPES.map(
+                                                (type) => (
+                                                    <option
+                                                        key={
+                                                            type
+                                                        }
+                                                        value={
+                                                            type
+                                                        }
+                                                    >
+                                                        {
+                                                            type
+                                                        }
+                                                    </option>
+                                                )
+                                            )}
+                                        </select>
 
-                    <ChevronDown
-                      size={17}
-                      className="
+                                        <ChevronDown
+                                            size={17}
+                                            className="
                         absolute
                         right-4
                         top-1/2
@@ -2559,68 +2563,68 @@ useEffect(() => {
                         pointer-events-none
                         text-[#777]
                       "
-                    />
-                  </div>
+                                        />
+                                    </div>
 
-                  <FieldError
-                    message={
-                      errors.project_type
-                    }
-                  />
-                </div>
+                                    <FieldError
+                                        message={
+                                            errors.project_type
+                                        }
+                                    />
+                                </div>
 
-                {/* INSTALLATION TYPE */}
+                                {/* INSTALLATION TYPE */}
 
-                <div>
-                  <FieldLabel required>
-                    Installation Type
-                  </FieldLabel>
+                                <div>
+                                    <FieldLabel required>
+                                        Installation Type
+                                    </FieldLabel>
 
-                  <div
-                    className="
+                                    <div
+                                        className="
                       relative
                     "
-                  >
-                    <select
-                      name="installation_type"
-                      value={
-                        form.installation_type
-                      }
-                      onChange={
-                        handleChange
-                      }
-                      className={`
+                                    >
+                                        <select
+                                            name="installation_type"
+                                            value={
+                                                form.installation_type
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
+                                            className={`
                         ${inputClass}
                         appearance-none
                         pr-12
                         cursor-pointer
                       `}
-                    >
-                      <option value="">
-                        Select Installation Type
-                      </option>
+                                        >
+                                            <option value="">
+                                                Select Installation Type
+                                            </option>
 
-                      {INSTALLATION_TYPES.map(
-                        (type) => (
-                          <option
-                            key={
-                              type
-                            }
-                            value={
-                              type
-                            }
-                          >
-                            {
-                              type
-                            }
-                          </option>
-                        )
-                      )}
-                    </select>
+                                            {INSTALLATION_TYPES.map(
+                                                (type) => (
+                                                    <option
+                                                        key={
+                                                            type
+                                                        }
+                                                        value={
+                                                            type
+                                                        }
+                                                    >
+                                                        {
+                                                            type
+                                                        }
+                                                    </option>
+                                                )
+                                            )}
+                                        </select>
 
-                    <ChevronDown
-                      size={17}
-                      className="
+                                        <ChevronDown
+                                            size={17}
+                                            className="
                         absolute
                         right-4
                         top-1/2
@@ -2628,94 +2632,94 @@ useEffect(() => {
                         pointer-events-none
                         text-[#777]
                       "
-                    />
-                  </div>
+                                        />
+                                    </div>
 
-                  <FieldError
-                    message={
-                      errors.installation_type
-                    }
-                  />
-                </div>
+                                    <FieldError
+                                        message={
+                                            errors.installation_type
+                                        }
+                                    />
+                                </div>
 
-                {/* OTHER INSTALLATION TYPE */}
+                                {/* OTHER INSTALLATION TYPE */}
 
-                {form.installation_type ===
-                  "Other" && (
-                  <div
-                    className="
+                                {form.installation_type ===
+                                    "Other" && (
+                                        <div
+                                            className="
                       md:col-span-2
                     "
-                  >
-                    <FieldLabel required>
-                      Specify Installation Type
-                    </FieldLabel>
+                                        >
+                                            <FieldLabel required>
+                                                Specify Installation Type
+                                            </FieldLabel>
 
-                    <input
-                      type="text"
-                      name="installation_type_other"
-                      value={
-                        form.installation_type_other
-                      }
-                      onChange={
-                        handleChange
-                      }
-                      placeholder="Describe your installation type"
-                      maxLength={255}
-                      className={
-                        inputClass
-                      }
-                    />
+                                            <input
+                                                type="text"
+                                                name="installation_type_other"
+                                                value={
+                                                    form.installation_type_other
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                placeholder="Describe your installation type"
+                                                maxLength={255}
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
 
-                    <FieldError
-                      message={
-                        errors.installation_type_other
-                      }
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
+                                            <FieldError
+                                                message={
+                                                    errors.installation_type_other
+                                                }
+                                            />
+                                        </div>
+                                    )}
+                            </div>
+                        </div>
 
-            {/* =============================================
+                        {/* =============================================
                 SECTION 04 - INSTALLATION INFORMATION
             ============================================= */}
 
-            <div
-              className="
+                        <div
+                            className="
                 border
                 border-[#e8e8e8]
                 bg-white
                 p-6
                 md:p-10
               "
-            >
-              <SectionHeading
-                number="04"
-                title="Installation Information"
-                description="Provide your installation details."
-              />
+                        >
+                            <SectionHeading
+                                number="04"
+                                title="Installation Information"
+                                description="Provide your installation details."
+                            />
 
-              {/* INSTALLATION STATUS */}
+                            {/* INSTALLATION STATUS */}
 
-              <div>
-                <FieldLabel required>
-                  Has Your Product Been Installed?
-                </FieldLabel>
+                            <div>
+                                <FieldLabel required>
+                                    Has Your Product Been Installed?
+                                </FieldLabel>
 
-                <div
-                  className="
+                                <div
+                                    className="
                     grid
                     grid-cols-1
                     sm:grid-cols-2
                     gap-4
                     mt-3
                   "
-                >
-                  {/* YES */}
+                                >
+                                    {/* YES */}
 
-                  <label
-                    className={`
+                                    <label
+                                        className={`
                       flex
                       items-center
                       gap-4
@@ -2725,57 +2729,56 @@ useEffect(() => {
                       transition-all
                       duration-300
 
-                      ${
-                        form.is_installed ===
-                        "true"
-                          ? "border-[#161412] bg-[#fafafa]"
-                          : "border-[#e5e5e5] hover:border-[#aaa]"
-                      }
+                      ${form.is_installed ===
+                                                "true"
+                                                ? "border-[#161412] bg-[#fafafa]"
+                                                : "border-[#e5e5e5] hover:border-[#aaa]"
+                                            }
                     `}
-                  >
-                    <input
-                      type="radio"
-                      name="is_installed"
-                      value="true"
-                      checked={
-                        form.is_installed ===
-                        "true"
-                      }
-                      onChange={
-                        handleChange
-                      }
-                      className="
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="is_installed"
+                                            value="true"
+                                            checked={
+                                                form.is_installed ===
+                                                "true"
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
+                                            className="
                         accent-[#c91f26]
                       "
-                    />
+                                        />
 
-                    <div>
-                      <p
-                        className="
+                                        <div>
+                                            <p
+                                                className="
                           text-[14px]
                           font-semibold
                           text-[#161412]
                         "
-                      >
-                        Yes, Installed
-                      </p>
+                                            >
+                                                Yes, Installed
+                                            </p>
 
-                      <p
-                        className="
+                                            <p
+                                                className="
                           text-[12px]
                           text-[#888]
                           mt-1
                         "
-                      >
-                        Installation is complete
-                      </p>
-                    </div>
-                  </label>
+                                            >
+                                                Installation is complete
+                                            </p>
+                                        </div>
+                                    </label>
 
-                  {/* NO */}
+                                    {/* NO */}
 
-                  <label
-                    className={`
+                                    <label
+                                        className={`
                       flex
                       items-center
                       gap-4
@@ -2785,270 +2788,269 @@ useEffect(() => {
                       transition-all
                       duration-300
 
-                      ${
-                        form.is_installed ===
-                        "false"
-                          ? "border-[#161412] bg-[#fafafa]"
-                          : "border-[#e5e5e5] hover:border-[#aaa]"
-                      }
+                      ${form.is_installed ===
+                                                "false"
+                                                ? "border-[#161412] bg-[#fafafa]"
+                                                : "border-[#e5e5e5] hover:border-[#aaa]"
+                                            }
                     `}
-                  >
-                    <input
-                      type="radio"
-                      name="is_installed"
-                      value="false"
-                      checked={
-                        form.is_installed ===
-                        "false"
-                      }
-                      onChange={
-                        handleChange
-                      }
-                      className="
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="is_installed"
+                                            value="false"
+                                            checked={
+                                                form.is_installed ===
+                                                "false"
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
+                                            className="
                         accent-[#c91f26]
                       "
-                    />
+                                        />
 
-                    <div>
-                      <p
-                        className="
+                                        <div>
+                                            <p
+                                                className="
                           text-[14px]
                           font-semibold
                           text-[#161412]
                         "
-                      >
-                        Not Yet Installed
-                      </p>
+                                            >
+                                                Not Yet Installed
+                                            </p>
 
-                      <p
-                        className="
+                                            <p
+                                                className="
                           text-[12px]
                           text-[#888]
                           mt-1
                         "
-                      >
-                        Installation is pending
-                      </p>
-                    </div>
-                  </label>
-                </div>
+                                            >
+                                                Installation is pending
+                                            </p>
+                                        </div>
+                                    </label>
+                                </div>
 
-                <FieldError
-                  message={
-                    errors.is_installed
-                  }
-                />
-              </div>
+                                <FieldError
+                                    message={
+                                        errors.is_installed
+                                    }
+                                />
+                            </div>
 
-              {/* ===========================================
+                            {/* ===========================================
                   INSTALLED PRODUCT DETAILS
               =========================================== */}
 
-              {form.is_installed ===
-                "true" && (
-                <div
-                  className="
+                            {form.is_installed ===
+                                "true" && (
+                                    <div
+                                        className="
                     mt-9
                     pt-9
                     border-t
                     border-[#ededed]
                   "
-                >
-                  <h3
-                    className="
+                                    >
+                                        <h3
+                                            className="
                       text-[15px]
                       font-semibold
                       text-[#161412]
                       mb-7
                     "
-                  >
-                    Completed Installation Details
-                  </h3>
+                                        >
+                                            Completed Installation Details
+                                        </h3>
 
-                  <div
-                    className="
+                                        <div
+                                            className="
                       grid
                       grid-cols-1
                       md:grid-cols-2
                       gap-x-7
                       gap-y-7
                     "
-                  >
-                    {/* INSTALLATION DATE */}
+                                        >
+                                            {/* INSTALLATION DATE */}
 
-                    <div>
-                      <FieldLabel required>
-                        Installation Date
-                      </FieldLabel>
+                                            <div>
+                                                <FieldLabel required>
+                                                    Installation Date
+                                                </FieldLabel>
 
-                      <input
-                        type="date"
-                        name="installation_date"
-                        value={
-                          form.installation_date
-                        }
-                        onChange={
-                          handleChange
-                        }
-                        min={
-                          form.purchase_date ||
-                          undefined
-                        }
-                        max={
-                          today
-                        }
-                        className={
-                          inputClass
-                        }
-                        aria-invalid={
-                          Boolean(
-                            errors.installation_date
-                          )
-                        }
-                      />
+                                                <input
+                                                    type="date"
+                                                    name="installation_date"
+                                                    value={
+                                                        form.installation_date
+                                                    }
+                                                    onChange={
+                                                        handleChange
+                                                    }
+                                                    min={
+                                                        form.purchase_date ||
+                                                        undefined
+                                                    }
+                                                    max={
+                                                        today
+                                                    }
+                                                    className={
+                                                        inputClass
+                                                    }
+                                                    aria-invalid={
+                                                        Boolean(
+                                                            errors.installation_date
+                                                        )
+                                                    }
+                                                />
 
-                      <FieldError
-                        message={
-                          errors.installation_date
-                        }
-                      />
-                    </div>
+                                                <FieldError
+                                                    message={
+                                                        errors.installation_date
+                                                    }
+                                                />
+                                            </div>
 
-                    {/* INSTALLATION ADDRESS */}
+                                            {/* INSTALLATION ADDRESS */}
 
-                    <div
-                      className="
+                                            <div
+                                                className="
                         md:col-span-2
                       "
-                    >
-                      <FieldLabel required>
-                        Installation Address
-                      </FieldLabel>
+                                            >
+                                                <FieldLabel required>
+                                                    Installation Address
+                                                </FieldLabel>
 
-                      <textarea
-                        name="installation_address"
-                        value={
-                          form.installation_address
-                        }
-                        onChange={
-                          handleChange
-                        }
-                        placeholder="Enter complete installation address"
-                        className={
-                          textareaClass
-                        }
-                      />
+                                                <textarea
+                                                    name="installation_address"
+                                                    value={
+                                                        form.installation_address
+                                                    }
+                                                    onChange={
+                                                        handleChange
+                                                    }
+                                                    placeholder="Enter complete installation address"
+                                                    className={
+                                                        textareaClass
+                                                    }
+                                                />
 
-                      <FieldError
-                        message={
-                          errors.installation_address
-                        }
-                      />
-                    </div>
+                                                <FieldError
+                                                    message={
+                                                        errors.installation_address
+                                                    }
+                                                />
+                                            </div>
 
-                    {/* FABRICATOR NAME */}
+                                            {/* FABRICATOR NAME */}
 
-                    <div>
-                      <FieldLabel>
-                        Fabricator / Installer Name
-                      </FieldLabel>
+                                            <div>
+                                                <FieldLabel required>
+                                                    Fabricator / Installer Name
+                                                </FieldLabel>
 
-                      <input
-                        type="text"
-                        name="fabricator_installer_name"
-                        value={
-                          form.fabricator_installer_name
-                        }
-                        onChange={
-                          handleChange
-                        }
-                        placeholder="Enter fabricator or installer name"
-                        maxLength={255}
-                        className={
-                          inputClass
-                        }
-                      />
-                    </div>
+                                                <input
+                                                    type="text"
+                                                    name="fabricator_installer_name"
+                                                    value={form.fabricator_installer_name}
+                                                    onChange={handleChange}
+                                                    placeholder="Enter fabricator or installer name"
+                                                    maxLength={255}
+                                                    required
+                                                    className={inputClass}
+                                                    aria-invalid={Boolean(errors.fabricator_installer_name)}
+                                                />
 
-                    {/* FABRICATOR CONTACT */}
+                                                <FieldError
+                                                    message={errors.fabricator_installer_name}
+                                                />
+                                            </div>
 
-                    <div>
-                      <FieldLabel>
-                        Fabricator / Installer Contact
-                      </FieldLabel>
+                                            {/* FABRICATOR CONTACT */}
 
-                      <input
-                        type="text"
-                        name="fabricator_installer_contact"
-                        value={
-                          form.fabricator_installer_contact
-                        }
-                        onChange={
-                          handleChange
-                        }
-                        placeholder="Enter contact information"
-                        maxLength={255}
-                        className={
-                          inputClass
-                        }
-                      />
-                    </div>
-                  </div>
+                                            <div>
+                                                <FieldLabel>
+                                                    Fabricator / Installer Contact
+                                                </FieldLabel>
 
-                  {/* =======================================
+                                                <input
+                                                    type="text"
+                                                    name="fabricator_installer_contact"
+                                                    value={
+                                                        form.fabricator_installer_contact
+                                                    }
+                                                    onChange={
+                                                        handleChange
+                                                    }
+                                                    placeholder="Enter contact information"
+                                                    maxLength={255}
+                                                    className={
+                                                        inputClass
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* =======================================
                       INSTALLATION PHOTOS
                   ======================================= */}
 
-                  <div
-                    className="
+                                        <div
+                                            className="
                       mt-9
                     "
-                  >
-                    <FieldLabel required>
-                      Installation Photos
-                    </FieldLabel>
+                                        >
+                                            <FieldLabel required>
+                                                Installation Photos
+                                            </FieldLabel>
 
-                    <p
-                      className="
+                                            <p
+                                                className="
                         text-[12px]
                         text-[#888]
                         mb-4
                         leading-relaxed
                       "
-                    >
-                      Upload clear photographs showing
-                      the completed installation.
-                      Maximum 10 images, 10 MB each.
-                    </p>
+                                            >
+                                                Upload clear photographs showing
+                                                the completed installation.
+                                                Maximum 10 images, 10 MB each.
+                                            </p>
 
-                    <input
-                      ref={
-                        photosInputRef
-                      }
-                      type="file"
-                      accept=".jpg,.jpeg,.png,.webp"
-                      multiple
-                      onChange={
-                        handlePhotosChange
-                      }
-                      className="
+                                            <input
+                                                ref={
+                                                    photosInputRef
+                                                }
+                                                type="file"
+                                                accept=".jpg,.jpeg,.png,.webp"
+                                                multiple
+                                                onChange={
+                                                    handlePhotosChange
+                                                }
+                                                className="
                         hidden
                       "
-                    />
+                                            />
 
-                    {/* UPLOAD AREA */}
+                                            {/* UPLOAD AREA */}
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        photosInputRef.current?.click()
-                      }
-                      disabled={
-                        installationPhotos.length >=
-                          MAX_PHOTOS ||
-                        submitting
-                      }
-                      className="
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    photosInputRef.current?.click()
+                                                }
+                                                disabled={
+                                                    installationPhotos.length >=
+                                                    MAX_PHOTOS ||
+                                                    submitting
+                                                }
+                                                className="
                         w-full
                         min-h-[150px]
                         border-2
@@ -3066,47 +3068,47 @@ useEffect(() => {
                         disabled:opacity-50
                         disabled:cursor-not-allowed
                       "
-                    >
-                      <ImagePlus
-                        size={30}
-                        strokeWidth={1.4}
-                        className="
+                                            >
+                                                <ImagePlus
+                                                    size={30}
+                                                    strokeWidth={1.4}
+                                                    className="
                           text-[#777]
                         "
-                      />
+                                                />
 
-                      <span
-                        className="
+                                                <span
+                                                    className="
                           text-[13px]
                           font-semibold
                           text-[#333]
                         "
-                      >
-                        Click to Upload Installation Photos
-                      </span>
+                                                >
+                                                    Click to Upload Installation Photos
+                                                </span>
 
-                      <span
-                        className="
+                                                <span
+                                                    className="
                           text-[11px]
                           text-[#999]
                         "
-                      >
-                        JPG, PNG, WebP
-                      </span>
-                    </button>
+                                                >
+                                                    JPG, PNG, WebP
+                                                </span>
+                                            </button>
 
-                    <FieldError
-                      message={
-                        errors.installation_photos
-                      }
-                    />
+                                            <FieldError
+                                                message={
+                                                    errors.installation_photos
+                                                }
+                                            />
 
-                    {/* PHOTO PREVIEWS */}
+                                            {/* PHOTO PREVIEWS */}
 
-                    {photoPreviews.length >
-                      0 && (
-                      <div
-                        className="
+                                            {photoPreviews.length >
+                                                0 && (
+                                                    <div
+                                                        className="
                           grid
                           grid-cols-2
                           sm:grid-cols-3
@@ -3115,15 +3117,15 @@ useEffect(() => {
                           gap-4
                           mt-6
                         "
-                      >
-                        {photoPreviews.map(
-                          (
-                            photo,
-                            index
-                          ) => (
-                            <div
-                              key={`${photo.name}-${index}`}
-                              className="
+                                                    >
+                                                        {photoPreviews.map(
+                                                            (
+                                                                photo,
+                                                                index
+                                                            ) => (
+                                                                <div
+                                                                    key={`${photo.name}-${index}`}
+                                                                    className="
                                 relative
                                 aspect-square
                                 border
@@ -3131,31 +3133,31 @@ useEffect(() => {
                                 bg-[#f5f5f5]
                                 group
                               "
-                            >
-                              <img
-                                src={
-                                  photo.url
-                                }
-                                alt={`Installation ${index + 1}`}
-                                className="
+                                                                >
+                                                                    <img
+                                                                        src={
+                                                                            photo.url
+                                                                        }
+                                                                        alt={`Installation ${index + 1}`}
+                                                                        className="
                                   w-full
                                   h-full
                                   object-cover
                                 "
-                              />
+                                                                    />
 
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  removePhoto(
-                                    index
-                                  )
-                                }
-                                disabled={
-                                  submitting
-                                }
-                                aria-label={`Remove installation photo ${index + 1}`}
-                                className="
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            removePhoto(
+                                                                                index
+                                                                            )
+                                                                        }
+                                                                        disabled={
+                                                                            submitting
+                                                                        }
+                                                                        aria-label={`Remove installation photo ${index + 1}`}
+                                                                        className="
                                   absolute
                                   top-2
                                   right-2
@@ -3170,170 +3172,170 @@ useEffect(() => {
                                   cursor-pointer
                                   disabled:cursor-not-allowed
                                 "
-                              >
-                                <X
-                                  size={
-                                    15
-                                  }
-                                />
-                              </button>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    )}
+                                                                    >
+                                                                        <X
+                                                                            size={
+                                                                                15
+                                                                            }
+                                                                        />
+                                                                    </button>
+                                                                </div>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                )}
 
-                    {installationPhotos.length >
-                      0 && (
-                      <p
-                        className="
+                                            {installationPhotos.length >
+                                                0 && (
+                                                    <p
+                                                        className="
                           text-[12px]
                           text-[#888]
                           mt-4
                         "
-                      >
-                        {
-                          installationPhotos.length
-                        }{" "}
-                        of{" "}
-                        {
-                          MAX_PHOTOS
-                        }{" "}
-                        photos selected
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
+                                                    >
+                                                        {
+                                                            installationPhotos.length
+                                                        }{" "}
+                                                        of{" "}
+                                                        {
+                                                            MAX_PHOTOS
+                                                        }{" "}
+                                                        photos selected
+                                                    </p>
+                                                )}
+                                        </div>
+                                    </div>
+                                )}
 
-              {/* ===========================================
+                            {/* ===========================================
                   NOT INSTALLED
               =========================================== */}
 
-              {form.is_installed ===
-                "false" && (
-                <div
-                  className="
+                            {form.is_installed ===
+                                "false" && (
+                                    <div
+                                        className="
                     mt-9
                     pt-9
                     border-t
                     border-[#ededed]
                   "
-                >
-                  <h3
-                    className="
+                                    >
+                                        <h3
+                                            className="
                       text-[15px]
                       font-semibold
                       text-[#161412]
                       mb-7
                     "
-                  >
-                    Planned Installation Details
-                  </h3>
+                                        >
+                                            Planned Installation Details
+                                        </h3>
 
-                  <div
-                    className="
+                                        <div
+                                            className="
                       max-w-[500px]
                     "
-                  >
-                    <FieldLabel required>
-                      Tentative Installation Date
-                    </FieldLabel>
+                                        >
+                                            <FieldLabel required>
+                                                Tentative Installation Date
+                                            </FieldLabel>
 
-                    <input
-                      type="date"
-                      name="tentative_installation_date"
-                      value={
-                        form.tentative_installation_date
-                      }
-                      onChange={
-                        handleChange
-                      }
-                      min={
-                        today
-                      }
-                      className={
-                        inputClass
-                      }
-                      aria-invalid={
-                        Boolean(
-                          errors.tentative_installation_date
-                        )
-                      }
-                    />
+                                            <input
+                                                type="date"
+                                                name="tentative_installation_date"
+                                                value={
+                                                    form.tentative_installation_date
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                min={
+                                                    today
+                                                }
+                                                className={
+                                                    inputClass
+                                                }
+                                                aria-invalid={
+                                                    Boolean(
+                                                        errors.tentative_installation_date
+                                                    )
+                                                }
+                                            />
 
-                    <FieldError
-                      message={
-                        errors.tentative_installation_date
-                      }
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
+                                            <FieldError
+                                                message={
+                                                    errors.tentative_installation_date
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                        </div>
 
-            {/* =============================================
+                        {/* =============================================
                 SECTION 05 - PURCHASE DOCUMENT
             ============================================= */}
 
-            <div
-              className="
+                        <div
+                            className="
                 border
                 border-[#e8e8e8]
                 bg-white
                 p-6
                 md:p-10
               "
-            >
-              <SectionHeading
-                number="05"
-                title="Purchase Documentation"
-                description="Upload proof of purchase."
-              />
+                        >
+                            <SectionHeading
+                                number="05"
+                                title="Purchase Documentation"
+                                description="Upload proof of purchase."
+                            />
 
-              <div>
-                <FieldLabel required>
-                  Purchase Invoice
-                </FieldLabel>
+                            <div>
+                                <FieldLabel required>
+                                    Purchase Invoice
+                                </FieldLabel>
 
-                <p
-                  className="
+                                <p
+                                    className="
                     text-[12px]
                     text-[#888]
                     mb-5
                     leading-relaxed
                   "
-                >
-                  Upload a copy of your purchase invoice
-                  or order confirmation. Accepted
-                  formats: PDF, JPG, PNG.
-                  Maximum file size: 15 MB.
-                </p>
+                                >
+                                    Upload a copy of your purchase invoice
+                                    or order confirmation. Accepted
+                                    formats: PDF, JPG, PNG.
+                                    Maximum file size: 15 MB.
+                                </p>
 
-                <input
-                  ref={
-                    invoiceInputRef
-                  }
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={
-                    handleInvoiceChange
-                  }
-                  className="
+                                <input
+                                    ref={
+                                        invoiceInputRef
+                                    }
+                                    type="file"
+                                    accept=".pdf,.jpg,.jpeg,.png"
+                                    onChange={
+                                        handleInvoiceChange
+                                    }
+                                    className="
                     hidden
                   "
-                />
+                                />
 
-                {!invoiceFile ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      invoiceInputRef.current?.click()
-                    }
-                    disabled={
-                      submitting
-                    }
-                    className="
+                                {!invoiceFile ? (
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            invoiceInputRef.current?.click()
+                                        }
+                                        disabled={
+                                            submitting
+                                        }
+                                        className="
                       w-full
                       min-h-[170px]
                       border-2
@@ -3351,37 +3353,37 @@ useEffect(() => {
                       disabled:opacity-50
                       disabled:cursor-not-allowed
                     "
-                  >
-                    <UploadCloud
-                      size={32}
-                      strokeWidth={1.4}
-                      className="
+                                    >
+                                        <UploadCloud
+                                            size={32}
+                                            strokeWidth={1.4}
+                                            className="
                         text-[#777]
                       "
-                    />
+                                        />
 
-                    <span
-                      className="
+                                        <span
+                                            className="
                         text-[13px]
                         font-semibold
                         text-[#333]
                       "
-                    >
-                      Click to Upload Purchase Invoice
-                    </span>
+                                        >
+                                            Click to Upload Purchase Invoice
+                                        </span>
 
-                    <span
-                      className="
+                                        <span
+                                            className="
                         text-[11px]
                         text-[#999]
                       "
-                    >
-                      PDF, JPG, PNG — Max 15 MB
-                    </span>
-                  </button>
-                ) : (
-                  <div
-                    className="
+                                        >
+                                            PDF, JPG, PNG — Max 15 MB
+                                        </span>
+                                    </button>
+                                ) : (
+                                    <div
+                                        className="
                       flex
                       items-center
                       justify-between
@@ -3391,17 +3393,17 @@ useEffect(() => {
                       bg-[#fafafa]
                       p-5
                     "
-                  >
-                    <div
-                      className="
+                                    >
+                                        <div
+                                            className="
                         flex
                         items-center
                         gap-4
                         min-w-0
                       "
-                    >
-                      <div
-                        className="
+                                        >
+                                            <div
+                                                className="
                           w-[50px]
                           h-[55px]
                           bg-white
@@ -3412,66 +3414,66 @@ useEffect(() => {
                           justify-center
                           shrink-0
                         "
-                      >
-                        <FileText
-                          size={25}
-                          strokeWidth={1.5}
-                          className="
+                                            >
+                                                <FileText
+                                                    size={25}
+                                                    strokeWidth={1.5}
+                                                    className="
                             text-[#c91f26]
                           "
-                        />
-                      </div>
+                                                />
+                                            </div>
 
-                      <div
-                        className="
+                                            <div
+                                                className="
                           min-w-0
                         "
-                      >
-                        <p
-                          className="
+                                            >
+                                                <p
+                                                    className="
                             text-[13px]
                             font-semibold
                             text-[#161412]
                             truncate
                           "
-                        >
-                          {
-                            invoiceFile.name
-                          }
-                        </p>
+                                                >
+                                                    {
+                                                        invoiceFile.name
+                                                    }
+                                                </p>
 
-                        <p
-                          className="
+                                                <p
+                                                    className="
                             text-[11px]
                             text-[#888]
                             mt-1
                           "
-                        >
-                          {formatFileSize(
-                            invoiceFile.size
-                          )}
-                        </p>
-                      </div>
-                    </div>
+                                                >
+                                                    {formatFileSize(
+                                                        invoiceFile.size
+                                                    )}
+                                                </p>
+                                            </div>
+                                        </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setInvoiceFile(
-                          null
-                        );
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setInvoiceFile(
+                                                    null
+                                                );
 
-                        if (
-                          invoiceInputRef.current
-                        ) {
-                          invoiceInputRef.current.value =
-                            "";
-                        }
-                      }}
-                      disabled={
-                        submitting
-                      }
-                      className="
+                                                if (
+                                                    invoiceInputRef.current
+                                                ) {
+                                                    invoiceInputRef.current.value =
+                                                        "";
+                                                }
+                                            }}
+                                            disabled={
+                                                submitting
+                                            }
+                                            className="
                         w-9
                         h-9
                         shrink-0
@@ -3483,62 +3485,62 @@ useEffect(() => {
                         cursor-pointer
                         disabled:cursor-not-allowed
                       "
-                      aria-label="Remove purchase invoice"
-                    >
-                      <X
-                        size={
-                          20
-                        }
-                      />
-                    </button>
-                  </div>
-                )}
+                                            aria-label="Remove purchase invoice"
+                                        >
+                                            <X
+                                                size={
+                                                    20
+                                                }
+                                            />
+                                        </button>
+                                    </div>
+                                )}
 
-                <FieldError
-                  message={
-                    errors.purchase_invoice
-                  }
-                />
-              </div>
-            </div>
+                                <FieldError
+                                    message={
+                                        errors.purchase_invoice
+                                    }
+                                />
+                            </div>
+                        </div>
 
-            {/* =============================================
+                        {/* =============================================
                 SECTION 06 - DECLARATION
             ============================================= */}
 
-            <div
-              className="
+                        <div
+                            className="
                 border
                 border-[#e8e8e8]
                 bg-white
                 p-6
                 md:p-10
               "
-            >
-              <SectionHeading
-                number="06"
-                title="Declaration & Confirmation"
-                description="Please review and confirm the information provided."
-              />
+                        >
+                            <SectionHeading
+                                number="06"
+                                title="Declaration & Confirmation"
+                                description="Please review and confirm the information provided."
+                            />
 
-              <label
-                className="
+                            <label
+                                className="
                   flex
                   items-start
                   gap-4
                   cursor-pointer
                 "
-              >
-                <input
-                  type="checkbox"
-                  name="declaration_accepted"
-                  checked={
-                    form.declaration_accepted
-                  }
-                  onChange={
-                    handleChange
-                  }
-                  className="
+                            >
+                                <input
+                                    type="checkbox"
+                                    name="declaration_accepted"
+                                    checked={
+                                        form.declaration_accepted
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    className="
                     w-[18px]
                     h-[18px]
                     mt-1
@@ -3546,42 +3548,42 @@ useEffect(() => {
                     accent-[#c91f26]
                     cursor-pointer
                   "
-                />
+                                />
 
-                <span
-                  className="
+                                <span
+                                    className="
                     text-[13px]
                     text-[#555]
                     leading-[1.9]
                   "
-                >
-                  I hereby declare that the information
-                  provided in this registration form is
-                  accurate and complete to the best of
-                  my knowledge. I understand that the
-                  submitted details and documents may
-                  be reviewed and verified by Ultra Stones
-                  as part of the product registration process.
+                                >
+                                    I hereby declare that the information
+                                    provided in this registration form is
+                                    accurate and complete to the best of
+                                    my knowledge. I understand that the
+                                    submitted details and documents may
+                                    be reviewed and verified by Ultra Stones
+                                    as part of the product registration process.
 
-                  <span
-                    className="
+                                    <span
+                                        className="
                       text-[#c91f26]
                       ml-1
                     "
-                  >
-                    *
-                  </span>
-                </span>
-              </label>
+                                    >
+                                        *
+                                    </span>
+                                </span>
+                            </label>
 
-              <FieldError
-                message={
-                  errors.declaration_accepted
-                }
-              />
+                            <FieldError
+                                message={
+                                    errors.declaration_accepted
+                                }
+                            />
 
-              <div
-                className="
+                            <div
+                                className="
                   flex
                   items-start
                   gap-3
@@ -3589,37 +3591,37 @@ useEffect(() => {
                   p-5
                   mt-7
                 "
-              >
-                <ShieldCheck
-                  size={21}
-                  strokeWidth={1.5}
-                  className="
+                            >
+                                <ShieldCheck
+                                    size={21}
+                                    strokeWidth={1.5}
+                                    className="
                     text-[#777]
                     shrink-0
                   "
-                />
+                                />
 
-                <p
-                  className="
+                                <p
+                                    className="
                     text-[12px]
                     text-[#777]
                     leading-[1.8]
                   "
-                >
-                  Submitting this form records your
-                  product registration with Ultra Stones.
-                  Please retain your registration number
-                  for future reference.
-                </p>
-              </div>
-            </div>
+                                >
+                                    Submitting this form records your
+                                    product registration with Ultra Stones.
+                                    Please retain your registration number
+                                    for future reference.
+                                </p>
+                            </div>
+                        </div>
 
-            {/* =============================================
+                        {/* =============================================
                 SUBMIT BUTTON
             ============================================= */}
 
-            <div
-              className="
+                        <div
+                            className="
                 flex
                 flex-col
                 sm:flex-row
@@ -3628,28 +3630,28 @@ useEffect(() => {
                 gap-6
                 pt-2
               "
-            >
-              <p
-                className="
+                        >
+                            <p
+                                className="
                   text-[12px]
                   text-[#888]
                   leading-relaxed
                   max-w-[450px]
                 "
-              >
-                Please verify all information and
-                uploaded documents before submitting
-                your registration.
-              </p>
+                            >
+                                Please verify all information and
+                                uploaded documents before submitting
+                                your registration.
+                            </p>
 
-              <button
-                type="submit"
-                disabled={
-                  submitting ||
-                  categoriesLoading ||
-                  productsLoading
-                }
-                className="
+                            <button
+                                type="submit"
+                                disabled={
+                                    submitting ||
+                                    categoriesLoading ||
+                                    productsLoading
+                                }
+                                className="
                   flex
                   items-center
                   justify-center
@@ -3670,32 +3672,32 @@ useEffect(() => {
                   disabled:opacity-60
                   disabled:cursor-not-allowed
                 "
-              >
-                {submitting ? (
-                  <>
-                    <Loader2
-                      size={18}
-                      className="
+                            >
+                                {submitting ? (
+                                    <>
+                                        <Loader2
+                                            size={18}
+                                            className="
                         animate-spin
                       "
-                    />
+                                        />
 
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    Submit Registration
+                                        Submitting...
+                                    </>
+                                ) : (
+                                    <>
+                                        Submit Registration
 
-                    <ArrowRight
-                      size={18}
-                    />
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
-    </div>
-  );
+                                        <ArrowRight
+                                            size={18}
+                                        />
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            )}
+        </div>
+    );
 }
