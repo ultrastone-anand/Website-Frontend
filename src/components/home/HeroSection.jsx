@@ -5,7 +5,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 
@@ -172,9 +171,6 @@ const getNumber = (
 ========================================================= */
 
 const HeroSection = () => {
-  const videoRef =
-    useRef(null);
-
   const [
     hero,
     setHero,
@@ -462,61 +458,6 @@ const HeroSection = () => {
       : optimizedVideoUrl;
 
   /* =======================================================
-     VIDEO START
-  ======================================================= */
-
-  useEffect(() => {
-    const video =
-      videoRef.current;
-
-    if (
-      mediaType !==
-        "VIDEO" ||
-      !video ||
-      !activeVideoUrl
-    ) {
-      return undefined;
-    }
-
-    let cancelled =
-      false;
-
-    const startVideo =
-      async () => {
-        try {
-          await video.play();
-
-          if (
-            !cancelled
-          ) {
-            setHasVideoStarted(
-              true
-            );
-          }
-        } catch (error) {
-          if (
-            !cancelled
-          ) {
-            console.warn(
-              "Hero video autoplay failed:",
-              error
-            );
-          }
-        }
-      };
-
-    startVideo();
-
-    return () => {
-      cancelled =
-        true;
-    };
-  }, [
-    mediaType,
-    activeVideoUrl,
-  ]);
-
-  /* =======================================================
      VIDEO HANDLERS
   ======================================================= */
 
@@ -531,7 +472,8 @@ const HeroSection = () => {
     useCallback(() => {
       if (
         !useOriginalVideo &&
-        originalVideoUrl
+        originalVideoUrl &&
+        originalVideoUrl !== optimizedVideoUrl
       ) {
         console.warn(
           "Optimized video failed. Falling back to original video."
@@ -562,6 +504,7 @@ const HeroSection = () => {
     }, [
       useOriginalVideo,
       originalVideoUrl,
+      optimizedVideoUrl,
     ]);
 
   /* =======================================================
@@ -673,19 +616,16 @@ const HeroSection = () => {
           VIDEO
       ================================================= */}
 
-      {mediaType ===
-        "VIDEO" &&
+      {mediaType === "VIDEO" &&
         !videoFailed &&
         activeVideoUrl && (
           <video
-            ref={
-              videoRef
-            }
+            key={activeVideoUrl}
             muted
             loop
             playsInline
             autoPlay
-            preload="auto"
+            preload="metadata"
             poster={
               resolvedPosterUrl ||
               undefined
@@ -700,9 +640,6 @@ const HeroSection = () => {
             className="absolute inset-0 h-full w-full object-cover"
           >
             <source
-              key={
-                activeVideoUrl
-              }
               src={
                 activeVideoUrl
               }
