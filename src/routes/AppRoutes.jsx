@@ -4,7 +4,20 @@ import { Routes, Route } from "react-router-dom";
 import ScrollToTop from "../components/common/ScrollToTop";
 import WebsiteLayout from "../layouts/WebsiteLayout";
 
-const Home = lazy(() => import("../pages/Home"));
+/* =========================================================
+   HOME PAGE
+
+   Direct import to remove the lazy-route dependency
+   from initial homepage navigation.
+
+   Other routes remain lazy-loaded.
+========================================================= */
+
+import Home from "../pages/Home";
+
+/* =========================================================
+   LAZY LOADED ROUTES
+========================================================= */
 
 const Contact = lazy(() =>
   import("../pages/Contact/Contact")
@@ -88,6 +101,10 @@ const Productregistration = lazy(() =>
   import("../pages/Resource_Center/ProductRegistration/Productregistration")
 );
 
+/* =========================================================
+   APPLICATION ROUTES
+========================================================= */
+
 function AppRoutes() {
   return (
     <>
@@ -95,9 +112,18 @@ function AppRoutes() {
 
       <Routes>
         <Route element={<WebsiteLayout />}>
-          <Route path="/" element={<Home />} />
 
-          <Route path="/categories" element={<Category />} />
+          {/* HOME */}
+          <Route
+            path="/"
+            element={<Home />}
+          />
+
+          {/* MATERIAL PORTFOLIO */}
+          <Route
+            path="/categories"
+            element={<Category />}
+          />
 
           <Route
             path="/product-category/:slug"
@@ -109,38 +135,68 @@ function AppRoutes() {
             element={<ProductDetails />}
           />
 
-          <Route path="/contact" element={<Contact />} />
+          {/* CONTACT */}
+          <Route
+            path="/contact"
+            element={<Contact />}
+          />
 
-          <Route path="/thankyou" element={<Thankyoupage />} />
+          <Route
+            path="/thankyou"
+            element={<Thankyoupage />}
+          />
 
-          <Route path="/locations/:slug" element={<Location />} />
+          {/* ULTRA EXPERIENCE */}
+          <Route
+            path="/locations/:slug"
+            element={<Location />}
+          />
 
-          <Route path="/aboutus" element={<Aboutus />} />
+          <Route
+            path="/aboutus"
+            element={<Aboutus />}
+          />
 
-          <Route path="/ourprocess" element={<OurProcess />} />
+          <Route
+            path="/ourprocess"
+            element={<OurProcess />}
+          />
 
-          <Route path="/blogs" element={<Ourblogs />} />
+          {/* RESOURCE CENTER */}
+          <Route
+            path="/blogs"
+            element={<Ourblogs />}
+          />
 
           <Route
             path="/blog/:identifier"
             element={<BlogDetailedView />}
           />
 
-          <Route path="/ceu" element={<Ceu />} />
+          <Route
+            path="/ceu"
+            element={<Ceu />}
+          />
 
           <Route
             path="/privacy-policy"
             element={<PrivacyPolicy />}
           />
 
-          <Route path="/career" element={<Career />} />
+          <Route
+            path="/career"
+            element={<Career />}
+          />
 
           <Route
             path="/careers/:slug"
             element={<CareerDetails />}
           />
 
-          <Route path="/gallery" element={<Gallery />} />
+          <Route
+            path="/gallery"
+            element={<Gallery />}
+          />
 
           <Route
             path="/merchandising-displays"
@@ -151,7 +207,7 @@ function AppRoutes() {
             path="/safety-first"
             element={<SafetyFirst />}
           />
-          
+
           <Route
             path="/resources"
             element={<Resources />}
@@ -162,7 +218,12 @@ function AppRoutes() {
             element={<Productregistration />}
           />
 
-          <Route path="*" element={<NotFound />} />
+          {/* 404 */}
+          <Route
+            path="*"
+            element={<NotFound />}
+          />
+
         </Route>
       </Routes>
     </>

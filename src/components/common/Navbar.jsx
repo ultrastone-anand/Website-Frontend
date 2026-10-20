@@ -1,4 +1,7 @@
 import {
+  lazy,
+  Suspense,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -19,39 +22,114 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import GlobalSearch from "./GlobalSearch";
-
 import {
   getOptimizedImageUrl,
 } from "../../utils/Mediahelper";
+
+/* =========================================================
+   LAZY IMPORTS
+========================================================= */
+
+const GlobalSearch = lazy(() =>
+  import("./GlobalSearch")
+);
+
+/* =========================================================
+   CONSTANTS
+========================================================= */
 
 const INVENTORY_URL =
   "https://ultrastones.stoneprofitsweb.com/";
 
 const DESKTOP_BREAKPOINT = 1180;
 
+const MATERIALS_API_URL =
+  `${import.meta.env.VITE_API_URL}/stones`;
+
 /* =========================================================
-   SORT
+   STATIC MENU DATA
 ========================================================= */
 
-const alphabeticalSort = (
-  a,
-  b,
-) =>
-  String(
-    a.name || "",
-  ).localeCompare(
-    String(
-      b.name || "",
-    ),
+const EXPERIENCE = [
+  {
+    label: "About Us",
+    path: "/aboutus",
+  },
+  {
+    label: "Our Process",
+    path: "/ourprocess",
+  },
+];
+
+const RESOURCES = [
+  {
+    label: "Resources",
+    path: "/resources",
+  },
+  {
+    label: "Merchandising Displays",
+    path: "/merchandising-displays",
+  },
+  {
+    label: "Portfolio",
+    path: "/gallery",
+  },
+  {
+    label: "Silica Safety First",
+    path: "/safety-first",
+  },
+  {
+    label: "CEU",
+    path: "/ceu",
+  },
+  {
+    label: "Our Blogs",
+    path: "/blogs",
+  },
+  {
+    label: "Career",
+    path: "/career",
+  },
+  {
+    label: "Product Registration",
+    path: "/product_registration",
+  },
+];
+
+const LOCATIONS = [
+  {
+    label: "New York",
+    path: "/locations/new-york",
+  },
+  {
+    label: "Philadelphia",
+    path: "/locations/philadelphia",
+  },
+];
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const alphabeticalSort = (a, b) =>
+  String(a.name || "").localeCompare(
+    String(b.name || ""),
     undefined,
     {
-      sensitivity:
-        "base",
+      sensitivity: "base",
+      numeric: true,
+    }
+  );
 
-      numeric:
-        true,
-    },
+const getThumbnailUrl = (
+  url,
+  width = 220,
+  quality = 72
+) =>
+  getOptimizedImageUrl(
+    url || "/placeholder.jpg",
+    width,
+    quality
   );
 
 /* =========================================================
@@ -59,44 +137,33 @@ const alphabeticalSort = (
 ========================================================= */
 
 const Navbar = () => {
-  const navigate =
-    useNavigate();
-
-  const location =
-    useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const isHomePage =
-    location.pathname ===
-    "/";
+    location.pathname === "/";
 
   /* =======================================================
      STATE
   ======================================================= */
 
-  const [
-    mobileMenu,
-    setMobileMenu,
-  ] = useState(false);
+  const [mobileMenu, setMobileMenu] =
+    useState(false);
 
-  const [
-    mobileDropdown,
-    setMobileDropdown,
-  ] = useState(null);
+  const [mobileDropdown, setMobileDropdown] =
+    useState(null);
 
-  const [
-    activeDropdown,
-    setActiveDropdown,
-  ] = useState(null);
+  const [activeDropdown, setActiveDropdown] =
+    useState(null);
 
-  const [
-    materials,
-    setMaterials,
-  ] = useState([]);
+  const [materials, setMaterials] =
+    useState([]);
 
-  const [
-    scrolled,
-    setScrolled,
-  ] = useState(false);
+  const [materialsLoaded, setMaterialsLoaded] =
+    useState(false);
+
+  const [scrolled, setScrolled] =
+    useState(false);
 
   const [
     desktopSearchOpen,
@@ -107,11 +174,11 @@ const Navbar = () => {
      REFS
   ======================================================= */
 
-  const dropdownTimeout =
-    useRef(null);
+  const dropdownTimeout = useRef(null);
+  const scrollFrameRef = useRef(null);
 
-  const scrollFrameRef =
-    useRef(null);
+  const materialsRequestRef = useRef(null);
+  const materialsLoadedRef = useRef(false);
 
   /* =======================================================
      NAVBAR STYLE
@@ -123,46 +190,90 @@ const Navbar = () => {
     !mobileMenu &&
     !desktopSearchOpen;
 
-  /* =========================================================
-     SCROLL DETECTION
+  /* =======================================================
+     LOAD MATERIALS ON DEMAND
 
-     requestAnimationFrame keeps scroll work synced
-     with browser paint and avoids excessive updates.
-  ========================================================= */
+     Requests are deduplicated.
+
+     Categories are fetched only when the user
+     interacts with Material Portfolio or search.
+  ======================================================= */
+
+  const loadMaterials = useCallback(async () => {
+    if (materialsLoadedRef.current) {
+      return;
+    }
+
+    if (materialsRequestRef.current) {
+      return materialsRequestRef.current;
+    }
+
+    const request = axios
+      .get(MATERIALS_API_URL)
+      .then((response) => {
+        const result = response.data;
+
+        if (result?.success) {
+          const activeMaterials = (
+            result.data || []
+          ).filter(
+            (item) => item.is_active === true
+          );
+
+          setMaterials(activeMaterials);
+
+          materialsLoadedRef.current = true;
+          setMaterialsLoaded(true);
+        } else {
+          throw new Error(
+            result?.message ||
+              "Failed to load materials."
+          );
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Error fetching materials:",
+          error
+        );
+      })
+      .finally(() => {
+        materialsRequestRef.current = null;
+      });
+
+    materialsRequestRef.current = request;
+
+    return request;
+  }, []);
+
+  /* =======================================================
+     SCROLL DETECTION
+  ======================================================= */
 
   useEffect(() => {
-    const updateScrollState =
-      () => {
-        const nextScrolled =
-          window.scrollY >
-          40;
+    const updateScrollState = () => {
+      const nextScrolled =
+        window.scrollY > 40;
 
-        setScrolled(
-          (current) =>
-            current ===
-            nextScrolled
-              ? current
-              : nextScrolled,
+      setScrolled((current) =>
+        current === nextScrolled
+          ? current
+          : nextScrolled
+      );
+
+      scrollFrameRef.current = null;
+    };
+
+    const handleScroll = () => {
+      if (scrollFrameRef.current !== null) {
+        return;
+      }
+
+      scrollFrameRef.current =
+        window.requestAnimationFrame(
+          updateScrollState
         );
-
-        scrollFrameRef.current =
-          null;
-      };
-
-    const handleScroll =
-      () => {
-        if (
-          scrollFrameRef.current !==
-          null
-        ) {
-          return;
-        }
-
-        scrollFrameRef.current =
-          window.requestAnimationFrame(
-            updateScrollState,
-          );
-      };
+    };
 
     updateScrollState();
 
@@ -171,194 +282,82 @@ const Navbar = () => {
       handleScroll,
       {
         passive: true,
-      },
+      }
     );
 
     return () => {
       window.removeEventListener(
         "scroll",
-        handleScroll,
+        handleScroll
       );
 
-      if (
-        scrollFrameRef.current !==
-        null
-      ) {
+      if (scrollFrameRef.current !== null) {
         window.cancelAnimationFrame(
-          scrollFrameRef.current,
+          scrollFrameRef.current
         );
-
-        scrollFrameRef.current =
-          null;
       }
     };
   }, []);
 
-  /* =========================================================
-     FETCH MATERIAL CATEGORIES
-  ========================================================= */
-
-  useEffect(() => {
-    const controller =
-      new AbortController();
-
-    const fetchMaterials =
-      async () => {
-        try {
-          const response =
-            await axios.get(
-              `${import.meta.env.VITE_API_URL}/stones`,
-              {
-                signal:
-                  controller.signal,
-              },
-            );
-
-          const result =
-            response.data;
-
-          if (
-            result.success
-          ) {
-            setMaterials(
-              (
-                result.data ||
-                []
-              ).filter(
-                (item) =>
-                  item.is_active ===
-                  true,
-              ),
-            );
-          }
-        } catch (error) {
-          if (
-            error.code !==
-              "ERR_CANCELED" &&
-            error.name !==
-              "CanceledError"
-          ) {
-            console.error(
-              "Error fetching materials:",
-              error,
-            );
-          }
-        }
-      };
-
-    fetchMaterials();
-
-    return () => {
-      controller.abort();
-    };
-  }, []);
-
-  /* =========================================================
+  /* =======================================================
      CLOSE UI AFTER ROUTE CHANGE
-  ========================================================= */
+  ======================================================= */
 
   useEffect(() => {
-    setMobileMenu(
-      false,
-    );
+    setMobileMenu(false);
+    setMobileDropdown(null);
+    setActiveDropdown(null);
+    setDesktopSearchOpen(false);
+  }, [location.pathname]);
 
-    setMobileDropdown(
-      null,
-    );
-
-    setActiveDropdown(
-      null,
-    );
-
-    setDesktopSearchOpen(
-      false,
-    );
-  }, [
-    location.pathname,
-  ]);
-
-  /* =========================================================
+  /* =======================================================
      BREAKPOINT WATCH
-
-     Better than listening to every resize event.
-     Only reacts when crossing 1180px.
-  ========================================================= */
+  ======================================================= */
 
   useEffect(() => {
-    const mediaQuery =
-      window.matchMedia(
-        `(min-width: ${DESKTOP_BREAKPOINT}px)`,
-      );
-
-    const handleBreakpointChange =
-      (event) => {
-        if (
-          event.matches
-        ) {
-          /*
-           * Desktop
-           */
-          setMobileMenu(
-            false,
-          );
-
-          setMobileDropdown(
-            null,
-          );
-        } else {
-          /*
-           * Tablet / Mobile
-           */
-          setDesktopSearchOpen(
-            false,
-          );
-
-          setActiveDropdown(
-            null,
-          );
-        }
-      };
-
-    handleBreakpointChange(
-      mediaQuery,
+    const mediaQuery = window.matchMedia(
+      `(min-width: ${DESKTOP_BREAKPOINT}px)`
     );
+
+    const handleBreakpointChange = (event) => {
+      if (event.matches) {
+        setMobileMenu(false);
+        setMobileDropdown(null);
+      } else {
+        setDesktopSearchOpen(false);
+        setActiveDropdown(null);
+      }
+    };
+
+    handleBreakpointChange(mediaQuery);
 
     mediaQuery.addEventListener(
       "change",
-      handleBreakpointChange,
+      handleBreakpointChange
     );
 
     return () => {
       mediaQuery.removeEventListener(
         "change",
-        handleBreakpointChange,
+        handleBreakpointChange
       );
     };
   }, []);
 
-  /* =========================================================
+  /* =======================================================
      BODY SCROLL LOCK
-
-     Locks both body and html.
-     Helps prevent Safari/iPad getting stuck.
-  ========================================================= */
+  ======================================================= */
 
   useEffect(() => {
     const shouldLock =
-      mobileMenu ||
-      desktopSearchOpen;
+      mobileMenu || desktopSearchOpen;
 
-    if (
-      !shouldLock
-    ) {
+    if (!shouldLock) {
       return undefined;
     }
 
-    const body =
-      document.body;
-
-    const html =
-      document.documentElement;
+    const body = document.body;
+    const html = document.documentElement;
 
     const previousBodyOverflow =
       body.style.overflow;
@@ -372,17 +371,11 @@ const Navbar = () => {
     const previousHtmlTouchAction =
       html.style.touchAction;
 
-    body.style.overflow =
-      "hidden";
+    body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
 
-    html.style.overflow =
-      "hidden";
-
-    body.style.touchAction =
-      "none";
-
-    html.style.touchAction =
-      "none";
+    body.style.touchAction = "none";
+    html.style.touchAction = "none";
 
     return () => {
       body.style.overflow =
@@ -402,341 +395,170 @@ const Navbar = () => {
     desktopSearchOpen,
   ]);
 
-  /* =========================================================
+  /* =======================================================
      ESCAPE KEY
-  ========================================================= */
+  ======================================================= */
 
   useEffect(() => {
-    const handleKeyDown =
-      (event) => {
-        if (
-          event.key !==
-          "Escape"
-        ) {
-          return;
-        }
+    const handleKeyDown = (event) => {
+      if (event.key !== "Escape") {
+        return;
+      }
 
-        setMobileMenu(
-          false,
-        );
-
-        setMobileDropdown(
-          null,
-        );
-
-        setActiveDropdown(
-          null,
-        );
-
-        setDesktopSearchOpen(
-          false,
-        );
-      };
+      setMobileMenu(false);
+      setMobileDropdown(null);
+      setActiveDropdown(null);
+      setDesktopSearchOpen(false);
+    };
 
     window.addEventListener(
       "keydown",
-      handleKeyDown,
+      handleKeyDown
     );
 
     return () => {
       window.removeEventListener(
         "keydown",
-        handleKeyDown,
+        handleKeyDown
       );
     };
   }, []);
 
-  /* =========================================================
+  /* =======================================================
      CLEAR DROPDOWN TIMER
-  ========================================================= */
+  ======================================================= */
 
   useEffect(() => {
     return () => {
-      if (
-        dropdownTimeout.current
-      ) {
+      if (dropdownTimeout.current) {
         window.clearTimeout(
-          dropdownTimeout.current,
+          dropdownTimeout.current
         );
       }
     };
   }, []);
 
-  /* =========================================================
-     DROPDOWN
-  ========================================================= */
+  /* =======================================================
+     DROPDOWN HANDLERS
+  ======================================================= */
 
-  const openDropdown =
-    (menu) => {
-      if (
+  const openDropdown = (menu) => {
+    if (dropdownTimeout.current) {
+      window.clearTimeout(
         dropdownTimeout.current
-      ) {
-        window.clearTimeout(
-          dropdownTimeout.current,
-        );
-      }
-
-      setDesktopSearchOpen(
-        false,
       );
+    }
 
-      setActiveDropdown(
-        menu,
-      );
-    };
+    if (menu === "materials") {
+      loadMaterials();
+    }
 
-  const closeDropdown =
-    () => {
-      if (
+    setDesktopSearchOpen(false);
+    setActiveDropdown(menu);
+  };
+
+  const closeDropdown = () => {
+    if (dropdownTimeout.current) {
+      window.clearTimeout(
         dropdownTimeout.current
-      ) {
-        window.clearTimeout(
-          dropdownTimeout.current,
-        );
-      }
+      );
+    }
 
-      dropdownTimeout.current =
-        window.setTimeout(
-          () => {
-            setActiveDropdown(
-              null,
-            );
-          },
-          180,
-        );
-    };
+    dropdownTimeout.current =
+      window.setTimeout(() => {
+        setActiveDropdown(null);
+      }, 180);
+  };
 
-  /* =========================================================
+  /* =======================================================
      CLOSE MOBILE
-  ========================================================= */
+  ======================================================= */
 
-  const closeMobileMenu =
-    () => {
-      setMobileMenu(
-        false,
-      );
+  const closeMobileMenu = () => {
+    setMobileMenu(false);
+    setMobileDropdown(null);
+  };
 
-      setMobileDropdown(
-        null,
-      );
-    };
+  /* =======================================================
+     NAVIGATION
+  ======================================================= */
 
-  /* =========================================================
-     NAVIGATE
-  ========================================================= */
+  const handleNavigate = (path) => {
+    setActiveDropdown(null);
+    setDesktopSearchOpen(false);
+    setMobileMenu(false);
+    setMobileDropdown(null);
 
-  const handleNavigate =
-    (path) => {
-      setActiveDropdown(
-        null,
-      );
+    navigate(path);
+  };
 
-      setDesktopSearchOpen(
-        false,
-      );
-
-      setMobileMenu(
-        false,
-      );
-
-      setMobileDropdown(
-        null,
-      );
-
-      navigate(path);
-    };
-
-  /* =========================================================
+  /* =======================================================
      INVENTORY
-  ========================================================= */
+  ======================================================= */
 
-  const openInventory =
-    () => {
-      window.open(
-        INVENTORY_URL,
-        "_blank",
-        "noopener,noreferrer",
-      );
+  const openInventory = () => {
+    window.open(
+      INVENTORY_URL,
+      "_blank",
+      "noopener,noreferrer"
+    );
 
-      setActiveDropdown(
-        null,
-      );
+    setActiveDropdown(null);
+    setDesktopSearchOpen(false);
 
-      setDesktopSearchOpen(
-        false,
-      );
+    closeMobileMenu();
+  };
 
-      closeMobileMenu();
-    };
-
-  /* =========================================================
+  /* =======================================================
      SEARCH
-  ========================================================= */
+  ======================================================= */
 
-  const toggleDesktopSearch =
-    () => {
-      setActiveDropdown(
-        null,
-      );
+  const toggleDesktopSearch = () => {
+    setActiveDropdown(null);
 
-      setDesktopSearchOpen(
-        (current) =>
-          !current,
-      );
-    };
-
-  /* =========================================================
-     LOGO
-  ========================================================= */
-
-  const handleLogoClick =
-    () => {
-      if (
-        location.pathname ===
-        "/"
-      ) {
-        window.scrollTo({
-          top: 0,
-
-          behavior:
-            "smooth",
-        });
-
-        return;
+    setDesktopSearchOpen((current) => {
+      if (!current) {
+        loadMaterials();
       }
 
-      handleNavigate(
-        "/",
-      );
-    };
+      return !current;
+    });
+  };
 
-  /* =========================================================
-     MENU DATA
-  ========================================================= */
+  /* =======================================================
+     LOGO
+  ======================================================= */
 
-  const experience = [
-    {
-      label:
-        "About Us",
+  const handleLogoClick = () => {
+    if (location.pathname === "/") {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
 
-      path:
-        "/aboutus",
-    },
+      return;
+    }
 
-    {
-      label:
-        "Our Process",
+    handleNavigate("/");
+  };
 
-      path:
-        "/ourprocess",
-    },
-  ];
-
-  const resources = [
-    {
-      label:
-        "Resources",
-
-      path:
-        "/resources",
-    },
-    {
-      label:
-        "Merchandising Displays",
-
-      path:
-        "/merchandising-displays",
-    },
-
-    {
-      label:
-        "Portfolio",
-
-      path:
-        "/gallery",
-    },
-
-    {
-      label:
-        "Silica Safety First",
-
-      path:
-        "/safety-first",
-    },
-    {
-      label:
-        "CEU",
-
-      path:
-        "/ceu",
-    },
-
-    {
-      label:
-        "Our Blogs",
-
-      path:
-        "/blogs",
-    },
-
-    {
-      label:
-        "Career",
-
-      path:
-        "/career",
-    },
-
-    {
-      label:
-        "Product Registration",
-
-      path:
-        "/product_registration",
-    },
-  ];
-
-  const locations = [
-    {
-      label:
-        "New York",
-
-      path:
-        "/locations/new-york",
-    },
-
-    {
-      label:
-        "Philadelphia",
-
-      path:
-        "/locations/philadelphia",
-    },
-  ];
-
-  /* =========================================================
+  /* =======================================================
      MOBILE MATERIALS
-  ========================================================= */
+  ======================================================= */
 
-  const mobileParentMaterials =
-    useMemo(() => {
-      return materials
-        .filter(
-          (item) =>
-            item.parent_id ===
-              null &&
-            item.is_active,
-        )
-        .sort(
-          alphabeticalSort,
-        );
-    }, [
-      materials,
-    ]);
+  const mobileParentMaterials = useMemo(() => {
+    return materials
+      .filter(
+        (item) =>
+          item.parent_id === null &&
+          item.is_active
+      )
+      .sort(alphabeticalSort);
+  }, [materials]);
 
-  /* =========================================================
+  /* =======================================================
      RENDER
-  ========================================================= */
+  ======================================================= */
 
   return (
     <>
@@ -775,7 +597,6 @@ const Navbar = () => {
             min-[1700px]:px-12
           "
         >
-
           {/* =================================================
               FULL LOGO
           ================================================= */}
@@ -821,9 +642,7 @@ const Navbar = () => {
                   `
               }
             `}
-            onClick={
-              handleLogoClick
-            }
+            onClick={handleLogoClick}
           >
             <div
               className="
@@ -850,9 +669,7 @@ const Navbar = () => {
               <img
                 src="/logo_white.svg"
                 alt="Ultra Stones"
-                draggable={
-                  false
-                }
+                draggable={false}
                 className={`
                   absolute
                   inset-0
@@ -874,9 +691,7 @@ const Navbar = () => {
               <img
                 src="/logo1.svg"
                 alt="Ultra Stones"
-                draggable={
-                  false
-                }
+                draggable={false}
                 className={`
                   absolute
                   inset-0
@@ -939,12 +754,8 @@ const Navbar = () => {
             `}
           >
             <DesktopSearchButton
-              isOpen={
-                desktopSearchOpen
-              }
-              onClick={
-                toggleDesktopSearch
-              }
+              isOpen={desktopSearchOpen}
+              onClick={toggleDesktopSearch}
             />
           </div>
 
@@ -1001,7 +812,6 @@ const Navbar = () => {
               }
             `}
           >
-
             {/* ===============================================
                 FAVICON AFTER SCROLL
             =============================================== */}
@@ -1038,9 +848,7 @@ const Navbar = () => {
               <button
                 type="button"
                 aria-label="Go to Ultra Stones home page"
-                onClick={
-                  handleLogoClick
-                }
+                onClick={handleLogoClick}
                 className="
                   flex
                   h-10
@@ -1059,9 +867,7 @@ const Navbar = () => {
                   alt="Ultra Stones"
                   width="30"
                   height="30"
-                  draggable={
-                    false
-                  }
+                  draggable={false}
                   className="
                     block
                     h-[30px]
@@ -1078,101 +884,56 @@ const Navbar = () => {
 
             <Dropdown
               title="Ultra Experience"
-              items={
-                experience
-              }
-              activeDropdown={
-                activeDropdown
-              }
+              items={EXPERIENCE}
+              activeDropdown={activeDropdown}
               dropdownKey="experience"
-              openDropdown={
-                openDropdown
-              }
-              closeDropdown={
-                closeDropdown
-              }
-              navigate={
-                handleNavigate
-              }
+              openDropdown={openDropdown}
+              closeDropdown={closeDropdown}
+              navigate={handleNavigate}
             />
 
             <NavLink
               title="Online Inventory"
-              onClick={
-                openInventory
-              }
+              onClick={openInventory}
             />
 
             <MegaMenu
               title="Material Portfolio"
               path="/categories"
-              materials={
-                materials
-              }
-              activeDropdown={
-                activeDropdown
-              }
+              materials={materials}
+              materialsLoaded={materialsLoaded}
+              activeDropdown={activeDropdown}
               dropdownKey="materials"
-              openDropdown={
-                openDropdown
-              }
-              closeDropdown={
-                closeDropdown
-              }
-              navigate={
-                handleNavigate
-              }
-              scrolled={
-                scrolled
-              }
+              openDropdown={openDropdown}
+              closeDropdown={closeDropdown}
+              navigate={handleNavigate}
+              scrolled={scrolled}
             />
 
             <Dropdown
               title="Resource Center"
-              items={
-                resources
-              }
-              activeDropdown={
-                activeDropdown
-              }
+              items={RESOURCES}
+              activeDropdown={activeDropdown}
               dropdownKey="resources"
-              openDropdown={
-                openDropdown
-              }
-              closeDropdown={
-                closeDropdown
-              }
-              navigate={
-                handleNavigate
-              }
+              openDropdown={openDropdown}
+              closeDropdown={closeDropdown}
+              navigate={handleNavigate}
             />
 
             <Dropdown
               title="Locations"
-              items={
-                locations
-              }
-              activeDropdown={
-                activeDropdown
-              }
+              items={LOCATIONS}
+              activeDropdown={activeDropdown}
               dropdownKey="locations"
-              openDropdown={
-                openDropdown
-              }
-              closeDropdown={
-                closeDropdown
-              }
-              navigate={
-                handleNavigate
-              }
+              openDropdown={openDropdown}
+              closeDropdown={closeDropdown}
+              navigate={handleNavigate}
             />
 
             <NavLink
               title="Contact"
               onClick={() =>
-                handleNavigate(
-                  "/contact",
-                )
+                handleNavigate("/contact")
               }
             />
 
@@ -1188,7 +949,6 @@ const Navbar = () => {
 
                 transition-[max-width,margin,opacity]
                 duration-500
-                ease-[cubic-bezier(0.22,1,0.36,1)]
 
                 ${
                   scrolled
@@ -1223,12 +983,8 @@ const Navbar = () => {
 
               <DesktopSearchButton
                 compact
-                isOpen={
-                  desktopSearchOpen
-                }
-                onClick={
-                  toggleDesktopSearch
-                }
+                isOpen={desktopSearchOpen}
+                onClick={toggleDesktopSearch}
               />
             </div>
           </nav>
@@ -1244,9 +1000,7 @@ const Navbar = () => {
                 ? "Close navigation menu"
                 : "Open navigation menu"
             }
-            aria-expanded={
-              mobileMenu
-            }
+            aria-expanded={mobileMenu}
             className={`
               pointer-events-auto
               absolute
@@ -1293,34 +1047,23 @@ const Navbar = () => {
               }
             `}
             onClick={() => {
-              setDesktopSearchOpen(
-                false,
-              );
+              setDesktopSearchOpen(false);
 
-              setMobileMenu(
-                (current) =>
-                  !current,
-              );
+              setMobileMenu((current) => {
+                if (!current) {
+                  loadMaterials();
+                }
 
-              setMobileDropdown(
-                null,
-              );
+                return !current;
+              });
+
+              setMobileDropdown(null);
             }}
           >
             {mobileMenu ? (
-              <X
-                size={23}
-                strokeWidth={
-                  1.6
-                }
-              />
+              <X size={23} strokeWidth={1.6} />
             ) : (
-              <Menu
-                size={23}
-                strokeWidth={
-                  1.6
-                }
-              />
+              <Menu size={23} strokeWidth={1.6} />
             )}
           </button>
         </div>
@@ -1328,8 +1071,6 @@ const Navbar = () => {
 
       {/* =====================================================
           DESKTOP SEARCH OVERLAY
-
-          Mount only while open.
       ===================================================== */}
 
       {desktopSearchOpen && (
@@ -1344,16 +1085,12 @@ const Navbar = () => {
 
             min-[1180px]:block
           "
-          onMouseDown={(
-            event,
-          ) => {
+          onMouseDown={(event) => {
             if (
               event.target ===
               event.currentTarget
             ) {
-              setDesktopSearchOpen(
-                false,
-              );
+              setDesktopSearchOpen(false);
             }
           }}
         >
@@ -1403,8 +1140,7 @@ const Navbar = () => {
                     text-black/40
                   "
                 >
-                  Search Ultra
-                  Stones
+                  Search Ultra Stones
                 </p>
 
                 <h2
@@ -1419,8 +1155,7 @@ const Navbar = () => {
                     sm:text-[27px]
                   "
                 >
-                  Find your
-                  perfect material
+                  Find your perfect material
                 </h2>
 
                 <p
@@ -1432,11 +1167,8 @@ const Navbar = () => {
                     text-black/45
                   "
                 >
-                  Search across
-                  materials,
-                  categories, and
-                  product
-                  collections.
+                  Search across materials,
+                  categories, and product collections.
                 </p>
               </div>
 
@@ -1444,9 +1176,7 @@ const Navbar = () => {
                 type="button"
                 aria-label="Close search"
                 onClick={() =>
-                  setDesktopSearchOpen(
-                    false,
-                  )
+                  setDesktopSearchOpen(false)
                 }
                 className="
                   flex
@@ -1469,14 +1199,7 @@ const Navbar = () => {
                   hover:text-white
                 "
               >
-                <X
-                  size={
-                    18
-                  }
-                  strokeWidth={
-                    1.7
-                  }
-                />
+                <X size={18} strokeWidth={1.7} />
               </button>
             </div>
 
@@ -1489,19 +1212,21 @@ const Navbar = () => {
                 [&>div]:!max-w-none
               "
             >
-              <GlobalSearch
-                materials={
-                  materials
+              <Suspense
+                fallback={
+                  <div className="h-14 w-full animate-pulse rounded-xl bg-black/5" />
                 }
-                isLightNavbar
-                expanded
-                desktopModal
-                onResultClick={() => {
-                  setDesktopSearchOpen(
-                    false,
-                  );
-                }}
-              />
+              >
+                <GlobalSearch
+                  materials={materials}
+                  isLightNavbar
+                  expanded
+                  desktopModal
+                  onResultClick={() => {
+                    setDesktopSearchOpen(false);
+                  }}
+                />
+              </Suspense>
             </div>
           </div>
         </div>
@@ -1509,10 +1234,6 @@ const Navbar = () => {
 
       {/* =====================================================
           MOBILE / TABLET MENU
-
-          IMPORTANT:
-          This element DOES NOT EXIST while menu is closed.
-          Prevents invisible fixed overlay issues on Safari.
       ===================================================== */}
 
       {mobileMenu && (
@@ -1544,7 +1265,6 @@ const Navbar = () => {
               pt-[clamp(22px,4vw,36px)]
             "
           >
-
             {/* SEARCH */}
 
             <div
@@ -1552,15 +1272,17 @@ const Navbar = () => {
                 mb-[clamp(24px,5vw,40px)]
               "
             >
-              <GlobalSearch
-                materials={
-                  materials
+              <Suspense
+                fallback={
+                  <div className="h-12 w-full animate-pulse rounded-xl bg-white/10" />
                 }
-                mobile
-                onResultClick={
-                  closeMobileMenu
-                }
-              />
+              >
+                <GlobalSearch
+                  materials={materials}
+                  mobile
+                  onResultClick={closeMobileMenu}
+                />
+              </Suspense>
             </div>
 
             {/* EXPERIENCE */}
@@ -1568,43 +1290,28 @@ const Navbar = () => {
             <MobileDropdown
               title="Ultra Experience"
               dropdownKey="experience"
-              activeDropdown={
-                mobileDropdown
-              }
-              setActiveDropdown={
-                setMobileDropdown
-              }
-              items={
-                experience
-              }
-              navigate={
-                handleNavigate
-              }
-              closeMobileMenu={
-                closeMobileMenu
-              }
+              activeDropdown={mobileDropdown}
+              setActiveDropdown={setMobileDropdown}
+              items={EXPERIENCE}
+              navigate={handleNavigate}
+              closeMobileMenu={closeMobileMenu}
             />
 
             {/* INVENTORY */}
 
             <MobileNavButton
               title="Online Inventory"
-              onClick={
-                openInventory
-              }
+              onClick={openInventory}
             />
 
             {/* MATERIAL PORTFOLIO */}
 
             <div className="border-b border-white/10">
               <div className="flex w-full items-stretch">
-
                 <button
                   type="button"
                   onClick={() =>
-                    handleNavigate(
-                      "/categories",
-                    )
+                    handleNavigate("/categories")
                   }
                   className="
                     flex
@@ -1625,24 +1332,22 @@ const Navbar = () => {
                     hover:text-white/75
                   "
                 >
-                  Material
-                  Portfolio
+                  Material Portfolio
                 </button>
 
                 <button
                   type="button"
                   aria-label="Toggle Material Portfolio menu"
                   aria-expanded={
-                    mobileDropdown ===
-                    "materials"
+                    mobileDropdown === "materials"
                   }
                   onClick={() => {
-                    setMobileDropdown(
-                      (current) =>
-                        current ===
-                        "materials"
-                          ? null
-                          : "materials",
+                    loadMaterials();
+
+                    setMobileDropdown((current) =>
+                      current === "materials"
+                        ? null
+                        : "materials"
                     );
                   }}
                   className="
@@ -1656,17 +1361,14 @@ const Navbar = () => {
                   "
                 >
                   <ChevronDown
-                    size={
-                      18
-                    }
+                    size={18}
                     className={`
                       shrink-0
                       transition-transform
                       duration-300
 
                       ${
-                        mobileDropdown ===
-                        "materials"
+                        mobileDropdown === "materials"
                           ? "rotate-180"
                           : ""
                       }
@@ -1682,8 +1384,7 @@ const Navbar = () => {
                   duration-300
 
                   ${
-                    mobileDropdown ===
-                    "materials"
+                    mobileDropdown === "materials"
                       ? `
                         grid-rows-[1fr]
                         opacity-100
@@ -1709,17 +1410,13 @@ const Navbar = () => {
                     "
                   >
                     {mobileParentMaterials.map(
-                      (
-                        item,
-                      ) => (
+                      (item) => (
                         <button
                           type="button"
-                          key={
-                            item.id
-                          }
+                          key={item.id}
                           onClick={() =>
                             handleNavigate(
-                              `/product-category/${item.slug}`,
+                              `/product-category/${item.slug}`
                             )
                           }
                           className="
@@ -1736,11 +1433,15 @@ const Navbar = () => {
                             hover:text-white
                           "
                         >
-                          {
-                            item.name
-                          }
+                          {item.name}
                         </button>
-                      ),
+                      )
+                    )}
+
+                    {!materialsLoaded && (
+                      <p className="text-sm text-white/50">
+                        Loading materials...
+                      </p>
                     )}
                   </div>
                 </div>
@@ -1752,21 +1453,11 @@ const Navbar = () => {
             <MobileDropdown
               title="Resource Center"
               dropdownKey="resources"
-              activeDropdown={
-                mobileDropdown
-              }
-              setActiveDropdown={
-                setMobileDropdown
-              }
-              items={
-                resources
-              }
-              navigate={
-                handleNavigate
-              }
-              closeMobileMenu={
-                closeMobileMenu
-              }
+              activeDropdown={mobileDropdown}
+              setActiveDropdown={setMobileDropdown}
+              items={RESOURCES}
+              navigate={handleNavigate}
+              closeMobileMenu={closeMobileMenu}
             />
 
             {/* LOCATIONS */}
@@ -1774,21 +1465,11 @@ const Navbar = () => {
             <MobileDropdown
               title="Locations"
               dropdownKey="locations"
-              activeDropdown={
-                mobileDropdown
-              }
-              setActiveDropdown={
-                setMobileDropdown
-              }
-              items={
-                locations
-              }
-              navigate={
-                handleNavigate
-              }
-              closeMobileMenu={
-                closeMobileMenu
-              }
+              activeDropdown={mobileDropdown}
+              setActiveDropdown={setMobileDropdown}
+              items={LOCATIONS}
+              navigate={handleNavigate}
+              closeMobileMenu={closeMobileMenu}
             />
 
             {/* CONTACT */}
@@ -1796,9 +1477,7 @@ const Navbar = () => {
             <MobileNavButton
               title="Contact"
               onClick={() =>
-                handleNavigate(
-                  "/contact",
-                )
+                handleNavigate("/contact")
               }
             />
           </div>
@@ -1818,104 +1497,82 @@ const DesktopSearchButton = ({
   isOpen,
   onClick,
   compact = false,
-}) => {
-  return (
-    <button
-      type="button"
-      aria-label={
+}) => (
+  <button
+    type="button"
+    aria-label={
+      isOpen
+        ? "Close website search"
+        : "Open website search"
+    }
+    aria-expanded={isOpen}
+    onClick={onClick}
+    className={`
+      flex
+      shrink-0
+      items-center
+      justify-center
+      gap-2
+      rounded-full
+      font-semibold
+      uppercase
+      text-[#17130e]
+
+      transition-[transform,background-color]
+      duration-300
+
+      hover:-translate-y-[1px]
+      hover:bg-[#f0af63]
+
+      ${
+        compact
+          ? `
+            h-9
+            px-3
+            text-[9px]
+            tracking-[0.55px]
+
+            min-[1360px]:h-10
+            min-[1360px]:px-4
+
+            min-[1500px]:px-5
+            min-[1500px]:text-[10px]
+
+            min-[1700px]:px-6
+            min-[1700px]:text-[11px]
+          `
+          : `
+            h-11
+            px-5
+            text-[10px]
+            tracking-[0.7px]
+            shadow-[0_10px_30px_rgba(0,0,0,0.12)]
+
+            min-[1500px]:h-12
+            min-[1500px]:px-6
+
+            min-[1700px]:text-[11px]
+          `
+      }
+
+      ${
         isOpen
-          ? "Close website search"
-          : "Open website search"
+          ? "bg-[#f0af63]"
+          : "bg-[#e8a556]"
       }
-      aria-expanded={
-        isOpen
-      }
-      onClick={
-        onClick
-      }
-      className={`
-        flex
-        shrink-0
-        items-center
-        justify-center
-        gap-2
-        rounded-full
-        font-semibold
-        uppercase
-        text-[#17130e]
+    `}
+  >
+    {isOpen ? (
+      <X size={16} strokeWidth={1.8} />
+    ) : (
+      <Search size={16} strokeWidth={1.8} />
+    )}
 
-        transition-[transform,background-color]
-        duration-300
-
-        hover:-translate-y-[1px]
-        hover:bg-[#f0af63]
-
-        ${
-          compact
-            ? `
-              h-9
-              px-3
-              text-[9px]
-              tracking-[0.55px]
-
-              min-[1360px]:h-10
-              min-[1360px]:px-4
-
-              min-[1500px]:px-5
-              min-[1500px]:text-[10px]
-
-              min-[1700px]:px-6
-              min-[1700px]:text-[11px]
-            `
-            : `
-              h-11
-              px-5
-              text-[10px]
-              tracking-[0.7px]
-              shadow-[0_10px_30px_rgba(0,0,0,0.12)]
-
-              min-[1500px]:h-12
-              min-[1500px]:px-6
-
-              min-[1700px]:text-[11px]
-            `
-        }
-
-        ${
-          isOpen
-            ? "bg-[#f0af63]"
-            : "bg-[#e8a556]"
-        }
-      `}
-    >
-      {isOpen ? (
-        <X
-          size={
-            16
-          }
-          strokeWidth={
-            1.8
-          }
-        />
-      ) : (
-        <Search
-          size={
-            16
-          }
-          strokeWidth={
-            1.8
-          }
-        />
-      )}
-
-      <span>
-        {isOpen
-          ? "Close"
-          : "Search"}
-      </span>
-    </button>
-  );
-};
+    <span>
+      {isOpen ? "Close" : "Search"}
+    </span>
+  </button>
+);
 
 /* =========================================================
    NAV LINK
@@ -1924,47 +1581,43 @@ const DesktopSearchButton = ({
 const NavLink = ({
   title,
   onClick,
-}) => {
-  return (
-    <button
-      type="button"
-      onClick={
-        onClick
-      }
-      className="
-        relative
-        shrink-0
-        whitespace-nowrap
-        rounded-full
-        px-[clamp(8px,0.72vw,15px)]
-        py-[11px]
-        text-[9px]
-        font-medium
-        uppercase
-        tracking-[0.48px]
-        text-white/90
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="
+      relative
+      shrink-0
+      whitespace-nowrap
+      rounded-full
+      px-[clamp(8px,0.72vw,15px)]
+      py-[11px]
+      text-[9px]
+      font-medium
+      uppercase
+      tracking-[0.48px]
+      text-white/90
 
-        transition-colors
-        duration-300
+      transition-colors
+      duration-300
 
-        hover:bg-white/10
-        hover:text-white
+      hover:bg-white/10
+      hover:text-white
 
-        min-[1360px]:text-[9.5px]
+      min-[1360px]:text-[9.5px]
 
-        min-[1500px]:py-3
-        min-[1500px]:text-[10px]
-        min-[1500px]:tracking-[0.65px]
+      min-[1500px]:py-3
+      min-[1500px]:text-[10px]
+      min-[1500px]:tracking-[0.65px]
 
-        min-[1700px]:px-4
-        min-[1700px]:text-[11px]
-        min-[1700px]:tracking-[0.8px]
-      "
-    >
-      {title}
-    </button>
-  );
-};
+      min-[1700px]:px-4
+      min-[1700px]:text-[11px]
+      min-[1700px]:tracking-[0.8px]
+    "
+  >
+    {title}
+  </button>
+);
 
 /* =========================================================
    MOBILE NAV BUTTON
@@ -1973,36 +1626,32 @@ const NavLink = ({
 const MobileNavButton = ({
   title,
   onClick,
-}) => {
-  return (
-    <button
-      type="button"
-      onClick={
-        onClick
-      }
-      className="
-        w-full
-        border-b
-        border-white/10
-        py-[clamp(17px,3vw,22px)]
-        text-left
-        text-[clamp(12px,2vw,14px)]
-        font-medium
-        uppercase
-        leading-[1.4]
-        tracking-[clamp(1.3px,0.25vw,2px)]
-        text-white
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="
+      w-full
+      border-b
+      border-white/10
+      py-[clamp(17px,3vw,22px)]
+      text-left
+      text-[clamp(12px,2vw,14px)]
+      font-medium
+      uppercase
+      leading-[1.4]
+      tracking-[clamp(1.3px,0.25vw,2px)]
+      text-white
 
-        transition-colors
-        duration-300
+      transition-colors
+      duration-300
 
-        hover:text-white/75
-      "
-    >
-      {title}
-    </button>
-  );
-};
+      hover:text-white/75
+    "
+  >
+    {title}
+  </button>
+);
 
 /* =========================================================
    MOBILE DROPDOWN
@@ -2018,21 +1667,16 @@ const MobileDropdown = ({
   closeMobileMenu,
 }) => {
   const isOpen =
-    activeDropdown ===
-    dropdownKey;
+    activeDropdown === dropdownKey;
 
   return (
     <div className="border-b border-white/10">
       <button
         type="button"
-        aria-expanded={
-          isOpen
-        }
+        aria-expanded={isOpen}
         onClick={() => {
           setActiveDropdown(
-            isOpen
-              ? null
-              : dropdownKey,
+            isOpen ? null : dropdownKey
           );
         }}
         className="
@@ -2051,24 +1695,16 @@ const MobileDropdown = ({
           text-white
         "
       >
-        <span>
-          {title}
-        </span>
+        <span>{title}</span>
 
         <ChevronDown
-          size={
-            18
-          }
+          size={18}
           className={`
             shrink-0
             transition-transform
             duration-300
 
-            ${
-              isOpen
-                ? "rotate-180"
-                : ""
-            }
+            ${isOpen ? "rotate-180" : ""}
           `}
         />
       </button>
@@ -2076,20 +1712,13 @@ const MobileDropdown = ({
       <div
         className={`
           grid
-
           transition-[grid-template-rows,opacity]
           duration-300
 
           ${
             isOpen
-              ? `
-                grid-rows-[1fr]
-                opacity-100
-              `
-              : `
-                grid-rows-[0fr]
-                opacity-0
-              `
+              ? "grid-rows-[1fr] opacity-100"
+              : "grid-rows-[0fr] opacity-0"
           }
         `}
       >
@@ -2106,40 +1735,31 @@ const MobileDropdown = ({
               sm:grid-cols-2
             "
           >
-            {items.map(
-              (item) => (
-                <button
-                  type="button"
-                  key={
-                    item.path
-                  }
-                  onClick={() => {
-                    navigate(
-                      item.path,
-                    );
+            {items.map((item) => (
+              <button
+                type="button"
+                key={item.path}
+                onClick={() => {
+                  navigate(item.path);
+                  closeMobileMenu();
+                }}
+                className="
+                  block
+                  w-full
+                  text-left
+                  text-[clamp(14px,2vw,16px)]
+                  leading-[1.45]
+                  text-white/70
 
-                    closeMobileMenu();
-                  }}
-                  className="
-                    block
-                    w-full
-                    text-left
-                    text-[clamp(14px,2vw,16px)]
-                    leading-[1.45]
-                    text-white/70
+                  transition-colors
+                  duration-300
 
-                    transition-colors
-                    duration-300
-
-                    hover:text-white
-                  "
-                >
-                  {
-                    item.label
-                  }
-                </button>
-              ),
-            )}
+                  hover:text-white
+                "
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -2161,25 +1781,23 @@ const Dropdown = ({
   navigate,
 }) => {
   const isActive =
-    activeDropdown ===
-    dropdownKey;
+    activeDropdown === dropdownKey;
 
   return (
     <div
       className="relative shrink-0"
       onMouseEnter={() =>
-        openDropdown(
-          dropdownKey,
-        )
+        openDropdown(dropdownKey)
       }
-      onMouseLeave={
-        closeDropdown
-      }
+      onMouseLeave={closeDropdown}
     >
       <button
         type="button"
-        aria-expanded={
+        aria-expanded={isActive}
+        onClick={() =>
           isActive
+            ? closeDropdown()
+            : openDropdown(dropdownKey)
         }
         className={`
           flex
@@ -2222,12 +1840,8 @@ const Dropdown = ({
         {title}
 
         <ChevronDown
-          size={
-            12
-          }
-          strokeWidth={
-            1.8
-          }
+          size={12}
+          strokeWidth={1.8}
           className={`
             transition-transform
             duration-300
@@ -2235,11 +1849,7 @@ const Dropdown = ({
             min-[1500px]:h-[13px]
             min-[1500px]:w-[13px]
 
-            ${
-              isActive
-                ? "rotate-180"
-                : ""
-            }
+            ${isActive ? "rotate-180" : ""}
           `}
         />
       </button>
@@ -2269,87 +1879,71 @@ const Dropdown = ({
 
           ${
             isActive
-              ? `
-                visible
-                translate-y-0
-                opacity-100
-              `
-              : `
-                invisible
-                translate-y-3
-                opacity-0
-              `
+              ? "visible translate-y-0 opacity-100"
+              : "invisible translate-y-3 opacity-0"
           }
         `}
       >
         <div className="space-y-1">
-          {items.map(
-            (item) => (
-              <button
-                type="button"
-                key={
-                  item.path
-                }
-                onClick={() =>
-                  navigate(
-                    item.path,
-                  )
-                }
+          {items.map((item) => (
+            <button
+              type="button"
+              key={item.path}
+              onClick={() =>
+                navigate(item.path)
+              }
+              className="
+                group
+                flex
+                w-full
+                items-center
+                justify-between
+                rounded-xl
+                px-4
+                py-3
+                text-left
+
+                transition-colors
+                duration-300
+
+                hover:bg-[#f3f4f2]
+
+                min-[1500px]:py-3.5
+              "
+            >
+              <span
                 className="
-                  group
-                  flex
-                  w-full
-                  items-center
-                  justify-between
-                  rounded-xl
-                  px-4
-                  py-3
-                  text-left
+                  text-[13px]
+                  text-[#5d5d5d]
 
                   transition-colors
                   duration-300
 
-                  hover:bg-[#f3f4f2]
+                  group-hover:text-black
 
-                  min-[1500px]:py-3.5
+                  min-[1500px]:text-[14px]
                 "
               >
-                <span
-                  className="
-                    text-[13px]
-                    text-[#5d5d5d]
+                {item.label}
+              </span>
 
-                    transition-colors
-                    duration-300
+              <span
+                className="
+                  -translate-x-2
+                  text-black
+                  opacity-0
 
-                    group-hover:text-black
+                  transition-[transform,opacity]
+                  duration-300
 
-                    min-[1500px]:text-[14px]
-                  "
-                >
-                  {
-                    item.label
-                  }
-                </span>
-
-                <span
-                  className="
-                    -translate-x-2
-                    text-black
-                    opacity-0
-
-                    transition-[transform,opacity]
-                    duration-300
-
-                    group-hover:translate-x-0
-                    group-hover:opacity-100
-                  "
-                >
-                  →
-                </span>
-              </button>
-            ),
-          )}
+                  group-hover:translate-x-0
+                  group-hover:opacity-100
+                "
+              >
+                →
+              </span>
+            </button>
+          ))}
         </div>
       </div>
     </div>
@@ -2364,6 +1958,7 @@ const MegaMenu = ({
   title,
   path,
   materials,
+  materialsLoaded,
   activeDropdown,
   dropdownKey,
   openDropdown,
@@ -2372,8 +1967,7 @@ const MegaMenu = ({
   scrolled,
 }) => {
   const isActive =
-    activeDropdown ===
-    dropdownKey;
+    activeDropdown === dropdownKey;
 
   const [
     hoveredParent,
@@ -2384,84 +1978,41 @@ const MegaMenu = ({
      PARENT CATEGORIES
   ======================================================= */
 
-  const parentCategories =
-    useMemo(() => {
-      return materials
-        .filter(
-          (item) =>
-            item.parent_id ===
-              null &&
-            item.is_active,
-        )
-        .sort(
-          alphabeticalSort,
-        );
-    }, [
-      materials,
-    ]);
+  const parentCategories = useMemo(() => {
+    return materials
+      .filter(
+        (item) =>
+          item.parent_id === null &&
+          item.is_active
+      )
+      .sort(alphabeticalSort);
+  }, [materials]);
 
   /* =======================================================
      ACTIVE PARENT
   ======================================================= */
 
   useEffect(() => {
-    if (
-      parentCategories.length ===
-      0
-    ) {
-      setHoveredParent(
-        null,
-      );
-
+    if (parentCategories.length === 0) {
+      setHoveredParent(null);
       return;
     }
 
-    const exists =
-      parentCategories.some(
-        (parent) =>
-          parent.id ===
-          hoveredParent,
-      );
+    const exists = parentCategories.some(
+      (parent) => parent.id === hoveredParent
+    );
 
-    if (
-      !exists
-    ) {
-      setHoveredParent(
-        parentCategories[0]
-          .id,
-      );
+    if (!exists) {
+      setHoveredParent(parentCategories[0].id);
     }
   }, [
     parentCategories,
     hoveredParent,
   ]);
 
-  const activeParent =
-    parentCategories.find(
-      (parent) =>
-        parent.id ===
-        hoveredParent,
-    );
-
-  /* =======================================================
-     THUMBNAIL
-  ======================================================= */
-
-  const getThumbnailUrl =
-    (
-      url,
-      width = 220,
-      quality = 72,
-    ) => {
-      return getOptimizedImageUrl(
-        url ||
-          "/placeholder.jpg",
-
-        width,
-
-        quality,
-      );
-    };
+  const activeParent = parentCategories.find(
+    (parent) => parent.id === hoveredParent
+  );
 
   /* =======================================================
      RENDER
@@ -2471,26 +2022,16 @@ const MegaMenu = ({
     <div
       className="relative shrink-0"
       onMouseEnter={() =>
-        openDropdown(
-          dropdownKey,
-        )
+        openDropdown(dropdownKey)
       }
-      onMouseLeave={
-        closeDropdown
-      }
+      onMouseLeave={closeDropdown}
     >
       <button
         type="button"
-        aria-expanded={
-          isActive
-        }
+        aria-expanded={isActive}
         onClick={() => {
-          if (
-            path
-          ) {
-            navigate(
-              path,
-            );
+          if (path) {
+            navigate(path);
           }
         }}
         className={`
@@ -2533,151 +2074,119 @@ const MegaMenu = ({
         {title}
 
         <ChevronDown
-          size={
-            13
-          }
-          strokeWidth={
-            1.8
-          }
+          size={13}
+          strokeWidth={1.8}
           className={`
             transition-transform
             duration-300
 
-            ${
-              isActive
-                ? "rotate-180"
-                : ""
-            }
+            ${isActive ? "rotate-180" : ""}
           `}
         />
       </button>
 
-      <div
-        className={`
-          fixed
-          left-1/2
-          z-[120]
-          w-[min(980px,calc(100vw-48px))]
-          -translate-x-1/2
-          rounded-[26px]
-          border
-          border-black/[0.06]
-          bg-white
-          p-6
-          shadow-[0_32px_100px_rgba(0,0,0,0.23)]
+      {/* =================================================
+          MOUNT ONLY WHEN OPEN
 
-          transition-[opacity,transform,visibility]
-          duration-300
+          Prevents hidden category images from
+          downloading during initial page load.
+      ================================================= */}
 
-          ${
-            scrolled
-              ? "top-[76px]"
-              : "top-[82px]"
-          }
-
-          ${
-            isActive
-              ? `
-                visible
-                translate-y-0
-                opacity-100
-              `
-              : `
-                invisible
-                translate-y-4
-                opacity-0
-              `
-          }
-        `}
-      >
+      {isActive && (
         <div
-          className="
-            grid
-            h-[520px]
-            grid-cols-[280px_minmax(0,1fr)]
-            gap-6
-          "
+          className={`
+            fixed
+            left-1/2
+            z-[120]
+            w-[min(980px,calc(100vw-48px))]
+            -translate-x-1/2
+            rounded-[26px]
+            border
+            border-black/[0.06]
+            bg-white
+            p-6
+            shadow-[0_32px_100px_rgba(0,0,0,0.23)]
+
+            ${
+              scrolled
+                ? "top-[76px]"
+                : "top-[82px]"
+            }
+          `}
         >
-
-          {/* =============================================
-              PARENT LIST
-          ============================================= */}
-
           <div
             className="
-              scrollbar-thin
-              h-full
-              overflow-y-auto
-              border-r
-              border-black/10
-              pr-4
+              grid
+              h-[520px]
+              grid-cols-[280px_minmax(0,1fr)]
+              gap-6
             "
           >
-            <div className="mb-4 px-2">
-              <p
-                className="
-                  text-[10px]
-                  font-semibold
-                  uppercase
-                  tracking-[1.8px]
-                  text-black/35
-                "
-              >
-                Explore
-                Materials
-              </p>
+            {/* =============================================
+                PARENT LIST
+            ============================================= */}
 
-              <h2
-                className="
-                  mt-2
-                  text-[23px]
-                  font-medium
-                  tracking-[-0.7px]
-                  text-black
-                "
-              >
-                Material
-                Portfolio
-              </h2>
-            </div>
+            <div
+              className="
+                scrollbar-thin
+                h-full
+                overflow-y-auto
+                border-r
+                border-black/10
+                pr-4
+              "
+            >
+              <div className="mb-4 px-2">
+                <p
+                  className="
+                    text-[10px]
+                    font-semibold
+                    uppercase
+                    tracking-[1.8px]
+                    text-black/35
+                  "
+                >
+                  Explore Materials
+                </p>
 
-            <div className="space-y-1">
-              {parentCategories.map(
-                (
-                  parent,
-                ) => {
+                <h2
+                  className="
+                    mt-2
+                    text-[23px]
+                    font-medium
+                    tracking-[-0.7px]
+                    text-black
+                  "
+                >
+                  Material Portfolio
+                </h2>
+              </div>
+
+              <div className="space-y-1">
+                {parentCategories.map((parent) => {
                   const thumbnailUrl =
                     getThumbnailUrl(
                       parent.thumbnail_url,
-
                       280,
-
-                      78,
+                      78
                     );
 
                   const isSelected =
-                    hoveredParent ===
-                    parent.id;
+                    hoveredParent === parent.id;
 
                   return (
                     <button
                       type="button"
-                      key={
-                        parent.id
-                      }
+                      key={parent.id}
                       onMouseEnter={() => {
-                        setHoveredParent(
-                          parent.id,
-                        );
+                        setHoveredParent(parent.id);
                       }}
                       onFocus={() => {
-                        setHoveredParent(
-                          parent.id,
-                        );
+                        setHoveredParent(parent.id);
                       }}
                       onClick={() =>
                         navigate(
-                          `/product-category/${parent.slug}`,
+                          `/product-category/${parent.slug}`
                         )
                       }
                       className={`
@@ -2717,37 +2226,31 @@ const MegaMenu = ({
                         "
                       >
                         <img
-                          src={
-                            thumbnailUrl
-                          }
+                          src={thumbnailUrl}
                           srcSet={`
                             ${getThumbnailUrl(
                               parent.thumbnail_url,
                               160,
-                              72,
+                              72
                             )} 160w,
 
                             ${getThumbnailUrl(
                               parent.thumbnail_url,
                               240,
-                              76,
+                              76
                             )} 240w,
 
                             ${getThumbnailUrl(
                               parent.thumbnail_url,
                               320,
-                              80,
+                              80
                             )} 320w
                           `}
                           sizes="80px"
-                          alt={
-                            parent.name
-                          }
+                          alt={parent.name}
                           loading="lazy"
                           decoding="async"
-                          draggable={
-                            false
-                          }
+                          draggable={false}
                           className="
                             h-full
                             w-full
@@ -2772,191 +2275,184 @@ const MegaMenu = ({
                           }
                         `}
                       >
-                        {
-                          parent.name
-                        }
+                        {parent.name}
                       </span>
                     </button>
                   );
-                },
-              )}
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* =============================================
-              ACTIVE CATEGORY
-          ============================================= */}
+            {/* =============================================
+                ACTIVE CATEGORY
+            ============================================= */}
 
-          <div className="min-w-0">
-            {activeParent && (
-              <>
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate(
-                      `/product-category/${activeParent.slug}`,
-                    )
-                  }
-                  className="
-                    group
-                    relative
-                    block
-                    h-[385px]
-                    w-full
-                    overflow-hidden
-                    rounded-[20px]
-                    bg-black/5
-                    text-left
-                  "
-                >
-                  <img
-                    key={
-                      activeParent.id
-                    }
-                    src={getThumbnailUrl(
-                      activeParent.thumbnail_url,
-
-                      1200,
-
-                      82,
-                    )}
-                    srcSet={`
-                      ${getThumbnailUrl(
-                        activeParent.thumbnail_url,
-                        700,
-                        76,
-                      )} 700w,
-
-                      ${getThumbnailUrl(
-                        activeParent.thumbnail_url,
-                        1000,
-                        80,
-                      )} 1000w,
-
-                      ${getThumbnailUrl(
-                        activeParent.thumbnail_url,
-                        1400,
-                        84,
-                      )} 1400w
-                    `}
-                    sizes="650px"
-                    alt={
-                      activeParent.name
-                    }
-                    loading="eager"
-                    decoding="async"
-                    draggable={
-                      false
-                    }
-                    className="
-                      h-full
-                      w-full
-                      object-cover
-
-                      transition-transform
-                      duration-[900ms]
-                      ease-out
-
-                      group-hover:scale-[1.03]
-                    "
-                  />
-
-                  <div
-                    className="
-                      absolute
-                      inset-0
-                      bg-gradient-to-t
-                      from-black/75
-                      via-black/5
-                      to-transparent
-                    "
-                  />
-
-                  <div
-                    className="
-                      absolute
-                      inset-x-0
-                      bottom-0
-                      p-6
-                    "
-                  >
-                    <p
-                      className="
-                        text-[10px]
-                        font-semibold
-                        uppercase
-                        tracking-[1.8px]
-                        text-white/60
-                      "
-                    >
-                      Featured
-                      Material
-                    </p>
-
-                    <h3
-                      className="
-                        mt-2
-                        text-[34px]
-                        font-medium
-                        tracking-[-1.2px]
-                        text-white
-                      "
-                    >
-                      {
-                        activeParent.name
-                      }
-                    </h3>
-                  </div>
-                </button>
-
-                <div
-                  className="
-                    mt-4
-                    flex
-                    items-start
-                    justify-between
-                    gap-6
-                  "
-                >
-                  <p
-                    className="
-                      line-clamp-3
-                      max-w-[540px]
-                      text-[13px]
-                      leading-relaxed
-                      text-black/55
-                    "
-                  >
-                    {activeParent.description ||
-                      "Explore our premium collection of distinctive surfaces for residential and commercial applications."}
-                  </p>
-
+            <div className="min-w-0">
+              {activeParent ? (
+                <>
                   <button
                     type="button"
                     onClick={() =>
                       navigate(
-                        `/product-category/${activeParent.slug}`,
+                        `/product-category/${activeParent.slug}`
                       )
                     }
                     className="
-                      shrink-0
-                      text-[11px]
-                      font-semibold
-                      uppercase
-                      tracking-[1px]
-                      text-black
-
-                      hover:underline
+                      group
+                      relative
+                      block
+                      h-[385px]
+                      w-full
+                      overflow-hidden
+                      rounded-[20px]
+                      bg-black/5
+                      text-left
                     "
                   >
-                    View all →
+                    <img
+                      key={activeParent.id}
+                      src={getThumbnailUrl(
+                        activeParent.thumbnail_url,
+                        1200,
+                        82
+                      )}
+                      srcSet={`
+                        ${getThumbnailUrl(
+                          activeParent.thumbnail_url,
+                          700,
+                          76
+                        )} 700w,
+
+                        ${getThumbnailUrl(
+                          activeParent.thumbnail_url,
+                          1000,
+                          80
+                        )} 1000w,
+
+                        ${getThumbnailUrl(
+                          activeParent.thumbnail_url,
+                          1400,
+                          84
+                        )} 1400w
+                      `}
+                      sizes="650px"
+                      alt={activeParent.name}
+                      loading="eager"
+                      decoding="async"
+                      draggable={false}
+                      className="
+                        h-full
+                        w-full
+                        object-cover
+
+                        transition-transform
+                        duration-[900ms]
+                        ease-out
+
+                        group-hover:scale-[1.03]
+                      "
+                    />
+
+                    <div
+                      className="
+                        absolute
+                        inset-0
+                        bg-gradient-to-t
+                        from-black/75
+                        via-black/5
+                        to-transparent
+                      "
+                    />
+
+                    <div
+                      className="
+                        absolute
+                        inset-x-0
+                        bottom-0
+                        p-6
+                      "
+                    >
+                      <p
+                        className="
+                          text-[10px]
+                          font-semibold
+                          uppercase
+                          tracking-[1.8px]
+                          text-white/60
+                        "
+                      >
+                        Featured Material
+                      </p>
+
+                      <h3
+                        className="
+                          mt-2
+                          text-[34px]
+                          font-medium
+                          tracking-[-1.2px]
+                          text-white
+                        "
+                      >
+                        {activeParent.name}
+                      </h3>
+                    </div>
                   </button>
+
+                  <div
+                    className="
+                      mt-4
+                      flex
+                      items-start
+                      justify-between
+                      gap-6
+                    "
+                  >
+                    <p
+                      className="
+                        line-clamp-3
+                        max-w-[540px]
+                        text-[13px]
+                        leading-relaxed
+                        text-black/55
+                      "
+                    >
+                      {activeParent.description ||
+                        "Explore our premium collection of distinctive surfaces for residential and commercial applications."}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate(
+                          `/product-category/${activeParent.slug}`
+                        )
+                      }
+                      className="
+                        shrink-0
+                        text-[11px]
+                        font-semibold
+                        uppercase
+                        tracking-[1px]
+                        text-black
+
+                        hover:underline
+                      "
+                    >
+                      View all →
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-black/45">
+                  {materialsLoaded
+                    ? "No materials available."
+                    : "Loading materials..."}
                 </div>
-              </>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
