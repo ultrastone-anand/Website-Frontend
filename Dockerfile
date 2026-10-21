@@ -1,37 +1,7 @@
-server {
-    listen 80;
-    server_name _;
+FROM nginx:alpine
 
-    root /usr/share/nginx/html;
-    index index.html;
+COPY dist /usr/share/nginx/html
 
-    # ============================================
-    # CACHE VERSIONED VITE ASSETS
-    # ============================================
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-    location /assets/ {
-        try_files $uri =404;
-
-        expires 1y;
-
-        add_header Cache-Control "public, immutable";
-    }
-
-    # ============================================
-    # DO NOT CACHE HTML
-    # ============================================
-
-    location = /index.html {
-        add_header Cache-Control "no-cache, must-revalidate";
-
-        try_files $uri =404;
-    }
-
-    # ============================================
-    # REACT ROUTER SUPPORT
-    # ============================================
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
+EXPOSE 80
