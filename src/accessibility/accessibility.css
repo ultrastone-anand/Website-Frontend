@@ -67,7 +67,11 @@ html[data-a11y-line-height="true"]
 
 .site-content {
   min-height: 100vh;
+}
 
+html[data-a11y-contrast="high"] .site-content,
+html[data-a11y-saturation] .site-content,
+html[data-a11y-grayscale] .site-content {
   filter:
     contrast(var(--a11y-contrast))
     saturate(var(--a11y-saturation))
