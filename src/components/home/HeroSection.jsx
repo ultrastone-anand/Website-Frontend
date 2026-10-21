@@ -47,13 +47,18 @@ const HOME_HERO_URL = `${API_URL}/home-hero/active`;
 
 const MOBILE_BREAKPOINT = 768;
 
-const MOBILE_VIDEO_WIDTH = 1080;
+const MOBILE_VIDEO_WIDTH = 720;
 const DESKTOP_VIDEO_WIDTH = 1920;
 
-// Fixed poster for the permanent default homepage video.
-// The CMS does not need a poster configuration.
-const DEFAULT_VIDEO_POSTER =
-  "https://cdn.ultrastone.in/cdn-cgi/image/width=1440,quality=100,format=auto/frame0.png";
+const MOBILE_VIDEO_DELAY = 1800;
+
+
+// Responsive poster variants.
+const MOBILE_POSTER =
+  "https://cdn.ultrastone.in/cdn-cgi/image/width=768,quality=75,format=auto/frame0.png";
+
+const DESKTOP_POSTER =
+  "https://cdn.ultrastone.in/cdn-cgi/image/width=1600,quality=80,format=auto/frame0.png";
 
 const smoothEase = [0.16, 1, 0.3, 1];
 const introEase = [0.19, 1, 0.22, 1];
@@ -135,6 +140,8 @@ const HeroSection = () => {
     getInitialMobileState
   );
 
+  const [videoReady, setVideoReady] = useState(false);
+
   const [hasVideoStarted, setHasVideoStarted] =
     useState(false);
 
@@ -157,11 +164,9 @@ const HeroSection = () => {
       `(max-width: ${MOBILE_BREAKPOINT - 1}px)`
     );
 
-    const updateDevice = () => {
-      setIsMobile(mediaQuery.matches);
+    const updateDevice = (event) => {
+      setIsMobile(event.matches);
     };
-
-    updateDevice();
 
     mediaQuery.addEventListener(
       "change",
@@ -185,8 +190,6 @@ const HeroSection = () => {
 
     const fetchHero = async () => {
       try {
-        setLoading(true);
-
         const response = await fetch(HOME_HERO_URL, {
           method: "GET",
           cache: "default",
@@ -233,7 +236,7 @@ const HeroSection = () => {
       }
     };
 
-    fetchHero();
+    void fetchHero();
 
     return () => {
       controller.abort();
@@ -242,9 +245,6 @@ const HeroSection = () => {
 
   /* =======================================================
      RESOLVED MEDIA
-
-     The CMS controls whether the homepage displays
-     the default video or a festival/campaign image.
   ======================================================= */
 
   const mediaType = hero?.media_type || "IMAGE";
@@ -257,12 +257,9 @@ const HeroSection = () => {
       ? mobileMediaUrl
       : desktopMediaUrl;
 
-  // Use the fixed poster only for video heroes.
-  // CMS images do not use this poster.
-  const resolvedPosterUrl =
-    mediaType === "VIDEO"
-      ? DEFAULT_VIDEO_POSTER
-      : "";
+  const resolvedPosterUrl = isMobile
+    ? MOBILE_POSTER
+    : DESKTOP_POSTER;
 
   /* =======================================================
      VIDEO URLS
@@ -313,29 +310,37 @@ const HeroSection = () => {
     : optimizedVideoUrl;
 
   /* =======================================================
-     RESET VIDEO STATE
-
-     Reset whenever the active hero changes.
+     VIDEO LOADING STRATEGY
   ======================================================= */
 
   useEffect(() => {
-    setHasVideoStarted(false);
-    setUseOriginalVideo(false);
-    setVideoFailed(false);
+    if (
+      mediaType !== "VIDEO" ||
+      !resolvedMediaUrl ||
+      prefersReducedMotion
+    ) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(
+      () => {
+        setVideoReady(true);
+      },
+      isMobile ? MOBILE_VIDEO_DELAY : 0
+    );
+
+    return () => {
+      window.clearTimeout(timer);
+    };
   }, [
-    hero?.id,
-    hero?.source_type,
-    hero?.phase,
+    mediaType,
     resolvedMediaUrl,
+    isMobile,
+    prefersReducedMotion,
   ]);
 
   /* =======================================================
      VIDEO PLAYBACK
-
-     Start loading immediately.
-
-     The poster remains visible until the browser
-     confirms that the video is playing.
   ======================================================= */
 
   useEffect(() => {
@@ -343,6 +348,7 @@ const HeroSection = () => {
 
     if (
       !video ||
+      !videoReady ||
       videoFailed ||
       prefersReducedMotion
     ) {
@@ -364,7 +370,7 @@ const HeroSection = () => {
       }
     };
 
-    playVideo();
+    void playVideo();
 
     return () => {
       cancelled = true;
@@ -372,6 +378,7 @@ const HeroSection = () => {
     };
   }, [
     activeVideoUrl,
+    videoReady,
     videoFailed,
     prefersReducedMotion,
   ]);
@@ -411,78 +418,61 @@ const HeroSection = () => {
   ]);
 
   /* =======================================================
-     LOADING PLACEHOLDER
-  ======================================================= */
-
-  if (loading || !hero) {
-    return (
-      <section
-        className="relative h-[90vh] min-h-[680px] bg-black"
-        aria-label="Loading homepage banner"
-      />
-    );
-  }
-
-  /* =======================================================
      ANIMATION TIMINGS
   ======================================================= */
 
   const textStartDelay =
     Math.max(
-      getNumber(hero.text_start_delay),
+      getNumber(hero?.text_start_delay),
       0
     ) / 1000;
 
   const animationDuration =
     Math.max(
-      getNumber(hero.text_animation_duration),
+      getNumber(hero?.text_animation_duration),
       0
     ) / 1000;
 
   const descriptionDelay =
     Math.max(
-      getNumber(hero.description_delay),
+      getNumber(hero?.description_delay),
       0
     ) / 1000;
 
   const visibleDuration =
     Math.max(
-      getNumber(hero.text_visible_duration),
+      getNumber(hero?.text_visible_duration),
       0
     ) / 1000;
 
   const fadeDuration =
     Math.max(
-      getNumber(hero.text_fade_duration),
+      getNumber(hero?.text_fade_duration),
       0
     ) / 1000;
 
   const overlayOpacity =
     Math.min(
       Math.max(
-        getNumber(hero.overlay_opacity, 0),
+        getNumber(hero?.overlay_opacity, 0),
         0
       ),
       100
     ) / 100;
 
   const textAnimation =
-    hero.text_animation || "SLIDE_UP";
+    hero?.text_animation || "SLIDE_UP";
 
   const keepTextVisible =
-    Boolean(hero.keep_text_visible);
+    Boolean(hero?.keep_text_visible);
 
   const textExitDelay =
     textStartDelay +
     animationDuration +
     visibleDuration;
 
-  /* =======================================================
-     OVERLAY BEHAVIOR
-  ======================================================= */
-
   const isDefaultHero =
-    hero.source_type === "DEFAULT";
+    hero?.source_type === "DEFAULT";
 
   const fadeDefaultOverlay =
     isDefaultHero && !keepTextVisible;
@@ -495,18 +485,55 @@ const HeroSection = () => {
   ======================================================= */
 
   return (
-    <section className="relative h-[90vh] min-h-[680px] overflow-hidden bg-black">
+    <section
+      className="relative h-[90vh] min-h-[680px] overflow-hidden bg-black"
+      aria-label="Ultra Stones homepage banner"
+    >
+      {/* ===============================================
+          EARLY POSTER
 
-      {/* =================================================
-          DEFAULT HOMEPAGE VIDEO
+          Displays immediately while the CMS hero
+          configuration is being fetched.
+      =============================================== */}
 
-          Video loads immediately.
+      {(loading || !hero || mediaType === "VIDEO") && (
+        <motion.div
+          initial={false}
+          animate={{
+            opacity:
+              mediaType === "VIDEO" &&
+              hasVideoStarted
+                ? 0
+                : 1,
+          }}
+          transition={{
+            duration: hasVideoStarted ? 0.65 : 0,
+            ease: smoothEase,
+          }}
+          className="pointer-events-none absolute inset-0 z-10"
+        >
+          <img
+            src={resolvedPosterUrl}
+            alt=""
+            aria-hidden="true"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            draggable="false"
+            className="h-full w-full object-cover"
+          />
+        </motion.div>
+      )}
 
-          The fixed frame0.png remains visible until
-          video playback begins.
-      ================================================= */}
+      {/* ===============================================
+          VIDEO
+
+          Mobile video is delayed to prioritize
+          initial rendering.
+      =============================================== */}
 
       {mediaType === "VIDEO" &&
+        videoReady &&
         !prefersReducedMotion &&
         !videoFailed &&
         activeVideoUrl && (
@@ -517,8 +544,7 @@ const HeroSection = () => {
             loop
             playsInline
             autoPlay
-            preload="auto"
-            poster={resolvedPosterUrl}
+            preload={isMobile ? "none" : "metadata"}
             disablePictureInPicture
             onPlaying={handleVideoPlaying}
             onError={handleVideoError}
@@ -531,17 +557,15 @@ const HeroSection = () => {
           </video>
         )}
 
-      {/* =================================================
-          CMS FESTIVAL / CAMPAIGN IMAGE
-
-          Displays whenever the CMS selects an image.
-      ================================================= */}
+      {/* ===============================================
+          CMS IMAGE
+      =============================================== */}
 
       {mediaType === "IMAGE" &&
         resolvedMediaUrl && (
           <img
             src={resolvedMediaUrl}
-            alt={hero.alt_text || ""}
+            alt={hero?.alt_text || ""}
             loading="eager"
             fetchPriority="high"
             decoding="async"
@@ -550,176 +574,145 @@ const HeroSection = () => {
           />
         )}
 
-      {/* =================================================
-          DEFAULT VIDEO POSTER
-
-          Remains visible until the video starts,
-          then fades away smoothly.
-      ================================================= */}
-
-      {mediaType === "VIDEO" &&
-        resolvedPosterUrl && (
-          <motion.div
-            initial={false}
-            animate={{
-              opacity: hasVideoStarted ? 0 : 1,
-            }}
-            transition={{
-              duration: hasVideoStarted ? 0.65 : 0,
-              ease: smoothEase,
-            }}
-            className="pointer-events-none absolute inset-0 z-10"
-          >
-            <img
-              src={resolvedPosterUrl}
-              alt=""
-              aria-hidden="true"
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-              draggable="false"
-              className="h-full w-full object-cover"
-            />
-          </motion.div>
-        )}
-
-      {/* =================================================
+      {/* ===============================================
           MAIN DARK OVERLAY
-      ================================================= */}
+      =============================================== */}
 
-      <motion.div
-        initial={{
-          opacity: overlayOpacity,
-        }}
-        animate={{
-          opacity: fadeDefaultOverlay
-            ? 0
-            : overlayOpacity,
-        }}
-        transition={
-          fadeDefaultOverlay
-            ? {
-                delay: overlayExitDelay,
-                duration: 0.8,
-                ease: smoothEase,
-              }
-            : {
-                duration: 0,
-              }
-        }
-        className="pointer-events-none absolute inset-0 z-10 bg-black"
-      />
+      {hero && (
+        <motion.div
+          initial={{
+            opacity: overlayOpacity,
+          }}
+          animate={{
+            opacity: fadeDefaultOverlay
+              ? 0
+              : overlayOpacity,
+          }}
+          transition={
+            fadeDefaultOverlay
+              ? {
+                  delay: overlayExitDelay,
+                  duration: 0.8,
+                  ease: smoothEase,
+                }
+              : {
+                  duration: 0,
+                }
+          }
+          className="pointer-events-none absolute inset-0 z-10 bg-black"
+        />
+      )}
 
-      {/* =================================================
+      {/* ===============================================
           NAVBAR GRADIENT
-      ================================================= */}
+      =============================================== */}
 
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-44 bg-gradient-to-b from-black/60 via-black/35 to-transparent" />
 
-      {/* =================================================
+      {/* ===============================================
           BOTTOM GRADIENT
-      ================================================= */}
+      =============================================== */}
 
-      <motion.div
-        initial={{
-          opacity: 1,
-        }}
-        animate={{
-          opacity: fadeDefaultOverlay ? 0 : 1,
-        }}
-        transition={
-          fadeDefaultOverlay
-            ? {
-                delay: overlayExitDelay,
-                duration: 0.8,
-                ease: smoothEase,
-              }
-            : {
-                duration: 0,
-              }
-        }
-        className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/20 via-transparent to-transparent"
-      />
-
-      {/* =================================================
-          CONTENT
-      ================================================= */}
-
-      <motion.div
-        key={`${hero.source_type}-${hero.id}-${hero.phase}`}
-        initial={{
-          opacity: 1,
-        }}
-        animate={{
-          opacity: keepTextVisible ? 1 : 0,
-        }}
-        transition={
-          keepTextVisible
-            ? {
-                duration: 0,
-              }
-            : {
-                delay: textExitDelay,
-                duration: fadeDuration,
-                ease: introEase,
-              }
-          }
-        className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6 text-center"
-      >
+      {hero && (
         <motion.div
-          initial={
-            prefersReducedMotion
-              ? { opacity: 1 }
-              : getAnimationInitial(textAnimation)
-          }
-          animate={getAnimationTarget(textAnimation)}
+          initial={{ opacity: 1 }}
+          animate={{
+            opacity: fadeDefaultOverlay ? 0 : 1,
+          }}
           transition={
-            prefersReducedMotion
-              ? { duration: 0 }
+            fadeDefaultOverlay
+              ? {
+                  delay: overlayExitDelay,
+                  duration: 0.8,
+                  ease: smoothEase,
+                }
               : {
-                  delay: textStartDelay,
-                  duration: animationDuration,
+                  duration: 0,
+                }
+          }
+          className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/20 via-transparent to-transparent"
+        />
+      )}
+
+      {/* ===============================================
+          CONTENT
+      =============================================== */}
+
+      {hero && (
+        <motion.div
+          key={`${hero.source_type}-${hero.id}-${hero.phase}`}
+          initial={{ opacity: 1 }}
+          animate={{
+            opacity: keepTextVisible ? 1 : 0,
+          }}
+          transition={
+            keepTextVisible
+              ? {
+                  duration: 0,
+                }
+              : {
+                  delay: textExitDelay,
+                  duration: fadeDuration,
                   ease: introEase,
                 }
           }
-          className="max-w-[1100px]"
+          className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6 text-center"
         >
-          {hero.heading && (
-            <h1 className="font-['Cormorant_Garamond'] text-[42px] font-medium leading-[1.05] tracking-[-0.02em] text-white md:text-[58px] lg:text-[72px]">
-              {hero.heading}
-            </h1>
-          )}
+          <motion.div
+            initial={
+              prefersReducedMotion
+                ? { opacity: 1 }
+                : getAnimationInitial(textAnimation)
+            }
+            animate={getAnimationTarget(textAnimation)}
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : {
+                    delay: textStartDelay,
+                    duration: animationDuration,
+                    ease: introEase,
+                  }
+            }
+            className="max-w-[1100px]"
+          >
+            {hero.heading && (
+              <h1 className="font-['Cormorant_Garamond'] text-[42px] font-medium leading-[1.05] tracking-[-0.02em] text-white md:text-[58px] lg:text-[72px]">
+                {hero.heading}
+              </h1>
+            )}
 
-          {hero.description && (
-            <motion.p
-              initial={
-                prefersReducedMotion
-                  ? { opacity: 1 }
-                  : {
-                      opacity: 0,
-                      y: 25,
-                    }
-              }
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={
-                prefersReducedMotion
-                  ? { duration: 0 }
-                  : {
-                      delay: descriptionDelay,
-                      duration: 1,
-                      ease: smoothEase,
-                    }
-              }
-              className="mx-auto mt-5 max-w-[720px] font-['Inter'] text-[17px] font-normal leading-[1.35] text-white/85 md:text-[21px]"
-            >
-              {hero.description}
-            </motion.p>
-          )}
+            {hero.description && (
+              <motion.p
+                initial={
+                  prefersReducedMotion
+                    ? { opacity: 1 }
+                    : {
+                        opacity: 0,
+                        y: 25,
+                      }
+                }
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                transition={
+                  prefersReducedMotion
+                    ? { duration: 0 }
+                    : {
+                        delay: descriptionDelay,
+                        duration: 1,
+                        ease: introEase,
+                      }
+                }
+                className="mx-auto mt-5 max-w-[720px] font-['Inter'] text-[17px] font-normal leading-[1.35] text-white/85 md:text-[21px]"
+              >
+                {hero.description}
+              </motion.p>
+            )}
+          </motion.div>
         </motion.div>
-      </motion.div>
+      )}
     </section>
   );
 };
