@@ -47,11 +47,11 @@ const HOME_HERO_URL = `${API_URL}/home-hero/active`;
 
 const MOBILE_BREAKPOINT = 768;
 
-// Improved mobile video sharpness.
-const MOBILE_VIDEO_WIDTH = 1080;
-
-// Keep desktop optimized.
+const MOBILE_VIDEO_WIDTH = 720;
 const DESKTOP_VIDEO_WIDTH = 1440;
+
+// Allow the poster to paint before starting the video.
+const VIDEO_START_DELAY = 1200;
 
 const smoothEase = [0.16, 1, 0.3, 1];
 const introEase = [0.19, 1, 0.22, 1];
@@ -136,6 +136,9 @@ const HeroSection = () => {
   const [hasVideoStarted, setHasVideoStarted] =
     useState(false);
 
+  const [shouldLoadVideo, setShouldLoadVideo] =
+    useState(false);
+
   const [useOriginalVideo, setUseOriginalVideo] =
     useState(false);
 
@@ -188,6 +191,7 @@ const HeroSection = () => {
         const response = await fetch(HOME_HERO_URL, {
           method: "GET",
 
+          // Allow normal HTTP caching where the backend permits it.
           cache: "default",
 
           headers: {
@@ -200,7 +204,9 @@ const HeroSection = () => {
         const contentType =
           response.headers.get("content-type") || "";
 
-        if (!contentType.includes("application/json")) {
+        if (
+          !contentType.includes("application/json")
+        ) {
           throw new Error(
             "Home Hero API returned a non-JSON response."
           );
@@ -282,7 +288,7 @@ const HeroSection = () => {
 
         fit: "scale-down",
 
-        quality: "high",
+        quality: "medium",
       }
     );
   }, [
@@ -313,12 +319,11 @@ const HeroSection = () => {
 
   /* =======================================================
      RESET VIDEO STATE
-
-     Runs when the active hero/media changes.
   ======================================================= */
 
   useEffect(() => {
     setHasVideoStarted(false);
+    setShouldLoadVideo(false);
     setUseOriginalVideo(false);
     setVideoFailed(false);
   }, [
@@ -329,50 +334,78 @@ const HeroSection = () => {
   ]);
 
   /* =======================================================
-     VIDEO PLAYBACK
+     DELAY VIDEO DOWNLOAD
 
-     No artificial delay.
+     Poster is displayed first.
 
-     Video starts downloading immediately after the
-     active hero is available.
+     Video begins loading after initial render.
   ======================================================= */
 
   useEffect(() => {
-    const video = videoRef.current;
-
     if (
-      !video ||
+      loading ||
+      !hero ||
+      mediaType !== "VIDEO" ||
+      !resolvedMediaUrl ||
       videoFailed ||
       prefersReducedMotion
     ) {
       return undefined;
     }
 
-    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      setShouldLoadVideo(true);
+    }, VIDEO_START_DELAY);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [
+    loading,
+    hero,
+    mediaType,
+    resolvedMediaUrl,
+    videoFailed,
+    prefersReducedMotion,
+  ]);
+
+  /* =======================================================
+     VIDEO PLAYBACK
+  ======================================================= */
+
+  useEffect(() => {
+    if (
+      !shouldLoadVideo ||
+      !videoRef.current ||
+      videoFailed
+    ) {
+      return undefined;
+    }
+
+    const video = videoRef.current;
 
     const playVideo = async () => {
       try {
         await video.play();
       } catch (error) {
-        if (!cancelled) {
-          console.warn(
-            "Hero video autoplay was prevented:",
-            error
-          );
-        }
+        // Browser may block autoplay.
+        // Poster remains visible.
+        console.warn(
+          "Hero video autoplay was prevented:",
+          error
+        );
       }
     };
 
     playVideo();
 
     return () => {
-      cancelled = true;
       video.pause();
     };
   }, [
+    shouldLoadVideo,
     activeVideoUrl,
     videoFailed,
-    prefersReducedMotion,
   ]);
 
   /* =======================================================
@@ -381,12 +414,6 @@ const HeroSection = () => {
 
   const handleVideoPlaying = useCallback(() => {
     setHasVideoStarted(true);
-  }, []);
-
-  const handleVideoWaiting = useCallback(() => {
-    // If playback stalls before the first frame,
-    // keep the poster visible.
-    setHasVideoStarted((started) => started);
   }, []);
 
   const handleVideoError = useCallback(() => {
@@ -505,13 +532,12 @@ const HeroSection = () => {
       {/* =================================================
           VIDEO
 
-          Starts loading immediately.
-
-          Poster stays visible until playback begins.
+          Video is mounted only after the initial
+          poster has had time to render.
       ================================================= */}
 
       {mediaType === "VIDEO" &&
-        !prefersReducedMotion &&
+        shouldLoadVideo &&
         !videoFailed &&
         activeVideoUrl && (
           <video
@@ -521,13 +547,12 @@ const HeroSection = () => {
             loop
             playsInline
             autoPlay
-            preload="auto"
+            preload="none"
             poster={
               resolvedPosterUrl || undefined
             }
             disablePictureInPicture
             onPlaying={handleVideoPlaying}
-            onWaiting={handleVideoWaiting}
             onError={handleVideoError}
             className="absolute inset-0 h-full w-full object-cover"
           >
@@ -557,6 +582,8 @@ const HeroSection = () => {
 
       {/* =================================================
           VIDEO POSTER
+
+          Remains visible until video starts.
       ================================================= */}
 
       {mediaType === "VIDEO" &&
@@ -567,7 +594,7 @@ const HeroSection = () => {
               opacity: hasVideoStarted ? 0 : 1,
             }}
             transition={{
-              duration: hasVideoStarted ? 0.45 : 0,
+              duration: hasVideoStarted ? 0.65 : 0,
               ease: smoothEase,
             }}
             className="pointer-events-none absolute inset-0 z-10"
