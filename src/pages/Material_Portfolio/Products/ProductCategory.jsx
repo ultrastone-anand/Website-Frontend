@@ -11,39 +11,42 @@ import {
 import {
   Link,
   useParams,
-  useLocation,
 } from "react-router-dom";
 
-import Loading from "../../../components/common/Loading";
 import { getOptimizedImageUrl } from "../../../utils/Mediahelper";
 
 const ProductCategory = () => {
 
   const { slug } = useParams();
-  const location = useLocation();
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
+  const selectedColor = "";
   const [selectedGroup, setSelectedGroup] = useState("");
   const [selectedPattern, setSelectedPattern] = useState("");
   const hasRestoredScroll = useRef(false);
 
 useEffect(() => {
-  hasRestoredScroll.current =
-    false;
 
-  fetchCategory();
-}, [slug]);
+  hasRestoredScroll.current = false;
+
+  const controller = new AbortController();
 
   const fetchCategory = async () => {
 
     try {
 
-      const response =
-        await axios.get(
-          `${import.meta.env.VITE_API_URL}/stones/${slug}`
-        );
+      const response = await axios.get(
+
+        `${import.meta.env.VITE_API_URL}/stones/${slug}`,
+
+        {
+
+          signal: controller.signal,
+
+        }
+
+      );
 
       const result = response.data;
 
@@ -57,11 +60,37 @@ useEffect(() => {
 
     } catch (error) {
 
-      console.error(error);
+      if (
+
+        error.code !== "ERR_CANCELED" &&
+
+        !axios.isCancel(error)
+
+      ) {
+
+        console.error(
+
+          "Error fetching product category:",
+
+          error
+
+        );
+
+      }
 
     }
 
   };
+
+  fetchCategory();
+
+  return () => {
+
+    controller.abort();
+
+  };
+
+}, [slug]);
 
   const patternOptions = useMemo(() => {
 
@@ -177,7 +206,10 @@ useEffect(() => {
   slug,
 ]);
 
-if (!category) {
+if (
+  !category ||
+  category.slug !== slug
+) {
   return <ProductCategorySkeleton />;
 }
 

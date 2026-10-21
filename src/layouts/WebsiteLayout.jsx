@@ -2,7 +2,6 @@
 
 import {
   lazy,
-  Suspense,
 } from "react";
 
 import { createPortal } from "react-dom";

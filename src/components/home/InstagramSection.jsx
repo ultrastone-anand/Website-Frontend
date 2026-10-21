@@ -177,7 +177,7 @@ const InstagramSection = () => {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-[#ededed] text-[#888]">
-                        <Instagram size={30} />
+                        <BsInstagram size={30} />
                       </div>
                     )}
 

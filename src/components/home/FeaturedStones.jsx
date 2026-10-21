@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { getOptimizedImageUrl } from "../../utils/Mediahelper";
-import { ChevronDown } from "lucide-react";
 
 const BROWSE_CATEGORY = {
   id: "browse",
@@ -28,8 +27,8 @@ const getActiveProducts = (result) =>
   });
 
 const FeaturedStones = () => {
-  const scrollRef = useRef(null);
-  const requestIdRef = useRef(0);
+const scrollRef = useRef(null);
+const requestControllerRef = useRef(null);
 
   const [stoneTypes, setStoneTypes] = useState([]);
   const [products, setProducts] = useState([]);
@@ -42,145 +41,137 @@ const FeaturedStones = () => {
   const [loadingProducts, setLoadingProducts] =
     useState(false);
 
-  const resetProductScroll = useCallback(() => {
-    scrollRef.current?.scrollTo({
-      left: 0,
-      behavior: "smooth",
-    });
-  }, []);
 
   // ==============================
   // BROWSE PRODUCTS
   // ==============================
 
-  const fetchBrowseProducts = useCallback(async () => {
-    const currentRequestId =
-      requestIdRef.current + 1;
+const fetchBrowseProducts = useCallback(async () => {
+  requestControllerRef.current?.abort();
 
-    requestIdRef.current = currentRequestId;
+  const controller = new AbortController();
+  requestControllerRef.current = controller;
 
-    try {
-      setLoadingProducts(true);
-      setSelectedCategoryName("Browse");
+  try {
+    setLoadingProducts(true);
+    setSelectedCategoryName("Browse");
 
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/stones/browse`,
-        {
-          params: {
-            limit: MAX_BROWSE_PRODUCTS,
-          },
-        }
-      );
-
-      const result = response.data;
-
-      if (
-        requestIdRef.current !== currentRequestId
-      ) {
-        return;
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/stones/browse`,
+      {
+        params: {
+          limit: MAX_BROWSE_PRODUCTS,
+        },
+        signal: controller.signal,
       }
+    );
 
-      if (result.success) {
-        setProducts(result.data || []);
-      } else {
-        setProducts([]);
-      }
+    if (controller.signal.aborted) {
+      return;
+    }
 
-      window.requestAnimationFrame(() => {
-        resetProductScroll();
+    const result = response.data;
+
+    setProducts(
+      result.success ? result.data || [] : []
+    );
+
+    window.requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({
+        left: 0,
+        behavior: "smooth",
       });
-    } catch (error) {
+    });
+  } catch (error) {
+    if (
+      !controller.signal.aborted &&
+      !axios.isCancel(error)
+    ) {
       console.error(
         "Error fetching Browse products:",
         error
       );
 
-      if (
-        requestIdRef.current === currentRequestId
-      ) {
-        setProducts([]);
-      }
-    } finally {
-      if (
-        requestIdRef.current === currentRequestId
-      ) {
-        setLoadingProducts(false);
-      }
+      setProducts([]);
     }
-  }, [resetProductScroll]);
+  } finally {
+    if (!controller.signal.aborted) {
+      setLoadingProducts(false);
+    }
+  }
+}, []);
 
   // ==============================
   // CATEGORY PRODUCTS
   // ==============================
 
-  const fetchProductsByCategory = useCallback(
-    async (categorySlug) => {
-      const currentRequestId =
-        requestIdRef.current + 1;
+const fetchProductsByCategory = useCallback(
+  async (categorySlug) => {
+    requestControllerRef.current?.abort();
 
-      requestIdRef.current = currentRequestId;
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
 
-      try {
-        setLoadingProducts(true);
+    try {
+      setLoadingProducts(true);
 
-        const response = await axios.get(
-          `${
-            import.meta.env.VITE_API_URL
-          }/stones/${categorySlug}`
-        );
-
-        const result = response.data;
-
-        if (
-          requestIdRef.current !== currentRequestId
-        ) {
-          return;
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/stones/${categorySlug}`,
+        {
+          signal: controller.signal,
         }
+      );
 
-        if (result.success) {
-          const categoryName =
-            result.category?.name || "";
+      if (controller.signal.aborted) {
+        return;
+      }
 
-          setSelectedCategoryName(categoryName);
+      const result = response.data;
 
-          const activeProducts =
-            getActiveProducts(result).map(
-              (item) => ({
-                ...item,
-                _categorySlug: categorySlug,
-                _categoryName: categoryName,
-              })
-            );
+      if (result.success) {
+        const categoryName =
+          result.category?.name || "";
 
-          setProducts(activeProducts);
-        } else {
-          setProducts([]);
-        }
+        setSelectedCategoryName(categoryName);
 
-        window.requestAnimationFrame(() => {
-          resetProductScroll();
+        const activeProducts =
+          getActiveProducts(result).map((item) => ({
+            ...item,
+            _categorySlug: categorySlug,
+            _categoryName: categoryName,
+          }));
+
+        setProducts(activeProducts);
+      } else {
+        setProducts([]);
+      }
+
+      window.requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({
+          left: 0,
+          behavior: "smooth",
         });
-      } catch (error) {
+      });
+    } catch (error) {
+      if (
+        !controller.signal.aborted &&
+        !axios.isCancel(error)
+      ) {
         console.error(
           "Error fetching category products:",
           error
         );
 
-        if (
-          requestIdRef.current === currentRequestId
-        ) {
-          setProducts([]);
-        }
-      } finally {
-        if (
-          requestIdRef.current === currentRequestId
-        ) {
-          setLoadingProducts(false);
-        }
+        setProducts([]);
       }
-    },
-    [resetProductScroll]
-  );
+    } finally {
+      if (!controller.signal.aborted) {
+        setLoadingProducts(false);
+      }
+    }
+  },
+  []
+);
 
   // ==============================
   // INITIAL LOAD
@@ -227,10 +218,6 @@ const FeaturedStones = () => {
             });
 
           setStoneTypes(activeCategories);
-          setSelectedCategory("browse");
-          setSelectedCategoryName("Browse");
-
-          await fetchBrowseProducts();
         } else {
           setStoneTypes([]);
           setProducts([]);
@@ -249,22 +236,44 @@ const FeaturedStones = () => {
     };
 
     fetchStoneTypes();
-  }, [fetchBrowseProducts]);
+  }, []);
 
   // ==============================
   // HANDLERS
   // ==============================
 
-  const handleCategoryClick = (slug) => {
-    setSelectedCategory(slug);
+const handleCategoryClick = (slug) => {
+  setSelectedCategory(slug);
+};
 
-    if (slug === "browse") {
-      fetchBrowseProducts();
-      return;
+/* =========================================================
+   FETCH PRODUCTS WHEN CATEGORY CHANGES
+========================================================= */
+
+useEffect(() => {
+  const controller = new AbortController();
+
+  const loadSelectedCategory = async () => {
+    if (controller.signal.aborted) return;
+
+    if (selectedCategory === "browse") {
+      await fetchBrowseProducts();
+    } else {
+      await fetchProductsByCategory(selectedCategory);
     }
-
-    fetchProductsByCategory(slug);
   };
+
+  void loadSelectedCategory();
+
+  return () => {
+    controller.abort();
+    requestControllerRef.current?.abort();
+  };
+}, [
+  selectedCategory,
+  fetchBrowseProducts,
+  fetchProductsByCategory,
+]);
 
   const scrollProducts = (direction) => {
     if (!scrollRef.current) {
@@ -408,37 +417,7 @@ const FeaturedStones = () => {
                   )}
             </div>
 
-            {/* <div className="mt-6 border-t border-[#bdbdbd] pt-4">
-              <h4
-                className="mb-3 text-[14px] font-bold uppercase text-[#111]"
-                style={{
-                  fontFamily:
-                    "Montserrat, sans-serif",
-                }}
-              >
-                FILTER BY
-              </h4>
-
-              {[
-                "Finish",
-                "Thickness",
-              ].map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  className="flex w-full items-center justify-between py-[5px] pl-3 text-left text-[14px] text-[#5f5f5f]"
-                  style={{
-                    fontFamily: "Inter, sans-serif",
-                  }}
-                >
-                  {item}
-
-                  <span className="text-[12px]">
-                    <ChevronDown size={18} />
-                  </span>
-                </button>
-              ))}
-            </div> */}
+            
           </aside>
 
           {/* Products */}

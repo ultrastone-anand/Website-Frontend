@@ -405,58 +405,42 @@ const normalizeGalleryResponse = (
     IMAGES_PER_PAGE;
 
   /* ===============================================
-     CALCULATE TOTAL PAGES
-  =============================================== */
+   CALCULATE TOTAL PAGES
+=============================================== */
 
-  let totalPages =
-    1;
+let totalPages;
+let totalKnown;
 
-  let totalKnown =
-    false;
+if (
+  backendTotalPages !== null &&
+  backendTotalPages > 0
+) {
+  totalPages = backendTotalPages;
+  totalKnown = true;
+} else if (
+  total !== null &&
+  total >= 0
+) {
+  totalPages = Math.max(
+    1,
+    Math.ceil(total / pageSize)
+  );
 
-  if (
-    backendTotalPages !==
-      null &&
-    backendTotalPages > 0
-  ) {
-    totalPages =
-      backendTotalPages;
+  totalKnown = true;
+} else {
+  /*
+   * If backend returns exactly 24 items
+   * without pagination metadata, assume
+   * another page might exist.
+   */
 
-    totalKnown =
-      true;
-  } else if (
-    total !== null &&
-    total >= 0
-  ) {
-    totalPages =
-      Math.max(
-        1,
-        Math.ceil(
-          total /
-            pageSize,
-        ),
-      );
+  totalPages =
+    normalizedImages.length === IMAGES_PER_PAGE
+      ? page + 1
+      : page;
 
-    totalKnown =
-      true;
-  } else {
-    /*
-     * IMPORTANT:
-     *
-     * If backend gives us exactly
-     * 24 items but gives no total,
-     * assume that another page might
-     * exist.
-     */
-    totalPages =
-      normalizedImages.length ===
-      IMAGES_PER_PAGE
-        ? page + 1
-        : page;
-
-    totalKnown =
-      false;
-  }
+  totalKnown = false;
+}
 
   /* ===============================================
      NEXT PAGE INFO

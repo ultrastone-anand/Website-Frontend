@@ -47,11 +47,13 @@ const HOME_HERO_URL = `${API_URL}/home-hero/active`;
 
 const MOBILE_BREAKPOINT = 768;
 
-const MOBILE_VIDEO_WIDTH = 720;
-const DESKTOP_VIDEO_WIDTH = 1440;
+const MOBILE_VIDEO_WIDTH = 1080;
+const DESKTOP_VIDEO_WIDTH = 1920;
 
-// Allow the poster to paint before starting the video.
-const VIDEO_START_DELAY = 1200;
+// Fixed poster for the permanent default homepage video.
+// The CMS does not need a poster configuration.
+const DEFAULT_VIDEO_POSTER =
+  "https://cdn.ultrastone.in/cdn-cgi/image/width=1440,quality=100,format=auto/frame0.png";
 
 const smoothEase = [0.16, 1, 0.3, 1];
 const introEase = [0.19, 1, 0.22, 1];
@@ -136,9 +138,6 @@ const HeroSection = () => {
   const [hasVideoStarted, setHasVideoStarted] =
     useState(false);
 
-  const [shouldLoadVideo, setShouldLoadVideo] =
-    useState(false);
-
   const [useOriginalVideo, setUseOriginalVideo] =
     useState(false);
 
@@ -190,23 +189,17 @@ const HeroSection = () => {
 
         const response = await fetch(HOME_HERO_URL, {
           method: "GET",
-
-          // Allow normal HTTP caching where the backend permits it.
           cache: "default",
-
           headers: {
             Accept: "application/json",
           },
-
           signal: controller.signal,
         });
 
         const contentType =
           response.headers.get("content-type") || "";
 
-        if (
-          !contentType.includes("application/json")
-        ) {
+        if (!contentType.includes("application/json")) {
           throw new Error(
             "Home Hero API returned a non-JSON response."
           );
@@ -221,7 +214,9 @@ const HeroSection = () => {
           );
         }
 
-        setHero(data?.data || null);
+        if (!controller.signal.aborted) {
+          setHero(data?.data || null);
+        }
       } catch (error) {
         if (error?.name === "AbortError") {
           return;
@@ -247,6 +242,9 @@ const HeroSection = () => {
 
   /* =======================================================
      RESOLVED MEDIA
+
+     The CMS controls whether the homepage displays
+     the default video or a festival/campaign image.
   ======================================================= */
 
   const mediaType = hero?.media_type || "IMAGE";
@@ -254,18 +252,17 @@ const HeroSection = () => {
   const desktopMediaUrl = hero?.media_url || "";
   const mobileMediaUrl = hero?.mobile_media_url || "";
 
-  const desktopPosterUrl = hero?.poster_url || "";
-  const mobilePosterUrl = hero?.mobile_poster_url || "";
-
   const resolvedMediaUrl =
     isMobile && mobileMediaUrl
       ? mobileMediaUrl
       : desktopMediaUrl;
 
+  // Use the fixed poster only for video heroes.
+  // CMS images do not use this poster.
   const resolvedPosterUrl =
-    isMobile && mobilePosterUrl
-      ? mobilePosterUrl
-      : desktopPosterUrl;
+    mediaType === "VIDEO"
+      ? DEFAULT_VIDEO_POSTER
+      : "";
 
   /* =======================================================
      VIDEO URLS
@@ -285,9 +282,7 @@ const HeroSection = () => {
         width: isMobile
           ? MOBILE_VIDEO_WIDTH
           : DESKTOP_VIDEO_WIDTH,
-
         fit: "scale-down",
-
         quality: "medium",
       }
     );
@@ -319,11 +314,12 @@ const HeroSection = () => {
 
   /* =======================================================
      RESET VIDEO STATE
+
+     Reset whenever the active hero changes.
   ======================================================= */
 
   useEffect(() => {
     setHasVideoStarted(false);
-    setShouldLoadVideo(false);
     setUseOriginalVideo(false);
     setVideoFailed(false);
   }, [
@@ -334,78 +330,50 @@ const HeroSection = () => {
   ]);
 
   /* =======================================================
-     DELAY VIDEO DOWNLOAD
+     VIDEO PLAYBACK
 
-     Poster is displayed first.
+     Start loading immediately.
 
-     Video begins loading after initial render.
+     The poster remains visible until the browser
+     confirms that the video is playing.
   ======================================================= */
 
   useEffect(() => {
+    const video = videoRef.current;
+
     if (
-      loading ||
-      !hero ||
-      mediaType !== "VIDEO" ||
-      !resolvedMediaUrl ||
+      !video ||
       videoFailed ||
       prefersReducedMotion
     ) {
       return undefined;
     }
 
-    const timer = window.setTimeout(() => {
-      setShouldLoadVideo(true);
-    }, VIDEO_START_DELAY);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [
-    loading,
-    hero,
-    mediaType,
-    resolvedMediaUrl,
-    videoFailed,
-    prefersReducedMotion,
-  ]);
-
-  /* =======================================================
-     VIDEO PLAYBACK
-  ======================================================= */
-
-  useEffect(() => {
-    if (
-      !shouldLoadVideo ||
-      !videoRef.current ||
-      videoFailed
-    ) {
-      return undefined;
-    }
-
-    const video = videoRef.current;
+    let cancelled = false;
 
     const playVideo = async () => {
       try {
         await video.play();
       } catch (error) {
-        // Browser may block autoplay.
-        // Poster remains visible.
-        console.warn(
-          "Hero video autoplay was prevented:",
-          error
-        );
+        if (!cancelled) {
+          console.warn(
+            "Hero video autoplay was prevented:",
+            error
+          );
+        }
       }
     };
 
     playVideo();
 
     return () => {
+      cancelled = true;
       video.pause();
     };
   }, [
-    shouldLoadVideo,
     activeVideoUrl,
     videoFailed,
+    prefersReducedMotion,
   ]);
 
   /* =======================================================
@@ -530,14 +498,16 @@ const HeroSection = () => {
     <section className="relative h-[90vh] min-h-[680px] overflow-hidden bg-black">
 
       {/* =================================================
-          VIDEO
+          DEFAULT HOMEPAGE VIDEO
 
-          Video is mounted only after the initial
-          poster has had time to render.
+          Video loads immediately.
+
+          The fixed frame0.png remains visible until
+          video playback begins.
       ================================================= */}
 
       {mediaType === "VIDEO" &&
-        shouldLoadVideo &&
+        !prefersReducedMotion &&
         !videoFailed &&
         activeVideoUrl && (
           <video
@@ -547,10 +517,8 @@ const HeroSection = () => {
             loop
             playsInline
             autoPlay
-            preload="none"
-            poster={
-              resolvedPosterUrl || undefined
-            }
+            preload="auto"
+            poster={resolvedPosterUrl}
             disablePictureInPicture
             onPlaying={handleVideoPlaying}
             onError={handleVideoError}
@@ -564,7 +532,9 @@ const HeroSection = () => {
         )}
 
       {/* =================================================
-          IMAGE HERO
+          CMS FESTIVAL / CAMPAIGN IMAGE
+
+          Displays whenever the CMS selects an image.
       ================================================= */}
 
       {mediaType === "IMAGE" &&
@@ -581,9 +551,10 @@ const HeroSection = () => {
         )}
 
       {/* =================================================
-          VIDEO POSTER
+          DEFAULT VIDEO POSTER
 
-          Remains visible until video starts.
+          Remains visible until the video starts,
+          then fades away smoothly.
       ================================================= */}
 
       {mediaType === "VIDEO" &&
@@ -692,7 +663,7 @@ const HeroSection = () => {
                 duration: fadeDuration,
                 ease: introEase,
               }
-        }
+          }
         className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6 text-center"
       >
         <motion.div
@@ -701,9 +672,7 @@ const HeroSection = () => {
               ? { opacity: 1 }
               : getAnimationInitial(textAnimation)
           }
-          animate={
-            getAnimationTarget(textAnimation)
-          }
+          animate={getAnimationTarget(textAnimation)}
           transition={
             prefersReducedMotion
               ? { duration: 0 }

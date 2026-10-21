@@ -14,10 +14,16 @@ export default function Social() {
   const [socials, setSocials] = useState([]);
   const [loading, setLoading] = useState(true);
 
+useEffect(() => {
+  const controller = new AbortController();
+
   const fetchSocials = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/company/socialmedia`
+        `${import.meta.env.VITE_API_URL}/company/socialmedia`,
+        {
+          signal: controller.signal,
+        }
       );
 
       if (response.data.success) {
@@ -25,22 +31,31 @@ export default function Social() {
           .filter((item) => item.is_active)
           .sort(
             (a, b) =>
-              a.display_order -
-              b.display_order
+              a.display_order - b.display_order
           );
 
         setSocials(activeSocials);
       }
     } catch (error) {
-      console.error(error);
+      if (
+        !axios.isCancel(error) &&
+        !controller.signal.aborted
+      ) {
+        console.error(error);
+      }
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   };
 
-  useEffect(() => {
-    fetchSocials();
-  }, []);
+  fetchSocials();
+
+  return () => {
+    controller.abort();
+  };
+}, []);
 
   if (loading) return null;
 

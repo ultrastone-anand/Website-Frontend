@@ -227,7 +227,7 @@ const Navbar = () => {
         } else {
           throw new Error(
             result?.message ||
-              "Failed to load materials."
+            "Failed to load materials."
           );
         }
       })
@@ -275,7 +275,10 @@ const Navbar = () => {
         );
     };
 
-    updateScrollState();
+    scrollFrameRef.current =
+      window.requestAnimationFrame(
+        updateScrollState
+      );
 
     window.addEventListener(
       "scroll",
@@ -299,16 +302,22 @@ const Navbar = () => {
     };
   }, []);
 
-  /* =======================================================
-     CLOSE UI AFTER ROUTE CHANGE
-  ======================================================= */
+/* =======================================================
+   CLOSE UI AFTER ROUTE CHANGE
+======================================================= */
 
-  useEffect(() => {
+useEffect(() => {
+  const frameId = window.requestAnimationFrame(() => {
     setMobileMenu(false);
     setMobileDropdown(null);
     setActiveDropdown(null);
     setDesktopSearchOpen(false);
-  }, [location.pathname]);
+  });
+
+  return () => {
+    window.cancelAnimationFrame(frameId);
+  };
+}, [location.pathname]);
 
   /* =======================================================
      BREAKPOINT WATCH
@@ -625,16 +634,15 @@ const Navbar = () => {
 
               min-[1700px]:left-12
 
-              ${
-                scrolled
-                  ? `
+              ${scrolled
+                ? `
                     pointer-events-none
                     invisible
                     -translate-y-1
                     scale-[0.94]
                     opacity-0
                   `
-                  : `
+                : `
                     visible
                     translate-y-0
                     scale-100
@@ -680,10 +688,9 @@ const Navbar = () => {
                   transition-opacity
                   duration-500
 
-                  ${
-                    isLightNavbar
-                      ? "opacity-0"
-                      : "opacity-100"
+                  ${isLightNavbar
+                    ? "opacity-0"
+                    : "opacity-100"
                   }
                 `}
               />
@@ -702,10 +709,9 @@ const Navbar = () => {
                   transition-opacity
                   duration-500
 
-                  ${
-                    isLightNavbar
-                      ? "opacity-100"
-                      : "opacity-0"
+                  ${isLightNavbar
+                    ? "opacity-100"
+                    : "opacity-0"
                   }
                 `}
               />
@@ -737,15 +743,14 @@ const Navbar = () => {
 
               min-[1700px]:right-12
 
-              ${
-                scrolled
-                  ? `
+              ${scrolled
+                ? `
                     pointer-events-none
                     invisible
                     translate-x-4
                     opacity-0
                   `
-                  : `
+                : `
                     visible
                     translate-x-0
                     opacity-100
@@ -783,9 +788,8 @@ const Navbar = () => {
 
               min-[1180px]:flex
 
-              ${
-                scrolled
-                  ? `
+              ${scrolled
+                ? `
                     top-[18px]
                     bg-black/90
                     p-[6px]
@@ -796,7 +800,7 @@ const Navbar = () => {
                     min-[1600px]:top-[21px]
                     min-[1600px]:p-[7px]
                   `
-                  : `
+                : `
                     top-[24px]
                     bg-black/85
                     p-[5px]
@@ -824,9 +828,8 @@ const Navbar = () => {
                 duration-500
                 ease-[cubic-bezier(0.22,1,0.36,1)]
 
-                ${
-                  scrolled
-                    ? `
+                ${scrolled
+                  ? `
                       ml-0
                       mr-1
                       w-[42px]
@@ -836,7 +839,7 @@ const Navbar = () => {
 
                       min-[1700px]:mr-2
                     `
-                    : `
+                  : `
                       pointer-events-none
                       -mr-1
                       w-0
@@ -950,16 +953,15 @@ const Navbar = () => {
                 transition-[max-width,margin,opacity]
                 duration-500
 
-                ${
-                  scrolled
-                    ? `
+                ${scrolled
+                  ? `
                       ml-[2px]
                       max-w-[190px]
                       opacity-100
 
                       min-[1440px]:ml-1
                     `
-                    : `
+                  : `
                       pointer-events-none
                       ml-0
                       max-w-0
@@ -1025,19 +1027,18 @@ const Navbar = () => {
 
               min-[1180px]:hidden
 
-              ${
-                mobileMenu
-                  ? `
+              ${mobileMenu
+                ? `
                     bg-white
                     text-black
                   `
-                  : isLightNavbar
-                    ? `
+                : isLightNavbar
+                  ? `
                       bg-black
                       text-white
                       shadow-lg
                     `
-                    : `
+                  : `
                       bg-black/55
                       text-white
                       shadow-lg
@@ -1367,10 +1368,9 @@ const Navbar = () => {
                       transition-transform
                       duration-300
 
-                      ${
-                        mobileDropdown === "materials"
-                          ? "rotate-180"
-                          : ""
+                      ${mobileDropdown === "materials"
+                        ? "rotate-180"
+                        : ""
                       }
                     `}
                   />
@@ -1383,13 +1383,12 @@ const Navbar = () => {
                   transition-[grid-template-rows,opacity]
                   duration-300
 
-                  ${
-                    mobileDropdown === "materials"
-                      ? `
+                  ${mobileDropdown === "materials"
+                    ? `
                         grid-rows-[1fr]
                         opacity-100
                       `
-                      : `
+                    : `
                         grid-rows-[0fr]
                         opacity-0
                       `
@@ -1524,9 +1523,8 @@ const DesktopSearchButton = ({
       hover:-translate-y-[1px]
       hover:bg-[#f0af63]
 
-      ${
-        compact
-          ? `
+      ${compact
+        ? `
             h-9
             px-3
             text-[9px]
@@ -1541,7 +1539,7 @@ const DesktopSearchButton = ({
             min-[1700px]:px-6
             min-[1700px]:text-[11px]
           `
-          : `
+        : `
             h-11
             px-5
             text-[10px]
@@ -1555,10 +1553,9 @@ const DesktopSearchButton = ({
           `
       }
 
-      ${
-        isOpen
-          ? "bg-[#f0af63]"
-          : "bg-[#e8a556]"
+      ${isOpen
+        ? "bg-[#f0af63]"
+        : "bg-[#e8a556]"
       }
     `}
   >
@@ -1715,10 +1712,9 @@ const MobileDropdown = ({
           transition-[grid-template-rows,opacity]
           duration-300
 
-          ${
-            isOpen
-              ? "grid-rows-[1fr] opacity-100"
-              : "grid-rows-[0fr] opacity-0"
+          ${isOpen
+            ? "grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0"
           }
         `}
       >
@@ -1830,10 +1826,9 @@ const Dropdown = ({
           min-[1700px]:text-[11px]
           min-[1700px]:tracking-[0.8px]
 
-          ${
-            isActive
-              ? "bg-white/10 text-white"
-              : ""
+          ${isActive
+            ? "bg-white/10 text-white"
+            : ""
           }
         `}
       >
@@ -1877,10 +1872,9 @@ const Dropdown = ({
           min-[1500px]:rounded-[22px]
           min-[1500px]:p-4
 
-          ${
-            isActive
-              ? "visible translate-y-0 opacity-100"
-              : "invisible translate-y-3 opacity-0"
+          ${isActive
+            ? "visible translate-y-0 opacity-100"
+            : "invisible translate-y-3 opacity-0"
           }
         `}
       >
@@ -1992,27 +1986,17 @@ const MegaMenu = ({
      ACTIVE PARENT
   ======================================================= */
 
-  useEffect(() => {
+  const activeParent = useMemo(() => {
     if (parentCategories.length === 0) {
-      setHoveredParent(null);
-      return;
+      return null;
     }
 
-    const exists = parentCategories.some(
+    const selectedParent = parentCategories.find(
       (parent) => parent.id === hoveredParent
     );
 
-    if (!exists) {
-      setHoveredParent(parentCategories[0].id);
-    }
-  }, [
-    parentCategories,
-    hoveredParent,
-  ]);
-
-  const activeParent = parentCategories.find(
-    (parent) => parent.id === hoveredParent
-  );
+    return selectedParent || parentCategories[0];
+  }, [parentCategories, hoveredParent]);
 
   /* =======================================================
      RENDER
@@ -2064,10 +2048,9 @@ const MegaMenu = ({
           min-[1700px]:text-[11px]
           min-[1700px]:tracking-[0.8px]
 
-          ${
-            isActive
-              ? "bg-white/10 text-white"
-              : ""
+          ${isActive
+            ? "bg-white/10 text-white"
+            : ""
           }
         `}
       >
@@ -2107,10 +2090,9 @@ const MegaMenu = ({
             p-6
             shadow-[0_32px_100px_rgba(0,0,0,0.23)]
 
-            ${
-              scrolled
-                ? "top-[76px]"
-                : "top-[82px]"
+            ${scrolled
+              ? "top-[76px]"
+              : "top-[82px]"
             }
           `}
         >
@@ -2172,7 +2154,7 @@ const MegaMenu = ({
                     );
 
                   const isSelected =
-                    hoveredParent === parent.id;
+                    activeParent?.id === parent.id;
 
                   return (
                     <button
@@ -2202,13 +2184,12 @@ const MegaMenu = ({
                         transition-colors
                         duration-300
 
-                        ${
-                          isSelected
-                            ? `
+                        ${isSelected
+                          ? `
                               bg-[#f1f3f1]
                               shadow-sm
                             `
-                            : `
+                          : `
                               hover:bg-[#f7f7f6]
                             `
                         }
@@ -2229,22 +2210,22 @@ const MegaMenu = ({
                           src={thumbnailUrl}
                           srcSet={`
                             ${getThumbnailUrl(
-                              parent.thumbnail_url,
-                              160,
-                              72
-                            )} 160w,
+                            parent.thumbnail_url,
+                            160,
+                            72
+                          )} 160w,
 
                             ${getThumbnailUrl(
-                              parent.thumbnail_url,
-                              240,
-                              76
-                            )} 240w,
+                            parent.thumbnail_url,
+                            240,
+                            76
+                          )} 240w,
 
                             ${getThumbnailUrl(
-                              parent.thumbnail_url,
-                              320,
-                              80
-                            )} 320w
+                            parent.thumbnail_url,
+                            320,
+                            80
+                          )} 320w
                           `}
                           sizes="80px"
                           alt={parent.name}
@@ -2263,13 +2244,12 @@ const MegaMenu = ({
                         className={`
                           text-[13px]
 
-                          ${
-                            isSelected
-                              ? `
+                          ${isSelected
+                            ? `
                                 font-semibold
                                 text-black
                               `
-                              : `
+                            : `
                                 text-[#666]
                               `
                           }
@@ -2318,22 +2298,22 @@ const MegaMenu = ({
                       )}
                       srcSet={`
                         ${getThumbnailUrl(
-                          activeParent.thumbnail_url,
-                          700,
-                          76
-                        )} 700w,
+                        activeParent.thumbnail_url,
+                        700,
+                        76
+                      )} 700w,
 
                         ${getThumbnailUrl(
-                          activeParent.thumbnail_url,
-                          1000,
-                          80
-                        )} 1000w,
+                        activeParent.thumbnail_url,
+                        1000,
+                        80
+                      )} 1000w,
 
                         ${getThumbnailUrl(
-                          activeParent.thumbnail_url,
-                          1400,
-                          84
-                        )} 1400w
+                        activeParent.thumbnail_url,
+                        1400,
+                        84
+                      )} 1400w
                       `}
                       sizes="650px"
                       alt={activeParent.name}

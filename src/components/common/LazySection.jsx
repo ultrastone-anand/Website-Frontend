@@ -47,13 +47,6 @@ const LazySection = ({
       return undefined;
     }
 
-    // Fallback for browsers without IntersectionObserver.
-    if (
-      typeof IntersectionObserver === "undefined"
-    ) {
-      setShouldRender(true);
-      return undefined;
-    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {

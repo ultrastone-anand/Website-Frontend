@@ -1,9 +1,8 @@
 import PropTypes from "prop-types";
-import React, {
+import {
   useMemo,
   useState,
   useEffect,
-  useCallback,
 } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -47,7 +46,7 @@ const parseResponse = async (
 
   try {
     data = await response.json();
-  } catch (error) {
+  } catch {
     data = null;
   }
 
@@ -522,50 +521,69 @@ const SafetyFirst = () => {
     setShowAllSheets,
   ] = useState(false);
 
-  const fetchPage =
-    useCallback(async () => {
-      try {
-        setLoading(true);
-        setErrorMessage("");
+useEffect(() => {
+  let isMounted = true;
 
-        const response =
-          await getPageBySlug(
-            PAGE_SLUG
-          );
+  const fetchPage = async () => {
+    try {
+      const response = await getPageBySlug(
+        PAGE_SLUG
+      );
 
-        const page =
-          response?.data || response;
+      if (!isMounted) {
+        return;
+      }
 
-        if (!page?.id) {
-          throw new Error(
-            "Silica Safety page was not found."
-          );
-        }
+      const page =
+        response?.data || response;
 
-        setContent(
-          mergeContent(
-            page.content || {}
-          )
+      if (!page?.id) {
+        throw new Error(
+          "Silica Safety page was not found."
         );
-      } catch (error) {
-        console.error(error);
+      }
 
-        setErrorMessage(
-          error?.message ||
-            "Failed to load Silica Safety page."
-        );
-      } finally {
+      setContent(
+        mergeContent(
+          page.content || {}
+        )
+      );
+
+      setErrorMessage("");
+    } catch (error) {
+      if (!isMounted) {
+        return;
+      }
+
+      console.error(
+        "Error fetching Silica Safety page:",
+        error
+      );
+
+      setErrorMessage(
+        error?.message ||
+          "Failed to load Silica Safety page."
+      );
+    } finally {
+      if (isMounted) {
         setLoading(false);
       }
-    }, []);
+    }
+  };
 
-  useEffect(() => {
-    fetchPage();
-  }, [fetchPage]);
+  fetchPage();
 
-  const safetyDataSheets =
+  return () => {
+    isMounted = false;
+  };
+}, []);
+
+const safetyDataSheets = useMemo(
+  () =>
     content.safetyDataSheetsSection
-      .items || [];
+      .items || [],
+  [content.safetyDataSheetsSection.items]
+);
 
   const initialVisibleCount =
     Number(

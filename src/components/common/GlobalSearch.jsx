@@ -254,14 +254,14 @@ const GlobalSearch = ({
   const resultsContainerRef = useRef(null);
 
   useEffect(() => {
-  const timer = window.setTimeout(() => {
-    inputRef.current?.focus();
-  }, 50);
+    const timer = window.setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
 
-  return () => {
-    window.clearTimeout(timer);
-  };
-}, []);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   const [query, setQuery] = useState("");
   const [apiResults, setApiResults] = useState([]);
@@ -327,105 +327,82 @@ const GlobalSearch = ({
     const trimmedQuery = query.trim();
 
     if (trimmedQuery.length < 2) {
-      setApiResults([]);
-      setIsSearching(false);
-      setSearchError("");
-
       return undefined;
     }
 
-    const controller =
-      new AbortController();
+    const controller = new AbortController();
 
-    const timeoutId = window.setTimeout(
-      async () => {
-        try {
-          setIsSearching(true);
-          setSearchError("");
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        setSearchError("");
 
-          const response = await axios.get(
-            `${
-              import.meta.env.VITE_API_URL
-            }/search`,
-            {
-              params: {
-                q: trimmedQuery,
-                limit: 15,
-              },
-              signal: controller.signal,
-            }
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/search`,
+          {
+            params: {
+              q: trimmedQuery,
+              limit: 15,
+            },
+            signal: controller.signal,
+          }
+        );
+
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        const returnedResults =
+          response.data?.data?.results;
+
+        if (Array.isArray(returnedResults)) {
+          const formattedResults = returnedResults
+            .filter(
+              (item) => item?.label && item?.path
+            )
+            .map((item, index) => ({
+              ...item,
+
+              id:
+                item.id ||
+                `api-result-${item.type}-${item.path}-${index}`,
+
+              icon: getResultIcon(item.type),
+
+              external:
+                item.external === true ||
+                String(item.path).startsWith("http"),
+
+              score: Number(item.score) || 0,
+            }));
+
+          setApiResults(formattedResults);
+        } else {
+          setApiResults([]);
+        }
+      } catch (error) {
+        const isCanceled =
+          error.name === "CanceledError" ||
+          error.code === "ERR_CANCELED" ||
+          axios.isCancel(error);
+
+        if (!isCanceled && !controller.signal.aborted) {
+          console.error(
+            "Global search failed:",
+            error
           );
 
-          const returnedResults =
-            response.data?.data?.results;
+          setApiResults([]);
 
-          if (
-            Array.isArray(returnedResults)
-          ) {
-            const formattedResults =
-              returnedResults
-                .filter(
-                  (item) =>
-                    item?.label &&
-                    item?.path
-                )
-                .map((item, index) => ({
-                  ...item,
-
-                  id:
-                    item.id ||
-                    `api-result-${item.type}-${item.path}-${index}`,
-
-                  icon: getResultIcon(
-                    item.type
-                  ),
-
-                  external:
-                    item.external === true ||
-                    String(
-                      item.path
-                    ).startsWith("http"),
-
-                  score:
-                    Number(item.score) || 0,
-                }));
-
-            setApiResults(
-              formattedResults
-            );
-          } else {
-            setApiResults([]);
-          }
-        } catch (error) {
-          const isCanceled =
-            error.name ===
-              "CanceledError" ||
-            error.code ===
-              "ERR_CANCELED" ||
-            axios.isCancel(error);
-
-          if (!isCanceled) {
-            console.error(
-              "Global search failed:",
-              error
-            );
-
-            setApiResults([]);
-
-            setSearchError(
-              "Unable to load product search results."
-            );
-          }
-        } finally {
-          if (
-            !controller.signal.aborted
-          ) {
-            setIsSearching(false);
-          }
+          setSearchError(
+            "Unable to load product search results."
+          );
         }
-      },
-      300
-    );
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsSearching(false);
+        }
+      }
+    }, 300);
 
     return () => {
       window.clearTimeout(timeoutId);
@@ -588,6 +565,12 @@ const GlobalSearch = ({
     localResults,
   ]);
 
+  const safeActiveIndex =
+    activeIndex >= 0 &&
+      activeIndex < results.length
+      ? activeIndex
+      : -1;
+
   /*
    * Close results when clicking outside.
    */
@@ -619,27 +602,14 @@ const GlobalSearch = ({
     };
   }, []);
 
-  useEffect(() => {
-    setActiveIndex(-1);
-  }, [query]);
 
-  useEffect(() => {
-    if (
-      activeIndex >= results.length
-    ) {
-      setActiveIndex(-1);
-    }
-  }, [
-    activeIndex,
-    results.length,
-  ]);
 
   /*
    * Keep selected result visible.
    */
   useEffect(() => {
     if (
-      activeIndex < 0 ||
+      safeActiveIndex < 0 ||
       !resultsContainerRef.current
     ) {
       return;
@@ -647,13 +617,13 @@ const GlobalSearch = ({
 
     const activeElement =
       resultsContainerRef.current.querySelector(
-        `[data-search-index="${activeIndex}"]`
+        `[data-search-index="${safeActiveIndex}"]`
       );
 
     activeElement?.scrollIntoView({
       block: "nearest",
     });
-  }, [activeIndex]);
+  }, [safeActiveIndex]);
 
   const resetSearch = () => {
     setQuery("");
@@ -708,12 +678,10 @@ const GlobalSearch = ({
     }
 
     if (
-      activeIndex >= 0 &&
-      results[activeIndex]
+      safeActiveIndex >= 0 &&
+      results[safeActiveIndex]
     ) {
-      openResult(
-        results[activeIndex]
-      );
+      openResult(results[safeActiveIndex]);
 
       return;
     }
@@ -743,13 +711,17 @@ const GlobalSearch = ({
         return;
       }
 
-      setActiveIndex(
-        (currentIndex) =>
-          currentIndex >=
-          results.length - 1
-            ? 0
-            : currentIndex + 1
-      );
+      setActiveIndex((currentIndex) => {
+        const validIndex =
+          currentIndex >= 0 &&
+            currentIndex < results.length
+            ? currentIndex
+            : -1;
+
+        return validIndex >= results.length - 1
+          ? 0
+          : validIndex + 1;
+      });
 
       return;
     }
@@ -762,26 +734,29 @@ const GlobalSearch = ({
         return;
       }
 
-      setActiveIndex(
-        (currentIndex) =>
-          currentIndex <= 0
-            ? results.length - 1
-            : currentIndex - 1
-      );
+      setActiveIndex((currentIndex) => {
+        const validIndex =
+          currentIndex >= 0 &&
+            currentIndex < results.length
+            ? currentIndex
+            : -1;
+
+        return validIndex <= 0
+          ? results.length - 1
+          : validIndex - 1;
+      });
 
       return;
     }
 
     if (
       event.key === "Enter" &&
-      activeIndex >= 0 &&
-      results[activeIndex]
+      safeActiveIndex >= 0 &&
+      results[safeActiveIndex]
     ) {
       event.preventDefault();
 
-      openResult(
-        results[activeIndex]
-      );
+      openResult(results[safeActiveIndex]);
     }
   };
 
@@ -800,10 +775,9 @@ const GlobalSearch = ({
       ref={searchContainerRef}
       className={`
         relative
-        ${
-          isWideSearch
-            ? "w-full max-w-none"
-            : "w-full max-w-[320px]"
+        ${isWideSearch
+          ? "w-full max-w-none"
+          : "w-full max-w-[320px]"
         }
       `}
     >
@@ -823,14 +797,15 @@ const GlobalSearch = ({
             aria-expanded={isOpen}
             aria-controls="global-search-results"
             onChange={(event) => {
-              const value =
-                event.target.value;
+              const value = event.target.value;
 
               setQuery(value);
+              setActiveIndex(-1);
+
+              setApiResults([]);
               setSearchError("");
-              setIsOpen(
-                Boolean(value.trim())
-              );
+              setIsSearching(value.trim().length >= 2);
+              setIsOpen(Boolean(value.trim()));
             }}
             onFocus={() => {
               if (query.trim()) {
@@ -841,9 +816,8 @@ const GlobalSearch = ({
             className={`
               w-full border outline-none
               transition-all duration-300
-              ${
-                mobile
-                  ? `
+              ${mobile
+                ? `
                     h-[48px]
                     rounded-md
                     border-white/15
@@ -852,8 +826,8 @@ const GlobalSearch = ({
                     text-sm text-white
                     placeholder:text-white/50
                   `
-                  : desktopModal
-                    ? `
+                : desktopModal
+                  ? `
                       h-[52px]
                       rounded-xl
                       border-black/20
@@ -866,8 +840,8 @@ const GlobalSearch = ({
                       focus:ring-2
                       focus:ring-black/[0.04]
                     `
-                    : isLightNavbar
-                      ? `
+                  : isLightNavbar
+                    ? `
                         h-11 rounded-md
                         border-gray-300
                         bg-white
@@ -877,7 +851,7 @@ const GlobalSearch = ({
                         placeholder:text-gray-500
                         focus:border-gray-500
                       `
-                      : `
+                    : `
                         h-11 rounded-md
                         border-white/20
                         bg-white/10
@@ -903,15 +877,14 @@ const GlobalSearch = ({
                 -translate-y-1/2
                 items-center justify-center
                 transition-colors
-                ${
-                  mobile ||
+                ${mobile ||
                   (!isLightNavbar &&
                     !desktopModal)
-                    ? `
+                  ? `
                       text-white/60
                       hover:text-white
                     `
-                    : `
+                  : `
                       text-gray-400
                       hover:text-black
                     `
@@ -935,16 +908,15 @@ const GlobalSearch = ({
               items-center justify-center
               rounded-full
               transition-colors
-              ${
-                mobile ||
+              ${mobile ||
                 (!isLightNavbar &&
                   !desktopModal)
-                  ? `
+                ? `
                     text-white/80
                     hover:bg-white/10
                     hover:text-white
                   `
-                  : `
+                : `
                     text-black/70
                     hover:bg-black/[0.05]
                     hover:text-black
@@ -978,21 +950,20 @@ const GlobalSearch = ({
             border border-black/10
             bg-white text-black
             shadow-[0_24px_70px_rgba(0,0,0,0.22)]
-            ${
-              mobile
-                ? `
+            ${mobile
+              ? `
                   relative mt-3
                   w-full
                 `
-                : desktopModal ||
-                    expanded
-                  ? `
+              : desktopModal ||
+                expanded
+                ? `
                     absolute
                     left-0 right-0
                     top-[calc(100%+10px)]
                     w-full max-w-none
                   `
-                  : `
+                : `
                     absolute right-0
                     top-[54px]
                     w-[390px]
@@ -1097,7 +1068,7 @@ const GlobalSearch = ({
                       );
 
                     const isActive =
-                      activeIndex === index;
+                      safeActiveIndex === index;
 
                     const isExternal =
                       item.external === true ||
@@ -1130,10 +1101,9 @@ const GlobalSearch = ({
                           px-3 py-3
                           text-left
                           transition-colors
-                          ${
-                            isActive
-                              ? "bg-[#f2f2f2]"
-                              : "hover:bg-[#f7f7f7]"
+                          ${isActive
+                            ? "bg-[#f2f2f2]"
+                            : "hover:bg-[#f7f7f7]"
                           }
                         `}
                       >

@@ -41,13 +41,6 @@ const OurCollectionSection = () => {
   const [isPaused, setIsPaused] =
     useState(false);
 
-  const [canScrollLeft, setCanScrollLeft] =
-    useState(false);
-
-  const [
-    canScrollRight,
-    setCanScrollRight,
-  ] = useState(false);
 
   useEffect(() => {
     const fetchMaterials =
@@ -171,29 +164,7 @@ const OurCollectionSection = () => {
       return totalWidth;
     }, [materials.length]);
 
-  const updateScrollControls =
-    useCallback(() => {
-      const container =
-        scrollRef.current;
 
-      if (!container) {
-        setCanScrollLeft(false);
-        setCanScrollRight(false);
-        return;
-      }
-
-      const maxScrollLeft =
-        container.scrollWidth -
-        container.clientWidth;
-
-      setCanScrollLeft(
-        container.scrollLeft > 3
-      );
-
-      setCanScrollRight(
-        maxScrollLeft > 3
-      );
-    }, []);
 
   const normalizeLoopPosition =
     useCallback(() => {
@@ -249,75 +220,6 @@ const OurCollectionSection = () => {
           }, delay);
       },
       []
-    );
-
-  const getScrollAmount =
-    useCallback(() => {
-      const container =
-        scrollRef.current;
-
-      if (!container) {
-        return 340;
-      }
-
-      const firstCard =
-        container.querySelector(
-          "[data-category-card]"
-        );
-
-      if (!firstCard) {
-        return 340;
-      }
-
-      return (
-        firstCard.getBoundingClientRect()
-          .width + CARD_GAP
-      );
-    }, []);
-
-  const scrollCategories =
-    useCallback(
-      (direction) => {
-        const container =
-          scrollRef.current;
-
-        if (!container) {
-          return;
-        }
-
-        const amount =
-          getScrollAmount();
-
-        const firstSetWidth =
-          getFirstSetWidth();
-
-        if (firstSetWidth <= 0) {
-          return;
-        }
-
-        if (
-          direction === "left" &&
-          container.scrollLeft <= 3
-        ) {
-          container.scrollLeft =
-            firstSetWidth;
-        }
-
-        container.scrollBy({
-          left:
-            direction === "left"
-              ? -amount
-              : amount,
-          behavior: "smooth",
-        });
-
-        pauseAndResume();
-      },
-      [
-        getFirstSetWidth,
-        getScrollAmount,
-        pauseAndResume,
-      ]
     );
 
   useEffect(() => {
@@ -390,48 +292,49 @@ const OurCollectionSection = () => {
     normalizeLoopPosition,
   ]);
 
-  useEffect(() => {
-    const container =
-      scrollRef.current;
+useEffect(() => {
 
-    if (!container) {
-      return undefined;
+  const container = scrollRef.current;
+
+  if (!container) {
+
+    return undefined;
+
+  }
+
+  const handleScroll = () => {
+
+    normalizeLoopPosition();
+
+  };
+
+  container.addEventListener(
+
+    "scroll",
+
+    handleScroll,
+
+    {
+
+      passive: true,
+
     }
 
-    const handleScroll = () => {
-      normalizeLoopPosition();
-      updateScrollControls();
-    };
+  );
 
-    const resizeObserver =
-      new ResizeObserver(() => {
-        updateScrollControls();
-      });
+  return () => {
 
-    container.addEventListener(
+    container.removeEventListener(
+
       "scroll",
-      handleScroll,
-      {
-        passive: true,
-      }
+
+      handleScroll
+
     );
 
-    resizeObserver.observe(container);
+  };
 
-    updateScrollControls();
-
-    return () => {
-      container.removeEventListener(
-        "scroll",
-        handleScroll
-      );
-
-      resizeObserver.disconnect();
-    };
-  }, [
-    normalizeLoopPosition,
-    updateScrollControls,
-  ]);
+}, [normalizeLoopPosition]);
 
   useEffect(
     () => () => {

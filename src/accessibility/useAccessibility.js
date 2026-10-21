@@ -4,6 +4,10 @@ import {
   useState,
 } from "react";
 
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
 const STORAGE_KEY =
   "ultrastones-accessibility-settings";
 
@@ -26,6 +30,10 @@ const defaultSettings = {
   grayscale: false,
 };
 
+/* =========================================================
+   LOAD SAVED SETTINGS
+========================================================= */
+
 const getSavedSettings = () => {
   if (typeof window === "undefined") {
     return defaultSettings;
@@ -40,9 +48,19 @@ const getSavedSettings = () => {
       return defaultSettings;
     }
 
+    const parsed = JSON.parse(saved);
+
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      Array.isArray(parsed)
+    ) {
+      return defaultSettings;
+    }
+
     return {
       ...defaultSettings,
-      ...JSON.parse(saved),
+      ...parsed,
     };
   } catch (error) {
     console.error(
@@ -54,52 +72,85 @@ const getSavedSettings = () => {
   }
 };
 
+/* =========================================================
+   VIDEO STATE TRACKING
+
+   WeakMap remembers whether a video was playing
+   when accessibility pause was enabled.
+
+   Repeated pause calls do not overwrite this state.
+========================================================= */
+
+const videoPlaybackState = new WeakMap();
+
+const trackedVideos = new Set();
+
+/* =========================================================
+   PAUSE VIDEOS
+========================================================= */
+
 const pauseVideos = () => {
   const videos =
     document.querySelectorAll("video");
 
   videos.forEach((video) => {
-    if (!video.paused) {
-      video.dataset.a11yWasPlaying = "true";
-    } else {
-      video.dataset.a11yWasPlaying = "false";
+    if (!videoPlaybackState.has(video)) {
+      videoPlaybackState.set(
+        video,
+        !video.paused
+      );
     }
 
-    video.pause();
+    trackedVideos.add(video);
+
+    if (!video.paused) {
+      video.pause();
+    }
   });
 };
 
+/* =========================================================
+   RESUME PREVIOUSLY PLAYING VIDEOS
+========================================================= */
+
 const resumeVideos = () => {
-  const videos =
-    document.querySelectorAll("video");
-
-  videos.forEach((video) => {
+  trackedVideos.forEach((video) => {
     const shouldResume =
-      video.dataset.a11yWasPlaying === "true";
+      videoPlaybackState.get(video) === true;
 
-    if (shouldResume) {
+    if (
+      shouldResume &&
+      video.isConnected
+    ) {
       video.play().catch(() => {
         /*
-         * Some browsers block autoplay.
-         * In that case the user can manually resume it.
+         * Browsers may block autoplay.
          */
       });
     }
 
-    delete video.dataset.a11yWasPlaying;
+    videoPlaybackState.delete(video);
   });
+
+  trackedVideos.clear();
 };
+
+/* =========================================================
+   APPLY VISUAL SETTINGS
+========================================================= */
 
 const applySettings = (settings) => {
   const root = document.documentElement;
 
   /* Text size */
+
   root.style.setProperty(
     "--a11y-text-scale",
     String(settings.textScale)
   );
 
   /* Text spacing */
+
   root.style.setProperty(
     "--a11y-letter-spacing",
     `${settings.letterSpacing}px`
@@ -112,6 +163,7 @@ const applySettings = (settings) => {
   }
 
   /* Line height */
+
   root.style.setProperty(
     "--a11y-line-height",
     String(settings.lineHeight)
@@ -124,6 +176,7 @@ const applySettings = (settings) => {
   }
 
   /* Contrast */
+
   if (
     settings.contrast &&
     settings.contrast !== "default"
@@ -135,6 +188,7 @@ const applySettings = (settings) => {
   }
 
   /* Highlight links */
+
   if (settings.highlightLinks) {
     root.dataset.a11yHighlightLinks =
       "true";
@@ -143,6 +197,7 @@ const applySettings = (settings) => {
   }
 
   /* Readable font */
+
   if (settings.dyslexiaFriendly) {
     root.dataset.a11yReadableFont =
       "true";
@@ -151,6 +206,7 @@ const applySettings = (settings) => {
   }
 
   /* Hide images */
+
   if (settings.hideImages) {
     root.dataset.a11yHideImages = "true";
   } else {
@@ -158,6 +214,7 @@ const applySettings = (settings) => {
   }
 
   /* Large cursor */
+
   if (settings.largeCursor) {
     root.dataset.a11yLargeCursor = "true";
   } else {
@@ -165,6 +222,7 @@ const applySettings = (settings) => {
   }
 
   /* Text alignment */
+
   if (
     settings.textAlign &&
     settings.textAlign !== "default"
@@ -176,34 +234,32 @@ const applySettings = (settings) => {
   }
 
   /* Saturation */
+
   root.style.setProperty(
     "--a11y-saturation",
     `${settings.saturation}%`
   );
 
   /* Grayscale */
+
   root.style.setProperty(
     "--a11y-grayscale",
     settings.grayscale ? "100%" : "0%"
   );
-
-  /* Pause animations and video */
-  if (settings.pauseAnimations) {
-    root.dataset.a11yPauseAnimations =
-      "true";
-
-    pauseVideos();
-  } else {
-    delete root.dataset.a11yPauseAnimations;
-
-    resumeVideos();
-  }
 };
+
+/* =========================================================
+   ACCESSIBILITY HOOK
+========================================================= */
 
 const useAccessibility = () => {
   const [settings, setSettings] = useState(
     getSavedSettings
   );
+
+  /* =========================================================
+     APPLY SETTINGS + SAVE PREFERENCES
+  ========================================================= */
 
   useEffect(() => {
     applySettings(settings);
@@ -221,14 +277,31 @@ const useAccessibility = () => {
     }
   }, [settings]);
 
-  /*
-   * Pause videos that are added later by React,
-   * sliders or route changes.
-   */
+  /* =========================================================
+     PAUSE / RESUME VIDEOS
+
+     Runs only when pauseAnimations changes.
+  ========================================================= */
+
   useEffect(() => {
+    const root = document.documentElement;
+
     if (!settings.pauseAnimations) {
+      delete root.dataset.a11yPauseAnimations;
+
+      resumeVideos();
+
       return undefined;
     }
+
+    root.dataset.a11yPauseAnimations =
+      "true";
+
+    pauseVideos();
+
+    /* =====================================================
+       WATCH FOR VIDEOS ADDED LATER
+    ===================================================== */
 
     const observer = new MutationObserver(() => {
       pauseVideos();
@@ -244,6 +317,10 @@ const useAccessibility = () => {
     };
   }, [settings.pauseAnimations]);
 
+  /* =========================================================
+     UPDATE SINGLE SETTING
+  ========================================================= */
+
   const updateSetting = useCallback(
     (key, value) => {
       setSettings((current) => ({
@@ -253,6 +330,10 @@ const useAccessibility = () => {
     },
     []
   );
+
+  /* =========================================================
+     TOGGLE BOOLEAN SETTING
+  ========================================================= */
 
   const toggleSetting = useCallback(
     (key) => {
@@ -264,8 +345,14 @@ const useAccessibility = () => {
     []
   );
 
+  /* =========================================================
+     RESET SETTINGS
+  ========================================================= */
+
   const resetSettings = useCallback(() => {
-    setSettings(defaultSettings);
+    setSettings({
+      ...defaultSettings,
+    });
   }, []);
 
   return {
