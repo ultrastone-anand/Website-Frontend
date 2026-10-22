@@ -28,23 +28,43 @@
 
     <!-- =========================================================
      RESPONSIVE HOMEPAGE HERO POSTER
+
+     Preloads the homepage poster using responsive
+     image candidates.
+
+     IMPORTANT:
+     These preloads run on every direct page visit.
+     Remove them when implementing route-specific
+     preload handling.
 ========================================================= -->
 
-    <link
-      rel="preload"
-      as="image"
-      href="https://cdn.ultrastone.in/cdn-cgi/image/width=768,quality=75,format=auto/frame0.png"
-      media="(max-width: 767px)"
-      fetchpriority="high"
-    />
+<link
+  rel="preload"
+  as="image"
+  href="https://cdn.ultrastone.in/cdn-cgi/image/width=480,quality=75,format=auto/frame0.png"
+  imagesrcset="
+    https://cdn.ultrastone.in/cdn-cgi/image/width=480,quality=75,format=auto/frame0.png 480w,
+    https://cdn.ultrastone.in/cdn-cgi/image/width=768,quality=75,format=auto/frame0.png 768w,
+    https://cdn.ultrastone.in/cdn-cgi/image/width=960,quality=75,format=auto/frame0.png 960w
+  "
+  imagesizes="100vw"
+  media="(max-width: 767px)"
+  fetchpriority="high"
+/>
 
-    <link
-      rel="preload"
-      as="image"
-      href="https://cdn.ultrastone.in/cdn-cgi/image/width=1600,quality=80,format=auto/frame0.png"
-      media="(min-width: 768px)"
-      fetchpriority="high"
-    />
+<link
+  rel="preload"
+  as="image"
+  href="https://cdn.ultrastone.in/cdn-cgi/image/width=1600,quality=80,format=auto/frame0.png"
+  imagesrcset="
+    https://cdn.ultrastone.in/cdn-cgi/image/width=1280,quality=80,format=auto/frame0.png 1280w,
+    https://cdn.ultrastone.in/cdn-cgi/image/width=1600,quality=80,format=auto/frame0.png 1600w,
+    https://cdn.ultrastone.in/cdn-cgi/image/width=1920,quality=80,format=auto/frame0.png 1920w
+  "
+  imagesizes="100vw"
+  media="(min-width: 768px)"
+  fetchpriority="high"
+/>
     <!-- =========================================================
          GOOGLE FONTS - NON-BLOCKING
 

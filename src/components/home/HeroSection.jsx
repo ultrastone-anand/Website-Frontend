@@ -50,15 +50,45 @@ const MOBILE_BREAKPOINT = 768;
 const MOBILE_VIDEO_WIDTH = 720;
 const DESKTOP_VIDEO_WIDTH = 1920;
 
-const MOBILE_VIDEO_DELAY = 1800;
+// Allow the initial page content to render before video loads.
+const MOBILE_VIDEO_DELAY = 3000;
+const DESKTOP_VIDEO_DELAY = 0;
 
+/* =========================================================
+   RESPONSIVE POSTERS
+========================================================= */
 
-// Responsive poster variants.
-const MOBILE_POSTER =
-  "https://cdn.ultrastone.in/cdn-cgi/image/width=768,quality=75,format=auto/frame0.png";
+const POSTER_BASE =
+  "https://cdn.ultrastone.in/cdn-cgi/image";
 
-const DESKTOP_POSTER =
-  "https://cdn.ultrastone.in/cdn-cgi/image/width=1600,quality=80,format=auto/frame0.png";
+const POSTER_PATH = "frame0.png";
+
+const createPosterUrl = (width, quality = 75) =>
+  `${POSTER_BASE}/width=${width},quality=${quality},format=auto/${POSTER_PATH}`;
+
+const MOBILE_POSTER_480 = createPosterUrl(480, 75);
+const MOBILE_POSTER_768 = createPosterUrl(768, 75);
+const MOBILE_POSTER_960 = createPosterUrl(960, 75);
+
+const DESKTOP_POSTER_1280 = createPosterUrl(1280, 80);
+const DESKTOP_POSTER_1600 = createPosterUrl(1600, 80);
+const DESKTOP_POSTER_1920 = createPosterUrl(1920, 80);
+
+const MOBILE_POSTER_SRCSET = [
+  `${MOBILE_POSTER_480} 480w`,
+  `${MOBILE_POSTER_768} 768w`,
+  `${MOBILE_POSTER_960} 960w`,
+].join(", ");
+
+const DESKTOP_POSTER_SRCSET = [
+  `${DESKTOP_POSTER_1280} 1280w`,
+  `${DESKTOP_POSTER_1600} 1600w`,
+  `${DESKTOP_POSTER_1920} 1920w`,
+].join(", ");
+
+/* =========================================================
+   ANIMATION CONSTANTS
+========================================================= */
 
 const smoothEase = [0.16, 1, 0.3, 1];
 const introEase = [0.19, 1, 0.22, 1];
@@ -132,6 +162,10 @@ const getNumber = (value, fallback = 0) => {
 ========================================================= */
 
 const HeroSection = () => {
+  /* =======================================================
+     STATE
+  ======================================================= */
+
   const [hero, setHero] = useState(null);
 
   const [loading, setLoading] = useState(true);
@@ -168,6 +202,8 @@ const HeroSection = () => {
       setIsMobile(event.matches);
     };
 
+    setIsMobile(mediaQuery.matches);
+
     mediaQuery.addEventListener(
       "change",
       updateDevice
@@ -186,6 +222,11 @@ const HeroSection = () => {
   ======================================================= */
 
   useEffect(() => {
+    if (!API_URL) {
+      setLoading(false);
+      return undefined;
+    }
+
     const controller = new AbortController();
 
     const fetchHero = async () => {
@@ -199,6 +240,12 @@ const HeroSection = () => {
           signal: controller.signal,
         });
 
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch hero: ${response.status}`
+          );
+        }
+
         const contentType =
           response.headers.get("content-type") || "";
 
@@ -209,13 +256,6 @@ const HeroSection = () => {
         }
 
         const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data?.message ||
-              "Failed to fetch active home hero"
-          );
-        }
 
         if (!controller.signal.aborted) {
           setHero(data?.data || null);
@@ -258,11 +298,19 @@ const HeroSection = () => {
       : desktopMediaUrl;
 
   const resolvedPosterUrl = isMobile
-    ? MOBILE_POSTER
-    : DESKTOP_POSTER;
+    ? MOBILE_POSTER_480
+    : DESKTOP_POSTER_1600;
+
+  const resolvedPosterSrcSet = isMobile
+    ? MOBILE_POSTER_SRCSET
+    : DESKTOP_POSTER_SRCSET;
+
+  const resolvedPosterSizes = isMobile
+    ? "100vw"
+    : "100vw";
 
   /* =======================================================
-     VIDEO URLS
+     OPTIMIZED VIDEO URL
   ======================================================= */
 
   const optimizedVideoUrl = useMemo(() => {
@@ -289,6 +337,10 @@ const HeroSection = () => {
     isMobile,
   ]);
 
+  /* =======================================================
+     ORIGINAL VIDEO URL
+  ======================================================= */
+
   const originalVideoUrl = useMemo(() => {
     if (
       mediaType !== "VIDEO" ||
@@ -311,9 +363,22 @@ const HeroSection = () => {
 
   /* =======================================================
      VIDEO LOADING STRATEGY
+
+     Mobile:
+     - Display poster immediately.
+     - Wait before loading video.
+     - Reduce network competition during initial render.
+
+     Desktop:
+     - Start video loading immediately.
   ======================================================= */
 
   useEffect(() => {
+    setVideoReady(false);
+    setHasVideoStarted(false);
+    setUseOriginalVideo(false);
+    setVideoFailed(false);
+
     if (
       mediaType !== "VIDEO" ||
       !resolvedMediaUrl ||
@@ -322,12 +387,13 @@ const HeroSection = () => {
       return undefined;
     }
 
-    const timer = window.setTimeout(
-      () => {
-        setVideoReady(true);
-      },
-      isMobile ? MOBILE_VIDEO_DELAY : 0
-    );
+    const delay = isMobile
+      ? MOBILE_VIDEO_DELAY
+      : DESKTOP_VIDEO_DELAY;
+
+    const timer = window.setTimeout(() => {
+      setVideoReady(true);
+    }, delay);
 
     return () => {
       window.clearTimeout(timer);
@@ -492,8 +558,8 @@ const HeroSection = () => {
       {/* ===============================================
           EARLY POSTER
 
-          Displays immediately while the CMS hero
-          configuration is being fetched.
+          Displayed immediately while CMS data loads.
+          Remains visible until the video starts.
       =============================================== */}
 
       {(loading || !hero || mediaType === "VIDEO") && (
@@ -514,6 +580,8 @@ const HeroSection = () => {
         >
           <img
             src={resolvedPosterUrl}
+            srcSet={resolvedPosterSrcSet}
+            sizes={resolvedPosterSizes}
             alt=""
             aria-hidden="true"
             loading="eager"
@@ -528,8 +596,7 @@ const HeroSection = () => {
       {/* ===============================================
           VIDEO
 
-          Mobile video is delayed to prioritize
-          initial rendering.
+          Mobile video starts after initial render delay.
       =============================================== */}
 
       {mediaType === "VIDEO" &&
