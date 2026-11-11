@@ -1,3 +1,4 @@
+
 import {
   lazy,
   Suspense,
@@ -9,6 +10,7 @@ import {
 } from "react";
 
 import {
+  ArrowRight,
   ChevronDown,
   Menu,
   Search,
@@ -51,45 +53,24 @@ const MATERIALS_API_URL =
 ========================================================= */
 
 const EXPERIENCE = [
-  {
-    label: "About Us",
-    path: "/aboutus",
-  },
-  {
-    label: "Our Process",
-    path: "/ourprocess",
-  },
+  { label: "About Us", path: "/aboutus" },
+  { label: "Our Process", path: "/ourprocess" },
 ];
 
 const RESOURCES = [
-  {
-    label: "Resources",
-    path: "/resources",
-  },
+  { label: "Resources", path: "/resources" },
   {
     label: "Merchandising Displays",
     path: "/merchandising-displays",
   },
-  {
-    label: "Portfolio",
-    path: "/gallery",
-  },
+  { label: "Portfolio", path: "/gallery" },
   {
     label: "Silica Safety First",
     path: "/safety-first",
   },
-  {
-    label: "CEU",
-    path: "/ceu",
-  },
-  {
-    label: "Our Blogs",
-    path: "/blogs",
-  },
-  {
-    label: "Career",
-    path: "/career",
-  },
+  { label: "CEU", path: "/ceu" },
+  { label: "Our Blogs", path: "/blogs" },
+  { label: "Career", path: "/career" },
   {
     label: "Product Registration",
     path: "/product_registration",
@@ -132,6 +113,26 @@ const getThumbnailUrl = (
     quality
   );
 
+const isActiveMaterial = (item) =>
+  item?.is_active === true;
+
+const isParentMaterial = (item) =>
+  item.parent_id === null ||
+  item.parent_id === undefined;
+
+const getChildren = (materials, parentId) =>
+  materials
+    .filter(
+      (item) =>
+        isActiveMaterial(item) &&
+        item.parent_id != null &&
+        String(item.parent_id) === String(parentId)
+    )
+    .sort(alphabeticalSort);
+
+const categoryPath = (item) =>
+  `/product-category/${item.slug}`;
+
 /* =========================================================
    NAVBAR
 ========================================================= */
@@ -140,8 +141,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isHomePage =
-    location.pathname === "/";
+  const isHomePage = location.pathname === "/";
 
   /* =======================================================
      STATE
@@ -151,6 +151,9 @@ const Navbar = () => {
     useState(false);
 
   const [mobileDropdown, setMobileDropdown] =
+    useState(null);
+
+  const [mobileExpandedParent, setMobileExpandedParent] =
     useState(null);
 
   const [activeDropdown, setActiveDropdown] =
@@ -192,11 +195,6 @@ const Navbar = () => {
 
   /* =======================================================
      LOAD MATERIALS ON DEMAND
-
-     Requests are deduplicated.
-
-     Categories are fetched only when the user
-     interacts with Material Portfolio or search.
   ======================================================= */
 
   const loadMaterials = useCallback(async () => {
@@ -213,12 +211,12 @@ const Navbar = () => {
       .then((response) => {
         const result = response.data;
 
-        if (result?.success) {
-          const activeMaterials = (
-            result.data || []
-          ).filter(
-            (item) => item.is_active === true
-          );
+        if (
+          result?.success &&
+          Array.isArray(result.data)
+        ) {
+          const activeMaterials =
+            result.data.filter(isActiveMaterial);
 
           setMaterials(activeMaterials);
 
@@ -252,8 +250,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const updateScrollState = () => {
-      const nextScrolled =
-        window.scrollY > 40;
+      const nextScrolled = window.scrollY > 40;
 
       setScrolled((current) =>
         current === nextScrolled
@@ -283,9 +280,7 @@ const Navbar = () => {
     window.addEventListener(
       "scroll",
       handleScroll,
-      {
-        passive: true,
-      }
+      { passive: true }
     );
 
     return () => {
@@ -302,22 +297,24 @@ const Navbar = () => {
     };
   }, []);
 
-/* =======================================================
-   CLOSE UI AFTER ROUTE CHANGE
-======================================================= */
+  /* =======================================================
+     CLOSE UI AFTER ROUTE CHANGE
+  ======================================================= */
 
-useEffect(() => {
-  const frameId = window.requestAnimationFrame(() => {
-    setMobileMenu(false);
-    setMobileDropdown(null);
-    setActiveDropdown(null);
-    setDesktopSearchOpen(false);
-  });
+  useEffect(() => {
+    const frameId =
+      window.requestAnimationFrame(() => {
+        setMobileMenu(false);
+        setMobileDropdown(null);
+        setMobileExpandedParent(null);
+        setActiveDropdown(null);
+        setDesktopSearchOpen(false);
+      });
 
-  return () => {
-    window.cancelAnimationFrame(frameId);
-  };
-}, [location.pathname]);
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [location.pathname]);
 
   /* =======================================================
      BREAKPOINT WATCH
@@ -332,6 +329,7 @@ useEffect(() => {
       if (event.matches) {
         setMobileMenu(false);
         setMobileDropdown(null);
+        setMobileExpandedParent(null);
       } else {
         setDesktopSearchOpen(false);
         setActiveDropdown(null);
@@ -399,10 +397,7 @@ useEffect(() => {
       html.style.touchAction =
         previousHtmlTouchAction;
     };
-  }, [
-    mobileMenu,
-    desktopSearchOpen,
-  ]);
+  }, [mobileMenu, desktopSearchOpen]);
 
   /* =======================================================
      ESCAPE KEY
@@ -410,12 +405,11 @@ useEffect(() => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key !== "Escape") {
-        return;
-      }
+      if (event.key !== "Escape") return;
 
       setMobileMenu(false);
       setMobileDropdown(null);
+      setMobileExpandedParent(null);
       setActiveDropdown(null);
       setDesktopSearchOpen(false);
     };
@@ -434,7 +428,7 @@ useEffect(() => {
   }, []);
 
   /* =======================================================
-     CLEAR DROPDOWN TIMER
+     CLEANUP
   ======================================================= */
 
   useEffect(() => {
@@ -480,30 +474,24 @@ useEffect(() => {
   };
 
   /* =======================================================
-     CLOSE MOBILE
+     NAVIGATION
   ======================================================= */
 
   const closeMobileMenu = () => {
     setMobileMenu(false);
     setMobileDropdown(null);
+    setMobileExpandedParent(null);
   };
-
-  /* =======================================================
-     NAVIGATION
-  ======================================================= */
 
   const handleNavigate = (path) => {
     setActiveDropdown(null);
     setDesktopSearchOpen(false);
     setMobileMenu(false);
     setMobileDropdown(null);
+    setMobileExpandedParent(null);
 
     navigate(path);
   };
-
-  /* =======================================================
-     INVENTORY
-  ======================================================= */
 
   const openInventory = () => {
     window.open(
@@ -514,29 +502,20 @@ useEffect(() => {
 
     setActiveDropdown(null);
     setDesktopSearchOpen(false);
-
     closeMobileMenu();
   };
-
-  /* =======================================================
-     SEARCH
-  ======================================================= */
 
   const toggleDesktopSearch = () => {
     setActiveDropdown(null);
 
-    setDesktopSearchOpen((current) => {
-      if (!current) {
-        loadMaterials();
-      }
+    if (!desktopSearchOpen) {
+      loadMaterials();
+    }
 
-      return !current;
-    });
+    setDesktopSearchOpen(
+      (current) => !current
+    );
   };
-
-  /* =======================================================
-     LOGO
-  ======================================================= */
 
   const handleLogoClick = () => {
     if (location.pathname === "/") {
@@ -555,15 +534,30 @@ useEffect(() => {
      MOBILE MATERIALS
   ======================================================= */
 
-  const mobileParentMaterials = useMemo(() => {
-    return materials
-      .filter(
-        (item) =>
-          item.parent_id === null &&
-          item.is_active
-      )
-      .sort(alphabeticalSort);
-  }, [materials]);
+  const mobileParentMaterials = useMemo(
+    () =>
+      materials
+        .filter(
+          (item) =>
+            isParentMaterial(item) &&
+            isActiveMaterial(item)
+        )
+        .sort(alphabeticalSort),
+    [materials]
+  );
+
+  const mobileChildrenByParent = useMemo(() => {
+    const map = new Map();
+
+    mobileParentMaterials.forEach((parent) => {
+      map.set(
+        String(parent.id),
+        getChildren(materials, parent.id)
+      );
+    });
+
+    return map;
+  }, [materials, mobileParentMaterials]);
 
   /* =======================================================
      RENDER
@@ -578,98 +572,63 @@ useEffect(() => {
       <header
         className="
           pointer-events-none
-          fixed
-          inset-x-0
-          top-0
-          z-[100]
-          w-full
+          fixed inset-x-0 top-0
+          z-[100] w-full
         "
       >
         <div
           className="
-            relative
-            mx-auto
-            h-[112px]
-            w-full
-            max-w-[2200px]
-            px-4
-
-            sm:h-[124px]
-            sm:px-6
-
+            relative mx-auto
+            h-[112px] w-full
+            max-w-[2200px] px-4
+            sm:h-[124px] sm:px-6
             lg:px-7
-
             min-[1180px]:h-[128px]
-
             min-[1440px]:px-8
-
             min-[1700px]:px-12
           "
         >
-          {/* =================================================
-              FULL LOGO
-          ================================================= */}
+          {/* FULL LOGO */}
 
           <button
             type="button"
             aria-label="Go to Ultra Stones home page"
+            onClick={handleLogoClick}
             className={`
               pointer-events-auto
-              absolute
-              left-4
-              top-[22px]
-              z-[110]
-              cursor-pointer
-
-              transition-all
-              duration-700
+              absolute left-4 top-[22px]
+              z-[110] cursor-pointer
+              transition-all duration-700
               ease-[cubic-bezier(0.22,1,0.36,1)]
-
-              sm:left-6
-              sm:top-[24px]
-
+              sm:left-6 sm:top-[24px]
               lg:left-7
-
               min-[1440px]:left-8
-
               min-[1700px]:left-12
 
-              ${scrolled
-                ? `
-                    pointer-events-none
-                    invisible
-                    -translate-y-1
-                    scale-[0.94]
+              ${
+                scrolled
+                  ? `
+                    pointer-events-none invisible
+                    -translate-y-1 scale-[0.94]
                     opacity-0
                   `
-                : `
-                    visible
-                    translate-y-0
-                    scale-100
-                    opacity-100
+                  : `
+                    visible translate-y-0
+                    scale-100 opacity-100
                   `
               }
             `}
-            onClick={handleLogoClick}
           >
             <div
               className="
-                relative
-                h-[46px]
-                w-[150px]
-
-                sm:h-[52px]
-                sm:w-[174px]
-
+                relative h-[46px] w-[150px]
+                sm:h-[52px] sm:w-[174px]
                 min-[1180px]:h-[48px]
                 min-[1180px]:w-[150px]
-
                 min-[1360px]:h-[52px]
                 min-[1360px]:w-[170px]
-
                 min-[1600px]:h-[58px]
                 min-[1600px]:w-[195px]
-
                 min-[1900px]:h-[62px]
                 min-[1900px]:w-[210px]
               "
@@ -679,18 +638,13 @@ useEffect(() => {
                 alt="Ultra Stones"
                 draggable={false}
                 className={`
-                  absolute
-                  inset-0
-                  h-full
-                  w-auto
-                  object-contain
-
-                  transition-opacity
-                  duration-500
-
-                  ${isLightNavbar
-                    ? "opacity-0"
-                    : "opacity-100"
+                  absolute inset-0
+                  h-full w-auto object-contain
+                  transition-opacity duration-500
+                  ${
+                    isLightNavbar
+                      ? "opacity-0"
+                      : "opacity-100"
                   }
                 `}
               />
@@ -700,59 +654,41 @@ useEffect(() => {
                 alt="Ultra Stones"
                 draggable={false}
                 className={`
-                  absolute
-                  inset-0
-                  h-full
-                  w-auto
-                  object-contain
-
-                  transition-opacity
-                  duration-500
-
-                  ${isLightNavbar
-                    ? "opacity-100"
-                    : "opacity-0"
+                  absolute inset-0
+                  h-full w-auto object-contain
+                  transition-opacity duration-500
+                  ${
+                    isLightNavbar
+                      ? "opacity-100"
+                      : "opacity-0"
                   }
                 `}
               />
             </div>
           </button>
 
-          {/* =================================================
-              SEARCH BEFORE SCROLL
-          ================================================= */}
+          {/* SEARCH BEFORE SCROLL */}
 
           <div
             className={`
               pointer-events-auto
-              absolute
-              right-7
-              top-[24px]
-              z-[108]
-              hidden
-
-              transition-all
-              duration-500
+              absolute right-7 top-[24px]
+              z-[108] hidden
+              transition-all duration-500
               ease-[cubic-bezier(0.22,1,0.36,1)]
-
               min-[1180px]:block
-
               min-[1440px]:right-8
-
               min-[1600px]:top-[27px]
-
               min-[1700px]:right-12
 
-              ${scrolled
-                ? `
-                    pointer-events-none
-                    invisible
-                    translate-x-4
-                    opacity-0
+              ${
+                scrolled
+                  ? `
+                    pointer-events-none invisible
+                    translate-x-4 opacity-0
                   `
-                : `
-                    visible
-                    translate-x-0
+                  : `
+                    visible translate-x-0
                     opacity-100
                   `
               }
@@ -764,86 +700,63 @@ useEffect(() => {
             />
           </div>
 
-          {/* =================================================
-              DESKTOP NAV
-          ================================================= */}
+          {/* DESKTOP NAV */}
 
           <nav
             aria-label="Primary navigation"
             className={`
               pointer-events-auto
-              absolute
-              left-1/2
-              z-[105]
-
-              hidden
-              -translate-x-1/2
-              items-center
-              whitespace-nowrap
+              absolute left-1/2 z-[105]
+              hidden -translate-x-1/2
+              items-center whitespace-nowrap
               rounded-full
-
               transition-[top,background-color,box-shadow,padding]
               duration-500
               ease-[cubic-bezier(0.22,1,0.36,1)]
-
               min-[1180px]:flex
 
-              ${scrolled
-                ? `
-                    top-[18px]
-                    bg-black/90
+              ${
+                scrolled
+                  ? `
+                    top-[18px] bg-black/90
                     p-[6px]
                     shadow-[0_18px_55px_rgba(0,0,0,0.30)]
-                    ring-1
-                    ring-white/10
-
+                    ring-1 ring-white/10
                     min-[1600px]:top-[21px]
                     min-[1600px]:p-[7px]
                   `
-                : `
-                    top-[24px]
-                    bg-black/85
+                  : `
+                    top-[24px] bg-black/85
                     p-[5px]
                     shadow-[0_16px_50px_rgba(0,0,0,0.24)]
-                    ring-1
-                    ring-white/[0.08]
-
+                    ring-1 ring-white/[0.08]
                     min-[1360px]:p-[6px]
-
                     min-[1600px]:top-[27px]
                     min-[1600px]:p-[7px]
                   `
               }
             `}
           >
-            {/* ===============================================
-                FAVICON AFTER SCROLL
-            =============================================== */}
+            {/* FAVICON AFTER SCROLL */}
 
             <div
               className={`
                 overflow-hidden
-
                 transition-[width,margin,opacity]
                 duration-500
                 ease-[cubic-bezier(0.22,1,0.36,1)]
 
-                ${scrolled
-                  ? `
-                      ml-0
-                      mr-1
-                      w-[42px]
+                ${
+                  scrolled
+                    ? `
+                      ml-0 mr-1 w-[42px]
                       opacity-100
-
                       min-[1360px]:w-[46px]
-
                       min-[1700px]:mr-2
                     `
-                  : `
+                    : `
                       pointer-events-none
-                      -mr-1
-                      w-0
-                      opacity-0
+                      -mr-1 w-0 opacity-0
                     `
                 }
               `}
@@ -853,14 +766,9 @@ useEffect(() => {
                 aria-label="Go to Ultra Stones home page"
                 onClick={handleLogoClick}
                 className="
-                  flex
-                  h-10
-                  w-10
-                  shrink-0
-                  items-center
+                  flex h-10 w-10 shrink-0
+                  cursor-pointer items-center
                   justify-center
-                  cursor-pointer
-
                   min-[1360px]:h-11
                   min-[1360px]:w-11
                 "
@@ -872,12 +780,8 @@ useEffect(() => {
                   height="30"
                   draggable={false}
                   className="
-                    block
-                    h-[30px]
-                    w-[30px]
-                    shrink-0
-                    object-contain
-
+                    block h-[30px] w-[30px]
+                    shrink-0 object-contain
                     min-[1360px]:h-[32px]
                     min-[1360px]:w-[32px]
                   "
@@ -940,44 +844,32 @@ useEffect(() => {
               }
             />
 
-            {/* ===============================================
-                SEARCH AFTER SCROLL
-            =============================================== */}
+            {/* SEARCH AFTER SCROLL */}
 
             <div
               className={`
-                flex
-                items-center
-                overflow-hidden
-
+                flex items-center overflow-hidden
                 transition-[max-width,margin,opacity]
                 duration-500
 
-                ${scrolled
-                  ? `
-                      ml-[2px]
-                      max-w-[190px]
+                ${
+                  scrolled
+                    ? `
+                      ml-[2px] max-w-[190px]
                       opacity-100
-
                       min-[1440px]:ml-1
                     `
-                  : `
+                    : `
                       pointer-events-none
-                      ml-0
-                      max-w-0
-                      opacity-0
+                      ml-0 max-w-0 opacity-0
                     `
                 }
               `}
             >
               <span
                 className="
-                  mx-[2px]
-                  h-6
-                  w-px
-                  shrink-0
-                  bg-white/15
-
+                  mx-[2px] h-6 w-px
+                  shrink-0 bg-white/15
                   min-[1440px]:mx-1
                   min-[1440px]:h-7
                 "
@@ -991,9 +883,7 @@ useEffect(() => {
             </div>
           </nav>
 
-          {/* =================================================
-              MOBILE BUTTON
-          ================================================= */}
+          {/* MOBILE BUTTON */}
 
           <button
             type="button"
@@ -1003,63 +893,44 @@ useEffect(() => {
                 : "Open navigation menu"
             }
             aria-expanded={mobileMenu}
+            onClick={() => {
+              setDesktopSearchOpen(false);
+
+              if (!mobileMenu) {
+                loadMaterials();
+              }
+
+              setMobileMenu(
+                (current) => !current
+              );
+
+              setMobileDropdown(null);
+              setMobileExpandedParent(null);
+            }}
             className={`
               pointer-events-auto
-              absolute
-              right-4
-              top-[23px]
+              absolute right-4 top-[23px]
               z-[110]
-
-              flex
-              h-11
-              w-11
-              items-center
-              justify-center
+              flex h-11 w-11
+              items-center justify-center
               rounded-full
-
-              transition-colors
-              duration-300
-
-              sm:right-6
-              sm:top-[28px]
-
+              transition-colors duration-300
+              sm:right-6 sm:top-[28px]
               lg:right-7
-
               min-[1180px]:hidden
 
-              ${mobileMenu
-                ? `
-                    bg-white
-                    text-black
-                  `
-                : isLightNavbar
-                  ? `
-                      bg-black
-                      text-white
-                      shadow-lg
-                    `
-                  : `
-                      bg-black/55
-                      text-white
-                      shadow-lg
-                      ring-1
+              ${
+                mobileMenu
+                  ? "bg-white text-black"
+                  : isLightNavbar
+                    ? "bg-black text-white shadow-lg"
+                    : `
+                      bg-black/55 text-white
+                      shadow-lg ring-1
                       ring-white/15
                     `
               }
             `}
-            onClick={() => {
-              setDesktopSearchOpen(false);
-
-              setMobileMenu((current) => {
-                if (!current) {
-                  loadMaterials();
-                }
-
-                return !current;
-              });
-
-              setMobileDropdown(null);
-            }}
           >
             {mobileMenu ? (
               <X size={23} strokeWidth={1.6} />
@@ -1077,19 +948,14 @@ useEffect(() => {
       {desktopSearchOpen && (
         <div
           className="
-            fixed
-            inset-0
-            z-[90]
-            hidden
-            bg-black/65
+            fixed inset-0 z-[90]
+            hidden bg-black/65
             backdrop-blur-sm
-
             min-[1180px]:block
           "
           onMouseDown={(event) => {
             if (
-              event.target ===
-              event.currentTarget
+              event.target === event.currentTarget
             ) {
               setDesktopSearchOpen(false);
             }
@@ -1100,44 +966,31 @@ useEffect(() => {
             aria-modal="true"
             aria-label="Search Ultra Stones"
             className="
-              relative
-              mx-auto
-              mt-[96px]
+              relative mx-auto mt-[96px]
               w-[min(760px,calc(100vw-40px))]
-              overflow-visible
-              rounded-[22px]
-              border
-              border-black/[0.06]
-              bg-white
-              px-5
-              py-5
+              overflow-visible rounded-[22px]
+              border border-black/[0.06]
+              bg-white px-5 py-5
               text-black
               shadow-[0_30px_90px_rgba(0,0,0,0.28)]
-
               min-[1360px]:mt-[106px]
               min-[1360px]:rounded-[24px]
               min-[1360px]:px-7
               min-[1360px]:py-6
-
               min-[1600px]:mt-[112px]
             "
           >
             <div
               className="
-                mb-5
-                flex
-                items-start
-                justify-between
-                gap-5
+                mb-5 flex items-start
+                justify-between gap-5
               "
             >
               <div className="min-w-0">
                 <p
                   className="
-                    text-[10px]
-                    font-semibold
-                    uppercase
-                    tracking-[2px]
+                    text-[10px] font-semibold
+                    uppercase tracking-[2px]
                     text-black/40
                   "
                 >
@@ -1146,13 +999,10 @@ useEffect(() => {
 
                 <h2
                   className="
-                    mt-2
-                    text-[23px]
-                    font-medium
-                    leading-tight
+                    mt-2 text-[23px]
+                    font-medium leading-tight
                     tracking-[-0.7px]
                     text-black
-
                     sm:text-[27px]
                   "
                 >
@@ -1161,10 +1011,8 @@ useEffect(() => {
 
                 <p
                   className="
-                    mt-2
-                    max-w-[540px]
-                    text-[13px]
-                    leading-relaxed
+                    mt-2 max-w-[540px]
+                    text-[13px] leading-relaxed
                     text-black/45
                   "
                 >
@@ -1180,24 +1028,14 @@ useEffect(() => {
                   setDesktopSearchOpen(false)
                 }
                 className="
-                  flex
-                  h-10
-                  w-10
-                  shrink-0
-                  items-center
-                  justify-center
+                  flex h-10 w-10 shrink-0
+                  items-center justify-center
                   rounded-full
-                  border
-                  border-black/[0.08]
-                  bg-black/[0.04]
-                  text-black
-
-                  transition-colors
-                  duration-300
-
+                  border border-black/[0.08]
+                  bg-black/[0.04] text-black
+                  transition-colors duration-300
                   hover:border-black
-                  hover:bg-black
-                  hover:text-white
+                  hover:bg-black hover:text-white
                 "
               >
                 <X size={18} strokeWidth={1.7} />
@@ -1206,9 +1044,7 @@ useEffect(() => {
 
             <div
               className="
-                relative
-                w-full
-
+                relative w-full
                 [&>div]:!w-full
                 [&>div]:!max-w-none
               "
@@ -1223,9 +1059,9 @@ useEffect(() => {
                   isLightNavbar
                   expanded
                   desktopModal
-                  onResultClick={() => {
-                    setDesktopSearchOpen(false);
-                  }}
+                  onResultClick={() =>
+                    setDesktopSearchOpen(false)
+                  }
                 />
               </Suspense>
             </div>
@@ -1240,27 +1076,18 @@ useEffect(() => {
       {mobileMenu && (
         <div
           className="
-            fixed
-            inset-0
-            z-[95]
-            h-[100dvh]
-            w-full
-            overflow-y-auto
-            overscroll-contain
+            fixed inset-0 z-[95]
+            h-[100dvh] w-full
+            overflow-y-auto overscroll-contain
             bg-[#050b18]
-            pt-[96px]
-            text-white
-
+            pt-[96px] text-white
             sm:pt-[108px]
-
             min-[1180px]:hidden
           "
         >
           <div
             className="
-              mx-auto
-              w-full
-              max-w-[820px]
+              mx-auto w-full max-w-[820px]
               px-[clamp(20px,5vw,48px)]
               pb-12
               pt-[clamp(22px,4vw,36px)]
@@ -1286,8 +1113,6 @@ useEffect(() => {
               </Suspense>
             </div>
 
-            {/* EXPERIENCE */}
-
             <MobileDropdown
               title="Ultra Experience"
               dropdownKey="experience"
@@ -1297,8 +1122,6 @@ useEffect(() => {
               navigate={handleNavigate}
               closeMobileMenu={closeMobileMenu}
             />
-
-            {/* INVENTORY */}
 
             <MobileNavButton
               title="Online Inventory"
@@ -1315,21 +1138,15 @@ useEffect(() => {
                     handleNavigate("/categories")
                   }
                   className="
-                    flex
-                    flex-1
-                    items-center
+                    flex flex-1 items-center
                     py-[clamp(17px,3vw,22px)]
                     text-left
                     text-[clamp(12px,2vw,14px)]
-                    font-medium
-                    uppercase
+                    font-medium uppercase
                     leading-[1.4]
                     tracking-[clamp(1.3px,0.25vw,2px)]
                     text-white
-
-                    transition-colors
-                    duration-300
-
+                    transition-colors duration-300
                     hover:text-white/75
                   "
                 >
@@ -1352,11 +1169,8 @@ useEffect(() => {
                     );
                   }}
                   className="
-                    flex
-                    w-12
-                    shrink-0
-                    items-center
-                    justify-end
+                    flex w-12 shrink-0
+                    items-center justify-end
                     py-[clamp(17px,3vw,22px)]
                     text-white
                   "
@@ -1365,12 +1179,11 @@ useEffect(() => {
                     size={18}
                     className={`
                       shrink-0
-                      transition-transform
-                      duration-300
-
-                      ${mobileDropdown === "materials"
-                        ? "rotate-180"
-                        : ""
+                      transition-transform duration-300
+                      ${
+                        mobileDropdown === "materials"
+                          ? "rotate-180"
+                          : ""
                       }
                     `}
                   />
@@ -1382,59 +1195,166 @@ useEffect(() => {
                   grid
                   transition-[grid-template-rows,opacity]
                   duration-300
-
-                  ${mobileDropdown === "materials"
-                    ? `
-                        grid-rows-[1fr]
-                        opacity-100
-                      `
-                    : `
-                        grid-rows-[0fr]
-                        opacity-0
-                      `
+                  ${
+                    mobileDropdown === "materials"
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
                   }
                 `}
               >
                 <div className="overflow-hidden">
                   <div
                     className="
-                      grid
-                      grid-cols-1
-                      gap-x-8
-                      gap-y-[clamp(14px,2.5vw,20px)]
+                      grid grid-cols-1
+                      gap-x-8 gap-y-2
                       pb-[clamp(20px,4vw,28px)]
-                      pl-2
-
-                      sm:grid-cols-2
+                      pl-2 sm:grid-cols-2
                     "
                   >
                     {mobileParentMaterials.map(
-                      (item) => (
-                        <button
-                          type="button"
-                          key={item.id}
-                          onClick={() =>
-                            handleNavigate(
-                              `/product-category/${item.slug}`
-                            )
-                          }
-                          className="
-                            block
-                            w-full
-                            text-left
-                            text-[clamp(14px,2vw,16px)]
-                            leading-[1.45]
-                            text-white/70
+                      (parent) => {
+                        const children =
+                          mobileChildrenByParent.get(
+                            String(parent.id)
+                          ) || [];
 
-                            transition-colors
-                            duration-300
+                        const hasChildren =
+                          children.length > 0;
 
-                            hover:text-white
-                          "
-                        >
-                          {item.name}
-                        </button>
-                      )
+                        const isExpanded =
+                          mobileExpandedParent ===
+                          String(parent.id);
+
+                        return (
+                          <div
+                            key={parent.id}
+                            className="min-w-0"
+                          >
+                            <div
+                              className="
+                                flex items-center
+                                justify-between gap-2
+                              "
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleNavigate(
+                                    categoryPath(parent)
+                                  )
+                                }
+                                className="
+                                  min-w-0 flex-1
+                                  py-2 text-left
+                                  text-[clamp(14px,2vw,16px)]
+                                  leading-[1.45]
+                                  text-white/70
+                                  transition-colors
+                                  duration-300
+                                  hover:text-white
+                                "
+                              >
+                                {parent.name}
+                              </button>
+
+                              {hasChildren && (
+                                <button
+                                  type="button"
+                                  aria-label={`Toggle ${parent.name} subcategories`}
+                                  aria-expanded={isExpanded}
+                                  onClick={() =>
+                                    setMobileExpandedParent(
+                                      isExpanded
+                                        ? null
+                                        : String(parent.id)
+                                    )
+                                  }
+                                  className="
+                                    flex h-9 w-9
+                                    shrink-0 items-center
+                                    justify-center
+                                    rounded-lg
+                                    text-white/70
+                                    hover:bg-white/10
+                                    hover:text-white
+                                  "
+                                >
+                                  <ChevronDown
+                                    size={17}
+                                    className={`
+                                      transition-transform
+                                      duration-300
+                                      ${
+                                        isExpanded
+                                          ? "rotate-180"
+                                          : ""
+                                      }
+                                    `}
+                                  />
+                                </button>
+                              )}
+                            </div>
+
+                            {hasChildren && (
+                              <div
+                                className={`
+                                  grid
+                                  transition-[grid-template-rows,opacity]
+                                  duration-300
+                                  ${
+                                    isExpanded
+                                      ? "grid-rows-[1fr] opacity-100"
+                                      : "grid-rows-[0fr] opacity-0"
+                                  }
+                                `}
+                              >
+                                <div className="overflow-hidden">
+                                  <div
+                                    className="
+                                      mb-2 ml-2
+                                      border-l border-white/15
+                                      pl-4
+                                    "
+                                  >
+                                    {children.map((child) => (
+                                      <button
+                                        key={child.id}
+                                        type="button"
+                                        onClick={() =>
+                                          handleNavigate(
+                                            categoryPath(child)
+                                          )
+                                        }
+                                        className="
+                                          flex w-full
+                                          items-center
+                                          justify-between
+                                          gap-3 py-2
+                                          text-left
+                                          text-[13px]
+                                          leading-relaxed
+                                          text-white/55
+                                          transition-colors
+                                          hover:text-white
+                                        "
+                                      >
+                                        <span>
+                                          {child.name}
+                                        </span>
+
+                                        <ArrowRight
+                                          size={14}
+                                          className="shrink-0"
+                                        />
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
                     )}
 
                     {!materialsLoaded && (
@@ -1442,12 +1362,17 @@ useEffect(() => {
                         Loading materials...
                       </p>
                     )}
+
+                    {materialsLoaded &&
+                      mobileParentMaterials.length === 0 && (
+                        <p className="text-sm text-white/50">
+                          No materials available.
+                        </p>
+                      )}
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* RESOURCES */}
 
             <MobileDropdown
               title="Resource Center"
@@ -1459,8 +1384,6 @@ useEffect(() => {
               closeMobileMenu={closeMobileMenu}
             />
 
-            {/* LOCATIONS */}
-
             <MobileDropdown
               title="Locations"
               dropdownKey="locations"
@@ -1470,8 +1393,6 @@ useEffect(() => {
               navigate={handleNavigate}
               closeMobileMenu={closeMobileMenu}
             />
-
-            {/* CONTACT */}
 
             <MobileNavButton
               title="Contact"
@@ -1507,55 +1428,41 @@ const DesktopSearchButton = ({
     aria-expanded={isOpen}
     onClick={onClick}
     className={`
-      flex
-      shrink-0
-      items-center
-      justify-center
-      gap-2
-      rounded-full
-      font-semibold
-      uppercase
-      text-[#17130e]
-
+      flex shrink-0 items-center
+      justify-center gap-2
+      rounded-full font-semibold
+      uppercase text-[#17130e]
       transition-[transform,background-color]
       duration-300
-
       hover:-translate-y-[1px]
       hover:bg-[#f0af63]
 
-      ${compact
-        ? `
-            h-9
-            px-3
-            text-[9px]
-            tracking-[0.55px]
-
+      ${
+        compact
+          ? `
+            h-9 px-3
+            text-[9px] tracking-[0.55px]
             min-[1360px]:h-10
             min-[1360px]:px-4
-
             min-[1500px]:px-5
             min-[1500px]:text-[10px]
-
             min-[1700px]:px-6
             min-[1700px]:text-[11px]
           `
-        : `
-            h-11
-            px-5
-            text-[10px]
-            tracking-[0.7px]
+          : `
+            h-11 px-5
+            text-[10px] tracking-[0.7px]
             shadow-[0_10px_30px_rgba(0,0,0,0.12)]
-
             min-[1500px]:h-12
             min-[1500px]:px-6
-
             min-[1700px]:text-[11px]
           `
       }
 
-      ${isOpen
-        ? "bg-[#f0af63]"
-        : "bg-[#e8a556]"
+      ${
+        isOpen
+          ? "bg-[#f0af63]"
+          : "bg-[#e8a556]"
       }
     `}
   >
@@ -1565,9 +1472,7 @@ const DesktopSearchButton = ({
       <Search size={16} strokeWidth={1.8} />
     )}
 
-    <span>
-      {isOpen ? "Close" : "Search"}
-    </span>
+    <span>{isOpen ? "Close" : "Search"}</span>
   </button>
 );
 
@@ -1575,38 +1480,25 @@ const DesktopSearchButton = ({
    NAV LINK
 ========================================================= */
 
-const NavLink = ({
-  title,
-  onClick,
-}) => (
+const NavLink = ({ title, onClick }) => (
   <button
     type="button"
     onClick={onClick}
     className="
-      relative
-      shrink-0
-      whitespace-nowrap
-      rounded-full
+      relative shrink-0
+      whitespace-nowrap rounded-full
       px-[clamp(8px,0.72vw,15px)]
       py-[11px]
-      text-[9px]
-      font-medium
-      uppercase
-      tracking-[0.48px]
+      text-[9px] font-medium
+      uppercase tracking-[0.48px]
       text-white/90
-
-      transition-colors
-      duration-300
-
+      transition-colors duration-300
       hover:bg-white/10
       hover:text-white
-
       min-[1360px]:text-[9.5px]
-
       min-[1500px]:py-3
       min-[1500px]:text-[10px]
       min-[1500px]:tracking-[0.65px]
-
       min-[1700px]:px-4
       min-[1700px]:text-[11px]
       min-[1700px]:tracking-[0.8px]
@@ -1628,21 +1520,15 @@ const MobileNavButton = ({
     type="button"
     onClick={onClick}
     className="
-      w-full
-      border-b
-      border-white/10
+      w-full border-b border-white/10
       py-[clamp(17px,3vw,22px)]
       text-left
       text-[clamp(12px,2vw,14px)]
-      font-medium
-      uppercase
+      font-medium uppercase
       leading-[1.4]
       tracking-[clamp(1.3px,0.25vw,2px)]
       text-white
-
-      transition-colors
-      duration-300
-
+      transition-colors duration-300
       hover:text-white/75
     "
   >
@@ -1671,22 +1557,18 @@ const MobileDropdown = ({
       <button
         type="button"
         aria-expanded={isOpen}
-        onClick={() => {
+        onClick={() =>
           setActiveDropdown(
             isOpen ? null : dropdownKey
-          );
-        }}
+          )
+        }
         className="
-          flex
-          w-full
-          items-center
-          justify-between
-          gap-4
+          flex w-full items-center
+          justify-between gap-4
           py-[clamp(17px,3vw,22px)]
           text-left
           text-[clamp(12px,2vw,14px)]
-          font-medium
-          uppercase
+          font-medium uppercase
           leading-[1.4]
           tracking-[clamp(1.3px,0.25vw,2px)]
           text-white
@@ -1698,9 +1580,7 @@ const MobileDropdown = ({
           size={18}
           className={`
             shrink-0
-            transition-transform
-            duration-300
-
+            transition-transform duration-300
             ${isOpen ? "rotate-180" : ""}
           `}
         />
@@ -1711,24 +1591,21 @@ const MobileDropdown = ({
           grid
           transition-[grid-template-rows,opacity]
           duration-300
-
-          ${isOpen
-            ? "grid-rows-[1fr] opacity-100"
-            : "grid-rows-[0fr] opacity-0"
+          ${
+            isOpen
+              ? "grid-rows-[1fr] opacity-100"
+              : "grid-rows-[0fr] opacity-0"
           }
         `}
       >
         <div className="overflow-hidden">
           <div
             className="
-              grid
-              grid-cols-1
+              grid grid-cols-1
               gap-x-8
               gap-y-[clamp(14px,2.5vw,20px)]
               pb-[clamp(20px,4vw,28px)]
-              pl-2
-
-              sm:grid-cols-2
+              pl-2 sm:grid-cols-2
             "
           >
             {items.map((item) => (
@@ -1740,16 +1617,11 @@ const MobileDropdown = ({
                   closeMobileMenu();
                 }}
                 className="
-                  block
-                  w-full
-                  text-left
+                  block w-full text-left
                   text-[clamp(14px,2vw,16px)]
                   leading-[1.45]
                   text-white/70
-
-                  transition-colors
-                  duration-300
-
+                  transition-colors duration-300
                   hover:text-white
                 "
               >
@@ -1796,39 +1668,28 @@ const Dropdown = ({
             : openDropdown(dropdownKey)
         }
         className={`
-          flex
-          items-center
-          gap-[3px]
-          whitespace-nowrap
-          rounded-full
+          flex items-center gap-[3px]
+          whitespace-nowrap rounded-full
           px-[clamp(8px,0.72vw,15px)]
           py-[11px]
-          text-[9px]
-          font-medium
-          uppercase
-          tracking-[0.48px]
+          text-[9px] font-medium
+          uppercase tracking-[0.48px]
           text-white/90
-
-          transition-colors
-          duration-300
-
+          transition-colors duration-300
           hover:bg-white/10
           hover:text-white
-
           min-[1360px]:gap-1
           min-[1360px]:text-[9.5px]
-
           min-[1500px]:py-3
           min-[1500px]:text-[10px]
           min-[1500px]:tracking-[0.65px]
-
           min-[1700px]:px-4
           min-[1700px]:text-[11px]
           min-[1700px]:tracking-[0.8px]
-
-          ${isActive
-            ? "bg-white/10 text-white"
-            : ""
+          ${
+            isActive
+              ? "bg-white/10 text-white"
+              : ""
           }
         `}
       >
@@ -1838,12 +1699,9 @@ const Dropdown = ({
           size={12}
           strokeWidth={1.8}
           className={`
-            transition-transform
-            duration-300
-
+            transition-transform duration-300
             min-[1500px]:h-[13px]
             min-[1500px]:w-[13px]
-
             ${isActive ? "rotate-180" : ""}
           `}
         />
@@ -1851,30 +1709,24 @@ const Dropdown = ({
 
       <div
         className={`
-          absolute
-          left-1/2
-          top-[52px]
-          z-[120]
-          w-[270px]
+          absolute left-1/2 top-[52px]
+          z-[120] w-[270px]
           -translate-x-1/2
           rounded-[20px]
-          border
-          border-black/[0.06]
-          bg-white
-          p-3
+          border border-black/[0.06]
+          bg-white p-3
           shadow-[0_26px_75px_rgba(0,0,0,0.18)]
-
           transition-[opacity,transform,visibility]
           duration-300
-
           min-[1500px]:top-[56px]
           min-[1500px]:w-[290px]
           min-[1500px]:rounded-[22px]
           min-[1500px]:p-4
 
-          ${isActive
-            ? "visible translate-y-0 opacity-100"
-            : "invisible translate-y-3 opacity-0"
+          ${
+            isActive
+              ? "visible translate-y-0 opacity-100"
+              : "invisible translate-y-3 opacity-0"
           }
         `}
       >
@@ -1887,34 +1739,20 @@ const Dropdown = ({
                 navigate(item.path)
               }
               className="
-                group
-                flex
-                w-full
-                items-center
-                justify-between
-                rounded-xl
-                px-4
-                py-3
+                group flex w-full
+                items-center justify-between
+                rounded-xl px-4 py-3
                 text-left
-
-                transition-colors
-                duration-300
-
+                transition-colors duration-300
                 hover:bg-[#f3f4f2]
-
                 min-[1500px]:py-3.5
               "
             >
               <span
                 className="
-                  text-[13px]
-                  text-[#5d5d5d]
-
-                  transition-colors
-                  duration-300
-
+                  text-[13px] text-[#5d5d5d]
+                  transition-colors duration-300
                   group-hover:text-black
-
                   min-[1500px]:text-[14px]
                 "
               >
@@ -1923,13 +1761,10 @@ const Dropdown = ({
 
               <span
                 className="
-                  -translate-x-2
-                  text-black
+                  -translate-x-2 text-black
                   opacity-0
-
                   transition-[transform,opacity]
                   duration-300
-
                   group-hover:translate-x-0
                   group-hover:opacity-100
                 "
@@ -1976,8 +1811,8 @@ const MegaMenu = ({
     return materials
       .filter(
         (item) =>
-          item.parent_id === null &&
-          item.is_active
+          isParentMaterial(item) &&
+          isActiveMaterial(item)
       )
       .sort(alphabeticalSort);
   }, [materials]);
@@ -1991,12 +1826,33 @@ const MegaMenu = ({
       return null;
     }
 
-    const selectedParent = parentCategories.find(
-      (parent) => parent.id === hoveredParent
-    );
+    const selectedParent =
+      parentCategories.find(
+        (parent) =>
+          String(parent.id) ===
+          String(hoveredParent)
+      );
 
-    return selectedParent || parentCategories[0];
+    return (
+      selectedParent || parentCategories[0]
+    );
   }, [parentCategories, hoveredParent]);
+
+  /* =======================================================
+     ACTIVE CHILD CATEGORIES
+  ======================================================= */
+
+  const childCategories = useMemo(() => {
+    if (!activeParent) return [];
+
+    return getChildren(
+      materials,
+      activeParent.id
+    );
+  }, [materials, activeParent]);
+
+  const hasChildren =
+    childCategories.length > 0;
 
   /* =======================================================
      RENDER
@@ -2019,38 +1875,27 @@ const MegaMenu = ({
           }
         }}
         className={`
-          flex
-          items-center
-          gap-1
-          whitespace-nowrap
-          rounded-full
+          flex items-center gap-1
+          whitespace-nowrap rounded-full
           px-[clamp(8px,0.72vw,15px)]
           py-[11px]
-          text-[9px]
-          font-medium
-          uppercase
-          tracking-[0.48px]
+          text-[9px] font-medium
+          uppercase tracking-[0.48px]
           text-white/90
-
-          transition-colors
-          duration-300
-
+          transition-colors duration-300
           hover:bg-white/10
           hover:text-white
-
           min-[1360px]:text-[9.5px]
-
           min-[1500px]:py-3
           min-[1500px]:text-[10px]
           min-[1500px]:tracking-[0.65px]
-
           min-[1700px]:px-4
           min-[1700px]:text-[11px]
           min-[1700px]:tracking-[0.8px]
-
-          ${isActive
-            ? "bg-white/10 text-white"
-            : ""
+          ${
+            isActive
+              ? "bg-white/10 text-white"
+              : ""
           }
         `}
       >
@@ -2060,46 +1905,34 @@ const MegaMenu = ({
           size={13}
           strokeWidth={1.8}
           className={`
-            transition-transform
-            duration-300
-
+            transition-transform duration-300
             ${isActive ? "rotate-180" : ""}
           `}
         />
       </button>
 
-      {/* =================================================
-          MOUNT ONLY WHEN OPEN
-
-          Prevents hidden category images from
-          downloading during initial page load.
-      ================================================= */}
+      {/* MOUNT ONLY WHEN OPEN */}
 
       {isActive && (
         <div
           className={`
-            fixed
-            left-1/2
-            z-[120]
+            fixed left-1/2 z-[120]
             w-[min(980px,calc(100vw-48px))]
             -translate-x-1/2
             rounded-[26px]
-            border
-            border-black/[0.06]
-            bg-white
-            p-6
+            border border-black/[0.06]
+            bg-white p-6
             shadow-[0_32px_100px_rgba(0,0,0,0.23)]
-
-            ${scrolled
-              ? "top-[76px]"
-              : "top-[82px]"
+            ${
+              scrolled
+                ? "top-[76px]"
+                : "top-[82px]"
             }
           `}
         >
           <div
             className="
-              grid
-              h-[520px]
+              grid h-[520px]
               grid-cols-[280px_minmax(0,1fr)]
               gap-6
             "
@@ -2111,20 +1944,16 @@ const MegaMenu = ({
             <div
               className="
                 scrollbar-thin
-                h-full
-                overflow-y-auto
-                border-r
-                border-black/10
+                h-full overflow-y-auto
+                border-r border-black/10
                 pr-4
               "
             >
               <div className="mb-4 px-2">
                 <p
                   className="
-                    text-[10px]
-                    font-semibold
-                    uppercase
-                    tracking-[1.8px]
+                    text-[10px] font-semibold
+                    uppercase tracking-[1.8px]
                     text-black/35
                   "
                 >
@@ -2133,8 +1962,7 @@ const MegaMenu = ({
 
                 <h2
                   className="
-                    mt-2
-                    text-[23px]
+                    mt-2 text-[23px]
                     font-medium
                     tracking-[-0.7px]
                     text-black
@@ -2160,36 +1988,30 @@ const MegaMenu = ({
                     <button
                       type="button"
                       key={parent.id}
-                      onMouseEnter={() => {
-                        setHoveredParent(parent.id);
-                      }}
-                      onFocus={() => {
-                        setHoveredParent(parent.id);
-                      }}
+                      onMouseEnter={() =>
+                        setHoveredParent(parent.id)
+                      }
+                      onFocus={() =>
+                        setHoveredParent(parent.id)
+                      }
                       onClick={() =>
                         navigate(
-                          `/product-category/${parent.slug}`
+                          categoryPath(parent)
                         )
                       }
                       className={`
-                        flex
-                        w-full
-                        items-center
-                        gap-3
-                        rounded-xl
-                        px-2.5
-                        py-2.5
+                        flex w-full items-center
+                        gap-3 rounded-xl
+                        px-2.5 py-2.5
                         text-left
-
-                        transition-colors
-                        duration-300
-
-                        ${isSelected
-                          ? `
+                        transition-colors duration-300
+                        ${
+                          isSelected
+                            ? `
                               bg-[#f1f3f1]
                               shadow-sm
                             `
-                          : `
+                            : `
                               hover:bg-[#f7f7f6]
                             `
                         }
@@ -2197,35 +2019,30 @@ const MegaMenu = ({
                     >
                       <div
                         className="
-                          h-11
-                          w-20
-                          min-w-[80px]
-                          shrink-0
+                          h-11 w-20
+                          min-w-[80px] shrink-0
                           overflow-hidden
-                          rounded-lg
-                          bg-black/5
+                          rounded-lg bg-black/5
                         "
                       >
                         <img
                           src={thumbnailUrl}
                           srcSet={`
                             ${getThumbnailUrl(
-                            parent.thumbnail_url,
-                            160,
-                            72
-                          )} 160w,
-
+                              parent.thumbnail_url,
+                              160,
+                              72
+                            )} 160w,
                             ${getThumbnailUrl(
-                            parent.thumbnail_url,
-                            240,
-                            76
-                          )} 240w,
-
+                              parent.thumbnail_url,
+                              240,
+                              76
+                            )} 240w,
                             ${getThumbnailUrl(
-                            parent.thumbnail_url,
-                            320,
-                            80
-                          )} 320w
+                              parent.thumbnail_url,
+                              320,
+                              80
+                            )} 320w
                           `}
                           sizes="80px"
                           alt={parent.name}
@@ -2233,8 +2050,7 @@ const MegaMenu = ({
                           decoding="async"
                           draggable={false}
                           className="
-                            h-full
-                            w-full
+                            h-full w-full
                             object-cover
                           "
                         />
@@ -2243,13 +2059,13 @@ const MegaMenu = ({
                       <span
                         className={`
                           text-[13px]
-
-                          ${isSelected
-                            ? `
+                          ${
+                            isSelected
+                              ? `
                                 font-semibold
                                 text-black
                               `
-                            : `
+                              : `
                                 text-[#666]
                               `
                           }
@@ -2267,27 +2083,36 @@ const MegaMenu = ({
                 ACTIVE CATEGORY
             ============================================= */}
 
-            <div className="min-w-0">
+            <div
+              className="
+                flex h-full min-h-0
+                min-w-0 flex-col
+              "
+            >
               {activeParent ? (
                 <>
+                  {/* FEATURED IMAGE */}
+
                   <button
                     type="button"
                     onClick={() =>
                       navigate(
-                        `/product-category/${activeParent.slug}`
+                        categoryPath(activeParent)
                       )
                     }
-                    className="
-                      group
-                      relative
-                      block
-                      h-[385px]
-                      w-full
+                    className={`
+                      group relative block
+                      w-full shrink-0
                       overflow-hidden
                       rounded-[20px]
-                      bg-black/5
-                      text-left
-                    "
+                      bg-black/5 text-left
+
+                      ${
+                        hasChildren
+                          ? "h-[300px]"
+                          : "h-[385px]"
+                      }
+                    `}
                   >
                     <img
                       key={activeParent.id}
@@ -2298,22 +2123,20 @@ const MegaMenu = ({
                       )}
                       srcSet={`
                         ${getThumbnailUrl(
-                        activeParent.thumbnail_url,
-                        700,
-                        76
-                      )} 700w,
-
+                          activeParent.thumbnail_url,
+                          700,
+                          76
+                        )} 700w,
                         ${getThumbnailUrl(
-                        activeParent.thumbnail_url,
-                        1000,
-                        80
-                      )} 1000w,
-
+                          activeParent.thumbnail_url,
+                          1000,
+                          80
+                        )} 1000w,
                         ${getThumbnailUrl(
-                        activeParent.thumbnail_url,
-                        1400,
-                        84
-                      )} 1400w
+                          activeParent.thumbnail_url,
+                          1400,
+                          84
+                        )} 1400w
                       `}
                       sizes="650px"
                       alt={activeParent.name}
@@ -2321,22 +2144,16 @@ const MegaMenu = ({
                       decoding="async"
                       draggable={false}
                       className="
-                        h-full
-                        w-full
-                        object-cover
-
+                        h-full w-full object-cover
                         transition-transform
-                        duration-[900ms]
-                        ease-out
-
+                        duration-[900ms] ease-out
                         group-hover:scale-[1.03]
                       "
                     />
 
                     <div
                       className="
-                        absolute
-                        inset-0
+                        absolute inset-0
                         bg-gradient-to-t
                         from-black/75
                         via-black/5
@@ -2346,18 +2163,14 @@ const MegaMenu = ({
 
                     <div
                       className="
-                        absolute
-                        inset-x-0
-                        bottom-0
-                        p-6
+                        absolute inset-x-0
+                        bottom-0 p-6
                       "
                     >
                       <p
                         className="
-                          text-[10px]
-                          font-semibold
-                          uppercase
-                          tracking-[1.8px]
+                          text-[10px] font-semibold
+                          uppercase tracking-[1.8px]
                           text-white/60
                         "
                       >
@@ -2366,8 +2179,7 @@ const MegaMenu = ({
 
                       <h3
                         className="
-                          mt-2
-                          text-[34px]
+                          mt-2 text-[34px]
                           font-medium
                           tracking-[-1.2px]
                           text-white
@@ -2378,12 +2190,12 @@ const MegaMenu = ({
                     </div>
                   </button>
 
+                  {/* DESCRIPTION + VIEW ALL */}
+
                   <div
                     className="
-                      mt-4
-                      flex
-                      items-start
-                      justify-between
+                      mt-4 flex shrink-0
+                      items-start justify-between
                       gap-6
                     "
                   >
@@ -2404,26 +2216,108 @@ const MegaMenu = ({
                       type="button"
                       onClick={() =>
                         navigate(
-                          `/product-category/${activeParent.slug}`
+                          categoryPath(activeParent)
                         )
                       }
                       className="
                         shrink-0
-                        text-[11px]
-                        font-semibold
-                        uppercase
-                        tracking-[1px]
+                        text-[11px] font-semibold
+                        uppercase tracking-[1px]
                         text-black
-
                         hover:underline
                       "
                     >
                       View all →
                     </button>
                   </div>
+
+                  {/* =====================================
+                      CHILD CATEGORIES
+                  ===================================== */}
+
+                  {hasChildren && (
+                    <div
+                      className="
+                        mt-4 min-h-0
+                        flex-1 overflow-y-auto
+                        border-t border-black/10
+                        pt-3
+                      "
+                    >
+                      <p
+                        className="
+                          mb-2 text-[10px]
+                          font-semibold uppercase
+                          tracking-[1.5px]
+                          text-black/40
+                        "
+                      >
+                        Subcategories
+                      </p>
+
+                      <div
+                        className="
+                          flex flex-wrap gap-2
+                        "
+                      >
+                        {childCategories.map(
+                          (child) => (
+                            <button
+                              type="button"
+                              key={child.id}
+                              onClick={() =>
+                                navigate(
+                                  categoryPath(child)
+                                )
+                              }
+                              className="
+                                group/child
+                                inline-flex items-center
+                                justify-between gap-3
+                                rounded-xl
+                                border border-black/10
+                                bg-[#f7f7f6]
+                                px-4 py-2.5
+                                text-left
+                                text-[12px]
+                                font-medium
+                                text-[#444]
+                                transition-all
+                                duration-300
+                                hover:border-black
+                                hover:bg-black
+                                hover:text-white
+                              "
+                            >
+                              <span>
+                                {child.name}
+                              </span>
+
+                              <ArrowRight
+                                size={14}
+                                strokeWidth={1.7}
+                                className="
+                                  shrink-0
+                                  transition-transform
+                                  duration-300
+                                  group-hover/child:translate-x-1
+                                "
+                              />
+                            </button>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
-                <div className="flex h-full items-center justify-center text-sm text-black/45">
+                <div
+                  className="
+                    flex h-full items-center
+                    justify-center
+                    text-sm text-black/45
+                  "
+                >
                   {materialsLoaded
                     ? "No materials available."
                     : "Loading materials..."}
