@@ -17,6 +17,9 @@
 
     <!-- =========================================================
          PERFORMANCE: PRECONNECT
+
+         Establish early connections to important
+         external resources.
     ========================================================== -->
 
     <link
@@ -45,9 +48,15 @@
     <!-- =========================================================
          RESPONSIVE HOMEPAGE HERO POSTER
 
-         Existing preloads preserved.
-         These still run on every direct page visit.
+         Existing responsive image preloads preserved.
+
+         NOTE:
+         These preloads currently run on all routes.
+         Route-specific preloading can be implemented
+         separately to avoid unnecessary requests.
     ========================================================== -->
+
+    <!-- MOBILE HERO POSTER -->
 
     <link
       rel="preload"
@@ -62,6 +71,8 @@
       media="(max-width: 767px)"
       fetchpriority="high"
     />
+
+    <!-- DESKTOP HERO POSTER -->
 
     <link
       rel="preload"
@@ -80,35 +91,25 @@
     <!-- =========================================================
          GOOGLE FONTS - CSP COMPATIBLE
 
-         Removed inline onload event handler.
+         Removed:
+         - Inline onload handler
+         - Preload-to-stylesheet conversion
+         - External font-loader.js dependency
 
-         Font loader is now an external JS file.
-         The font stylesheet remains non-render-blocking.
+         Fonts now load through a standard stylesheet.
+         font-display=swap is retained in the URL.
     ========================================================== -->
 
     <link
-      id="google-fonts-stylesheet"
-      rel="preload"
-      as="style"
+      rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=BBH+Bartle&family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Montserrat:wght@400;500;600;700&display=swap"
     />
-
-    <script src="/font-loader.js" defer></script>
-
-    <!-- Fallback when JavaScript is disabled -->
-
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=BBH+Bartle&family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Montserrat:wght@400;500;600;700&display=swap"
-      />
-    </noscript>
 
     <!-- =========================================================
          GOOGLE TAG MANAGER - CSP COMPATIBLE
 
          Existing GTM container preserved.
-         Inline bootstrap moved to external JS.
+         Bootstrap runs from public/gtm-loader.js.
     ========================================================== -->
 
     <script src="/gtm-loader.js" defer></script>
@@ -147,8 +148,8 @@
     <!-- =========================================================
          CANONICAL URL
 
-         React SEO component updates this for
-         individual routes.
+         Your React SEO component updates this
+         for individual routes.
     ========================================================== -->
 
     <link
@@ -265,6 +266,8 @@
 
     <!-- =========================================================
          STRUCTURED DATA - ORGANIZATION
+
+         JSON-LD is non-executable structured data.
     ========================================================== -->
 
     <script type="application/ld+json">
@@ -296,7 +299,7 @@
     <!-- =========================================================
          GOOGLE TAG MANAGER - NOSCRIPT
 
-         Removed inline style attribute.
+         No inline CSS or JavaScript.
     ========================================================== -->
 
     <noscript>
