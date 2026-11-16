@@ -209,6 +209,7 @@ const RequestCourseModal = ({
     role: "",
     preferredDate: "",
     message: "",
+    website_url: "",
   });
 
   const [
@@ -345,6 +346,9 @@ const handleSubmit =
 
         message:
           form.message.trim(),
+
+        website_url:
+          form.website_url,
       };
 
       console.log(
@@ -405,6 +409,7 @@ const handleSubmit =
         role: "",
         preferredDate: "",
         message: "",
+        website_url: "",
       });
 
       onClose();
@@ -688,6 +693,28 @@ const handleSubmit =
               mt-7
             "
           >
+            {/* Anti-spam honeypot: leave empty for legitimate visitors */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                left: "-10000px",
+                width: "1px",
+                height: "1px",
+                overflow: "hidden",
+                pointerEvents: "none",
+              }}
+            >
+              <input
+                type="text"
+                name="website_url"
+                value={form.website_url}
+                onChange={handleChange}
+                tabIndex={-1}
+                autoComplete="new-password"
+                aria-hidden="true"
+              />
+            </div>
             <div
               className="
                 grid

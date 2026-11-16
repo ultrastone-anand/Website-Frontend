@@ -1,20 +1,16 @@
 import axios from "axios";
-
 import {
   useEffect,
   useMemo,
   useState,
 } from "react";
-
 import {
   Link,
   useNavigate,
 } from "react-router-dom";
-
 /* =========================================================
    MAP HELPERS
 ========================================================= */
-
 const extractIframeSrc = (
   value,
 ) => {
@@ -25,21 +21,17 @@ const extractIframeSrc = (
   ) {
     return "";
   }
-
   const trimmedValue =
     value.trim();
-
   if (
     !trimmedValue
   ) {
     return "";
   }
-
   const iframeSrcMatch =
     trimmedValue.match(
       /<iframe[^>]*\ssrc=["']([^"']+)["'][^>]*>/i,
     );
-
   if (
     iframeSrcMatch?.[1]
   ) {
@@ -47,7 +39,6 @@ const extractIframeSrc = (
       1
     ].trim();
   }
-
   if (
     trimmedValue.startsWith(
       "https://",
@@ -58,10 +49,8 @@ const extractIframeSrc = (
   ) {
     return trimmedValue;
   }
-
   return "";
 };
-
 const buildShowroomDestination =
   (showroom) =>
     [
@@ -74,7 +63,6 @@ const buildShowroomDestination =
     ]
       .filter(Boolean)
       .join(", ");
-
 const getDirectionsUrl = (
   showroom,
 ) => {
@@ -82,30 +70,24 @@ const getDirectionsUrl = (
     buildShowroomDestination(
       showroom,
     );
-
   if (
     !destination
   ) {
     return "";
   }
-
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
     destination,
   )}`;
 };
-
 /* =========================================================
    DATE HELPERS
 ========================================================= */
-
 const getLocalDateString =
   () => {
     const now =
       new Date();
-
     const year =
       now.getFullYear();
-
     const month =
       String(
         now.getMonth() +
@@ -114,7 +96,6 @@ const getLocalDateString =
         2,
         "0",
       );
-
     const day =
       String(
         now.getDate(),
@@ -122,10 +103,8 @@ const getLocalDateString =
         2,
         "0",
       );
-
     return `${year}-${month}-${day}`;
   };
-
 const formatDate = (
   value,
 ) => {
@@ -134,7 +113,6 @@ const formatDate = (
   ) {
     return "";
   }
-
   const [
     year,
     month,
@@ -143,10 +121,8 @@ const formatDate = (
     value.split(
       "-",
     );
-
   return `${month}/${day}/${year}`;
 };
-
 const formatTime = (
   value,
 ) => {
@@ -155,7 +131,6 @@ const formatTime = (
   ) {
     return "";
   }
-
   const [
     hours,
     minutes,
@@ -163,74 +138,60 @@ const formatTime = (
     value.split(
       ":",
     );
-
   const date =
     new Date();
-
   date.setHours(
     Number(hours),
     Number(minutes),
     0,
     0,
   );
-
   return date.toLocaleTimeString(
     "en-US",
     {
       hour:
         "numeric",
-
       minute:
         "2-digit",
     },
   );
 };
-
 /* =========================================================
    CONTACT
 ========================================================= */
-
 export default function Contact() {
   const navigate =
     useNavigate();
-
   /* =========================================================
      SHOWROOMS
   ========================================================= */
-
   const [
     showrooms,
     setShowrooms,
   ] = useState(
     [],
   );
-
   const [
     showroomsLoading,
     setShowroomsLoading,
   ] = useState(
     true,
   );
-
   /* =========================================================
      FORM MODE
   ========================================================= */
-
   const [
     requestType,
     setRequestType,
   ] = useState(
     "ENQUIRY",
   );
-
   const isAppointment =
     requestType ===
     "APPOINTMENT";
-
   /* =========================================================
      FORM DATA
   ========================================================= */
-
   const [
     formData,
     setFormData,
@@ -240,41 +201,36 @@ export default function Contact() {
     email: "",
     phone: "",
     message: "",
+    website_url: "",
     preferredDate:
       "",
     preferredTime:
       "",
   });
-
   const [
     loading,
     setLoading,
   ] = useState(
     false,
   );
-
   const today =
     useMemo(
       () =>
         getLocalDateString(),
       [],
     );
-
   /* =========================================================
      FETCH SHOWROOMS
   ========================================================= */
-
   useEffect(() => {
     let isMounted =
       true;
-
     const fetchShowrooms =
       async () => {
         try {
           setShowroomsLoading(
             true,
           );
-
           const response =
             await axios.get(
               `${
@@ -282,13 +238,11 @@ export default function Contact() {
                   .VITE_API_URL
               }/company`,
             );
-
           if (
             !isMounted
           ) {
             return;
           }
-
           if (
             response.data
               ?.success &&
@@ -313,7 +267,6 @@ export default function Contact() {
                     (b.display_order ||
                       0),
                 );
-
             setShowrooms(
               activeShowrooms,
             );
@@ -330,12 +283,10 @@ export default function Contact() {
           ) {
             return;
           }
-
           console.error(
             "Failed to fetch showrooms:",
             error,
           );
-
           setShowrooms(
             [],
           );
@@ -349,19 +300,15 @@ export default function Contact() {
           }
         }
       };
-
     fetchShowrooms();
-
     return () => {
       isMounted =
         false;
     };
   }, []);
-
   /* =========================================================
      HANDLE CHANGE
   ========================================================= */
-
   const handleChange = (
     event,
   ) => {
@@ -370,155 +317,125 @@ export default function Contact() {
       value,
     } =
       event.target;
-
     setFormData(
       (
         previousData,
       ) => ({
         ...previousData,
-
         [name]:
           value,
       }),
     );
   };
-
   /* =========================================================
      SCROLL TO FORM
   ========================================================= */
-
   const scrollToForm =
     () => {
       const formElement =
         document.getElementById(
           "contact-form",
         );
-
       if (
         !formElement
       ) {
         return;
       }
-
       formElement.scrollIntoView({
         behavior:
           "smooth",
-
         block:
           "start",
       });
     };
-
   /* =========================================================
      MODE SWITCHING
   ========================================================= */
-
   const activateAppointment =
     () => {
       setRequestType(
         "APPOINTMENT",
       );
-
       setFormData(
         (
           previousData,
         ) => ({
           ...previousData,
-
           subject:
             previousData.subject.trim()
               ? previousData.subject
               : "Showroom Appointment Request",
         }),
       );
-
       requestAnimationFrame(
         scrollToForm,
       );
     };
-
   const activateEnquiry =
     () => {
       setRequestType(
         "ENQUIRY",
       );
-
       setFormData(
         (
           previousData,
         ) => ({
           ...previousData,
-
           preferredDate:
             "",
-
           preferredTime:
             "",
         }),
       );
-
       requestAnimationFrame(
         scrollToForm,
       );
     };
-
   /* =========================================================
      SUBMIT
   ========================================================= */
-
   const handleSubmit =
     async (event) => {
       event.preventDefault();
-
       if (
         loading
       ) {
         return;
       }
-
       const emailRegex =
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
       const cleanedPhone =
         formData.phone.replace(
           /\D/g,
           "",
         );
-
       /* ============================
          STANDARD VALIDATION
       ============================ */
-
       if (
         !formData.name.trim()
       ) {
         alert(
           "Name is required",
         );
-
         return;
       }
-
       if (
         !formData.subject.trim()
       ) {
         alert(
           "Subject is required",
         );
-
         return;
       }
-
       if (
         !formData.email.trim()
       ) {
         alert(
           "Email is required",
         );
-
         return;
       }
-
       if (
         !emailRegex.test(
           formData.email.trim(),
@@ -527,20 +444,16 @@ export default function Contact() {
         alert(
           "Please enter a valid email address",
         );
-
         return;
       }
-
       if (
         !formData.phone.trim()
       ) {
         alert(
           "Phone number is required",
         );
-
         return;
       }
-
       if (
         cleanedPhone.length <
           10 ||
@@ -550,14 +463,11 @@ export default function Contact() {
         alert(
           "Please enter a valid phone number",
         );
-
         return;
       }
-
       /* ============================
          APPOINTMENT VALIDATION
       ============================ */
-
       if (
         isAppointment
       ) {
@@ -567,10 +477,8 @@ export default function Contact() {
           alert(
             "Please select your preferred appointment date",
           );
-
           return;
         }
-
         if (
           formData.preferredDate <
           today
@@ -578,37 +486,29 @@ export default function Contact() {
           alert(
             "Please select today or a future date",
           );
-
           return;
         }
-
         if (
           !formData.preferredTime
         ) {
           alert(
             "Please select your preferred appointment time",
           );
-
           return;
         }
       }
-
       try {
         setLoading(
           true,
         );
-
         const API_URL =
           import.meta.env
             .VITE_API_URL;
-
         /* ============================
            BUILD MESSAGE
         ============================ */
-
         let finalMessage =
           formData.message.trim();
-
         if (
           isAppointment
         ) {
@@ -625,57 +525,46 @@ export default function Contact() {
             ].join(
               "\n",
             );
-
           finalMessage =
             formData.message.trim()
               ? `${appointmentDetails}\n\nMessage:\n${formData.message.trim()}`
               : appointmentDetails;
         }
-
         /* ============================
            PAYLOAD
         ============================ */
-
         const payload = {
           name:
             formData.name.trim(),
-
           subject:
             isAppointment
               ? `[Appointment Request] ${formData.subject.trim()}`
               : formData.subject.trim(),
-
           email:
             formData.email
               .trim()
               .toLowerCase(),
-
           phone:
             formData.phone.trim(),
-
           message:
             finalMessage,
+        website_url: formData.website_url,
         };
-
         console.log(
           "📩 CONTACT REQUEST TYPE:",
           requestType,
         );
-
         console.log(
           "📩 CONTACT REQUEST PAYLOAD:",
           payload,
         );
-
         console.log(
           "📡 CONTACT REQUEST URL:",
           `${API_URL}/contact-request`,
         );
-
         /* ============================
            API REQUEST
         ============================ */
-
         const response =
           await axios.post(
             `${API_URL}/contact-request`,
@@ -687,17 +576,14 @@ export default function Contact() {
               },
             },
           );
-
         console.log(
           "✅ CONTACT REQUEST RESPONSE:",
           response.data,
         );
-
         console.log(
           "✅ CONTACT REQUEST STATUS:",
           response.status,
         );
-
         if (
           response.data
             ?.success ===
@@ -709,11 +595,9 @@ export default function Contact() {
               "Unable to submit enquiry.",
           );
         }
-
         /* ============================
            SUCCESS
         ============================ */
-
         setFormData({
           name: "",
           subject:
@@ -722,16 +606,15 @@ export default function Contact() {
           phone: "",
           message:
             "",
-          preferredDate:
+          website_url: "",
+    preferredDate:
             "",
           preferredTime:
             "",
         });
-
         setRequestType(
           "ENQUIRY",
         );
-
         navigate(
           "/thankyou",
           {
@@ -746,25 +629,21 @@ export default function Contact() {
           "❌ CONTACT REQUEST FAILED:",
           error,
         );
-
         console.error(
           "STATUS:",
           error.response
             ?.status,
         );
-
         console.error(
           "BACKEND RESPONSE:",
           error.response
             ?.data,
         );
-
         console.error(
           "REQUEST URL:",
           error.config
             ?.url,
         );
-
         alert(
           error.response
             ?.data
@@ -778,18 +657,15 @@ export default function Contact() {
         );
       }
     };
-
   /* =========================================================
      UI
   ========================================================= */
-
   return (
     <>
       <main className="min-h-screen pt-[110px]">
         {/* =====================================================
             HEADING
         ===================================================== */}
-
         <section>
           <div className="mx-auto max-w-[1650px] px-6 xl:px-10">
             <h1
@@ -801,9 +677,7 @@ export default function Contact() {
             >
               Contact Us
             </h1>
-
             <div className="mb-4 mt-4 h-[4px] w-[70px] bg-[#c91f26]" />
-
             <p
               className="text-[13px] text-[#777]"
               style={{
@@ -817,9 +691,7 @@ export default function Contact() {
               >
                 Home
               </Link>
-
               {" / "}
-
               <span className="text-[#161412]">
                 <strong>
                   Contact Us
@@ -828,22 +700,18 @@ export default function Contact() {
             </p>
           </div>
         </section>
-
         {/* =====================================================
             CONTACT SECTION
         ===================================================== */}
-
         <section className="mx-auto max-w-[1650px] px-6 pb-24 pt-16 xl:px-10">
           <div className="grid gap-16 lg:grid-cols-[520px_1fr] xl:gap-[120px]">
             {/* =================================================
                 LEFT
             ================================================= */}
-
             <div>
               <h2 className="mb-8 text-[28px] font-light text-[#161412]">
                 Get in touch
               </h2>
-
               <p className="mb-10 text-[13px] leading-[24px] text-[#666]">
                 Thank you for your interest in our
                 services. If you have any questions or
@@ -852,17 +720,14 @@ export default function Contact() {
                 is dedicated to providing you with the
                 highest level of service and support.
               </p>
-
               <div className="grid gap-10 sm:grid-cols-2 sm:gap-12">
                 {/* =================================================
                     VISIT US
                 ================================================= */}
-
                 <div>
                   <h3 className="mb-4 text-[13px] font-semibold text-[#c91f26]">
                     Visit Us
                   </h3>
-
                   <div className="space-y-8">
                     {showroomsLoading ? (
                       <p className="text-[12px] text-[#666]">
@@ -891,13 +756,10 @@ export default function Contact() {
                                 showroom.name
                               }
                             </Link>
-
                             <p className="mt-1 text-[12px] leading-5 text-[#666]">
                               {showroom.address ||
                                 "-"}
-
                               <br />
-
                               {[
                                 showroom.city,
                                 showroom.state,
@@ -908,7 +770,6 @@ export default function Contact() {
                                 .join(
                                   ", ",
                                 )}
-
                               {showroom.zip_code
                                 ? ` ${showroom.zip_code}`
                                 : ""}
@@ -919,16 +780,13 @@ export default function Contact() {
                     )}
                   </div>
                 </div>
-
                 {/* =================================================
                     OFFICE HOURS
                 ================================================= */}
-
                 <div>
                   <h3 className="mb-4 text-[13px] font-semibold text-[#c91f26]">
                     Office Hours
                   </h3>
-
                   {showroomsLoading ? (
                     <p className="text-[12px] text-[#666]">
                       Loading office hours...
@@ -940,27 +798,22 @@ export default function Contact() {
                         Monday -
                         Friday
                       </p>
-
                       <p className="mb-3">
                         {showrooms[0]
                           .business_hours_mon_fri ||
                           "-"}
                       </p>
-
                       <p>
                         Saturday
                       </p>
-
                       <p className="mb-3">
                         {showrooms[0]
                           .business_hours_saturday ||
                           "-"}
                       </p>
-
                       <p>
                         Sunday
                       </p>
-
                       <p>
                         {showrooms[0]
                           .business_hours_sunday ||
@@ -974,27 +827,22 @@ export default function Contact() {
                   )}
                 </div>
               </div>
-
               {/* =================================================
                   CONTACT CTA
               ================================================= */}
-
               <div className="mt-12 border border-[#e5e1dc] bg-[#f8f6f3] p-6 md:p-7">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#c91f26]">
                   Need Assistance?
                 </p>
-
                 <h3 className="mt-2 text-[22px] font-light leading-[1.35] text-[#161412]">
                   Plan your visit or speak with our team.
                 </h3>
-
                 <p className="mt-3 max-w-[430px] text-[12px] leading-[21px] text-[#666]">
                   Schedule a showroom appointment to
                   explore materials in person, or send
                   us an enquiry and our team will be
                   happy to assist you.
                 </p>
-
                 <div className="mt-5 flex flex-wrap gap-3">
                   <button
                     type="button"
@@ -1009,7 +857,6 @@ export default function Contact() {
                     Request
                     Appointment
                   </button>
-
                   <button
                     type="button"
                     onClick={
@@ -1026,11 +873,9 @@ export default function Contact() {
                 </div>
               </div>
             </div>
-
             {/* =================================================
                 FORM
             ================================================= */}
-
             <div
               id="contact-form"
               className="scroll-mt-[135px]"
@@ -1038,20 +883,17 @@ export default function Contact() {
               {/* =================================================
                   MODE HEADER
               ================================================= */}
-
               <div className="mb-7">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c91f26]">
                   {isAppointment
                     ? "Appointment Request"
                     : "General Enquiry"}
                 </p>
-
                 <h2 className="mt-2 text-[27px] font-light text-[#161412]">
                   {isAppointment
                     ? "Plan your showroom visit"
                     : "How can we help?"}
                 </h2>
-
                 {isAppointment && (
                   <p className="mt-3 max-w-[620px] text-[12px] leading-5 text-[#666]">
                     Choose your preferred date and
@@ -1060,21 +902,33 @@ export default function Contact() {
                   </p>
                 )}
               </div>
-
-
-
               {/* =================================================
                   FORM
               ================================================= */}
-
               <form
                 onSubmit={
                   handleSubmit
                 }
               >
+              {/* Spam protection: leave this field empty */}
+              <div
+                aria-hidden="true"
+                style={{ position: "absolute", left: "-10000px", width: "1px", height: "1px", overflow: "hidden" }}
+              >
+                <label htmlFor="contact-website-url">Website</label>
+                <input
+                  id="contact-website-url"
+                  type="text"
+                  name="website_url"
+                  value={formData.website_url}
+                  onChange={handleChange}
+                  autoComplete="off"
+                  tabIndex={-1}
+                  disabled={loading}
+                />
+              </div>
                 <div className="grid gap-x-8 gap-y-6 md:grid-cols-2">
                   {/* NAME */}
-
                   <div>
                     <label
                       htmlFor="contact-name"
@@ -1082,7 +936,6 @@ export default function Contact() {
                     >
                       Your Name*
                     </label>
-
                     <input
                       id="contact-name"
                       type="text"
@@ -1100,9 +953,7 @@ export default function Contact() {
                       className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-all focus:border-[#c91f26] focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
-
                   {/* SUBJECT */}
-
                   <div>
                     <label
                       htmlFor="contact-subject"
@@ -1110,7 +961,6 @@ export default function Contact() {
                     >
                       Subject*
                     </label>
-
                     <input
                       id="contact-subject"
                       type="text"
@@ -1127,9 +977,7 @@ export default function Contact() {
                       className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-all focus:border-[#c91f26] focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
-
                   {/* EMAIL */}
-
                   <div>
                     <label
                       htmlFor="contact-email"
@@ -1137,7 +985,6 @@ export default function Contact() {
                     >
                       Your E-mail*
                     </label>
-
                     <input
                       id="contact-email"
                       type="email"
@@ -1155,9 +1002,7 @@ export default function Contact() {
                       className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-all focus:border-[#c91f26] focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
-
                   {/* PHONE */}
-
                   <div>
                     <label
                       htmlFor="contact-phone"
@@ -1165,7 +1010,6 @@ export default function Contact() {
                     >
                       Your Phone*
                     </label>
-
                     <input
                       id="contact-phone"
                       type="tel"
@@ -1184,15 +1028,12 @@ export default function Contact() {
                       className="h-[42px] w-full border border-[#e1ddd8] bg-[#ece9e5] px-4 text-[13px] outline-none transition-all focus:border-[#c91f26] focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   </div>
-
                   {/* ===========================================
                       APPOINTMENT FIELDS
                   =========================================== */}
-
                   {isAppointment && (
                     <>
                       {/* DATE */}
-
                       <div>
                         <label
                           htmlFor="preferred-date"
@@ -1200,7 +1041,6 @@ export default function Contact() {
                         >
                           Preferred Date*
                         </label>
-
                         <input
                           id="preferred-date"
                           type="date"
@@ -1220,9 +1060,7 @@ export default function Contact() {
                           className="h-[42px] w-full border border-[#cfc9c2] bg-[#f7f5f2] px-4 text-[13px] text-[#222] outline-none transition-all focus:border-[#c91f26] focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                         />
                       </div>
-
                       {/* TIME */}
-
                       <div>
                         <label
                           htmlFor="preferred-time"
@@ -1230,7 +1068,6 @@ export default function Contact() {
                         >
                           Preferred Time*
                         </label>
-
                         <input
                           id="preferred-time"
                           type="time"
@@ -1250,11 +1087,9 @@ export default function Contact() {
                     </>
                   )}
                 </div>
-
                 {/* =================================================
                     MESSAGE
                 ================================================= */}
-
                 <div className="mt-6">
                   <label
                     htmlFor="contact-message"
@@ -1264,7 +1099,6 @@ export default function Contact() {
                       ? "Additional Notes (Optional)"
                       : "Message (Optional)"}
                   </label>
-
                   <textarea
                     id="contact-message"
                     rows={
@@ -1290,11 +1124,9 @@ export default function Contact() {
                     className="w-full resize-none border border-[#e1ddd8] bg-[#ece9e5] p-4 text-[13px] leading-6 outline-none transition-all placeholder:text-[#aaa] focus:border-[#c91f26] focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
-
                 {/* =================================================
                     APPOINTMENT NOTICE
                 ================================================= */}
-
                 {isAppointment && (
                   <div className="mt-5 border-l-[3px] border-[#c91f26] bg-[#faf8f6] px-4 py-3">
                     <p className="text-[11px] leading-5 text-[#666]">
@@ -1305,11 +1137,9 @@ export default function Contact() {
                     </p>
                   </div>
                 )}
-
                 {/* =================================================
                     ACTIONS
                 ================================================= */}
-
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <button
                     type="submit"
@@ -1326,7 +1156,6 @@ export default function Contact() {
                         ? "Request Appointment"
                         : "Submit Enquiry"}
                   </button>
-
                   {!isAppointment && (
                     <button
                       type="button"
@@ -1341,7 +1170,6 @@ export default function Contact() {
                       Request Appointment
                     </button>
                   )}
-
                   {isAppointment && (
                     <button
                       type="button"
@@ -1360,16 +1188,13 @@ export default function Contact() {
               </form>
             </div>
           </div>
-
           {/* =====================================================
               SHOWROOMS
           ===================================================== */}
-
           <section className="mt-28">
             <h2 className="mb-10 text-[30px] font-light text-[#161412]">
               Our Showrooms
             </h2>
-
             {showroomsLoading ? (
               <div className="py-16 text-center text-[13px] text-[#666]">
                 Loading showrooms...
@@ -1389,12 +1214,10 @@ export default function Contact() {
                       extractIframeSrc(
                         showroom.google_maps_url,
                       );
-
                     const directionsUrl =
                       getDirectionsUrl(
                         showroom,
                       );
-
                     return (
                       <article
                         key={
@@ -1402,7 +1225,6 @@ export default function Contact() {
                         }
                       >
                         {/* MAP */}
-
                         <div className="border border-[#ddd]">
                           {mapEmbedUrl ? (
                             <iframe
@@ -1423,9 +1245,7 @@ export default function Contact() {
                             </div>
                           )}
                         </div>
-
                         {/* NAME */}
-
                         <Link
                           to={`/locations/${showroom.slug}`}
                           className="mt-5 inline-block text-[26px] font-light text-[#c91f26] transition-colors hover:text-[#161412] md:text-[32px]"
@@ -1434,15 +1254,11 @@ export default function Contact() {
                             showroom.name
                           }
                         </Link>
-
                         {/* ADDRESS */}
-
                         <p className="mt-2 text-[13px] leading-6 text-[#555]">
                           {showroom.address ||
                             "-"}
-
                           <br />
-
                           {[
                             showroom.city,
                             showroom.state,
@@ -1453,45 +1269,34 @@ export default function Contact() {
                             .join(
                               ", ",
                             )}
-
                           {showroom.zip_code
                             ? ` ${showroom.zip_code}`
                             : ""}
-
                           {showroom.country && (
                             <>
                               <br />
-
                               {
                                 showroom.country
                               }
                             </>
                           )}
                         </p>
-
                         {/* HOURS */}
-
                         <p className="mt-3 text-[12px] leading-5 text-[#555]">
                           Monday -
                           Friday:{" "}
                           {showroom.business_hours_mon_fri ||
                             "-"}
-
                           <br />
-
                           Saturday:{" "}
                           {showroom.business_hours_saturday ||
                             "-"}
-
                           <br />
-
                           Sunday:{" "}
                           {showroom.business_hours_sunday ||
                             "-"}
                         </p>
-
                         {/* ACTIONS */}
-
                         <div className="mt-4 flex flex-wrap gap-3">
                           {directionsUrl && (
                             <a
@@ -1506,7 +1311,6 @@ export default function Contact() {
                               Directions
                             </a>
                           )}
-
                           <Link
                             to={`/locations/${showroom.slug}`}
                             className="inline-flex min-h-[38px] items-center justify-center border border-[#161412] px-5 py-2 text-[11px] uppercase tracking-wider text-[#161412] transition-all hover:bg-[#161412] hover:text-white"

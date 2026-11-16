@@ -198,10 +198,7 @@ const ProductDetails = () => {
   setOpenSampleDialog,
 ] = useState(false);
 
-const [
-  sampleForm,
-  setSampleForm,
-] = useState({
+const [sampleForm, setSampleForm] = useState({
   firstName: "",
   lastName: "",
   companyName: "",
@@ -216,6 +213,9 @@ const [
   finish: "",
   remarks: "",
   quantity: 1,
+
+  // Spam protection
+  website_url: "",
 });
 
 const [
@@ -1509,58 +1509,27 @@ if (
           .VITE_API_URL;
 
 const payload = {
-  product_id:
-    product.id,
+  product_id: product.id,
+  product_name: product.name,
+  category_name: product?.stone_categories?.name || "",
 
-  product_name:
-    product.name,
+  first_name: sampleForm.firstName.trim(),
+  last_name: sampleForm.lastName.trim(),
+  company_name: sampleForm.companyName.trim(),
+  street_address: sampleForm.streetAddress.trim(),
+  suite_number: sampleForm.suiteNumber.trim(),
+  city: sampleForm.city.trim(),
+  county: sampleForm.county.trim(),
+  state: sampleForm.state.trim(),
+  zip_code: sampleForm.zipCode.trim(),
+  email: sampleForm.email.trim(),
+  phone: sampleForm.phone.trim(),
+  finish: sampleForm.finish.trim(),
+  quantity: sampleForm.quantity,
+  remarks: sampleForm.remarks.trim(),
 
-  category_name:
-    product
-      ?.stone_categories
-      ?.name || "",
-
-  first_name:
-    sampleForm.firstName.trim(),
-
-  last_name:
-    sampleForm.lastName.trim(),
-
-  company_name:
-    sampleForm.companyName.trim(),
-
-  street_address:
-    sampleForm.streetAddress.trim(),
-
-  suite_number:
-    sampleForm.suiteNumber.trim(),
-
-  city:
-    sampleForm.city.trim(),
-
-  county:
-    sampleForm.county.trim(),
-
-  state:
-    sampleForm.state.trim(),
-
-  zip_code:
-    sampleForm.zipCode.trim(),
-
-  email:
-    sampleForm.email.trim(),
-
-  phone:
-    sampleForm.phone.trim(),
-
-  finish:
-    sampleForm.finish.trim(),
-
-  quantity:
-    sampleForm.quantity,
-
-  remarks:
-    sampleForm.remarks.trim(),
+  // Spam protection
+  website_url: sampleForm.website_url,
 };
 
       console.log(
@@ -1622,6 +1591,9 @@ setSampleForm({
   finish: "",
   remarks: "",
   quantity: 1,
+
+  // Reset spam protection
+  website_url: "",
 });
     } catch (error) {
       console.error(
@@ -3297,6 +3269,36 @@ const handleCategoryNavigation =
             py-7
           "
         >
+
+          {/* ==========================================
+    SPAM PROTECTION - HONEYPOT
+========================================== */}
+
+<div
+  aria-hidden="true"
+  style={{
+    position: "absolute",
+    left: "-10000px",
+    top: "auto",
+    width: "1px",
+    height: "1px",
+    overflow: "hidden",
+  }}
+>
+  <label htmlFor="sample-website-url">
+    Website URL
+  </label>
+
+  <input
+    id="sample-website-url"
+    type="text"
+    name="website_url"
+    value={sampleForm.website_url}
+    onChange={handleSampleChange}
+    tabIndex={-1}
+    autoComplete="off"
+  />
+</div>
           <div
             className="
               grid
