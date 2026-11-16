@@ -288,6 +288,7 @@ const RequestDisplayModal = ({
     zipCode: "",
 
     message: "",
+    website_url: "",
   });
 
   const [
@@ -482,12 +483,10 @@ const RequestDisplayModal = ({
 
           message:
             form.message.trim(),
-        };
 
-        console.log(
-          "DISPLAY REQUEST PAYLOAD:",
-          payload,
-        );
+          website_url:
+            form.website_url,
+        };
 
         /* =================================================
            API REQUEST
@@ -822,6 +821,29 @@ const RequestDisplayModal = ({
             }
             className="mt-7"
           >
+            {/* Anti-spam honeypot: invisible to legitimate visitors */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                left: "-10000px",
+                width: "1px",
+                height: "1px",
+                overflow: "hidden",
+                pointerEvents: "none",
+              }}
+            >
+              <input
+                type="text"
+                name="website_url"
+                value={form.website_url}
+                onChange={handleChange}
+                tabIndex={-1}
+                autoComplete="new-password"
+                aria-hidden="true"
+              />
+            </div>
+
             {/* =============================================
                 CUSTOMER INFORMATION
             ============================================= */}
