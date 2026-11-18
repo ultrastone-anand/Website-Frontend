@@ -260,6 +260,15 @@ const [
       product?.average_sizes_inches,
     );
 
+    const isUltraquartz =
+  String(
+    product?.stone_categories?.slug ||
+      categorySlug ||
+      "",
+  )
+    .trim()
+    .toLowerCase() === "ultraquartz";
+
   /* =========================================================
      LOAD PRODUCT PAGE
   ========================================================= */
@@ -2385,12 +2394,17 @@ const handleCategoryNavigation =
               />
 
               <SpecificationItem
-                title="Origin"
-                value={
-                  product.origin_country ||
-                  "-"
-                }
-              />
+  title={
+    isUltraquartz
+      ? "Vein Color"
+      : "Origin"
+  }
+  value={
+    isUltraquartz
+      ? product.vein_color || "-"
+      : product.origin_country || "-"
+  }
+/>
             </div>
           </div>
         </section>
