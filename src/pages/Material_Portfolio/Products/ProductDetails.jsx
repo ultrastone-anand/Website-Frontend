@@ -25,6 +25,8 @@ import {
   X,
 } from "lucide-react";
 
+import NotFound from "../../NotFound";
+
 import Icons from "../../../assets/icons";
 import SEO from "../../../components/common/SEO";
 
@@ -147,6 +149,9 @@ const ProductDetails = () => {
     product,
     setProduct,
   ] = useState(null);
+
+  const [productStatus, setProductStatus] = useState("loading");
+// "loading" | "success" | "not-found" | "error"
 
   const [
     activeImage,
@@ -294,15 +299,18 @@ const [
               ],
             );
 
+          if (controller.signal.aborted) return;
+
           /* ===============================================
              PRODUCT
           =============================================== */
 
           if (
-            productResponse.status ===
-              "fulfilled" &&
-            productResponse.value
-              .data?.success
+            productResponse.status === "fulfilled" &&
+            productResponse.value.data?.success && 
+            productResponse.value.data?.product &&
+            productResponse.value.data.product.is_active !== false &&
+            productResponse.value.data.product.is_published !== false
           ) {
             const currentProduct =
               productResponse
@@ -314,9 +322,8 @@ const [
               currentProduct,
             );
 
-            setProduct(
-              currentProduct,
-            );
+            setProduct(currentProduct);
+            setProductStatus("success");
 
             const currentCategorySlug =
               currentProduct
@@ -453,6 +460,21 @@ const [
                 );
               }
             }
+          } else {
+            const error =
+              productResponse.status === "rejected"
+                ? productResponse.reason
+                : null;
+
+            if (controller.signal.aborted) return;
+
+            const isNotFound =
+              error?.response?.status === 404 ||
+              (productResponse.status === "fulfilled" &&
+                !productResponse.value.data?.product);
+
+            setProduct(null);
+            setProductStatus(isNotFound ? "not-found" : "error");
           }
 
                     /* ===============================================
@@ -557,6 +579,11 @@ const [
               error,
             );
           }
+
+          if (!controller.signal.aborted) {
+            setProduct(null);
+            setProductStatus("error");
+          }
         }
       };
 
@@ -564,9 +591,8 @@ const [
        RESET PAGE STATE BEFORE LOADING NEW PRODUCT
     ===================================================== */
 
-    setProduct(
-      null,
-    );
+    setProduct(null);
+    setProductStatus("loading");
 
     setInspirationImages(
       [],
@@ -855,10 +881,28 @@ const availableFinishes =
      LOADING
   ========================================================= */
 
-  if (!product) {
+  if (productStatus === "not-found") {
+    return <NotFound />;
+  }
+
+  if (productStatus === "error") {
     return (
-      <ProductDetailsSkeleton />
+      <main className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
+        <h1 className="text-2xl font-semibold text-[#161412]">Unable to load product</h1>
+        <p className="mt-4 text-[#666]">Please try again in a moment.</p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="mt-6 bg-[#0c5562] px-6 py-3 text-white hover:bg-[#08414b]"
+        >
+          Try Again
+        </button>
+      </main>
     );
+  }
+
+  if (productStatus === "loading" || !product) {
+    return <ProductDetailsSkeleton />;
   }
 
   /* =========================================================
