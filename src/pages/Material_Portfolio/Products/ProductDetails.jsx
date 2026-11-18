@@ -260,14 +260,19 @@ const ProductDetails = () => {
       product?.average_sizes_inches,
     );
 
-  const isUltraquartz =
-    String(
-      product?.stone_categories?.slug ||
-      categorySlug ||
-      "",
-    )
-      .trim()
-      .toLowerCase() === "ultraquartz";
+
+const normalizeCategory = (value) =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]/g, "");
+
+const isUltraquartz =
+  normalizeCategory(product?.stone_categories?.slug) ===
+    "ultraquartz" ||
+  normalizeCategory(product?.stone_categories?.name) ===
+    "ultraquartz" ||
+  normalizeCategory(categorySlug) === "ultraquartz";
 
   /* =========================================================
      LOAD PRODUCT PAGE
