@@ -25,7 +25,7 @@ import {
   X,
 } from "lucide-react";
 
-import NotFound from "../../NotFound";
+import NotFound from "../../../components/common/NotFound";
 
 import Icons from "../../../assets/icons";
 import SEO from "../../../components/common/SEO";
