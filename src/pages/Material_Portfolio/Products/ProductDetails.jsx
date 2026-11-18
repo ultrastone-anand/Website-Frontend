@@ -138,8 +138,8 @@ const ProductDetails = () => {
   const navigate =
     useNavigate();
 
-    const location =
-  useLocation();
+  const location =
+    useLocation();
 
   /* =======================================================
      STATE
@@ -151,7 +151,7 @@ const ProductDetails = () => {
   ] = useState(null);
 
   const [productStatus, setProductStatus] = useState("loading");
-// "loading" | "success" | "not-found" | "error"
+  // "loading" | "success" | "not-found" | "error"
 
   const [
     activeImage,
@@ -199,34 +199,34 @@ const ProductDetails = () => {
   ] = useState(null);
 
   const [
-  openSampleDialog,
-  setOpenSampleDialog,
-] = useState(false);
+    openSampleDialog,
+    setOpenSampleDialog,
+  ] = useState(false);
 
-const [sampleForm, setSampleForm] = useState({
-  firstName: "",
-  lastName: "",
-  companyName: "",
-  streetAddress: "",
-  suiteNumber: "",
-  city: "",
-  county: "",
-  state: "",
-  zipCode: "",
-  email: "",
-  phone: "",
-  finish: "",
-  remarks: "",
-  quantity: 1,
+  const [sampleForm, setSampleForm] = useState({
+    firstName: "",
+    lastName: "",
+    companyName: "",
+    streetAddress: "",
+    suiteNumber: "",
+    city: "",
+    county: "",
+    state: "",
+    zipCode: "",
+    email: "",
+    phone: "",
+    finish: "",
+    remarks: "",
+    quantity: 1,
 
-  // Spam protection
-  website_url: "",
-});
+    // Spam protection
+    website_url: "",
+  });
 
-const [
-  isSubmittingSample,
-  setIsSubmittingSample,
-] = useState(false);
+  const [
+    isSubmittingSample,
+    setIsSubmittingSample,
+  ] = useState(false);
 
   /* =======================================================
      REFS
@@ -260,14 +260,14 @@ const [
       product?.average_sizes_inches,
     );
 
-    const isUltraquartz =
-  String(
-    product?.stone_categories?.slug ||
+  const isUltraquartz =
+    String(
+      product?.stone_categories?.slug ||
       categorySlug ||
       "",
-  )
-    .trim()
-    .toLowerCase() === "ultraquartz";
+    )
+      .trim()
+      .toLowerCase() === "ultraquartz";
 
   /* =========================================================
      LOAD PRODUCT PAGE
@@ -316,7 +316,7 @@ const [
 
           if (
             productResponse.status === "fulfilled" &&
-            productResponse.value.data?.success && 
+            productResponse.value.data?.success &&
             productResponse.value.data?.product &&
             productResponse.value.data.product.is_active !== false &&
             productResponse.value.data.product.is_published !== false
@@ -402,8 +402,8 @@ const [
                     categoryProducts
                       .filter(
                         (item) =>
-                          Number(item.id,) !== Number(currentProduct.id, ) &&
-                          item.slug !==currentProduct.slug &&
+                          Number(item.id,) !== Number(currentProduct.id,) &&
+                          item.slug !== currentProduct.slug &&
                           item.is_active === true &&
                           item.is_published === true
                       )
@@ -431,13 +431,13 @@ const [
                   );
                 }
               } catch (
-                relatedError
+              relatedError
               ) {
                 if (
                   relatedError.code !==
-                    "ERR_CANCELED" &&
+                  "ERR_CANCELED" &&
                   relatedError.name !==
-                    "CanceledError"
+                  "CanceledError"
                 ) {
                   console.error(
                     "❌ RELATED PRODUCTS REQUEST FAILED",
@@ -486,9 +486,9 @@ const [
             setProductStatus(isNotFound ? "not-found" : "error");
           }
 
-                    /* ===============================================
-             INSPIRATION
-          =============================================== */
+          /* ===============================================
+   INSPIRATION
+=============================================== */
 
           if (
             inspirationResponse.status ===
@@ -543,9 +543,9 @@ const [
 
             if (
               error?.code !==
-                "ERR_CANCELED" &&
+              "ERR_CANCELED" &&
               error?.name !==
-                "CanceledError"
+              "CanceledError"
             ) {
               console.error(
                 "❌ INSPIRATION REQUEST FAILED",
@@ -579,9 +579,9 @@ const [
         } catch (error) {
           if (
             error.code !==
-              "ERR_CANCELED" &&
+            "ERR_CANCELED" &&
             error.name !==
-              "CanceledError"
+            "CanceledError"
           ) {
             console.error(
               "❌ FAILED TO LOAD PRODUCT PAGE:",
@@ -766,64 +766,64 @@ const [
    ORDER SAMPLE DIALOG - ESC + BODY SCROLL
 ========================================================= */
 
-useEffect(() => {
-  if (!openSampleDialog) {
-    return undefined;
-  }
-
-  const previousBodyOverflow =
-    document.body.style.overflow;
-
-  const previousHtmlOverflow =
-    document.documentElement.style.overflow;
-
-  document.body.style.overflow =
-    "hidden";
-
-  document.documentElement.style.overflow =
-    "hidden";
-
-  const handleEsc = (event) => {
-    if (event.key === "Escape") {
-      setOpenSampleDialog(false);
+  useEffect(() => {
+    if (!openSampleDialog) {
+      return undefined;
     }
-  };
 
-  window.addEventListener(
-    "keydown",
-    handleEsc,
-  );
+    const previousBodyOverflow =
+      document.body.style.overflow;
 
-  return () => {
+    const previousHtmlOverflow =
+      document.documentElement.style.overflow;
+
     document.body.style.overflow =
-      previousBodyOverflow;
+      "hidden";
 
     document.documentElement.style.overflow =
-      previousHtmlOverflow;
+      "hidden";
 
-    window.removeEventListener(
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        setOpenSampleDialog(false);
+      }
+    };
+
+    window.addEventListener(
       "keydown",
       handleEsc,
     );
-  };
-}, [openSampleDialog]);
 
-const availableFinishes =
-  Array.isArray(
-    product?.finishes_available,
-  )
-    ? product.finishes_available.filter(
+    return () => {
+      document.body.style.overflow =
+        previousBodyOverflow;
+
+      document.documentElement.style.overflow =
+        previousHtmlOverflow;
+
+      window.removeEventListener(
+        "keydown",
+        handleEsc,
+      );
+    };
+  }, [openSampleDialog]);
+
+  const availableFinishes =
+    Array.isArray(
+      product?.finishes_available,
+    )
+      ? product.finishes_available.filter(
         Boolean,
       )
-    : typeof product?.finishes_available ===
+      : typeof product?.finishes_available ===
         "string"
-      ? product.finishes_available
+        ? product.finishes_available
           .split(",")
           .map((item) =>
             item.trim(),
           )
           .filter(Boolean)
-      : [];
+        : [];
 
 
   /* =========================================================
@@ -939,22 +939,22 @@ const availableFinishes =
         "APPLICATION_IMAGE",
     ) || [];
 
-const applicationImages = [
-  ...productApplicationImages,
-  ...inspirationImages,
-].filter(
-  (
-    media,
-    index,
-    array,
-  ) =>
-    index ===
-    array.findIndex(
-      (item) =>
-        item.media_url ===
-        media.media_url,
-    ),
-);
+  const applicationImages = [
+    ...productApplicationImages,
+    ...inspirationImages,
+  ].filter(
+    (
+      media,
+      index,
+      array,
+    ) =>
+      index ===
+      array.findIndex(
+        (item) =>
+          item.media_url ===
+          media.media_url,
+      ),
+  );
   const bookmatchslipmatch =
     product.media?.filter(
       (item) =>
@@ -971,14 +971,14 @@ const applicationImages = [
 
   const images =
     closeupImages.length >
-    0
+      0
       ? closeupImages
       : [
-          {
-            media_url:
-              "https://placehold.co/1200x800",
-          },
-        ];
+        {
+          media_url:
+            "https://placehold.co/1200x800",
+        },
+      ];
 
   const heroMedia = [
     ...slabImages,
@@ -990,28 +990,28 @@ const applicationImages = [
 
   const heroImages =
     heroMedia.length >
-    0
+      0
       ? heroMedia
       : [
-          {
-            media_url:
-              "https://placehold.co/1200x800",
+        {
+          media_url:
+            "https://placehold.co/1200x800",
 
-            media_type:
-              "IMAGE",
-          },
-        ];
+          media_type:
+            "IMAGE",
+        },
+      ];
 
   const safeActiveIndex =
     Math.min(
       activeImage,
       heroImages.length -
-        1,
+      1,
     );
 
   const activeMedia =
     heroImages[
-      safeActiveIndex
+    safeActiveIndex
     ];
 
   /* =========================================================
@@ -1400,7 +1400,7 @@ const applicationImages = [
             100,
             (x /
               rect.width) *
-              100,
+            100,
           ),
         );
 
@@ -1411,7 +1411,7 @@ const applicationImages = [
             100,
             (y /
               rect.height) *
-              100,
+            100,
           ),
         );
 
@@ -1450,11 +1450,11 @@ const applicationImages = [
       setActiveImage(
         (currentIndex) =>
           currentIndex ===
-          0
+            0
             ? heroImages.length -
-              1
+            1
             : currentIndex -
-              1,
+            1,
       );
     };
 
@@ -1463,11 +1463,11 @@ const applicationImages = [
       setActiveImage(
         (currentIndex) =>
           currentIndex ===
-          heroImages.length -
+            heroImages.length -
             1
             ? 0
             : currentIndex +
-              1,
+            1,
       );
     };
 
@@ -1499,212 +1499,212 @@ const applicationImages = [
       );
     };
 
-/* =========================================================
-   ORDER SAMPLE
-========================================================= */
+  /* =========================================================
+     ORDER SAMPLE
+  ========================================================= */
 
-const handleSampleChange = (
-  event,
-) => {
-  const {
-    name,
-    value,
-  } = event.target;
+  const handleSampleChange = (
+    event,
+  ) => {
+    const {
+      name,
+      value,
+    } = event.target;
 
-  setSampleForm(
-    (previous) => ({
-      ...previous,
+    setSampleForm(
+      (previous) => ({
+        ...previous,
 
-      [name]:
-        name === "quantity"
-          ? Math.max(
+        [name]:
+          name === "quantity"
+            ? Math.max(
               1,
               Number(value),
             )
-          : value,
-    }),
-  );
-};
-
-const handleSampleSubmit =
-  async (event) => {
-    event.preventDefault();
-
-if (
-  !sampleForm.firstName.trim() ||
-  !sampleForm.lastName.trim() ||
-  !sampleForm.streetAddress.trim() ||
-  !sampleForm.city.trim() ||
-  !sampleForm.state.trim() ||
-  !sampleForm.zipCode.trim() ||
-  !sampleForm.email.trim() ||
-  !sampleForm.phone.trim() ||
-  (
-    availableFinishes.length >
-      0 &&
-    !sampleForm.finish.trim()
-  )
-) {
-  alert(
-    "Please fill all required fields.",
-  );
-
-  return;
-}
-
-    try {
-      setIsSubmittingSample(
-        true,
-      );
-
-      const API_URL =
-        import.meta.env
-          .VITE_API_URL;
-
-const payload = {
-  product_id: product.id,
-  product_name: product.name,
-  category_name: product?.stone_categories?.name || "",
-
-  first_name: sampleForm.firstName.trim(),
-  last_name: sampleForm.lastName.trim(),
-  company_name: sampleForm.companyName.trim(),
-  street_address: sampleForm.streetAddress.trim(),
-  suite_number: sampleForm.suiteNumber.trim(),
-  city: sampleForm.city.trim(),
-  county: sampleForm.county.trim(),
-  state: sampleForm.state.trim(),
-  zip_code: sampleForm.zipCode.trim(),
-  email: sampleForm.email.trim(),
-  phone: sampleForm.phone.trim(),
-  finish: sampleForm.finish.trim(),
-  quantity: sampleForm.quantity,
-  remarks: sampleForm.remarks.trim(),
-
-  // Spam protection
-  website_url: sampleForm.website_url,
-};
-
-      console.log(
-        "📦 SAMPLE REQUEST PAYLOAD:",
-        payload,
-      );
-
-      console.log(
-        "📡 SAMPLE REQUEST URL:",
-        `${API_URL}/sample-requests`,
-      );
-
-      const response =
-        await axios.post(
-          `${API_URL}/sample-requests`,
-          payload,
-          {
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-          },
-        );
-
-      console.log(
-        "✅ SAMPLE REQUEST RESPONSE:",
-        response.data,
-      );
-
-      if (
-        !response.data?.success
-      ) {
-        throw new Error(
-          response.data?.message ||
-            "Failed to submit sample request.",
-        );
-      }
-
-      alert(
-        "Sample request submitted successfully.",
-      );
-
-      setOpenSampleDialog(
-        false,
-      );
-
-setSampleForm({
-  firstName: "",
-  lastName: "",
-  companyName: "",
-  streetAddress: "",
-  suiteNumber: "",
-  city: "",
-  county: "",
-  state: "",
-  zipCode: "",
-  email: "",
-  phone: "",
-  finish: "",
-  remarks: "",
-  quantity: 1,
-
-  // Reset spam protection
-  website_url: "",
-});
-    } catch (error) {
-      console.error(
-        "❌ SAMPLE REQUEST FAILED:",
-        error,
-      );
-
-      console.error(
-        "STATUS:",
-        error.response?.status,
-      );
-
-      console.error(
-        "BACKEND RESPONSE:",
-        error.response?.data,
-      );
-
-      console.error(
-        "REQUEST URL:",
-        error.config?.url,
-      );
-
-      alert(
-        error.response?.data
-          ?.message ||
-          error.message ||
-          "Unable to submit sample request. Please try again.",
-      );
-    } finally {
-      setIsSubmittingSample(
-        false,
-      );
-    }
-  };
-
-
-const handleCategoryNavigation =
-  () => {
-    const categoryPath =
-      `/product-category/${product?.stone_categories?.slug}`;
-
-    const cameFromCategory =
-      location.state?.fromCategory ===
-        true &&
-      location.state
-        ?.categoryPath ===
-        categoryPath;
-
-    if (cameFromCategory) {
-      navigate(-1);
-
-      return;
-    }
-
-    navigate(
-      categoryPath,
+            : value,
+      }),
     );
   };
+
+  const handleSampleSubmit =
+    async (event) => {
+      event.preventDefault();
+
+      if (
+        !sampleForm.firstName.trim() ||
+        !sampleForm.lastName.trim() ||
+        !sampleForm.streetAddress.trim() ||
+        !sampleForm.city.trim() ||
+        !sampleForm.state.trim() ||
+        !sampleForm.zipCode.trim() ||
+        !sampleForm.email.trim() ||
+        !sampleForm.phone.trim() ||
+        (
+          availableFinishes.length >
+          0 &&
+          !sampleForm.finish.trim()
+        )
+      ) {
+        alert(
+          "Please fill all required fields.",
+        );
+
+        return;
+      }
+
+      try {
+        setIsSubmittingSample(
+          true,
+        );
+
+        const API_URL =
+          import.meta.env
+            .VITE_API_URL;
+
+        const payload = {
+          product_id: product.id,
+          product_name: product.name,
+          category_name: product?.stone_categories?.name || "",
+
+          first_name: sampleForm.firstName.trim(),
+          last_name: sampleForm.lastName.trim(),
+          company_name: sampleForm.companyName.trim(),
+          street_address: sampleForm.streetAddress.trim(),
+          suite_number: sampleForm.suiteNumber.trim(),
+          city: sampleForm.city.trim(),
+          county: sampleForm.county.trim(),
+          state: sampleForm.state.trim(),
+          zip_code: sampleForm.zipCode.trim(),
+          email: sampleForm.email.trim(),
+          phone: sampleForm.phone.trim(),
+          finish: sampleForm.finish.trim(),
+          quantity: sampleForm.quantity,
+          remarks: sampleForm.remarks.trim(),
+
+          // Spam protection
+          website_url: sampleForm.website_url,
+        };
+
+        console.log(
+          "📦 SAMPLE REQUEST PAYLOAD:",
+          payload,
+        );
+
+        console.log(
+          "📡 SAMPLE REQUEST URL:",
+          `${API_URL}/sample-requests`,
+        );
+
+        const response =
+          await axios.post(
+            `${API_URL}/sample-requests`,
+            payload,
+            {
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+            },
+          );
+
+        console.log(
+          "✅ SAMPLE REQUEST RESPONSE:",
+          response.data,
+        );
+
+        if (
+          !response.data?.success
+        ) {
+          throw new Error(
+            response.data?.message ||
+            "Failed to submit sample request.",
+          );
+        }
+
+        alert(
+          "Sample request submitted successfully.",
+        );
+
+        setOpenSampleDialog(
+          false,
+        );
+
+        setSampleForm({
+          firstName: "",
+          lastName: "",
+          companyName: "",
+          streetAddress: "",
+          suiteNumber: "",
+          city: "",
+          county: "",
+          state: "",
+          zipCode: "",
+          email: "",
+          phone: "",
+          finish: "",
+          remarks: "",
+          quantity: 1,
+
+          // Reset spam protection
+          website_url: "",
+        });
+      } catch (error) {
+        console.error(
+          "❌ SAMPLE REQUEST FAILED:",
+          error,
+        );
+
+        console.error(
+          "STATUS:",
+          error.response?.status,
+        );
+
+        console.error(
+          "BACKEND RESPONSE:",
+          error.response?.data,
+        );
+
+        console.error(
+          "REQUEST URL:",
+          error.config?.url,
+        );
+
+        alert(
+          error.response?.data
+            ?.message ||
+          error.message ||
+          "Unable to submit sample request. Please try again.",
+        );
+      } finally {
+        setIsSubmittingSample(
+          false,
+        );
+      }
+    };
+
+
+  const handleCategoryNavigation =
+    () => {
+      const categoryPath =
+        `/product-category/${product?.stone_categories?.slug}`;
+
+      const cameFromCategory =
+        location.state?.fromCategory ===
+        true &&
+        location.state
+          ?.categoryPath ===
+        categoryPath;
+
+      if (cameFromCategory) {
+        navigate(-1);
+
+        return;
+      }
+
+      navigate(
+        categoryPath,
+      );
+    };
 
 
 
@@ -1772,22 +1772,22 @@ const handleCategoryNavigation =
 
               {" / "}
 
-<button
-  type="button"
-  onClick={
-    handleCategoryNavigation
-  }
-  className="
+              <button
+                type="button"
+                onClick={
+                  handleCategoryNavigation
+                }
+                className="
     hover:text-[#161412]
     duration-300
     cursor-pointer
   "
->
-  {product
-    .stone_categories
-    ?.name ||
-    "Ultra Stones"}
-</button>
+              >
+                {product
+                  .stone_categories
+                  ?.name ||
+                  "Ultra Stones"}
+              </button>
 
               {" / "}
 
@@ -1822,7 +1822,7 @@ const handleCategoryNavigation =
                     className="cursor-zoom-in"
                   >
                     {activeMedia?.media_type ===
-                    "FEATURED_VIDEO" ? (
+                      "FEATURED_VIDEO" ? (
                       <video
                         key={
                           activeMedia
@@ -1843,50 +1843,50 @@ const handleCategoryNavigation =
                         />
                       </video>
                     ) : (
-<img
-  key={activeMedia?.media_url}
-  src={getOptimizedImageUrl(
-    activeMedia?.media_url,
-    1600,
-    92,
-  )}
-  srcSet={`
+                      <img
+                        key={activeMedia?.media_url}
+                        src={getOptimizedImageUrl(
+                          activeMedia?.media_url,
+                          1600,
+                          92,
+                        )}
+                        srcSet={`
     ${getOptimizedImageUrl(
-      activeMedia?.media_url,
-      768,
-      88,
-    )} 768w,
+                          activeMedia?.media_url,
+                          768,
+                          88,
+                        )} 768w,
 
     ${getOptimizedImageUrl(
-      activeMedia?.media_url,
-      1200,
-      90,
-    )} 1200w,
+                          activeMedia?.media_url,
+                          1200,
+                          90,
+                        )} 1200w,
 
     ${getOptimizedImageUrl(
-      activeMedia?.media_url,
-      1600,
-      92,
-    )} 1600w,
+                          activeMedia?.media_url,
+                          1600,
+                          92,
+                        )} 1600w,
 
     ${getOptimizedImageUrl(
-      activeMedia?.media_url,
-      2000,
-      92,
-    )} 2000w
+                          activeMedia?.media_url,
+                          2000,
+                          92,
+                        )} 2000w
   `}
-  sizes="(min-width: 1280px) 50vw, 100vw"
-  alt={product.name}
-  loading="eager"
-  fetchPriority="high"
-  decoding="async"
-  className="
+                        sizes="(min-width: 1280px) 50vw, 100vw"
+                        alt={product.name}
+                        loading="eager"
+                        fetchPriority="high"
+                        decoding="async"
+                        className="
     w-full
     h-[520px]
     xl:h-[640px]
     object-cover
   "
-/>
+                      />
                     )}
                   </div>
 
@@ -1905,18 +1905,18 @@ const handleCategoryNavigation =
 
                   {heroImages.length >
                     1 && (
-                    <>
-                      <button
-                        type="button"
-                        aria-label="Previous product image"
-                        onClick={(
-                          event,
-                        ) => {
-                          event.stopPropagation();
+                      <>
+                        <button
+                          type="button"
+                          aria-label="Previous product image"
+                          onClick={(
+                            event,
+                          ) => {
+                            event.stopPropagation();
 
-                          showPreviousMedia();
-                        }}
-                        className="
+                            showPreviousMedia();
+                          }}
+                          className="
                           absolute
                           left-5
                           top-1/2
@@ -1938,28 +1938,28 @@ const handleCategoryNavigation =
                           transition-all
                           duration-300
                         "
-                      >
-                        <ChevronLeft
-                          size={
-                            22
-                          }
-                          strokeWidth={
-                            1.7
-                          }
-                        />
-                      </button>
+                        >
+                          <ChevronLeft
+                            size={
+                              22
+                            }
+                            strokeWidth={
+                              1.7
+                            }
+                          />
+                        </button>
 
-                      <button
-                        type="button"
-                        aria-label="Next product image"
-                        onClick={(
-                          event,
-                        ) => {
-                          event.stopPropagation();
+                        <button
+                          type="button"
+                          aria-label="Next product image"
+                          onClick={(
+                            event,
+                          ) => {
+                            event.stopPropagation();
 
-                          showNextMedia();
-                        }}
-                        className="
+                            showNextMedia();
+                          }}
+                          className="
                           absolute
                           right-5
                           top-1/2
@@ -1981,51 +1981,51 @@ const handleCategoryNavigation =
                           transition-all
                           duration-300
                         "
-                      >
-                        <ChevronRight
-                          size={
-                            22
-                          }
-                          strokeWidth={
-                            1.7
-                          }
-                        />
-                      </button>
-                    </>
-                  )}
+                        >
+                          <ChevronRight
+                            size={
+                              22
+                            }
+                            strokeWidth={
+                              1.7
+                            }
+                          />
+                        </button>
+                      </>
+                    )}
 
                   {/* THUMBNAILS */}
 
                   {heroImages.length >
                     1 && (
-                    <div
-                      className="absolute bottom-5 left-1/2 z-30 -translate-x-1/2 max-w-[90%]"
-                      onClick={(
-                        event,
-                      ) =>
-                        event.stopPropagation()
-                      }
-                    >
-                      <div className="flex items-center gap-2 overflow-x-auto max-w-full p-2 bg-black/30 backdrop-blur-xl border border-white/20 rounded-md scrollbar-hide">
-                        {heroImages.map(
-                          (
-                            media,
-                            index,
-                          ) => {
-                            const isActive =
-                              index ===
-                              safeActiveIndex;
+                      <div
+                        className="absolute bottom-5 left-1/2 z-30 -translate-x-1/2 max-w-[90%]"
+                        onClick={(
+                          event,
+                        ) =>
+                          event.stopPropagation()
+                        }
+                      >
+                        <div className="flex items-center gap-2 overflow-x-auto max-w-full p-2 bg-black/30 backdrop-blur-xl border border-white/20 rounded-md scrollbar-hide">
+                          {heroImages.map(
+                            (
+                              media,
+                              index,
+                            ) => {
+                              const isActive =
+                                index ===
+                                safeActiveIndex;
 
-                            return (
-                              <button
-                                key={`${media.media_url}-${index}`}
-                                type="button"
-                                onClick={() =>
-                                  setActiveImage(
-                                    index,
-                                  )
-                                }
-                                className={`
+                              return (
+                                <button
+                                  key={`${media.media_url}-${index}`}
+                                  type="button"
+                                  onClick={() =>
+                                    setActiveImage(
+                                      index,
+                                    )
+                                  }
+                                  className={`
                                   relative
                                   shrink-0
                                   w-[64px]
@@ -2035,52 +2035,51 @@ const handleCategoryNavigation =
                                   transition-all
                                   duration-300
 
-                                  ${
-                                    isActive
+                                  ${isActive
                                       ? "ring-2 ring-white opacity-100 scale-[1.05]"
                                       : "opacity-65 hover:opacity-100"
-                                  }
+                                    }
                                 `}
-                              >
-                                {media.media_type ===
-                                "FEATURED_VIDEO" ? (
-                                  <>
-                                    <video
-                                      src={
-                                        media
-                                          .media_url
-                                      }
-                                      muted
-                                      preload="metadata"
-                                      className="w-full h-full object-cover pointer-events-none"
-                                    />
+                                >
+                                  {media.media_type ===
+                                    "FEATURED_VIDEO" ? (
+                                    <>
+                                      <video
+                                        src={
+                                          media
+                                            .media_url
+                                        }
+                                        muted
+                                        preload="metadata"
+                                        className="w-full h-full object-cover pointer-events-none"
+                                      />
 
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                      <span className="w-5 h-5 rounded-full bg-white/90 text-black text-[9px] flex items-center justify-center">
-                                        ▶
-                                      </span>
-                                    </div>
-                                  </>
-                                ) : (
-                                  <img
-                                    src={getOptimizedImageUrl(
-                                      media.media_url,
-                                      160,
-                                      70,
-                                    )}
-                                    alt=""
-                                    loading="lazy"
-                                    decoding="async"
-                                    className="w-full h-full object-cover"
-                                  />
-                                )}
-                              </button>
-                            );
-                          },
-                        )}
+                                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                        <span className="w-5 h-5 rounded-full bg-white/90 text-black text-[9px] flex items-center justify-center">
+                                          ▶
+                                        </span>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <img
+                                      src={getOptimizedImageUrl(
+                                        media.media_url,
+                                        160,
+                                        70,
+                                      )}
+                                      alt=""
+                                      loading="lazy"
+                                      decoding="async"
+                                      className="w-full h-full object-cover"
+                                    />
+                                  )}
+                                </button>
+                              );
+                            },
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               </div>
 
@@ -2114,11 +2113,11 @@ const handleCategoryNavigation =
                   }}
                 >
                   {shouldTruncate &&
-                  !expanded
+                    !expanded
                     ? `${description.slice(
-                        0,
-                        300,
-                      )}... `
+                      0,
+                      300,
+                    )}... `
                     : description}
 
                   {shouldTruncate && (
@@ -2139,13 +2138,13 @@ const handleCategoryNavigation =
                 </p>
 
                 <button
-  type="button"
-  onClick={() =>
-    setOpenSampleDialog(
-      true,
-    )
-  }
-  className="
+                  type="button"
+                  onClick={() =>
+                    setOpenSampleDialog(
+                      true,
+                    )
+                  }
+                  className="
     inline-flex
     items-center
     gap-2
@@ -2163,13 +2162,13 @@ const handleCategoryNavigation =
     hover:text-white
     cursor-pointer
   "
->
-  Order Samples
+                >
+                  Order Samples
 
-  <ShoppingCart
-    size={16}
-  />
-</button>
+                  <ShoppingCart
+                    size={16}
+                  />
+                </button>
 
                 {/* CLOSEUP ZOOM */}
 
@@ -2190,52 +2189,52 @@ const handleCategoryNavigation =
                     handleZoomLeave
                   }
                 >
-                 <img
-  src={getOptimizedImageUrl(
-    images[0]?.media_url,
-    1200,
-    82,
-  )}
-  srcSet={`
+                  <img
+                    src={getOptimizedImageUrl(
+                      images[0]?.media_url,
+                      1200,
+                      82,
+                    )}
+                    srcSet={`
     ${getOptimizedImageUrl(
-      images[0]?.media_url,
-      480,
-      76,
-    )} 480w,
+                      images[0]?.media_url,
+                      480,
+                      76,
+                    )} 480w,
 
     ${getOptimizedImageUrl(
-      images[0]?.media_url,
-      768,
-      78,
-    )} 768w,
+                      images[0]?.media_url,
+                      768,
+                      78,
+                    )} 768w,
 
     ${getOptimizedImageUrl(
-      images[0]?.media_url,
-      1000,
-      80,
-    )} 1000w,
+                      images[0]?.media_url,
+                      1000,
+                      80,
+                    )} 1000w,
 
     ${getOptimizedImageUrl(
-      images[0]?.media_url,
-      1200,
-      82,
-    )} 1200w,
+                      images[0]?.media_url,
+                      1200,
+                      82,
+                    )} 1200w,
 
     ${getOptimizedImageUrl(
-      images[0]?.media_url,
-      1600,
-      84,
-    )} 1600w
+                      images[0]?.media_url,
+                      1600,
+                      84,
+                    )} 1600w
   `}
-  sizes="(min-width: 1280px) 48vw, (min-width: 768px) 50vw, 100vw"
-  alt={`${product.name} close-up`}
-  loading="lazy"
-  decoding="async"
-  width="1200"
-  height="675"
-  className="w-full h-[300px] object-cover select-none"
-  draggable={false}
-/>
+                    sizes="(min-width: 1280px) 48vw, (min-width: 768px) 50vw, 100vw"
+                    alt={`${product.name} close-up`}
+                    loading="lazy"
+                    decoding="async"
+                    width="1200"
+                    height="675"
+                    className="w-full h-[300px] object-cover select-none"
+                    draggable={false}
+                  />
 
                   <div
                     ref={
@@ -2276,12 +2275,12 @@ const handleCategoryNavigation =
                     <Social />
                   </Suspense>
 
-<button
-  type="button"
-  onClick={
-    handleCategoryNavigation
-  }
-  className="
+                  <button
+                    type="button"
+                    onClick={
+                      handleCategoryNavigation
+                    }
+                    className="
     border
     border-[#d9d9d9]
     px-4
@@ -2298,12 +2297,12 @@ const handleCategoryNavigation =
     hover:text-white
     cursor-pointer
   "
->
-  Category :{" "}
-  {product
-    ?.stone_categories
-    ?.name || "N/A"}
-</button>
+                  >
+                    Category :{" "}
+                    {product
+                      ?.stone_categories
+                      ?.name || "N/A"}
+                  </button>
                   <div className="border border-[#d9d9d9] px-4 py-2 text-[10px] uppercase tracking-[1.5px] text-black">
                     Pantone :{" "}
                     {product
@@ -2338,7 +2337,7 @@ const handleCategoryNavigation =
                 title="Size in Inches"
                 value={
                   formattedSizes.length >
-                  0
+                    0
                     ? formattedSizes
                     : ["-"]
                 }
@@ -2394,17 +2393,17 @@ const handleCategoryNavigation =
               />
 
               <SpecificationItem
-  title={
-    isUltraquartz
-      ? "Vein Color"
-      : "Origin"
-  }
-  value={
-    isUltraquartz
-      ? product.vein_color || "-"
-      : product.origin_country || "-"
-  }
-/>
+                title={
+                  isUltraquartz
+                    ? "Vein Color"
+                    : "Origin"
+                }
+                value={
+                  isUltraquartz
+                    ? product.vein_color || "-"
+                    : product.origin_country || "-"
+                }
+              />
             </div>
           </div>
         </section>
@@ -2498,10 +2497,9 @@ const handleCategoryNavigation =
                   transition-all
                   duration-300
 
-                  ${
-                    isGeneratingDatasheet
-                      ? "opacity-60 cursor-wait"
-                      : "hover:bg-[#2a2724] cursor-pointer"
+                  ${isGeneratingDatasheet
+                    ? "opacity-60 cursor-wait"
+                    : "hover:bg-[#2a2724] cursor-pointer"
                   }
                 `}
               >
@@ -2712,7 +2710,7 @@ const handleCategoryNavigation =
                     style={{
                       left:
                         variationPositions[
-                          activeVariation
+                        activeVariation
                         ],
 
                       top:
@@ -2747,87 +2745,87 @@ const handleCategoryNavigation =
             item.is_active,
         )?.length >
           0 && (
-          <section className="pb-20 bg-white">
+            <section className="pb-20 bg-white">
 
-            <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
+              <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
 
-              <div className="bg-[#f5f5f5] border border-[#d9d9d9] rounded-sm p-6 lg:p-10">
+                <div className="bg-[#f5f5f5] border border-[#d9d9d9] rounded-sm p-6 lg:p-10">
 
-                <div className="grid lg:grid-cols-[340px_1fr] gap-10">
+                  <div className="grid lg:grid-cols-[340px_1fr] gap-10">
 
-                  <div className="lg:pr-8">
+                    <div className="lg:pr-8">
 
-                    <p className="text-[12px] uppercase tracking-[3px] text-[#9b9b9b] mb-4">
-                      FAQ
-                    </p>
+                      <p className="text-[12px] uppercase tracking-[3px] text-[#9b9b9b] mb-4">
+                        FAQ
+                      </p>
 
-                    <h2
-                      className="text-[42px] leading-[1] font-semibold text-[#161412] mb-6"
-                      style={{
-                        fontFamily:
-                          "Montserrat, sans-serif",
-                      }}
-                    >
-                      Frequently Asked
-                      Questions
-                    </h2>
+                      <h2
+                        className="text-[42px] leading-[1] font-semibold text-[#161412] mb-6"
+                        style={{
+                          fontFamily:
+                            "Montserrat, sans-serif",
+                        }}
+                      >
+                        Frequently Asked
+                        Questions
+                      </h2>
 
-                    <div className="w-[60px] h-[3px] bg-[#C91F26] mb-6" />
+                      <div className="w-[60px] h-[3px] bg-[#C91F26] mb-6" />
 
-                    <p className="text-[15px] leading-[1.8] text-[#6b6b6b] max-w-[320px]">
-                      Everything you need
-                      to know about this
-                      material,
-                      fabrication
-                      requirements,
-                      maintenance and
-                      recommended
-                      applications.
-                    </p>
-                  </div>
+                      <p className="text-[15px] leading-[1.8] text-[#6b6b6b] max-w-[320px]">
+                        Everything you need
+                        to know about this
+                        material,
+                        fabrication
+                        requirements,
+                        maintenance and
+                        recommended
+                        applications.
+                      </p>
+                    </div>
 
-                  <div className="space-y-3">
+                    <div className="space-y-3">
 
-                    {product.faqs
-                      .filter(
-                        (item) =>
-                          item.is_active,
-                      )
-                      .sort(
-                        (
-                          a,
-                          b,
-                        ) =>
-                          a.sort_order -
-                          b.sort_order,
-                      )
-                      .map(
-                        (
-                          faq,
-                          index,
-                        ) => {
-                          const isOpen =
-                            openFaq ===
-                            index;
+                      {product.faqs
+                        .filter(
+                          (item) =>
+                            item.is_active,
+                        )
+                        .sort(
+                          (
+                            a,
+                            b,
+                          ) =>
+                            a.sort_order -
+                            b.sort_order,
+                        )
+                        .map(
+                          (
+                            faq,
+                            index,
+                          ) => {
+                            const isOpen =
+                              openFaq ===
+                              index;
 
-                          return (
-                            <div
-                              key={
-                                faq.id
-                              }
-                              className="border border-[#cfcfcf] bg-white overflow-hidden"
-                            >
-
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setOpenFaq(
-                                    isOpen
-                                      ? null
-                                      : index,
-                                  )
+                            return (
+                              <div
+                                key={
+                                  faq.id
                                 }
-                                className={`
+                                className="border border-[#cfcfcf] bg-white overflow-hidden"
+                              >
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setOpenFaq(
+                                      isOpen
+                                        ? null
+                                        : index,
+                                    )
+                                  }
+                                  className={`
                                   w-full
                                   flex
                                   items-center
@@ -2838,58 +2836,56 @@ const handleCategoryNavigation =
                                   transition-all
                                   duration-300
 
-                                  ${
-                                    isOpen
+                                  ${isOpen
                                       ? "bg-[#4a4a4a] text-white"
                                       : "bg-white text-[#161412]"
-                                  }
+                                    }
                                 `}
-                              >
-                                <span className="text-[13px] font-medium">
-                                  {index +
-                                    1}
-                                  .{" "}
-                                  {
-                                    faq.question
-                                  }
-                                </span>
+                                >
+                                  <span className="text-[13px] font-medium">
+                                    {index +
+                                      1}
+                                    .{" "}
+                                    {
+                                      faq.question
+                                    }
+                                  </span>
 
-                                <span className="text-[18px]">
-                                  {isOpen
-                                    ? "−"
-                                    : "+"}
-                                </span>
-                              </button>
+                                  <span className="text-[18px]">
+                                    {isOpen
+                                      ? "−"
+                                      : "+"}
+                                  </span>
+                                </button>
 
-                              <div
-                                className={`
+                                <div
+                                  className={`
                                   overflow-hidden
                                   transition-all
                                   duration-300
 
-                                  ${
-                                    isOpen
+                                  ${isOpen
                                       ? "max-h-[300px]"
                                       : "max-h-0"
-                                  }
+                                    }
                                 `}
-                              >
-                                <div className="px-5 py-4 text-[13px] bg-[#4a4a4a] text-white">
-                                  {
-                                    faq.answer
-                                  }
+                                >
+                                  <div className="px-5 py-4 text-[13px] bg-[#4a4a4a] text-white">
+                                    {
+                                      faq.answer
+                                    }
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        },
-                      )}
+                            );
+                          },
+                        )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
-        )}
+            </section>
+          )}
 
         {/* ===================================================
             RELATED PRODUCTS
@@ -2897,102 +2893,102 @@ const handleCategoryNavigation =
 
         {relatedProducts.length >
           0 && (
-          <section className="pb-24 bg-white">
+            <section className="pb-24 bg-white">
 
-            <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
+              <div className="max-w-[2000px] mx-auto px-6 xl:px-10">
 
-              <div className="flex items-center justify-between gap-5 mb-10">
+                <div className="flex items-center justify-between gap-5 mb-10">
 
-                <div className="flex-1">
+                  <div className="flex-1">
 
-                  <h2
-                    className="text-[20px] text-[#161412] mb-3"
-                    style={{
-                      fontFamily:
-                        "Montserrat, sans-serif",
-                    }}
-                  >
-                    Related Products
-                  </h2>
+                    <h2
+                      className="text-[20px] text-[#161412] mb-3"
+                      style={{
+                        fontFamily:
+                          "Montserrat, sans-serif",
+                      }}
+                    >
+                      Related Products
+                    </h2>
 
-                  <div className="w-full h-[1px] bg-black/10" />
+                    <div className="w-full h-[1px] bg-black/10" />
+                  </div>
+
+                  {relatedProducts.length >
+                    4 && (
+                      <div className="flex items-center gap-3">
+
+                        <button
+                          type="button"
+                          aria-label="Scroll related products left"
+                          onClick={
+                            scrollRelatedLeft
+                          }
+                          className="w-11 h-11 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300"
+                        >
+                          <ChevronLeft
+                            size={
+                              18
+                            }
+                            strokeWidth={
+                              1.7
+                            }
+                          />
+                        </button>
+
+                        <button
+                          type="button"
+                          aria-label="Scroll related products right"
+                          onClick={
+                            scrollRelatedRight
+                          }
+                          className="w-11 h-11 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300"
+                        >
+                          <ChevronRight
+                            size={
+                              18
+                            }
+                            strokeWidth={
+                              1.7
+                            }
+                          />
+                        </button>
+                      </div>
+                    )}
                 </div>
 
-                {relatedProducts.length >
-                  4 && (
-                  <div className="flex items-center gap-3">
-
-                    <button
-                      type="button"
-                      aria-label="Scroll related products left"
-                      onClick={
-                        scrollRelatedLeft
-                      }
-                      className="w-11 h-11 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300"
-                    >
-                      <ChevronLeft
-                        size={
-                          18
+                <div
+                  ref={
+                    relatedScrollRef
+                  }
+                  className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide"
+                >
+                  {relatedProducts.map(
+                    (item) => (
+                      <RelatedProductCard
+                        key={
+                          item.id ||
+                          item.slug
                         }
-                        strokeWidth={
-                          1.7
+                        item={
+                          item
                         }
-                      />
-                    </button>
-
-                    <button
-                      type="button"
-                      aria-label="Scroll related products right"
-                      onClick={
-                        scrollRelatedRight
-                      }
-                      className="w-11 h-11 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300"
-                    >
-                      <ChevronRight
-                        size={
-                          18
+                        navigate={
+                          navigate
                         }
-                        strokeWidth={
-                          1.7
+                        defaultCategorySlug={
+                          product
+                            .stone_categories
+                            ?.slug ||
+                          categorySlug
                         }
                       />
-                    </button>
-                  </div>
-                )}
+                    ),
+                  )}
+                </div>
               </div>
-
-              <div
-                ref={
-                  relatedScrollRef
-                }
-                className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide"
-              >
-                {relatedProducts.map(
-                  (item) => (
-                    <RelatedProductCard
-                      key={
-                        item.id ||
-                        item.slug
-                      }
-                      item={
-                        item
-                      }
-                      navigate={
-                        navigate
-                      }
-                      defaultCategorySlug={
-                        product
-                          .stone_categories
-                          ?.slug ||
-                        categorySlug
-                      }
-                    />
-                  ),
-                )}
-              </div>
-            </div>
-          </section>
-        )}
+            </section>
+          )}
       </div>
 
       {/* =====================================================
@@ -3056,18 +3052,18 @@ const handleCategoryNavigation =
 
             {heroImages.length >
               1 && (
-              <>
-                <button
-                  type="button"
-                  aria-label="Previous preview image"
-                  onClick={(
-                    event,
-                  ) => {
-                    event.stopPropagation();
+                <>
+                  <button
+                    type="button"
+                    aria-label="Previous preview image"
+                    onClick={(
+                      event,
+                    ) => {
+                      event.stopPropagation();
 
-                    showPreviousMedia();
-                  }}
-                  className="
+                      showPreviousMedia();
+                    }}
+                    className="
                     absolute
                     left-4
                     md:left-8
@@ -3086,25 +3082,25 @@ const handleCategoryNavigation =
                     hover:text-black
                     transition
                   "
-                >
-                  <ChevronLeft
-                    size={
-                      26
-                    }
-                  />
-                </button>
+                  >
+                    <ChevronLeft
+                      size={
+                        26
+                      }
+                    />
+                  </button>
 
-                <button
-                  type="button"
-                  aria-label="Next preview image"
-                  onClick={(
-                    event,
-                  ) => {
-                    event.stopPropagation();
+                  <button
+                    type="button"
+                    aria-label="Next preview image"
+                    onClick={(
+                      event,
+                    ) => {
+                      event.stopPropagation();
 
-                    showNextMedia();
-                  }}
-                  className="
+                      showNextMedia();
+                    }}
+                    className="
                     absolute
                     right-4
                     md:right-8
@@ -3123,15 +3119,15 @@ const handleCategoryNavigation =
                     hover:text-black
                     transition
                   "
-                >
-                  <ChevronRight
-                    size={
-                      26
-                    }
-                  />
-                </button>
-              </>
-            )}
+                  >
+                    <ChevronRight
+                      size={
+                        26
+                      }
+                    />
+                  </button>
+                </>
+              )}
 
             <div
               onClick={(
@@ -3142,19 +3138,19 @@ const handleCategoryNavigation =
               className="w-full h-full flex items-center justify-center"
             >
               {activeMedia.media_type ===
-              "FEATURED_VIDEO" ? (
+                "FEATURED_VIDEO" ? (
                 <video
-  key={activeMedia.media_url}
-  src={activeMedia.media_url}
-  autoPlay
-  muted
-  loop
-  playsInline
-  controls={false}
-  disablePictureInPicture
-  disableRemotePlayback
-  className="max-w-full max-h-[92vh] object-contain"
-/>
+                  key={activeMedia.media_url}
+                  src={activeMedia.media_url}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  controls={false}
+                  disablePictureInPicture
+                  disableRemotePlayback
+                  className="max-w-full max-h-[92vh] object-contain"
+                />
               ) : (
                 <img
                   src={getOptimizedImageUrl(
@@ -3180,14 +3176,14 @@ const handleCategoryNavigation =
           document.body,
         )}
 
-        {/* =====================================================
+      {/* =====================================================
     ORDER SAMPLE DIALOG
 ===================================================== */}
 
-{openSampleDialog &&
-  createPortal(
-    <div
-      className="
+      {openSampleDialog &&
+        createPortal(
+          <div
+            className="
         fixed
         inset-0
         z-[99999]
@@ -3199,17 +3195,17 @@ const handleCategoryNavigation =
         px-4
         py-6
       "
-      onClick={() =>
-        setOpenSampleDialog(
-          false,
-        )
-      }
-    >
-      <div
-        onClick={(event) =>
-          event.stopPropagation()
-        }
-        className="
+            onClick={() =>
+              setOpenSampleDialog(
+                false,
+              )
+            }
+          >
+            <div
+              onClick={(event) =>
+                event.stopPropagation()
+              }
+              className="
           relative
           bg-white
           w-full
@@ -3218,13 +3214,13 @@ const handleCategoryNavigation =
           overflow-y-auto
           shadow-2xl
         "
-      >
-        {/* =========================
+            >
+              {/* =========================
             HEADER
         ========================= */}
 
-        <div
-          className="
+              <div
+                className="
             flex
             items-start
             justify-between
@@ -3236,10 +3232,10 @@ const handleCategoryNavigation =
             border-b
             border-black/10
           "
-        >
-          <div>
-            <p
-              className="
+              >
+                <div>
+                  <p
+                    className="
                 text-[10px]
                 sm:text-[11px]
                 uppercase
@@ -3247,54 +3243,54 @@ const handleCategoryNavigation =
                 text-[#888]
                 mb-2
               "
-              style={{
-                fontFamily:
-                  "Montserrat, sans-serif",
-              }}
-            >
-              Ultra Stones
-            </p>
+                    style={{
+                      fontFamily:
+                        "Montserrat, sans-serif",
+                    }}
+                  >
+                    Ultra Stones
+                  </p>
 
-            <h2
-              className="
+                  <h2
+                    className="
                 text-[24px]
                 sm:text-[30px]
                 font-semibold
                 text-[#161412]
                 leading-tight
               "
-              style={{
-                fontFamily:
-                  "Montserrat, sans-serif",
-              }}
-            >
-              Order a Sample
-            </h2>
+                    style={{
+                      fontFamily:
+                        "Montserrat, sans-serif",
+                    }}
+                  >
+                    Order a Sample
+                  </h2>
 
-            <p
-              className="
+                  <p
+                    className="
                 text-[13px]
                 text-[#666]
                 mt-2
               "
-              style={{
-                fontFamily:
-                  "Montserrat, sans-serif",
-              }}
-            >
-              {product.name}
-            </p>
-          </div>
+                    style={{
+                      fontFamily:
+                        "Montserrat, sans-serif",
+                    }}
+                  >
+                    {product.name}
+                  </p>
+                </div>
 
-          <button
-            type="button"
-            aria-label="Close sample dialog"
-            onClick={() =>
-              setOpenSampleDialog(
-                false,
-              )
-            }
-            className="
+                <button
+                  type="button"
+                  aria-label="Close sample dialog"
+                  onClick={() =>
+                    setOpenSampleDialog(
+                      false,
+                    )
+                  }
+                  className="
               w-10
               h-10
               shrink-0
@@ -3308,338 +3304,338 @@ const handleCategoryNavigation =
               transition-all
               duration-300
             "
-          >
-            <X size={19} />
-          </button>
-        </div>
+                >
+                  <X size={19} />
+                </button>
+              </div>
 
-        {/* =========================
+              {/* =========================
             FORM
         ========================= */}
 
-        <form
-          onSubmit={
-            handleSampleSubmit
-          }
-          className="
+              <form
+                onSubmit={
+                  handleSampleSubmit
+                }
+                className="
             px-6
             sm:px-8
             py-7
           "
-        >
+              >
 
-          {/* ==========================================
+                {/* ==========================================
     SPAM PROTECTION - HONEYPOT
 ========================================== */}
 
-<div
-  aria-hidden="true"
-  style={{
-    position: "absolute",
-    left: "-10000px",
-    top: "auto",
-    width: "1px",
-    height: "1px",
-    overflow: "hidden",
-  }}
->
-  <label htmlFor="sample-website-url">
-    Website URL
-  </label>
+                <div
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    left: "-10000px",
+                    top: "auto",
+                    width: "1px",
+                    height: "1px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <label htmlFor="sample-website-url">
+                    Website URL
+                  </label>
 
-  <input
-    id="sample-website-url"
-    type="text"
-    name="website_url"
-    value={sampleForm.website_url}
-    onChange={handleSampleChange}
-    tabIndex={-1}
-    autoComplete="off"
-  />
-</div>
-          <div
-            className="
+                  <input
+                    id="sample-website-url"
+                    type="text"
+                    name="website_url"
+                    value={sampleForm.website_url}
+                    onChange={handleSampleChange}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+                <div
+                  className="
               grid
               grid-cols-1
               sm:grid-cols-2
               gap-x-5
               gap-y-5
             "
-          >
-            {/* FIRST NAME */}
+                >
+                  {/* FIRST NAME */}
 
-            <SampleField
-              label="First Name"
-              required
-            >
-              <input
-                type="text"
-                name="firstName"
-                value={
-                  sampleForm.firstName
-                }
-                onChange={
-                  handleSampleChange
-                }
-                placeholder="First name"
-                autoComplete="given-name"
-                required
-                className={
-                  sampleInputClass
-                }
-              />
-            </SampleField>
+                  <SampleField
+                    label="First Name"
+                    required
+                  >
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={
+                        sampleForm.firstName
+                      }
+                      onChange={
+                        handleSampleChange
+                      }
+                      placeholder="First name"
+                      autoComplete="given-name"
+                      required
+                      className={
+                        sampleInputClass
+                      }
+                    />
+                  </SampleField>
 
-            {/* LAST NAME */}
+                  {/* LAST NAME */}
 
-            <SampleField
-              label="Last Name"
-              required
-            >
-              <input
-                type="text"
-                name="lastName"
-                value={
-                  sampleForm.lastName
-                }
-                onChange={
-                  handleSampleChange
-                }
-                placeholder="Last name"
-                autoComplete="family-name"
-                required
-                className={
-                  sampleInputClass
-                }
-              />
-            </SampleField>
+                  <SampleField
+                    label="Last Name"
+                    required
+                  >
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={
+                        sampleForm.lastName
+                      }
+                      onChange={
+                        handleSampleChange
+                      }
+                      placeholder="Last name"
+                      autoComplete="family-name"
+                      required
+                      className={
+                        sampleInputClass
+                      }
+                    />
+                  </SampleField>
 
-            {/* COMPANY NAME */}
+                  {/* COMPANY NAME */}
 
-            <div className="sm:col-span-2">
-              <SampleField
-                label="Company Name"
-              >
-                <input
-                  type="text"
-                  name="companyName"
-                  value={
-                    sampleForm.companyName
-                  }
-                  onChange={
-                    handleSampleChange
-                  }
-                  placeholder="Company name"
-                  autoComplete="organization"
-                  className={
-                    sampleInputClass
-                  }
-                />
-              </SampleField>
-            </div>
+                  <div className="sm:col-span-2">
+                    <SampleField
+                      label="Company Name"
+                    >
+                      <input
+                        type="text"
+                        name="companyName"
+                        value={
+                          sampleForm.companyName
+                        }
+                        onChange={
+                          handleSampleChange
+                        }
+                        placeholder="Company name"
+                        autoComplete="organization"
+                        className={
+                          sampleInputClass
+                        }
+                      />
+                    </SampleField>
+                  </div>
 
-            {/* STREET ADDRESS */}
+                  {/* STREET ADDRESS */}
 
-{/* STREET ADDRESS */}
+                  {/* STREET ADDRESS */}
 
-<div className="sm:col-span-1">
-  <SampleField
-    label="Street Address"
-    required
-  >
-    <input
-      type="text"
-      name="streetAddress"
-      value={
-        sampleForm.streetAddress
-      }
-      onChange={
-        handleSampleChange
-      }
-      placeholder="Street address"
-      autoComplete="address-line1"
-      required
-      className={
-        sampleInputClass
-      }
-    />
-  </SampleField>
-</div>
+                  <div className="sm:col-span-1">
+                    <SampleField
+                      label="Street Address"
+                      required
+                    >
+                      <input
+                        type="text"
+                        name="streetAddress"
+                        value={
+                          sampleForm.streetAddress
+                        }
+                        onChange={
+                          handleSampleChange
+                        }
+                        placeholder="Street address"
+                        autoComplete="address-line1"
+                        required
+                        className={
+                          sampleInputClass
+                        }
+                      />
+                    </SampleField>
+                  </div>
 
-{/* SUITE NUMBER */}
+                  {/* SUITE NUMBER */}
 
-<div className="sm:col-span-1">
-  <SampleField
-    label="Suite Number (Optional)"
-  >
-    <input
-      type="text"
-      name="suiteNumber"
-      value={
-        sampleForm.suiteNumber
-      }
-      onChange={
-        handleSampleChange
-      }
-      placeholder="Suite, unit, apt, etc."
-      autoComplete="address-line2"
-      className={
-        sampleInputClass
-      }
-    />
-  </SampleField>
-</div>
+                  <div className="sm:col-span-1">
+                    <SampleField
+                      label="Suite Number (Optional)"
+                    >
+                      <input
+                        type="text"
+                        name="suiteNumber"
+                        value={
+                          sampleForm.suiteNumber
+                        }
+                        onChange={
+                          handleSampleChange
+                        }
+                        placeholder="Suite, unit, apt, etc."
+                        autoComplete="address-line2"
+                        className={
+                          sampleInputClass
+                        }
+                      />
+                    </SampleField>
+                  </div>
 
-            {/* CITY */}
+                  {/* CITY */}
 
-            <SampleField
-              label="City"
-              required
-            >
-              <input
-                type="text"
-                name="city"
-                value={
-                  sampleForm.city
-                }
-                onChange={
-                  handleSampleChange
-                }
-                placeholder="City"
-                autoComplete="address-level2"
-                required
-                className={
-                  sampleInputClass
-                }
-              />
-            </SampleField>
+                  <SampleField
+                    label="City"
+                    required
+                  >
+                    <input
+                      type="text"
+                      name="city"
+                      value={
+                        sampleForm.city
+                      }
+                      onChange={
+                        handleSampleChange
+                      }
+                      placeholder="City"
+                      autoComplete="address-level2"
+                      required
+                      className={
+                        sampleInputClass
+                      }
+                    />
+                  </SampleField>
 
-            {/* COUNTY */}
+                  {/* COUNTY */}
 
-            <SampleField
-              label="County (Optional)"
-            >
-              <input
-                type="text"
-                name="county"
-                value={
-                  sampleForm.county
-                }
-                onChange={
-                  handleSampleChange
-                }
-                placeholder="County"
-                className={
-                  sampleInputClass
-                }
-              />
-            </SampleField>
+                  <SampleField
+                    label="County (Optional)"
+                  >
+                    <input
+                      type="text"
+                      name="county"
+                      value={
+                        sampleForm.county
+                      }
+                      onChange={
+                        handleSampleChange
+                      }
+                      placeholder="County"
+                      className={
+                        sampleInputClass
+                      }
+                    />
+                  </SampleField>
 
-            {/* STATE */}
+                  {/* STATE */}
 
-            <SampleField
-              label="State"
-              required
-            >
-              <input
-                type="text"
-                name="state"
-                value={
-                  sampleForm.state
-                }
-                onChange={
-                  handleSampleChange
-                }
-                placeholder="State"
-                autoComplete="address-level1"
-                required
-                className={
-                  sampleInputClass
-                }
-              />
-            </SampleField>
+                  <SampleField
+                    label="State"
+                    required
+                  >
+                    <input
+                      type="text"
+                      name="state"
+                      value={
+                        sampleForm.state
+                      }
+                      onChange={
+                        handleSampleChange
+                      }
+                      placeholder="State"
+                      autoComplete="address-level1"
+                      required
+                      className={
+                        sampleInputClass
+                      }
+                    />
+                  </SampleField>
 
-            {/* ZIP CODE */}
+                  {/* ZIP CODE */}
 
-            <SampleField
-              label="ZIP Code"
-              required
-            >
-              <input
-                type="text"
-                name="zipCode"
-                value={
-                  sampleForm.zipCode
-                }
-                onChange={
-                  handleSampleChange
-                }
-                placeholder="ZIP code"
-                autoComplete="postal-code"
-                inputMode="numeric"
-                required
-                className={
-                  sampleInputClass
-                }
-              />
-            </SampleField>
+                  <SampleField
+                    label="ZIP Code"
+                    required
+                  >
+                    <input
+                      type="text"
+                      name="zipCode"
+                      value={
+                        sampleForm.zipCode
+                      }
+                      onChange={
+                        handleSampleChange
+                      }
+                      placeholder="ZIP code"
+                      autoComplete="postal-code"
+                      inputMode="numeric"
+                      required
+                      className={
+                        sampleInputClass
+                      }
+                    />
+                  </SampleField>
 
-            {/* EMAIL */}
+                  {/* EMAIL */}
 
-            <SampleField
-              label="Email"
-              required
-            >
-              <input
-                type="email"
-                name="email"
-                value={
-                  sampleForm.email
-                }
-                onChange={
-                  handleSampleChange
-                }
-                placeholder="Email address"
-                autoComplete="email"
-                required
-                className={
-                  sampleInputClass
-                }
-              />
-            </SampleField>
+                  <SampleField
+                    label="Email"
+                    required
+                  >
+                    <input
+                      type="email"
+                      name="email"
+                      value={
+                        sampleForm.email
+                      }
+                      onChange={
+                        handleSampleChange
+                      }
+                      placeholder="Email address"
+                      autoComplete="email"
+                      required
+                      className={
+                        sampleInputClass
+                      }
+                    />
+                  </SampleField>
 
-            {/* PHONE */}
+                  {/* PHONE */}
 
-            <SampleField
-              label="Phone Number"
-              required
-            >
-              <input
-                type="tel"
-                name="phone"
-                value={
-                  sampleForm.phone
-                }
-                onChange={
-                  handleSampleChange
-                }
-                placeholder="Phone number"
-                autoComplete="tel"
-                required
-                className={
-                  sampleInputClass
-                }
-              />
-            </SampleField>
+                  <SampleField
+                    label="Phone Number"
+                    required
+                  >
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={
+                        sampleForm.phone
+                      }
+                      onChange={
+                        handleSampleChange
+                      }
+                      placeholder="Phone number"
+                      autoComplete="tel"
+                      required
+                      className={
+                        sampleInputClass
+                      }
+                    />
+                  </SampleField>
 
-            {/* QUANTITY */}
+                  {/* QUANTITY */}
 
-            <SampleField
-              label="Number of Samples"
-              required
-            >
-              <div
-                className="
+                  <SampleField
+                    label="Number of Samples"
+                    required
+                  >
+                    <div
+                      className="
                   flex
                   items-center
                   border
@@ -3648,27 +3644,27 @@ const handleCategoryNavigation =
                   focus-within:border-black
                   transition-colors
                 "
-              >
-                <button
-                  type="button"
-                  aria-label="Decrease sample quantity"
-                  onClick={() =>
-                    setSampleForm(
-                      (
-                        previous,
-                      ) => ({
-                        ...previous,
+                    >
+                      <button
+                        type="button"
+                        aria-label="Decrease sample quantity"
+                        onClick={() =>
+                          setSampleForm(
+                            (
+                              previous,
+                            ) => ({
+                              ...previous,
 
-                        quantity:
-                          Math.max(
-                            1,
-                            previous.quantity -
-                              1,
-                          ),
-                      }),
-                    )
-                  }
-                  className="
+                              quantity:
+                                Math.max(
+                                  1,
+                                  previous.quantity -
+                                  1,
+                                ),
+                            }),
+                          )
+                        }
+                        className="
                     w-12
                     h-full
                     shrink-0
@@ -3676,22 +3672,22 @@ const handleCategoryNavigation =
                     hover:bg-[#f3f3f3]
                     transition-colors
                   "
-                >
-                  −
-                </button>
+                      >
+                        −
+                      </button>
 
-                <input
-                  type="number"
-                  name="quantity"
-                  min="1"
-                  value={
-                    sampleForm.quantity
-                  }
-                  onChange={
-                    handleSampleChange
-                  }
-                  required
-                  className="
+                      <input
+                        type="number"
+                        name="quantity"
+                        min="1"
+                        value={
+                          sampleForm.quantity
+                        }
+                        onChange={
+                          handleSampleChange
+                        }
+                        required
+                        className="
                     flex-1
                     min-w-0
                     h-full
@@ -3700,25 +3696,25 @@ const handleCategoryNavigation =
                     text-[14px]
                     appearance-none
                   "
-                />
+                      />
 
-                <button
-                  type="button"
-                  aria-label="Increase sample quantity"
-                  onClick={() =>
-                    setSampleForm(
-                      (
-                        previous,
-                      ) => ({
-                        ...previous,
+                      <button
+                        type="button"
+                        aria-label="Increase sample quantity"
+                        onClick={() =>
+                          setSampleForm(
+                            (
+                              previous,
+                            ) => ({
+                              ...previous,
 
-                        quantity:
-                          previous.quantity +
-                          1,
-                      }),
-                    )
-                  }
-                  className="
+                              quantity:
+                                previous.quantity +
+                                1,
+                            }),
+                          )
+                        }
+                        className="
                     w-12
                     h-full
                     shrink-0
@@ -3726,34 +3722,34 @@ const handleCategoryNavigation =
                     hover:bg-[#f3f3f3]
                     transition-colors
                   "
-                >
-                  +
-                </button>
-              </div>
-            </SampleField>
+                      >
+                        +
+                      </button>
+                    </div>
+                  </SampleField>
 
-            {/* FINISH */}
+                  {/* FINISH */}
 
-<SampleField
-  label="Finish"
-  required={
-    availableFinishes.length >
-    0
-  }
->
-  {availableFinishes.length >
-  0 ? (
-    <div className="relative">
-      <select
-        name="finish"
-        value={
-          sampleForm.finish
-        }
-        onChange={
-          handleSampleChange
-        }
-        required
-        className="
+                  <SampleField
+                    label="Finish"
+                    required={
+                      availableFinishes.length >
+                      0
+                    }
+                  >
+                    {availableFinishes.length >
+                      0 ? (
+                      <div className="relative">
+                        <select
+                          name="finish"
+                          value={
+                            sampleForm.finish
+                          }
+                          onChange={
+                            handleSampleChange
+                          }
+                          required
+                          className="
           w-full
           h-[48px]
           border
@@ -3769,31 +3765,31 @@ const handleCategoryNavigation =
           focus:border-black
           transition-colors
         "
-      >
-        <option value="">
-          Select finish
-        </option>
+                        >
+                          <option value="">
+                            Select finish
+                          </option>
 
-        {availableFinishes.map(
-          (finish) => (
-            <option
-              key={
-                finish
-              }
-              value={
-                finish
-              }
-            >
-              {finish}
-            </option>
-          ),
-        )}
-      </select>
+                          {availableFinishes.map(
+                            (finish) => (
+                              <option
+                                key={
+                                  finish
+                                }
+                                value={
+                                  finish
+                                }
+                              >
+                                {finish}
+                              </option>
+                            ),
+                          )}
+                        </select>
 
-      <ChevronDown
-        size={17}
-        strokeWidth={1.8}
-        className="
+                        <ChevronDown
+                          size={17}
+                          strokeWidth={1.8}
+                          className="
           absolute
           right-4
           top-1/2
@@ -3801,11 +3797,11 @@ const handleCategoryNavigation =
           pointer-events-none
           text-[#161412]
         "
-      />
-    </div>
-  ) : (
-    <div
-      className="
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="
         min-h-[48px]
         px-4
         py-3
@@ -3817,20 +3813,20 @@ const handleCategoryNavigation =
         flex
         items-center
       "
-    >
-      No finish specified
-    </div>
-  )}
-</SampleField>
+                      >
+                        No finish specified
+                      </div>
+                    )}
+                  </SampleField>
 
 
-            {/* MATERIAL */}
+                  {/* MATERIAL */}
 
-            <SampleField
-              label="Material"
-            >
-              <div
-                className="
+                  <SampleField
+                    label="Material"
+                  >
+                    <div
+                      className="
                   min-h-[48px]
                   px-4
                   py-3
@@ -3842,28 +3838,28 @@ const handleCategoryNavigation =
                   flex
                   items-center
                 "
-              >
-                {product.name}
-              </div>
-            </SampleField>
+                    >
+                      {product.name}
+                    </div>
+                  </SampleField>
 
-            {/* REMARKS */}
+                  {/* REMARKS */}
 
-            <div className="sm:col-span-2">
-              <SampleField
-                label="Remarks (Optional)"
-              >
-                <textarea
-                  name="remarks"
-                  value={
-                    sampleForm.remarks
-                  }
-                  onChange={
-                    handleSampleChange
-                  }
-                  placeholder="Add any special instructions or additional details..."
-                  rows={3}
-                  className="
+                  <div className="sm:col-span-2">
+                    <SampleField
+                      label="Remarks (Optional)"
+                    >
+                      <textarea
+                        name="remarks"
+                        value={
+                          sampleForm.remarks
+                        }
+                        onChange={
+                          handleSampleChange
+                        }
+                        placeholder="Add any special instructions or additional details..."
+                        rows={3}
+                        className="
                     w-full
                     border
                     border-[#d8d8d8]
@@ -3877,40 +3873,40 @@ const handleCategoryNavigation =
                     focus:border-black
                     transition-colors
                   "
-                />
-              </SampleField>
-            </div>
-          </div>
+                      />
+                    </SampleField>
+                  </div>
+                </div>
 
-          {/* =========================
+                {/* =========================
               NOTE
           ========================= */}
 
-          <p
-            className="
+                <p
+                  className="
               text-[11px]
               sm:text-[12px]
               leading-[1.6]
               text-[#888]
               mt-5
             "
-            style={{
-              fontFamily:
-                "Montserrat, sans-serif",
-            }}
-          >
-            Our team will review
-            your request and contact
-            you regarding sample
-            availability and shipping.
-          </p>
+                  style={{
+                    fontFamily:
+                      "Montserrat, sans-serif",
+                  }}
+                >
+                  Our team will review
+                  your request and contact
+                  you regarding sample
+                  availability and shipping.
+                </p>
 
-          {/* =========================
+                {/* =========================
               ACTIONS
           ========================= */}
 
-          <div
-            className="
+                <div
+                  className="
               flex
               flex-col-reverse
               sm:flex-row
@@ -3922,15 +3918,15 @@ const handleCategoryNavigation =
               border-t
               border-black/10
             "
-          >
-            <button
-              type="button"
-              onClick={() =>
-                setOpenSampleDialog(
-                  false,
-                )
-              }
-              className="
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenSampleDialog(
+                        false,
+                      )
+                    }
+                    className="
                 w-full
                 sm:w-auto
                 px-6
@@ -3945,16 +3941,16 @@ const handleCategoryNavigation =
                 hover:bg-[#f5f5f5]
                 transition-all
               "
-            >
-              Cancel
-            </button>
+                  >
+                    Cancel
+                  </button>
 
-            <button
-              type="submit"
-              disabled={
-                isSubmittingSample
-              }
-              className={`
+                  <button
+                    type="submit"
+                    disabled={
+                      isSubmittingSample
+                    }
+                    className={`
                 w-full
                 sm:w-auto
                 px-7
@@ -3966,24 +3962,23 @@ const handleCategoryNavigation =
                 tracking-[1px]
                 transition-all
 
-                ${
-                  isSubmittingSample
-                    ? "opacity-60 cursor-wait"
-                    : "hover:bg-[#c91f26] cursor-pointer"
-                }
+                ${isSubmittingSample
+                        ? "opacity-60 cursor-wait"
+                        : "hover:bg-[#c91f26] cursor-pointer"
+                      }
               `}
-            >
-              {isSubmittingSample
-                ? "Submitting..."
-                : "Submit Sample Request"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>,
+                  >
+                    {isSubmittingSample
+                      ? "Submitting..."
+                      : "Submit Sample Request"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
 
-    document.body,
-  )}
+          document.body,
+        )}
     </>
   );
 };
@@ -4002,13 +3997,13 @@ const SpecificationItem = ({
     Array.isArray(value)
       ? value
       : typeof value ===
-          "string"
+        "string"
         ? value
-            .split(",")
-            .map(
-              (item) =>
-                item.trim(),
-            )
+          .split(",")
+          .map(
+            (item) =>
+              item.trim(),
+          )
         : [value];
 
   return (
@@ -4027,7 +4022,7 @@ const SpecificationItem = ({
         }}
       >
         {formattedValue?.length >
-        0 ? (
+          0 ? (
           formattedValue.map(
             (
               item,
@@ -4231,10 +4226,9 @@ const VariationCard = ({
           inline-block
           p-[2px]
 
-          ${
-            active
-              ? "border border-[#6e6e6e]"
-              : ""
+          ${active
+            ? "border border-[#6e6e6e]"
+            : ""
           }
         `}
       >
@@ -4255,8 +4249,8 @@ const VariationCard = ({
                   w-full
                   aspect-square
                   ${getOpacity(
-                    index,
-                  )}
+                  index,
+                )}
                 `}
               />
             ),
@@ -4339,32 +4333,32 @@ const RelatedProductCard = ({
           src={
             imageUrl
               ? getOptimizedImageUrl(
-                  imageUrl,
-                  480,
-                  78,
-                )
+                imageUrl,
+                480,
+                78,
+              )
               : "https://placehold.co/600x600"
           }
           srcSet={
             imageUrl
               ? `
                 ${getOptimizedImageUrl(
-                  imageUrl,
-                  320,
-                  72,
-                )} 320w,
+                imageUrl,
+                320,
+                72,
+              )} 320w,
 
                 ${getOptimizedImageUrl(
-                  imageUrl,
-                  480,
-                  78,
-                )} 480w,
+                imageUrl,
+                480,
+                78,
+              )} 480w,
 
                 ${getOptimizedImageUrl(
-                  imageUrl,
-                  640,
-                  80,
-                )} 640w
+                imageUrl,
+                640,
+                80,
+              )} 640w
               `
               : undefined
           }
@@ -4420,104 +4414,104 @@ const RelatedProductCard = ({
 ========================================================= */
 
 const ProductDetailsSkeleton = () => {
-    return (
-      <main
-        className="bg-white min-h-screen"
-        aria-busy="true"
-        aria-label="Loading product details"
-      >
+  return (
+    <main
+      className="bg-white min-h-screen"
+      aria-busy="true"
+      aria-label="Loading product details"
+    >
 
-        <section>
-          <div className="max-w-[2000px] mx-auto px-6 xl:px-10 pt-[120px]">
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 pt-[120px]">
 
-            <div className="h-[38px] w-[240px] bg-[#ededed] animate-pulse" />
+          <div className="h-[38px] w-[240px] bg-[#ededed] animate-pulse" />
 
-            <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
+          <div className="w-[70px] h-[4px] bg-[#c91f26] mt-4 mb-4" />
 
-            <div className="h-[14px] w-[420px] max-w-full bg-[#ededed] animate-pulse" />
-          </div>
-        </section>
+          <div className="h-[14px] w-[420px] max-w-full bg-[#ededed] animate-pulse" />
+        </div>
+      </section>
 
-        <section>
-          <div className="max-w-[2000px] mx-auto px-6 xl:px-10 pt-[30px] pb-20">
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 pt-[30px] pb-20">
 
-            <div className="grid grid-cols-1 xl:grid-cols-[1fr_0.95fr] gap-8 items-start">
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_0.95fr] gap-8 items-start">
 
-              <div className="h-[520px] xl:h-[640px] bg-[#ededed] animate-pulse" />
+            <div className="h-[520px] xl:h-[640px] bg-[#ededed] animate-pulse" />
 
-              <div className="pt-2">
+            <div className="pt-2">
 
-                <div className="h-[42px] w-[70%] bg-[#ededed] animate-pulse mb-8" />
+              <div className="h-[42px] w-[70%] bg-[#ededed] animate-pulse mb-8" />
 
-                <div className="space-y-3 mb-10">
+              <div className="space-y-3 mb-10">
 
-                  <div className="h-[18px] w-full bg-[#ededed] animate-pulse" />
+                <div className="h-[18px] w-full bg-[#ededed] animate-pulse" />
 
-                  <div className="h-[18px] w-full bg-[#ededed] animate-pulse" />
+                <div className="h-[18px] w-full bg-[#ededed] animate-pulse" />
 
-                  <div className="h-[18px] w-[75%] bg-[#ededed] animate-pulse" />
-                </div>
+                <div className="h-[18px] w-[75%] bg-[#ededed] animate-pulse" />
+              </div>
 
-                <div className="h-[42px] w-[160px] bg-[#ededed] animate-pulse mb-5" />
+              <div className="h-[42px] w-[160px] bg-[#ededed] animate-pulse mb-5" />
 
-                <div className="h-[300px] bg-[#ededed] animate-pulse mb-8" />
+              <div className="h-[300px] bg-[#ededed] animate-pulse mb-8" />
 
-                <div className="flex gap-3">
+              <div className="flex gap-3">
 
-                  <div className="h-[34px] w-[120px] bg-[#ededed] animate-pulse" />
+                <div className="h-[34px] w-[120px] bg-[#ededed] animate-pulse" />
 
-                  <div className="h-[34px] w-[180px] bg-[#ededed] animate-pulse" />
-                </div>
+                <div className="h-[34px] w-[180px] bg-[#ededed] animate-pulse" />
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section>
-          <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-5">
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-5">
 
-            <div className="h-[46px] w-[330px] max-w-full bg-[#ededed] animate-pulse mb-12" />
+          <div className="h-[46px] w-[330px] max-w-full bg-[#ededed] animate-pulse mb-12" />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-10 gap-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-10 gap-y-10">
 
-              {Array.from({
-                length:
-                  8,
-              }).map(
-                (
-                  _,
-                  index,
-                ) => (
-                  <div
-                    key={
-                      index
-                    }
-                  >
-                    <div className="h-[12px] w-[120px] bg-[#ededed] animate-pulse mb-3" />
+            {Array.from({
+              length:
+                8,
+            }).map(
+              (
+                _,
+                index,
+              ) => (
+                <div
+                  key={
+                    index
+                  }
+                >
+                  <div className="h-[12px] w-[120px] bg-[#ededed] animate-pulse mb-3" />
 
-                    <div className="w-full h-px bg-black/10 mb-4" />
+                  <div className="w-full h-px bg-black/10 mb-4" />
 
-                    <div className="h-[18px] w-[80%] bg-[#ededed] animate-pulse" />
-                  </div>
-                ),
-              )}
-            </div>
+                  <div className="h-[18px] w-[80%] bg-[#ededed] animate-pulse" />
+                </div>
+              ),
+            )}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section>
-          <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
+      <section>
+        <div className="max-w-[2000px] mx-auto px-6 xl:px-10 py-10">
 
-            <div className="h-[270px] bg-[#ededed] animate-pulse" />
-          </div>
-        </section>
-      </main>
-    );
-  };
+          <div className="h-[270px] bg-[#ededed] animate-pulse" />
+        </div>
+      </section>
+    </main>
+  );
+};
 
 
-  /* =========================================================
-   SAMPLE FORM FIELD
+/* =========================================================
+ SAMPLE FORM FIELD
 ========================================================= */
 
 const sampleInputClass = `
