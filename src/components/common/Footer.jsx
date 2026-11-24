@@ -31,11 +31,11 @@ const EXPLORE_LINKS = [
 const COMPANY_LINKS = [
   {
     label: "About Us",
-    path: "/aboutus",
+    path: "/about-us",
   },
   {
     label: "Our Process",
-    path: "/ourprocess",
+    path: "/our-process",
   },
   {
     label: "Blog",

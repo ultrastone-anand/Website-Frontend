@@ -53,8 +53,8 @@ const MATERIALS_API_URL =
 ========================================================= */
 
 const EXPERIENCE = [
-  { label: "About Us", path: "/aboutus" },
-  { label: "Our Process", path: "/ourprocess" },
+  { label: "About Us", path: "/about-us" },
+  { label: "Our Process", path: "/our-process" },
 ];
 
 const RESOURCES = [

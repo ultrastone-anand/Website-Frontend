@@ -28,7 +28,7 @@ const WEBSITE_PAGES = [
   {
     id: "about-us",
     label: "About Us",
-    path: "/aboutus",
+    path: "/abou-tus",
     type: "Page",
     keywords: [
       "about",
@@ -42,7 +42,7 @@ const WEBSITE_PAGES = [
   {
     id: "our-process",
     label: "Our Process",
-    path: "/ourprocess",
+    path: "/our-process",
     type: "Page",
     keywords: [
       "process",

@@ -153,12 +153,12 @@ function AppRoutes() {
           />
 
           <Route
-            path="/aboutus"
+            path="/about-us"
             element={<Aboutus />}
           />
 
           <Route
-            path="/ourprocess"
+            path="/our-process"
             element={<OurProcess />}
           />
 
