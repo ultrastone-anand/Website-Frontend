@@ -709,10 +709,10 @@ export default function Contact() {
                 LEFT
             ================================================= */}
             <div>
-              <h2 className="mb-8 text-[28px] font-light text-[#161412]">
+              <h2 className="mb-4 text-[28px] font-light text-[#161412]">
                 Get in touch
               </h2>
-              <p className="mb-10 text-[13px] leading-[24px] text-[#666]">
+              <p className="mb-5 text-[13px] leading-[24px] text-[#666]">
                 Thank you for your interest in our
                 services. If you have any questions or
                 would like to discuss a project, please
@@ -720,117 +720,61 @@ export default function Contact() {
                 is dedicated to providing you with the
                 highest level of service and support.
               </p>
-              <div className="grid gap-10 sm:grid-cols-2 sm:gap-12">
-                {/* =================================================
-                    VISIT US
-                ================================================= */}
-                <div>
-                  <h3 className="mb-4 text-[13px] font-semibold text-[#c91f26]">
-                    Visit Us
-                  </h3>
-                  <div className="space-y-8">
-                    {showroomsLoading ? (
-                      <p className="text-[12px] text-[#666]">
-                        Loading showrooms...
-                      </p>
-                    ) : showrooms.length ===
-                      0 ? (
-                      <p className="text-[12px] text-[#666]">
-                        No showrooms available.
-                      </p>
-                    ) : (
-                      showrooms.map(
-                        (
-                          showroom,
-                        ) => (
-                          <div
-                            key={
-                              showroom.id
-                            }
-                          >
-                            <Link
-                              to={`/locations/${showroom.slug}`}
-                              className="text-[13px] font-medium text-[#222] transition-colors hover:text-[#c91f26]"
-                            >
-                              {
-                                showroom.name
-                              }
-                            </Link>
-                            <p className="mt-1 text-[12px] leading-5 text-[#666]">
-                              {showroom.address ||
-                                "-"}
-                              <br />
-                              {[
-                                showroom.city,
-                                showroom.state,
-                              ]
-                                .filter(
-                                  Boolean,
-                                )
-                                .join(
-                                  ", ",
-                                )}
-                              {showroom.zip_code
-                                ? ` ${showroom.zip_code}`
-                                : ""}
-                            </p>
-                          </div>
-                        ),
-                      )
+              <h3 className="mb-4 text-[13px] font-semibold text-[#c91f26]">Our Locations</h3>
+            {showroomsLoading && <p className="text-[12px] text-[#666]">Loading showrooms...</p>}
+            {!showroomsLoading && !showrooms.length && <p className="text-[12px] text-[#666]">No showrooms available.</p>}
+            <div className="grid gap-5 sm:grid-cols-2">
+              {showrooms.map((showroom) => (
+                <div key={showroom.id} className="min-w-0 border-t border-[#e5e1dc] pt-3">
+                  <Link to={`/locations/${showroom.slug}`} className="text-[13px] font-semibold text-[#222] hover:text-[#c91f26]">{showroom.name}</Link>
+                  <div className="mt-2 flex items-start gap-2 text-[12px] leading-5 text-[#666]">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 h-4 w-4 shrink-0 text-[#c91f26]"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                    <div className="min-w-0">{showroom.address || "-"}<br />
+                    {[showroom.city, showroom.state].filter(Boolean).join(", ")}{showroom.zip_code ? ` ${showroom.zip_code}` : ""}
+                  </div>
+                  </div>
+                  <div className="mt-2 space-y-2 text-[12px] leading-5 text-[#555]">
+                    {(showroom.primary_phone || showroom.secondary_phone || showroom.company_phone) && (
+                      <div className="flex items-start gap-2">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 h-4 w-4 shrink-0 text-[#c91f26]"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.6 3a2 2 0 0 1-.6 2.1L7.8 10a16 16 0 0 0 6 6l1.2-1.3a2 2 0 0 1 2.1-.6l3 .6a2 2 0 0 1 1.9 2.2Z"/></svg>
+                        <div className="min-w-0 space-y-0.5">
+                    {[["Primary", showroom.primary_phone], ["Secondary", showroom.secondary_phone], ["Company", showroom.company_phone]].map(([label, phone]) => phone && (
+                      <p key={label}><a aria-label={`${label} phone: ${phone}`} href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="hover:text-[#c91f26]">{phone}</a></p>
+                    ))}
+                        </div>
+                      </div>
+                    )}
+                    {showroom.email && (
+                      <div className="flex items-start gap-2">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 h-4 w-4 shrink-0 text-[#c91f26]"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                        <a href={`mailto:${showroom.email}`} className="min-w-0 break-words hover:text-[#c91f26]">{showroom.email}</a>
+                      </div>
                     )}
                   </div>
                 </div>
-                {/* =================================================
-                    OFFICE HOURS
-                ================================================= */}
-                <div>
-                  <h3 className="mb-4 text-[13px] font-semibold text-[#c91f26]">
-                    Office Hours
-                  </h3>
-                  {showroomsLoading ? (
-                    <p className="text-[12px] text-[#666]">
-                      Loading office hours...
-                    </p>
-                  ) : showrooms.length >
-                    0 ? (
-                    <div className="text-[12px] leading-5 text-[#666]">
-                      <p>
-                        Monday -
-                        Friday
-                      </p>
-                      <p className="mb-3">
-                        {showrooms[0]
-                          .business_hours_mon_fri ||
-                          "-"}
-                      </p>
-                      <p>
-                        Saturday
-                      </p>
-                      <p className="mb-3">
-                        {showrooms[0]
-                          .business_hours_saturday ||
-                          "-"}
-                      </p>
-                      <p>
-                        Sunday
-                      </p>
-                      <p>
-                        {showrooms[0]
-                          .business_hours_sunday ||
-                          "-"}
-                      </p>
+              ))}
+            </div>
+            <div className="mt-5 border-t border-[#e5e1dc] pt-4">
+              <h3 className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-[#c91f26]"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 h-4 w-4 shrink-0 text-[#c91f26]"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Office Hours</h3>
+              {showroomsLoading && <p className="text-[12px] text-[#666]">Loading office hours...</p>}
+              {!showroomsLoading && !showrooms.length && <p className="text-[12px] text-[#666]">Office hours unavailable.</p>}
+              {showrooms.length > 0 && (() => {
+                const fields = [["Monday – Friday", "business_hours_mon_fri"], ["Saturday", "business_hours_saturday"], ["Sunday", "business_hours_sunday"]];
+                const shared = showrooms.every((item) => fields.every(([, key]) => (item[key] || "") === (showrooms[0][key] || "")));
+                return (shared ? showrooms.slice(0, 1) : showrooms).map((showroom) => (
+                  <div key={showroom.id} className="mb-3">
+                    {!shared && <p className="mb-2 text-[12px] font-medium">{showroom.name}</p>}
+                    <div className="grid grid-cols-3 gap-2 text-[12px] leading-5 text-[#666]">
+                      {fields.map(([label, key]) => <div key={key}><p className="font-medium text-[#222]">{label}</p><p>{showroom[key] || "-"}</p></div>)}
                     </div>
-                  ) : (
-                    <p className="text-[12px] text-[#666]">
-                      Office hours unavailable.
-                    </p>
-                  )}
-                </div>
-              </div>
-              {/* =================================================
+                  </div>
+                ));
+              })()}
+            </div>
+            {/* =================================================
                   CONTACT CTA
               ================================================= */}
-              <div className="mt-12 border border-[#e5e1dc] bg-[#f8f6f3] p-6 md:p-7">
+              <div className="mt-5 border border-[#e5e1dc] bg-[#f8f6f3] p-4 md:p-5">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#c91f26]">
                   Need Assistance?
                 </p>
@@ -1191,7 +1135,7 @@ export default function Contact() {
           {/* =====================================================
               SHOWROOMS
           ===================================================== */}
-          <section className="mt-28">
+          <section className="mt-16">
             <h2 className="mb-10 text-[30px] font-light text-[#161412]">
               Our Showrooms
             </h2>
