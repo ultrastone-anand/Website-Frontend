@@ -82,15 +82,6 @@ if (loading) {
 
               {" / "}
 
-              <Link
-                to="/"
-                className="hover:text-[#161412] duration-300"
-              >
-                Ultra Experience
-              </Link>
-
-              {" / "}
-
               <span className="text-[#161412] font-semibold">
                 {content.pageHeader?.heading || "Our Process"}
               </span>

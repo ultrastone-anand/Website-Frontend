@@ -2023,17 +2023,6 @@ const handleCategoryChange = (
 
                 {" / "}
 
-                
-                <Link
-                  to="/"
-                  className="duration-300 hover:text-[#161412]"
-                >
-                  Resource
-                  Center
-                </Link>
-
-                {" / "}
-
                 <span className="font-semibold text-[#161412]">
                   Portfolio
                 </span>

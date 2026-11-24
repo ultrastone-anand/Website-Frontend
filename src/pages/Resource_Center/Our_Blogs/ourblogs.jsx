@@ -266,15 +266,6 @@ export const Ourblogs = () => {
 
               {" / "}
 
-              <Link
-                to="/"
-                className="hover:text-[#161412] duration-300"
-              >
-                Resource Center
-              </Link>
-
-              {" / "}
-
               <span className="text-[#161412] font-semibold">
                 Our Blogs
               </span>

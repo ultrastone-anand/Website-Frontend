@@ -696,21 +696,6 @@ const safetyDataSheets = useMemo(
 
             {" / "}
 
-            <Link
-              to={
-                content.pageHeader
-                  .parentBreadcrumbLink
-              }
-              className="hover:text-[#161412] duration-300"
-            >
-              {
-                content.pageHeader
-                  .parentBreadcrumbLabel
-              }
-            </Link>
-
-            {" / "}
-
             <span className="text-[#161412] font-semibold">
               {
                 content.pageHeader

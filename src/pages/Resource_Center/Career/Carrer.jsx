@@ -516,15 +516,6 @@ const Career = () => {
 
               {' / '}
 
-              <Link
-                to="/resource-center"
-                className="hover:text-[#161412]"
-              >
-                Resource Center
-              </Link>
-
-              {' / '}
-
               <span className="font-semibold text-[#161412]">
                 Careers
               </span>
