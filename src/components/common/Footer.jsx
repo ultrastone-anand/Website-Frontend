@@ -26,6 +26,9 @@ const EXPLORE_LINKS = [
     label: "Inspiration Gallery",
     path: "/gallery",
   },
+  { label: "CEU", path: "/ceu" },
+  { label: "Silica Safety First", path: "/safety-first" },
+  { label: "Merchandising Displays", path: "/merchandising-displays" },
 ];
 
 const COMPANY_LINKS = [
@@ -45,6 +48,7 @@ const COMPANY_LINKS = [
     label: "Careers",
     path: "/career",
   },
+  { label: "Contact Us", path: "/contact" },
   {
     label: "Privacy Policy",
     path: "/privacy-policy",
@@ -140,10 +144,16 @@ const Footer = () => {
     };
   }, []);
 
-  const office = showrooms?.[0];
+  const office = showrooms.find((item) => item?.slug === "new-york");
+  const pennsylvaniaOffice = showrooms.find(
+    (item) => item?.slug === "philadelphia"
+  );
 
   const phoneNumber =
     office?.primary_phone || "631-873-4747";
+
+  const pennsylvaniaPhone =
+    pennsylvaniaOffice?.primary_phone || "215-647-3972";
 
   const emailAddress = "info@ultrastones.com";  
 
@@ -287,8 +297,14 @@ const Footer = () => {
   <div className="flex flex-col items-center">
     <ContactRow
       icon={<Phone size={11} />}
-      text={phoneNumber}
+      text={`NY: ${phoneNumber}`}
       href={`tel:${phoneNumber.replace(/[^\d+]/g, "")}`}
+    />
+
+    <ContactRow
+      icon={<Phone size={11} />}
+      text={`PA: ${pennsylvaniaPhone}`}
+      href={`tel:${pennsylvaniaPhone.replace(/[^\d+]/g, "")}`}
     />
 
     <ContactRow
